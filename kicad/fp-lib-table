@@ -1,0 +1,7 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "PCM_Espressif")(type "KiCad")(uri "${KIPRJMOD}/footprints/Espressif.pretty")(options "")(descr ""))
+  (lib (name "Display")(type "KiCad")(uri "${KIPRJMOD}/footprints/Display.pretty")(options "")(descr ""))
+  (lib (name "Buttons")(type "KiCad")(uri "${KIPRJMOD}/footprints/Buttons.pretty")(options "")(descr ""))
+  (lib (name "Connectors")(type "KiCad")(uri "${KIPRJMOD}/footprints/Connectors.pretty")(options "")(descr ""))
+)
