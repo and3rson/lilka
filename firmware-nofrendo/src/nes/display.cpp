@@ -83,9 +83,12 @@ extern "C" void display_write_frame(const uint8_t *data[]) {
     // gfx->endWrite();
     gfx->endWrite();
     if (last_frame_duration > 0) {
-        gfx->setCursor(16, 64);
-        gfx->setTextSize(3); // 18x24
-        gfx->setTextColor(gfx->color565(0, 0, 0));
+        gfx->fillRect(80, LILKA_DISPLAY_HEIGHT - 20, 80, 20, gfx->color565(0, 0, 0));
+        // gfx->fillRect(0, 0, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, gfx->color565(255, 0, 0));
+        gfx->setCursor(80, LILKA_DISPLAY_HEIGHT - 4);
+        gfx->setTextSize(1);
+        gfx->setTextColor(gfx->color565(128, 128, 128));
+        gfx->print("FPS: ");
         gfx->print(1000000 / last_frame_duration);
     }
 }

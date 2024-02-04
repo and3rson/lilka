@@ -35,3 +35,28 @@ int lilka_filesystem_readdir(String filenames[]) {
     _root.close();
     return count;
 }
+
+int lilka_filesystem_readdir(String filenames[], String extension) {
+    _root = lilka_filesystem_get()->open("/");
+    int count = 0;
+    File file = _root.openNextFile();
+    while (file) {
+        if (file.isDirectory()) {
+            file.close();
+            file = _root.openNextFile();
+            continue;
+        }
+        String name = file.name();
+        if (name.endsWith(extension)) {
+            filenames[count++] = name;
+        }
+        file.close();
+        file = _root.openNextFile();
+    }
+    _root.close();
+    return count;
+}
+
+String lilka_filesystem_abspath(String filename) {
+    return String(LILKA_FSROOT) + "/" + filename;
+}

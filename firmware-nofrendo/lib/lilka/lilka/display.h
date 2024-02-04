@@ -4,6 +4,7 @@
 #include "config.h"
 
 #include <Arduino_GFX_Library.h>
+#include <U8g2lib.h>
 
 extern Arduino_DataBus* _bus;
 extern Arduino_ST7789* _gfx;

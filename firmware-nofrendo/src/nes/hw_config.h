@@ -1,12 +1,6 @@
 #ifndef _HW_CONFIG_H_
 #define _HW_CONFIG_H_
 
-#define FSROOT "/fs"
-
-#define FILESYSTEM_BEGIN         \
-    SPIFFS.begin(false, FSROOT); \
-    FS filesystem = SPIFFS;
-
 #define HW_CONTROLLER_GPIO_UP 4
 #define HW_CONTROLLER_GPIO_DOWN 7
 #define HW_CONTROLLER_GPIO_LEFT 5
