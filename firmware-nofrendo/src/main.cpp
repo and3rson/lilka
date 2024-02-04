@@ -72,7 +72,17 @@ void demo2() {
     }
 }
 
-void demo3() {}
+void demo3() {
+    Arduino_TFT *gfx = lilka_display_get();
+    while (lilka_input_read().start) {
+    };
+    while (1) {
+        gfx->fillScreen(random(0, 0xFFFF));
+        if (lilka_input_read().start) {
+            return;
+        }
+    }
+}
 
 void list_demos() {
     void (*demo_funcs[])() = {
@@ -84,15 +94,16 @@ void list_demos() {
     String demos[] = {
         "Хаос",
         "М'ячик",
-        "Демо 3",
+        "Епілепсія",
         "<< Назад",
     };
+    int cursor;
     while (1) {
-        int selection = lilka_ui_menu("Оберіть демо:", demos, 4);
-        if (selection == 3) {
+        cursor = lilka_ui_menu("Оберіть демо:", demos, 4, cursor);
+        if (cursor == 3) {
             return;
         }
-        demo_funcs[selection]();
+        demo_funcs[cursor]();
     }
 }
 
@@ -102,7 +113,7 @@ void list_roms() {
     numFiles = lilka_filesystem_readdir(filenames, ".nes");
     filenames[numFiles++] = "<< Назад";
     while (1) {
-        int file = lilka_ui_menu("Оберіть ROM:", filenames, numFiles);
+        int file = lilka_ui_menu("Оберіть ROM:", filenames, numFiles, 0);
         if (file == numFiles - 1) {
             return;
         }
@@ -124,11 +135,12 @@ void loop() {
         "Демо",
         "Емулятор NES",
     };
+    int cursor;
     while (1) {
-        int selection = lilka_ui_menu("Головне меню", menu, 2);
-        if (selection == 0) {
+        cursor = lilka_ui_menu("Головне меню", menu, 2, cursor);
+        if (cursor == 0) {
             list_demos();
-        } else if (selection == 1) {
+        } else if (cursor == 1) {
             list_roms();
         }
     }

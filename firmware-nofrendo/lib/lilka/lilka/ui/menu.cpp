@@ -3,10 +3,9 @@
 #include "lilka/display.h"
 #include "lilka/input.h"
 
-int lilka_ui_menu(String title, String menu[], int menu_size) {
+int lilka_ui_menu(String title, String menu[], int menu_size, int cursor) {
     Arduino_TFT *gfx = lilka_display_get();
     gfx->fillScreen(gfx->color565(0, 0, 0));
-    int cursor = 0;
     while (1) {
         gfx->setCursor(32, 48);
         gfx->setTextColor(gfx->color565(255, 255, 255));
