@@ -96,7 +96,7 @@ void demos_menu() {
     };
     int cursor;
     while (1) {
-        cursor = lilka_ui_menu("Оберіть демо:", demos, 4, cursor);
+        cursor = lilka::ui_menu("Оберіть демо:", demos, 4, cursor);
         if (cursor == 3) {
             return;
         }
@@ -110,7 +110,7 @@ void roms_menu() {
     numFiles = lilka::filesystem.readdir(filenames, ".nes");
     filenames[numFiles++] = "<< Назад";
     while (1) {
-        int file = lilka_ui_menu("Оберіть ROM:", filenames, numFiles, 0);
+        int file = lilka::ui_menu("Оберіть ROM:", filenames, numFiles, 0);
         if (file == numFiles - 1) {
             return;
         }
@@ -137,7 +137,7 @@ void loop() {
     };
     int cursor;
     while (1) {
-        cursor = lilka_ui_menu("Головне меню", menu, 2, cursor);
+        cursor = lilka::ui_menu("Головне меню", menu, 2, cursor);
         if (cursor == 0) {
             demos_menu();
         } else if (cursor == 1) {

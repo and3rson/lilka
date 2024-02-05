@@ -3,6 +3,10 @@
 
 #include <Arduino.h>
 
-int lilka_ui_menu(String title, String menu[], int menu_size, int cursor);
+namespace lilka {
+
+int ui_menu(String title, String menu[], int menu_size, int cursor);
+
+} // namespace lilka
 
 #endif // LILKA_MENU_H

@@ -5,19 +5,21 @@
 
 #include <stdint.h>
 
-#define LILKA_STATE_UP 0
-#define LILKA_STATE_DOWN 1
-#define LILKA_STATE_LEFT 2
-#define LILKA_STATE_RIGHT 3
-#define LILKA_STATE_A 4
-#define LILKA_STATE_B 5
-#define LILKA_STATE_SELECT 6
-#define LILKA_STATE_START 7
-#define LILKA_STATE_COUNT 8
+namespace lilka {
+
+typedef enum {
+    UP = 0,
+    DOWN = 1,
+    LEFT = 2,
+    RIGHT = 3,
+    A = 4,
+    B = 5,
+    SELECT = 6,
+    START = 7,
+    COUNT = 8,
+} Button;
 
 #define LILKA_DEBOUNCE_TIME 10 // 10ms
-
-namespace lilka {
 
 typedef struct {
     bool pressed;
@@ -33,16 +35,33 @@ typedef struct {
     int b;
     int select;
     int start;
-} input_t;
-
-extern state_t states[];
-extern int8_t pins[];
+} Input;
 
 class Controller {
    public:
     Controller();
     void begin();
-    input_t state();
+    Input state();
+    void setHandler(Button button, void (*handler)(bool));
+    void clearHandlers();
+
+    static void on_up();
+    static void on_down();
+    static void on_left();
+    static void on_right();
+    static void on_a();
+    static void on_b();
+    static void on_select();
+    static void on_start();
+
+   private:
+    void handle_interrupt(int stateIndex);
+    static Controller *_instance;
+    state_t states[Button::COUNT];
+    int8_t pins[Button::COUNT] = {
+        LILKA_GPIO_UP, LILKA_GPIO_DOWN, LILKA_GPIO_LEFT, LILKA_GPIO_RIGHT, LILKA_GPIO_A, LILKA_GPIO_B, LILKA_GPIO_SELECT, LILKA_GPIO_START,
+    };
+    void (*handlers[Button::COUNT])(bool);
 };
 
 extern Controller controller;
