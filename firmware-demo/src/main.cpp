@@ -17,9 +17,6 @@ extern "C" {
 #include <lilka/ui/menu.h>
 
 void setup() {
-    TaskHandle_t idle_0 = xTaskGetIdleTaskHandleForCPU(0);
-    esp_task_wdt_delete(idle_0);
-
     lilka::begin();
 }
 
@@ -51,17 +48,20 @@ void demo2() {
     while (1) {
         x += xDir * 0.25;
         y += yDir * 0.25;
+        bool hit = false;
         if (x < 0 || x > lilka::display.width()) {
             xDir *= -1;
+        }
+        if (y < 0 || y > lilka::display.height()) {
+            yDir *= -1;
+        }
+        if (hit) {
             // Rotate vector a little bit randomly
-            float angle = ((float)random(-30, 30)) / 180 * PI;
+            float angle = ((float)random(-15, 15)) / 180 * PI;
             float xDirNew = xDir * cos(angle) - yDir * sin(angle);
             float yDirNew = xDir * sin(angle) + yDir * cos(angle);
             xDir = xDirNew;
             yDir = yDirNew;
-        }
-        if (y < 0 || y > lilka::display.height()) {
-            yDir *= -1;
         }
         lilka::display.drawCircle(x, y, 16, random(0, 0xFFFF));
         if (lilka::controller.read().start) {
@@ -81,7 +81,7 @@ void demo3() {
     }
 }
 
-void list_demos() {
+void demos_menu() {
     void (*demo_funcs[])() = {
         demo1,
         demo2,
@@ -104,7 +104,7 @@ void list_demos() {
     }
 }
 
-void list_roms() {
+void roms_menu() {
     String filenames[32];
     int numFiles = 0;
     numFiles = lilka::filesystem.readdir(filenames, ".nes");
@@ -118,6 +118,9 @@ void list_roms() {
         char fullFilename[256];
         strcpy(fullFilename, lilka::filesystem.abspath(filenames[file]).c_str());
         argv[0] = fullFilename;
+
+        TaskHandle_t idle_0 = xTaskGetIdleTaskHandleForCPU(0);
+        esp_task_wdt_delete(idle_0);
 
         Serial.print("NoFrendo start! Filename: ");
         Serial.println(argv[0]);
@@ -136,9 +139,9 @@ void loop() {
     while (1) {
         cursor = lilka_ui_menu("Головне меню", menu, 2, cursor);
         if (cursor == 0) {
-            list_demos();
+            demos_menu();
         } else if (cursor == 1) {
-            list_roms();
+            roms_menu();
         }
     }
 }
