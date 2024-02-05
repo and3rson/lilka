@@ -23,7 +23,7 @@ void setup() {
 void start_nes_emulator(const char *filename) {}
 
 void demo1() {
-    while (lilka::controller.read().start) {
+    while (lilka::controller.state().start) {
     };
     while (1) {
         int x1 = random(0, lilka::display.width());
@@ -32,14 +32,14 @@ void demo1() {
         int y2 = random(0, lilka::display.height());
         uint16_t color = random(0, 0xFFFF);
         lilka::display.drawLine(x1, y1, x2, y2, color);
-        if (lilka::controller.read().start) {
+        if (lilka::controller.state().start) {
             return;
         }
     }
 }
 
 void demo2() {
-    while (lilka::controller.read().start) {
+    while (lilka::controller.state().start) {
     };
     float x = random(16, lilka::display.width() - 16);
     float y = random(16, lilka::display.height() - 16);
@@ -64,18 +64,18 @@ void demo2() {
             yDir = yDirNew;
         }
         lilka::display.drawCircle(x, y, 16, random(0, 0xFFFF));
-        if (lilka::controller.read().start) {
+        if (lilka::controller.state().start) {
             return;
         }
     }
 }
 
 void demo3() {
-    while (lilka::controller.read().start) {
+    while (lilka::controller.state().start) {
     };
     while (1) {
         lilka::display.fillScreen(random(0, 0xFFFF));
-        if (lilka::controller.read().start) {
+        if (lilka::controller.state().start) {
             return;
         }
     }

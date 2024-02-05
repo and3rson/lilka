@@ -24,15 +24,15 @@ int lilka_ui_menu(String title, String menu[], int menu_size, int cursor) {
             lilka::display.println(menu[i]);
         }
 
-        lilka::input_t input = lilka::controller.read();
+        lilka::input_t input = lilka::controller.state();
         while (input.up || input.down || input.start) {
             // Wait for buttons to be released
-            input = lilka::controller.read();
+            input = lilka::controller.state();
             delay(10);
         }
 
         while (!input.up && !input.down && !input.start) {
-            input = lilka::controller.read();
+            input = lilka::controller.state();
             delay(10);
         }
 
