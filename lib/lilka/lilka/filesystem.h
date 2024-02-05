@@ -6,14 +6,14 @@
 namespace lilka {
 
 class Filesystem {
-   public:
+public:
     Filesystem();
     void begin();
     int readdir(String filenames[]);
     int readdir(String filenames[], String extension);
     String abspath(String filename);
 
-   private:
+private:
     FS *_filesystem;
 };
 

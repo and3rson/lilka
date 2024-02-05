@@ -38,7 +38,7 @@ typedef struct {
 } State;
 
 class Controller {
-   public:
+public:
     Controller();
     void begin();
     State state();
@@ -54,7 +54,7 @@ class Controller {
     static void on_select();
     static void on_start();
 
-   private:
+private:
     void handle_interrupt(int stateIndex);
     static Controller *_instance;
     ButtonState states[Button::COUNT];

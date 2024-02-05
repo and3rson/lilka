@@ -1,3 +1,4 @@
+// clang-format off
 const uint16_t splash[] = {
     0x00eb,
     0x00eb,
@@ -67200,3 +67201,4 @@ const uint16_t splash[] = {
     0xc4a1,
     0xc4a1,
 };
+// clang-format on

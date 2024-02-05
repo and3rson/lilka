@@ -1,6 +1,8 @@
 ---
 BasedOnStyle: Google
+AccessModifierOffset: -4
 AlignAfterOpenBracket: Align
+# IndentAccessModifiers: 'true'
 # AlignConsecutiveAssignments: 'true'
 # AlignConsecutiveDeclarations: 'true'
 AlignOperands: 'true'

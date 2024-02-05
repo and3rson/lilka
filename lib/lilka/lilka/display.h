@@ -9,7 +9,7 @@
 namespace lilka {
 
 class Display : public Arduino_ST7789 {
-   public:
+public:
     Display();
     void begin();
 };
