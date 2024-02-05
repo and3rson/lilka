@@ -8,9 +8,7 @@ void begin() {
     serial_begin();
     display.begin();
     controller.begin();
-    // lilka_input_begin();
-    // lilka::display.begin();
-    // lilka_filesystem_begin();
+    filesystem.begin();
     esp_wifi_deinit();
 }
 
