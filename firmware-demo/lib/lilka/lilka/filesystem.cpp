@@ -2,24 +2,17 @@
 
 #define LILKA_FSROOT "/fs"
 
-FS* _filesystem = 0;
-File _root;
+namespace lilka {
 
-FS* lilka_filesystem_begin() {
+Filesystem::Filesystem() {}
+
+void Filesystem::begin() {
     SPIFFS.begin(false, LILKA_FSROOT);
     _filesystem = &SPIFFS;
-    return _filesystem;
 }
 
-FS* lilka_filesystem_get() {
-    if (_filesystem == 0) {
-        lilka_filesystem_begin();
-    }
-    return _filesystem;
-}
-
-int lilka_filesystem_readdir(String filenames[]) {
-    _root = lilka_filesystem_get()->open("/");
+int Filesystem::readdir(String filenames[]) {
+    File _root = _filesystem->open("/");
     int count = 0;
     File file = _root.openNextFile();
     while (file) {
@@ -36,8 +29,8 @@ int lilka_filesystem_readdir(String filenames[]) {
     return count;
 }
 
-int lilka_filesystem_readdir(String filenames[], String extension) {
-    _root = lilka_filesystem_get()->open("/");
+int Filesystem::readdir(String filenames[], String extension) {
+    File _root = _filesystem->open("/");
     int count = 0;
     File file = _root.openNextFile();
     while (file) {
@@ -57,6 +50,10 @@ int lilka_filesystem_readdir(String filenames[], String extension) {
     return count;
 }
 
-String lilka_filesystem_abspath(String filename) {
+String Filesystem::abspath(String filename) {
     return String(LILKA_FSROOT) + "/" + filename;
 }
+
+Filesystem filesystem;
+
+} // namespace lilka

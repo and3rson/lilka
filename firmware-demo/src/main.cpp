@@ -20,40 +20,38 @@ void setup() {
     TaskHandle_t idle_0 = xTaskGetIdleTaskHandleForCPU(0);
     esp_task_wdt_delete(idle_0);
 
-    lilka_begin();
+    lilka::begin();
 }
 
 void start_nes_emulator(const char *filename) {}
 
 void demo1() {
-    Arduino_TFT *gfx = lilka_display_get();
-    while (lilka_input_read().start) {
+    while (lilka::controller.read().start) {
     };
     while (1) {
-        int x1 = random(0, gfx->width());
-        int y1 = random(0, gfx->height());
-        int x2 = random(0, gfx->width());
-        int y2 = random(0, gfx->height());
+        int x1 = random(0, lilka::display.width());
+        int y1 = random(0, lilka::display.height());
+        int x2 = random(0, lilka::display.width());
+        int y2 = random(0, lilka::display.height());
         uint16_t color = random(0, 0xFFFF);
-        gfx->drawLine(x1, y1, x2, y2, color);
-        if (lilka_input_read().start) {
+        lilka::display.drawLine(x1, y1, x2, y2, color);
+        if (lilka::controller.read().start) {
             return;
         }
     }
 }
 
 void demo2() {
-    Arduino_TFT *gfx = lilka_display_get();
-    while (lilka_input_read().start) {
+    while (lilka::controller.read().start) {
     };
-    float x = random(16, gfx->width() - 16);
-    float y = random(16, gfx->height() - 16);
+    float x = random(16, lilka::display.width() - 16);
+    float y = random(16, lilka::display.height() - 16);
     float xDir = 1;
     float yDir = 1;
     while (1) {
         x += xDir * 0.25;
         y += yDir * 0.25;
-        if (x < 0 || x > gfx->width()) {
+        if (x < 0 || x > lilka::display.width()) {
             xDir *= -1;
             // Rotate vector a little bit randomly
             float angle = ((float)random(-30, 30)) / 180 * PI;
@@ -62,23 +60,22 @@ void demo2() {
             xDir = xDirNew;
             yDir = yDirNew;
         }
-        if (y < 0 || y > gfx->height()) {
+        if (y < 0 || y > lilka::display.height()) {
             yDir *= -1;
         }
-        gfx->drawCircle(x, y, 16, random(0, 0xFFFF));
-        if (lilka_input_read().start) {
+        lilka::display.drawCircle(x, y, 16, random(0, 0xFFFF));
+        if (lilka::controller.read().start) {
             return;
         }
     }
 }
 
 void demo3() {
-    Arduino_TFT *gfx = lilka_display_get();
-    while (lilka_input_read().start) {
+    while (lilka::controller.read().start) {
     };
     while (1) {
-        gfx->fillScreen(random(0, 0xFFFF));
-        if (lilka_input_read().start) {
+        lilka::display.fillScreen(random(0, 0xFFFF));
+        if (lilka::controller.read().start) {
             return;
         }
     }
@@ -110,7 +107,7 @@ void list_demos() {
 void list_roms() {
     String filenames[32];
     int numFiles = 0;
-    numFiles = lilka_filesystem_readdir(filenames, ".nes");
+    numFiles = lilka::filesystem.readdir(filenames, ".nes");
     filenames[numFiles++] = "<< Назад";
     while (1) {
         int file = lilka_ui_menu("Оберіть ROM:", filenames, numFiles, 0);
@@ -119,7 +116,7 @@ void list_roms() {
         }
         char *argv[1];
         char fullFilename[256];
-        strcpy(fullFilename, lilka_filesystem_abspath(filenames[file]).c_str());
+        strcpy(fullFilename, lilka::filesystem.abspath(filenames[file]).c_str());
         argv[0] = fullFilename;
 
         Serial.print("NoFrendo start! Filename: ");

@@ -2,10 +2,12 @@
 #define LILKA_H
 
 #include "lilka/serial.h"
-#include "lilka/input.h"
+#include "lilka/controller.h"
 #include "lilka/display.h"
 #include "lilka/filesystem.h"
 
-void lilka_begin();
+namespace lilka {
+void begin();
+}
 
 #endif // LILKA_H

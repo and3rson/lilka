@@ -1,10 +1,13 @@
 #include <Arduino.h>
 
-#include "input.h"
+#include "controller.h"
 
-bool _input_initialized = false;
+namespace lilka {
 
-void lilka_input_begin() {
+Controller::Controller() {
+}
+
+void Controller::begin() {
     pinMode(LILKA_GPIO_UP, INPUT_PULLUP);
     pinMode(LILKA_GPIO_DOWN, INPUT_PULLUP);
     pinMode(LILKA_GPIO_LEFT, INPUT_PULLUP);
@@ -13,14 +16,10 @@ void lilka_input_begin() {
     pinMode(LILKA_GPIO_B, INPUT_PULLUP);
     pinMode(LILKA_GPIO_SELECT, INPUT_PULLUP);
     pinMode(LILKA_GPIO_START, INPUT_PULLUP);
-    _input_initialized = true;
 }
 
-lilka_input_t lilka_input_read() {
-    if (!_input_initialized) {
-        lilka_input_begin();
-    }
-    return (lilka_input_t){
+input_t Controller::read() {
+    return (input_t){
         .up = !digitalRead(LILKA_GPIO_UP),
         .down = !digitalRead(LILKA_GPIO_DOWN),
         .left = !digitalRead(LILKA_GPIO_LEFT),
@@ -31,3 +30,7 @@ lilka_input_t lilka_input_read() {
         .start = !digitalRead(LILKA_GPIO_START),
     };
 }
+
+Controller controller;
+
+} // namespace lilka

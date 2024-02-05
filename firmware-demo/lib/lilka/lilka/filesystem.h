@@ -3,12 +3,22 @@
 
 #include <SPIFFS.h>
 
-extern FS *_filesystem;
+namespace lilka {
 
-FS *lilka_filesystem_begin();
-FS *lilka_filesystem_get();
-int lilka_filesystem_readdir(String filenames[]);
-int lilka_filesystem_readdir(String filenames[], String extension);
-String lilka_filesystem_abspath(String filename);
+class Filesystem {
+   public:
+    Filesystem();
+    void begin();
+    int readdir(String filenames[]);
+    int readdir(String filenames[], String extension);
+    String abspath(String filename);
+
+   private:
+    FS *_filesystem;
+};
+
+extern Filesystem filesystem;
+
+} // namespace lilka
 
 #endif // LILKA_FILESYSTEM_H

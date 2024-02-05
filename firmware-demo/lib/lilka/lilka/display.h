@@ -6,11 +6,16 @@
 #include <Arduino_GFX_Library.h>
 #include <U8g2lib.h>
 
-extern Arduino_DataBus* _bus;
-extern Arduino_ST7789* _gfx;
+namespace lilka {
 
-Arduino_TFT* lilka_display_begin();
-Arduino_TFT* lilka_display_get();
-// Arduino_Canvas* lilka_display_create_canvas();
+class Display : public Arduino_ST7789 {
+   public:
+    Display();
+    void begin();
+};
+
+extern Display display;
+
+} // namespace lilka
 
 #endif // LILKA_DISPLAY_H

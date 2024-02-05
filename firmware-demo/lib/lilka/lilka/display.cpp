@@ -2,68 +2,55 @@
 
 #include "splash.h"
 
-Arduino_DataBus* _bus = 0;
-Arduino_ST7789* _gfx = 0;
+namespace lilka {
 
-Arduino_TFT* lilka_display_begin() {
-    _bus = new Arduino_ESP32SPI(LILKA_DISPLAY_DC, LILKA_DISPLAY_CS, LILKA_DISPLAY_SCK, LILKA_DISPLAY_MOSI, -1);
-    _gfx = new Arduino_ST7789(_bus, LILKA_DISPLAY_RST, LILKA_DISPLAY_ROTATION, true, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, 0, 20);
-    _gfx->begin();
+lilka::Display::Display() : Arduino_ST7789(new Arduino_ESP32SPI(LILKA_DISPLAY_DC, LILKA_DISPLAY_CS, LILKA_DISPLAY_SCK, LILKA_DISPLAY_MOSI, -1), LILKA_DISPLAY_RST, LILKA_DISPLAY_ROTATION, true, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, 0, 20) {}
+
+void lilka::Display::begin() {
+    // _bus = new Arduino_ESP32SPI(LILKA_DISPLAY_DC, LILKA_DISPLAY_CS, LILKA_DISPLAY_SCK, LILKA_DISPLAY_MOSI, -1);
+    // _gfx = new Arduino_ST7789(_bus, LILKA_DISPLAY_RST, LILKA_DISPLAY_ROTATION, true, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, 0, 20);
+    Arduino_ST7789::begin();
     // _gfx->fillScreen(_gfx->color565(0, 255, 0));
     // _gfx->drawLine(0, 0, LILKA_DISPLAY_WIDTH - 1, 0, _gfx->color565(255, 0, 0));
     // _gfx->drawEllipse(LILKA_DISPLAY_WIDTH / 2, LILKA_DISPLAY_HEIGHT / 2, LILKA_DISPLAY_WIDTH / 2, LILKA_DISPLAY_HEIGHT / 2, _gfx->color565(255, 0, 0));
     // while (1) {
     // };
-    _gfx->setFont(u8g2_font_10x20_t_cyrillic);
-    _gfx->setUTF8Print(true);
+    setFont(u8g2_font_10x20_t_cyrillic);
+    setUTF8Print(true);
     uint16_t row[LILKA_DISPLAY_WIDTH];
     for (int i = 0; i <= 4; i++) {
-        _gfx->startWrite();
-        _gfx->writeAddrWindow(0, 0, 240, 280);
+        startWrite();
+        writeAddrWindow(0, 0, 240, 280);
         for (int y = 0; y < LILKA_DISPLAY_HEIGHT; y++) {
             for (int x = 0; x < LILKA_DISPLAY_WIDTH; x++) {
                 uint16_t color = splash[y * LILKA_DISPLAY_WIDTH + x];
                 uint16_t r = ((color >> 11) & 0x1F) << 3;
                 uint16_t g = ((color >> 5) & 0x3F) << 2;
                 uint16_t b = (color & 0x1F) << 3;
-                row[x] = _gfx->color565(r * i / 4, g * i / 4, b * i / 4);
+                row[x] = color565(r * i / 4, g * i / 4, b * i / 4);
             }
-            _gfx->writePixels(row, LILKA_DISPLAY_WIDTH);
+            writePixels(row, LILKA_DISPLAY_WIDTH);
         }
-        _gfx->endWrite();
+        endWrite();
     }
     delay(800);
     for (int i = 4; i >= 0; i--) {
-        _gfx->startWrite();
-        _gfx->writeAddrWindow(0, 0, 240, 280);
+        startWrite();
+        writeAddrWindow(0, 0, 240, 280);
         for (int y = 0; y < LILKA_DISPLAY_HEIGHT; y++) {
             for (int x = 0; x < LILKA_DISPLAY_WIDTH; x++) {
                 uint16_t color = splash[y * LILKA_DISPLAY_WIDTH + x];
                 uint16_t r = ((color >> 11) & 0x1F) << 3;
                 uint16_t g = ((color >> 5) & 0x3F) << 2;
                 uint16_t b = (color & 0x1F) << 3;
-                row[x] = _gfx->color565(r * i / 4, g * i / 4, b * i / 4);
+                row[x] = color565(r * i / 4, g * i / 4, b * i / 4);
             }
-            _gfx->writePixels(row, LILKA_DISPLAY_WIDTH);
+            writePixels(row, LILKA_DISPLAY_WIDTH);
         }
-        _gfx->endWrite();
+        endWrite();
     }
-    return _gfx;
 }
 
-Arduino_TFT* lilka_display_get() {
-    if (_gfx == 0) {
-        lilka_display_begin();
-    }
-    return _gfx;
-}
+Display display;
 
-// Arduino_Canvas* lilka_display_create_canvas() {
-//     Serial.println("Warning: Canvas is buggy. Do not use this function unless you know what you're doing.");
-//     if (_gfx == 0) {
-//         lilka_display_begin();
-//     }
-//     Arduino_Canvas* canvas = new Arduino_Canvas(LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, _gfx);
-//     canvas->begin();
-//     return canvas;
-// }
+} // namespace lilka
