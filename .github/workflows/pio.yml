@@ -13,6 +13,7 @@ jobs:
           path: |
             ~/.cache/pip
             ~/.platformio/.cache
+            ./firmware-demo/.pio
           key: ${{ runner.os }}-pio
       - uses: actions/setup-python@v4
         with:
