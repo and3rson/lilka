@@ -26,31 +26,31 @@ int ui_menu(String title, String menu[], int menu_size, int cursor) {
             display.println(menu[i]);
         }
 
-        Input input = controller.state();
-        while (input.up || input.down || input.start) {
+        State state = controller.state();
+        while (state.up || state.down || state.start) {
             // Wait for buttons to be released
-            input = controller.state();
+            state = controller.state();
             delay(10);
         }
 
-        while (!input.up && !input.down && !input.start) {
-            input = controller.state();
+        while (!state.up && !state.down && !state.start) {
+            state = controller.state();
             delay(10);
         }
 
-        if (input.up) {
+        if (state.up) {
             // Move cursor up
             cursor--;
             if (cursor < 0) {
                 cursor = menu_size - 1;
             }
-        } else if (input.down) {
+        } else if (state.down) {
             // Move cursor down
             cursor++;
             if (cursor >= menu_size) {
                 cursor = 0;
             }
-        } else if (input.start) {
+        } else if (state.start) {
             // Execute selected function
             return cursor;
         }

@@ -8,7 +8,7 @@ Controller *Controller::_instance = NULL;
 
 Controller::Controller() {
     for (int i = 0; i < Button::COUNT; i++) {
-        states[i] = (state_t){
+        states[i] = (ButtonState){
             .pressed = false,
             .time = 0,
         };
@@ -18,7 +18,7 @@ Controller::Controller() {
 }
 
 void IRAM_ATTR Controller::handle_interrupt(int stateIndex) {
-    state_t *state = &states[stateIndex];
+    ButtonState *state = &states[stateIndex];
     if (millis() - state->time < LILKA_DEBOUNCE_TIME) {
         return;
     }
@@ -72,8 +72,8 @@ void Controller::begin() {
     }
 }
 
-Input Controller::state() {
-    return (Input){
+State Controller::state() {
+    return (State){
         .up = states[Button::UP].pressed,
         .down = states[Button::DOWN].pressed,
         .left = states[Button::LEFT].pressed,

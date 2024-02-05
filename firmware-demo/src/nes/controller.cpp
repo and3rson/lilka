@@ -9,6 +9,6 @@
 extern "C" void controller_init() {}
 
 extern "C" uint32_t controller_read_input() {
-    lilka::Input input = lilka::controller.state();
-    return 0xFFFFFFFF ^ ((input.up << 0) | (input.down << 1) | (input.left << 2) | (input.right << 3) | (input.select << 4) | (input.start << 5) | (input.a << 6) | (input.b << 7));
+    lilka::State state = lilka::controller.state();
+    return 0xFFFFFFFF ^ ((state.up << 0) | (state.down << 1) | (state.left << 2) | (state.right << 3) | (state.select << 4) | (state.start << 5) | (state.a << 6) | (state.b << 7));
 }
