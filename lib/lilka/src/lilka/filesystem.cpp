@@ -7,8 +7,10 @@ namespace lilka {
 Filesystem::Filesystem() {}
 
 void Filesystem::begin() {
+    Serial.print("Initializing filesystem... ");
     SPIFFS.begin(false, LILKA_FSROOT);
     _filesystem = &SPIFFS;
+    Serial.println("done");
 }
 
 int Filesystem::readdir(String filenames[]) {

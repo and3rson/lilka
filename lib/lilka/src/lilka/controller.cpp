@@ -14,7 +14,7 @@ Controller::Controller() {
         };
         handlers[i] = NULL;
     }
-    _instance = this;
+    Controller::_instance = this;
 }
 
 void IRAM_ATTR Controller::handle_interrupt(int stateIndex) {
@@ -62,14 +62,19 @@ void IRAM_ATTR Controller::on_start() {
 }
 
 void Controller::begin() {
+    Serial.print("Initializing controller... ");
     void (*handlers[])(void) = {
         on_up, on_down, on_left, on_right, on_a, on_b, on_select, on_start,
     };
 
     for (int i = 0; i < Button::COUNT; i++) {
+        if (pins[i] < 0) {
+            continue;
+        }
         pinMode(pins[i], INPUT_PULLUP);
         attachInterrupt(digitalPinToInterrupt(pins[i]), handlers[i], CHANGE);
     }
+    Serial.println("done");
 }
 
 State Controller::state() {

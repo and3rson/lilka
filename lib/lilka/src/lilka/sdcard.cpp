@@ -7,13 +7,19 @@ SDCard::SDCard() {
 }
 
 void SDCard::begin() {
+    Serial.print("Initializing SD card... ");
 #if CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3
     SPIClass spi(HSPI);
 #elif CONFIG_IDF_TARGET_ESP32C3
     SPIClass spi(FSPI);
 #endif
 
+#if SDCARD_CS < 0
+    Serial.println("failed: no CS pin");
+#else
     fs->begin(SDCARD_CS, spi);
+    Serial.println("done");
+#endif
 }
 
 int SDCard::listDir(String path, Entry entries[]) {
