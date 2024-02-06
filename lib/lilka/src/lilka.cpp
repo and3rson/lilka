@@ -9,6 +9,7 @@ void begin() {
     display.begin();
     controller.begin();
     filesystem.begin();
+    sdcard.begin();
     esp_wifi_deinit();
 }
 

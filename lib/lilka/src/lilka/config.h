@@ -3,7 +3,7 @@
 
 #if LILKA_VERSION == -1
 
-// Lilka on a breadboard
+// Lilka on a breadboard (C3)
 
 #    define LILKA_GPIO_UP 4
 #    define LILKA_GPIO_DOWN 7
@@ -23,9 +23,11 @@
 #    define LILKA_DISPLAY_WIDTH 240
 #    define LILKA_DISPLAY_HEIGHT 280
 
+#    define SDCARD_CS -1
+
 #elif LILKA_VERSION == 1
 
-// Lilka v1 (first prototype from pcb24.com.ua)
+// Lilka v1 (C3), first prototype from pcb24.com.ua
 
 #    define LILKA_GPIO_UP 4
 #    define LILKA_GPIO_DOWN 7
@@ -45,6 +47,8 @@
 #    define LILKA_DISPLAY_ROTATION 0
 #    define LILKA_DISPLAY_WIDTH 240
 #    define LILKA_DISPLAY_HEIGHT 280
+
+#    define SDCARD_CS -1
 
 #else
 #    error "LILKA_VERSION is not defined"
