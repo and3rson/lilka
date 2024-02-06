@@ -21,6 +21,7 @@ class SDCard {
 public:
     SDCard();
     void begin();
+    bool available();
     SDFS *fs;
 
     int listDir(String path, Entry entries[]);

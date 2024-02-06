@@ -6,6 +6,7 @@
 #include "lilka/display.h"
 #include "lilka/filesystem.h"
 #include "lilka/sdcard.h"
+#include "lilka/ui.h"
 
 namespace lilka {
 void begin();

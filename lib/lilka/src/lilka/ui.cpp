@@ -1,4 +1,4 @@
-#include "menu.h"
+#include "ui.h"
 
 #include "lilka/display.h"
 #include "lilka/controller.h"
@@ -7,6 +7,7 @@ namespace lilka {
 
 int ui_menu(String title, String menu[], int menu_size, int cursor) {
     // Arduino_TFT *gfx = lilka_display_get();
+    Serial.println("Clear screen");
     display.fillScreen(display.color565(0, 0, 0));
     while (1) {
         display.setCursor(32, 48);
@@ -54,6 +55,37 @@ int ui_menu(String title, String menu[], int menu_size, int cursor) {
             // Execute selected function
             return cursor;
         }
+    }
+}
+
+void ui_alert(String title, String message) {
+    int top = LILKA_DISPLAY_HEIGHT / 8;
+    int mid = LILKA_DISPLAY_HEIGHT / 8 * 2;
+    int bottom = LILKA_DISPLAY_HEIGHT / 8 * 7;
+
+    int left = LILKA_DISPLAY_WIDTH / 8;
+    int right = LILKA_DISPLAY_WIDTH / 8 * 7;
+    int width = right - left;
+    int xMargin = 4;
+
+    display.fillRect(left, top, width, mid - top, display.color565(32, 96, 96));
+    display.setFont(u8g2_font_6x13_t_cyrillic);
+    display.setTextSize(2);
+    display.setTextBound(left + xMargin, top, width - xMargin * 2, mid - top);
+    display.setCursor(left + xMargin, top + 13 * 2);
+    display.println(title);
+
+    display.fillRect(left + xMargin, mid, width - xMargin * 2, bottom - mid, display.color565(32, 32, 32));
+    display.setFont(u8g2_font_10x20_t_cyrillic);
+    display.setTextSize(1);
+    display.setTextBound(left + xMargin, top, width - xMargin * 2, bottom - mid);
+    display.setCursor(left, mid + 20);
+    display.println(message);
+    while (controller.state().start) {
+        delay(10);
+    }
+    while (!controller.state().start) {
+        delay(10);
     }
 }
 

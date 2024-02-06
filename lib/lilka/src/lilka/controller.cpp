@@ -26,6 +26,10 @@ void IRAM_ATTR Controller::handle_interrupt(int stateIndex) {
     if (handlers[stateIndex] != NULL) {
         handlers[stateIndex](state->pressed);
     }
+    // Serial.print("Button ");
+    // Serial.print(stateIndex);
+    // Serial.print(" ");
+    // Serial.println(state->pressed ? "pressed" : "released");
     state->time = micros();
 }
 

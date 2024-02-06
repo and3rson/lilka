@@ -14,7 +14,6 @@ extern "C" {
 }
 
 #include <lilka.h>
-#include <lilka/ui/menu.h>
 
 void setup() {
     lilka::begin();
@@ -130,18 +129,58 @@ void roms_menu() {
     }
 }
 
+void sd_browser_menu(String path) {
+    if (!lilka::sdcard.available()) {
+        lilka::ui_alert("Помилка", "SD-карта не знайдена");
+        return;
+    }
+
+    lilka::Entry entries[32];
+    int numEntries = lilka::sdcard.listDir(path, entries);
+
+    if (numEntries == -1) {
+        lilka::ui_alert("Помилка", "Не вдалося прочитати директорію");
+        return;
+    }
+
+    String filenames[32];
+    for (int i = 0; i < numEntries; i++) {
+        filenames[i] = entries[i].name;
+    }
+    filenames[numEntries++] = "<< Назад";
+
+    int cursor = 0;
+    while (1) {
+        cursor = lilka::ui_menu(String("SD: ") + path, filenames, numEntries, cursor);
+        if (cursor == numEntries - 1) {
+            return;
+        }
+        if (entries[cursor].type == lilka::EntryType::DIRECTORY) {
+            sd_browser_menu((path.equals("/") ? "" : path) + "/" + entries[cursor].name);
+        } else {
+            continue;
+        }
+    }
+}
+
 void loop() {
     String menu[] = {
         "Демо",
         "Емулятор NES",
+        "Браузер SD-карти",
+        "Про систему",
     };
     int cursor;
     while (1) {
-        cursor = lilka::ui_menu("Головне меню", menu, 2, cursor);
+        cursor = lilka::ui_menu("Головне меню", menu, 4, cursor);
         if (cursor == 0) {
             demos_menu();
         } else if (cursor == 1) {
             roms_menu();
+        } else if (cursor == 2) {
+            sd_browser_menu("/");
+        } else if (cursor == 3) {
+            lilka::ui_alert("Лілка", "by Андерсон\n& friends");
         }
     }
 }
