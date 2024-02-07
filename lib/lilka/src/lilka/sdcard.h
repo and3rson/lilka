@@ -26,6 +26,7 @@ public:
     SDFS *fs;
 
     int listDir(String path, Entry entries[]);
+    String abspath(String path);
 };
 
 extern SDCard sdcard;

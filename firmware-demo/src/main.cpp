@@ -16,12 +16,11 @@ extern "C" {
 #include <lilka.h>
 #include <lilka/icons/file.h>
 #include <lilka/icons/folder.h>
+#include <lilka/icons/nes.h>
 
 void setup() {
     lilka::begin();
 }
-
-void start_nes_emulator(const char *filename) {}
 
 void demo1() {
     while (lilka::controller.state().start) {
@@ -105,31 +104,6 @@ void demos_menu() {
     }
 }
 
-void roms_menu() {
-    String filenames[32];
-    int numFiles = 0;
-    numFiles = lilka::filesystem.readdir(filenames, ".nes");
-    filenames[numFiles++] = "<< Назад";
-    while (1) {
-        int file = lilka::ui_menu("Оберіть ROM:", filenames, numFiles, 0);
-        if (file == numFiles - 1) {
-            return;
-        }
-        char *argv[1];
-        char fullFilename[256];
-        strcpy(fullFilename, lilka::filesystem.abspath(filenames[file]).c_str());
-        argv[0] = fullFilename;
-
-        TaskHandle_t idle_0 = xTaskGetIdleTaskHandleForCPU(0);
-        esp_task_wdt_delete(idle_0);
-
-        Serial.print("NoFrendo start! Filename: ");
-        Serial.println(argv[0]);
-        nofrendo_main(1, argv);
-        Serial.println("NoFrendo end!\n");
-    }
-}
-
 void sd_browser_menu(String path) {
     if (!lilka::sdcard.available()) {
         lilka::ui_alert("Помилка", "SD-карта не знайдена");
@@ -148,7 +122,7 @@ void sd_browser_menu(String path) {
     menu_icon_t *icons[32];
     for (int i = 0; i < numEntries; i++) {
         filenames[i] = entries[i].name;
-        icons[i] = entries[i].type == lilka::EntryType::DIRECTORY ? &folder : &file;
+        icons[i] = entries[i].type == lilka::EntryType::DIRECTORY ? &folder : (entries[i].name.endsWith(".rom") || entries[i].name.endsWith(".nes")) ? &nes : &file;
     }
     filenames[numEntries++] = "<< Назад";
     icons[numEntries - 1] = 0;
@@ -161,6 +135,19 @@ void sd_browser_menu(String path) {
         }
         if (entries[cursor].type == lilka::EntryType::DIRECTORY) {
             sd_browser_menu(path + entries[cursor].name + "/");
+        } else if (entries[cursor].name.endsWith(".rom") || entries[cursor].name.endsWith(".nes")) {
+            char *argv[1];
+            char fullFilename[256];
+            strcpy(fullFilename, lilka::sdcard.abspath(entries[cursor].name).c_str());
+            argv[0] = fullFilename;
+
+            TaskHandle_t idle_0 = xTaskGetIdleTaskHandleForCPU(0);
+            esp_task_wdt_delete(idle_0);
+
+            Serial.print("NoFrendo start! Filename: ");
+            Serial.println(argv[0]);
+            nofrendo_main(1, argv);
+            Serial.println("NoFrendo end!\n");
         } else {
             lilka::ui_alert(entries[cursor].name, "Розмір:\n" + String(entries[cursor].size) + " байт");
         }
@@ -170,7 +157,7 @@ void sd_browser_menu(String path) {
 void loop() {
     String menu[] = {
         "Демо",
-        "Емулятор NES",
+        // "Емулятор NES",
         "Браузер SD-карти",
         "Про систему",
     };
@@ -180,10 +167,8 @@ void loop() {
         if (cursor == 0) {
             demos_menu();
         } else if (cursor == 1) {
-            roms_menu();
-        } else if (cursor == 2) {
             sd_browser_menu("/");
-        } else if (cursor == 3) {
+        } else if (cursor == 2) {
             lilka::ui_alert("Лілка", "by Андерсон\n& friends");
         }
     }

@@ -2,6 +2,8 @@
 
 #include "serial.h"
 
+#define LILKA_SDROOT "/sd"
+
 namespace lilka {
 
 SDCard::SDCard() {
@@ -14,7 +16,7 @@ void SDCard::begin() {
 #if LILKA_SDCARD_CS < 0
     serial_log("SD init failed: no CS pin");
 #else
-    fs->begin(LILKA_SDCARD_CS, SPI, 1000000);
+    fs->begin(LILKA_SDCARD_CS, SPI, 1000000, LILKA_SDROOT);
     sdcard_type_t cardType = fs->cardType();
 
     if (cardType == CARD_NONE) {
@@ -65,6 +67,13 @@ int SDCard::listDir(String path, Entry entries[]) {
     }
     root.close();
     return i;
+}
+
+String SDCard::abspath(String filename) {
+    while (filename.length() > 0 && filename[0] == '/') {
+        filename = filename.substring(1);
+    }
+    return String(LILKA_SDROOT) + "/" + filename;
 }
 
 SDCard sdcard;
