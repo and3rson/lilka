@@ -5,7 +5,7 @@
 
 namespace lilka {
 
-int ui_menu(String title, String menu[], int menu_size, int cursor) {
+int ui_menu(String title, String menu[], int menu_size, int cursor, menu_icon_t *icons[]) {
     display.fillScreen(display.color565(0, 0, 0));
     while (1) {
         display.setCursor(32, 48);
@@ -19,6 +19,9 @@ int ui_menu(String title, String menu[], int menu_size, int cursor) {
 
         for (int i = 0; i < menu_size; i++) {
             display.fillRect(0, 96 + i * 24 - 20, LILKA_DISPLAY_WIDTH, 24, i == cursor ? display.color565(255, 0, 0) : display.color565(0, 0, 0));
+            if (icons != NULL && icons[i] != NULL) {
+                display.draw16bitRGBBitmapWithTranColor(0, 96 + i * 24 - 20, *icons[i], display.color565(0, 0, 0), 24, 24);
+            }
             display.setCursor(32, 96 + i * 24);
             display.setTextColor(display.color565(255, 255, 255));
             // gfx->print(i == cursor ? "> " : "  ");
@@ -73,11 +76,11 @@ void ui_alert(String title, String message) {
     display.setCursor(left + xMargin, top + 13 * 2);
     display.println(title);
 
-    display.fillRect(left + xMargin, mid, width - xMargin * 2, bottom - mid, display.color565(32, 32, 32));
+    display.fillRect(left, mid, width, bottom - mid, display.color565(32, 32, 32));
     display.setFont(u8g2_font_10x20_t_cyrillic);
     display.setTextSize(1);
     display.setTextBound(left + xMargin, top, width - xMargin * 2, bottom - mid);
-    display.setCursor(left, mid + 20);
+    display.setCursor(left + xMargin, mid + 20);
     display.println(message);
     while (controller.state().start) {
         delay(10);

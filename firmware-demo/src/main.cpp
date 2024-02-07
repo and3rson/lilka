@@ -14,6 +14,8 @@ extern "C" {
 }
 
 #include <lilka.h>
+#include <lilka/icons/file.h>
+#include <lilka/icons/folder.h>
 
 void setup() {
     lilka::begin();
@@ -144,21 +146,24 @@ void sd_browser_menu(String path) {
     }
 
     String filenames[32];
+    menu_icon_t *icons[32];
     for (int i = 0; i < numEntries; i++) {
         filenames[i] = entries[i].name;
+        icons[i] = entries[i].type == lilka::EntryType::DIRECTORY ? &folder : &file;
     }
     filenames[numEntries++] = "<< Назад";
+    icons[numEntries - 1] = 0;
 
     int cursor = 0;
     while (1) {
-        cursor = lilka::ui_menu(String("SD: ") + path, filenames, numEntries, cursor);
+        cursor = lilka::ui_menu(String("SD: ") + path, filenames, numEntries, cursor, icons);
         if (cursor == numEntries - 1) {
             return;
         }
         if (entries[cursor].type == lilka::EntryType::DIRECTORY) {
-            sd_browser_menu((path.equals("/") ? "" : path) + "/" + entries[cursor].name);
+            sd_browser_menu(path + entries[cursor].name + "/");
         } else {
-            continue;
+            lilka::ui_alert(entries[cursor].name, "Розмір:\n" + String(entries[cursor].size) + " байт");
         }
     }
 }

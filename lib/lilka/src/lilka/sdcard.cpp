@@ -35,6 +35,10 @@ bool SDCard::available() {
 }
 
 int SDCard::listDir(String path, Entry entries[]) {
+    while (!path.equals("/") && path.endsWith("/")) {
+        // Strip trailing slashes, unless it's the root directory
+        path.remove(path.length() - 1);
+    }
     File root = fs->open(path);
     if (!root) {
         serial_log("listDir: failed to open directory: %s", path.c_str());
@@ -54,6 +58,7 @@ int SDCard::listDir(String path, Entry entries[]) {
         } else {
             entries[i].type = FILE;
         }
+        entries[i].size = file.size();
         file.close();
         file = root.openNextFile();
         i++;

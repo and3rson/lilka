@@ -19,7 +19,7 @@ void LilkaBus::beginWrite() {
 
     // https://github.com/moononournation/Arduino_GFX/issues/433
     // https://github.com/espressif/arduino-esp32/issues/9221
-    spi->beginTransaction(SPISettings(SPI_DEFAULT_FREQ, SPI_MSBFIRST, SPI_MODE0));
+    spi->beginTransaction(SPISettings(SPI_DEFAULT_FREQ, SPI_MSBFIRST, SPI_MODE3));
     spi->write(0xFF);
     spi->endTransaction();
 

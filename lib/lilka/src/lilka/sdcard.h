@@ -15,6 +15,7 @@ typedef enum {
 typedef struct {
     String name;
     EntryType type;
+    size_t size;
 } Entry;
 
 class SDCard {
