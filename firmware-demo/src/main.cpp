@@ -125,7 +125,6 @@ void roms_menu() {
 
         Serial.print("NoFrendo start! Filename: ");
         Serial.println(argv[0]);
-        // Serial.println("CPU freq: " + String(ESP.getCpuFreqMHz()) + " MHz");
         nofrendo_main(1, argv);
         Serial.println("NoFrendo end!\n");
     }

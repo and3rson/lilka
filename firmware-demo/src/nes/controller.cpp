@@ -4,6 +4,8 @@
 
 #include <lilka/controller.h>
 
+#include <nes/nes.h>
+
 /* controller is GPIO */
 
 extern "C" void controller_init() {}

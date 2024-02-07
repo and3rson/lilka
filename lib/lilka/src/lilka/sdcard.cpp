@@ -23,7 +23,7 @@ void SDCard::begin() {
     }
 
     if (cardType == CARD_SD || cardType == CARD_SDHC) {
-        serial_log("card type: %s, card size: %d", cardType == CARD_SD ? "SD" : "SDHC", fs->totalBytes());
+        serial_log("card type: %s, card size: %ld MB", cardType == CARD_SD ? "SD" : "SDHC", fs->totalBytes() / (1024 * 1024));
     } else {
         serial_log("unknown SD card type: %d", cardType);
     }

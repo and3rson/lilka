@@ -176,6 +176,10 @@ void osd_getinput(void)
 	oldb = b;
 	event_t evh;
 	// nofrendo_log_printf("Input: %x\n", b);
+    if (!(b & 0x3)) {
+        event_get(event_quit)(INP_STATE_MAKE);
+        return;
+    }
 	for (x = 0; x < 16; x++)
 	{
 		if (chg & 1)
