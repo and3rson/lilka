@@ -24,7 +24,9 @@ void LilkaBus::beginWrite() {
     Arduino_ESP32SPI::beginWrite();
 }
 
-Display::Display() : Arduino_ST7789(new LilkaBus(LILKA_DISPLAY_DC, LILKA_DISPLAY_CS, LILKA_SPI_SCK, LILKA_SPI_MOSI, LILKA_SPI_MISO), LILKA_DISPLAY_RST, LILKA_DISPLAY_ROTATION, true, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, 0, 20) {}
+LilkaBus lilkaBus(LILKA_DISPLAY_DC, LILKA_DISPLAY_CS, LILKA_SPI_SCK, LILKA_SPI_MOSI, LILKA_SPI_MISO);
+
+Display::Display() : Arduino_ST7789(&lilkaBus, LILKA_DISPLAY_RST, LILKA_DISPLAY_ROTATION, true, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, 0, 20) {}
 
 void Display::begin() {
     Serial.print("Initializing display... ");
