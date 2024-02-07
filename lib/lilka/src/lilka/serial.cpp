@@ -15,7 +15,7 @@ void serial_log(const char *format, ...) {
     va_start(args, format);
     vsnprintf(buffer, sizeof(buffer), format, args);
     va_end(args);
-    Serial.print("[lilka] ");
+    Serial.print("lilka: ");
     Serial.println(buffer);
 }
 
