@@ -6,8 +6,6 @@
 namespace lilka {
 
 int ui_menu(String title, String menu[], int menu_size, int cursor) {
-    // Arduino_TFT *gfx = lilka_display_get();
-    Serial.println("Clear screen");
     display.fillScreen(display.color565(0, 0, 0));
     while (1) {
         display.setCursor(32, 48);

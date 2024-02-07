@@ -1,5 +1,7 @@
 #include "filesystem.h"
 
+#include "serial.h"
+
 #define LILKA_FSROOT "/fs"
 
 namespace lilka {
@@ -7,10 +9,12 @@ namespace lilka {
 Filesystem::Filesystem() {}
 
 void Filesystem::begin() {
-    Serial.print("Initializing filesystem... ");
-    SPIFFS.begin(false, LILKA_FSROOT);
+    serial_log("initializing SPIFFS");
+    if (!SPIFFS.begin(false, LILKA_FSROOT)) {
+        serial_log("failed to initialize SPIFFS");
+    }
     _filesystem = &SPIFFS;
-    Serial.println("done");
+    serial_log("SPIFFS ok");
 }
 
 int Filesystem::readdir(String filenames[]) {

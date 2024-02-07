@@ -4,6 +4,7 @@
 namespace lilka {
 
 void serial_begin();
+void serial_log(const char *message, ...);
 
 }
 

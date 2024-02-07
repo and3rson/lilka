@@ -1,5 +1,6 @@
 #include <Arduino.h>
 
+#include "serial.h"
 #include "controller.h"
 
 namespace lilka {
@@ -26,10 +27,6 @@ void IRAM_ATTR Controller::handle_interrupt(int stateIndex) {
     if (handlers[stateIndex] != NULL) {
         handlers[stateIndex](state->pressed);
     }
-    // Serial.print("Button ");
-    // Serial.print(stateIndex);
-    // Serial.print(" ");
-    // Serial.println(state->pressed ? "pressed" : "released");
     state->time = micros();
 }
 
@@ -66,7 +63,7 @@ void IRAM_ATTR Controller::on_start() {
 }
 
 void Controller::begin() {
-    Serial.print("Initializing controller... ");
+    serial_log("initializing controller");
     void (*handlers[])(void) = {
         on_up, on_down, on_left, on_right, on_a, on_b, on_select, on_start,
     };
@@ -78,7 +75,7 @@ void Controller::begin() {
         pinMode(pins[i], INPUT_PULLUP);
         attachInterrupt(digitalPinToInterrupt(pins[i]), handlers[i], CHANGE);
     }
-    Serial.println("done");
+    serial_log("controller ready");
 }
 
 State Controller::state() {

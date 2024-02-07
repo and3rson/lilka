@@ -1,5 +1,7 @@
 #include "sdcard.h"
 
+#include "serial.h"
+
 namespace lilka {
 
 SDCard::SDCard() {
@@ -7,31 +9,23 @@ SDCard::SDCard() {
 }
 
 void SDCard::begin() {
-    Serial.print("Initializing SD card... ");
+    serial_log("initializing SD card");
 
 #if LILKA_SDCARD_CS < 0
-    Serial.println("failed: no CS pin");
+    serial_log("SD init failed: no CS pin");
 #else
     fs->begin(LILKA_SDCARD_CS, SPI, 1000000);
-    Serial.print("done, SD card type: ");
-    switch (fs->cardType()) {
-        case CARD_NONE:
-            Serial.println("None");
-            break;
-        case CARD_SD:
-            Serial.print("SD, ");
-            break;
-        case CARD_SDHC:
-            Serial.print("SDHC, ");
-            break;
-        default:
-            Serial.println("Unknown");
-            break;
+    sdcard_type_t cardType = fs->cardType();
+
+    if (cardType == CARD_NONE) {
+        serial_log("no SD card found");
+        return;
     }
-    if (fs->cardType() == CARD_SD || fs->cardType() == CARD_SDHC) {
-        Serial.print("SD card size: ");
-        Serial.print(fs->totalBytes());
-        Serial.println(" bytes");
+
+    if (cardType == CARD_SD || cardType == CARD_SDHC) {
+        serial_log("card type: %s, card size: %d", cardType == CARD_SD ? "SD" : "SDHC", fs->totalBytes());
+    } else {
+        serial_log("unknown SD card type: %d", cardType);
     }
 #endif
 }
@@ -43,13 +37,11 @@ bool SDCard::available() {
 int SDCard::listDir(String path, Entry entries[]) {
     File root = fs->open(path);
     if (!root) {
-        Serial.print("listDir: failed to open directory: ");
-        Serial.println(path);
+        serial_log("listDir: failed to open directory: %s", path.c_str());
         return -1;
     }
     if (!root.isDirectory()) {
-        Serial.print("listDir: not a directory: ");
-        Serial.println(path);
+        serial_log("listDir: not a directory: %s", path.c_str());
         return -1;
     }
 
@@ -67,10 +59,6 @@ int SDCard::listDir(String path, Entry entries[]) {
         i++;
     }
     root.close();
-    // for (int i = 0; i < 1024; i++) {
-    //     SPI.transfer(0xAA); // http://elm-chan.org/docs/mmc/mmc_e.html#spibus
-    //     // SPI.write(0xAA); // http://elm-chan.org/docs/mmc/mmc_e.html#spibus
-    // }
     return i;
 }
 

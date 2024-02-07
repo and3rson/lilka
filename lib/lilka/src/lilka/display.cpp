@@ -2,6 +2,8 @@
 
 #include "splash.h"
 
+#include "serial.h"
+
 namespace lilka {
 
 LilkaBus::LilkaBus(int8_t dc, int8_t cs, int8_t sck, int8_t mosi, int8_t miso) : Arduino_ESP32SPI(dc, cs, sck, mosi, miso) {}
@@ -29,7 +31,7 @@ LilkaBus lilkaBus(LILKA_DISPLAY_DC, LILKA_DISPLAY_CS, LILKA_SPI_SCK, LILKA_SPI_M
 Display::Display() : Arduino_ST7789(&lilkaBus, LILKA_DISPLAY_RST, LILKA_DISPLAY_ROTATION, true, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, 0, 20) {}
 
 void Display::begin() {
-    Serial.print("Initializing display... ");
+    serial_log("initializing display");
     Arduino_ST7789::begin();
     setFont(u8g2_font_10x20_t_cyrillic);
     setUTF8Print(true);
@@ -65,7 +67,7 @@ void Display::begin() {
         }
         endWrite();
     }
-    Serial.println("done");
+    serial_log("display ok");
 }
 
 Display display;
