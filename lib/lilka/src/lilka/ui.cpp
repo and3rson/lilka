@@ -13,8 +13,9 @@ int ui_menu(String title, String menu[], int menu_size, int cursor, const menu_i
     while (1) {
         uint8_t desiredCursorY = cursor * 24 + 96 - 20;
         canvas.fillScreen(canvas.color565(0, 0, 0));
-        canvas.fillTriangle(0, 0, 64, 0, 0, 32, canvas.color565(0, 0, 255));
-        canvas.fillTriangle(LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, LILKA_DISPLAY_WIDTH - 64, LILKA_DISPLAY_HEIGHT, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT - 32, canvas.color565(255, 255, 0));
+        int8_t angleShift = sin(millis() / 1000.0) * 16;
+        canvas.fillTriangle(0, 0, 48 - angleShift, 0, 0, 48 + angleShift, canvas.color565(0, 0, 255));
+        canvas.fillTriangle(LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, LILKA_DISPLAY_WIDTH - 48 + angleShift, LILKA_DISPLAY_HEIGHT, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT - 48 - angleShift, canvas.color565(255, 255, 0));
         canvas.setCursor(32, 48);
         canvas.setTextColor(canvas.color565(255, 255, 255));
         canvas.setFont(u8g2_font_6x13_t_cyrillic);

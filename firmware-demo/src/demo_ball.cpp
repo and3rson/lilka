@@ -29,8 +29,17 @@ void demo_ball() {
         }
 
         canvas.fillCircle(x, y, radius, canvas.color565(255, 200, 0));
-        if (lilka::controller.getState().start.justPressed) {
+        lilka::State state = lilka::controller.getState();
+        if (state.start.justPressed) {
             return;
+        } else if (state.up.justPressed) {
+            yVelo = -500;
+        } else if (state.down.justPressed) {
+            yVelo = 500;
+        } else if (state.left.justPressed) {
+            xVelo = -500;
+        } else if (state.right.justPressed) {
+            xVelo = 500;
         }
 
         // Calculate FPS
