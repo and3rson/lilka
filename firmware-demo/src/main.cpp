@@ -112,7 +112,7 @@ void loop() {
         } else if (cursor == 1) {
             sd_browser_menu("/");
         } else if (cursor == 2) {
-            lilka::ui_alert("Лілка", "by Андерсон\n& friends");
+            lilka::ui_alert("Лілка Demo OS", "by Андерсон\n& friends");
         }
     }
 }
