@@ -31,6 +31,16 @@ void IRAM_ATTR Controller::handle_interrupt(int stateIndex) {
     if (handlers[stateIndex] != NULL) {
         handlers[stateIndex](state->pressed);
     }
+    if (state->pressed) {
+        if (_seq[_seqIndex++] == stateIndex) {
+            if (_seqIndex == 10) {
+                _seqIndex = 0;
+                serial_log("do the barrel roll!");
+            }
+        } else {
+            _seqIndex = 0;
+        }
+    }
     state->time = micros();
 }
 
