@@ -41,7 +41,7 @@ int ui_menu(String title, String menu[], int menu_size, int cursor, const menu_i
             // canvas.fillRect(0, 96 + i * 24 - 20, LILKA_DISPLAY_WIDTH, 24, i == cursor ? canvas.color565(255, 64, 0) : canvas.color565(0, 0, 0));
             canvas.setTextBound(0, 96 + i * 24 - 20, LILKA_DISPLAY_WIDTH, 24);
             if (icons != NULL && icons[i] != NULL) {
-                canvas.draw16bitRGBBitmap(0, 96 + i * 24 - 20, const_cast<uint16_t *>(*icons[i]), 24, 24);
+                canvas.draw16bitRGBBitmapWithTranColor(0, 96 + i * 24 - 20, const_cast<uint16_t *>(*icons[i]), canvas.color565(0, 0, 0), 24, 24);
             }
             canvas.setCursor(32, 96 + i * 24);
             canvas.setTextColor(canvas.color565(255, 255, 255));
