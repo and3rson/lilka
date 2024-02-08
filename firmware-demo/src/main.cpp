@@ -45,36 +45,88 @@ void demo2() {
     };
     float x = random(16, canvas.width() - 16);
     float y = random(16, canvas.height() - 16);
-    float xDir = 1;
-    float yDir = 1;
+    float xDir = 3;
+    float yDir = 3;
+    int16_t radius = 16;
+    uint64_t prevRenderTime = millis();
     while (1) {
         canvas.fillScreen(canvas.color565(0, 0, 0));
-        x += xDir * 0.25;
-        y += yDir * 0.25;
+        x += xDir;
+        y += yDir;
         bool hit = false;
-        if (x < 0 || x > canvas.width()) {
+        if (x < radius || x > canvas.width() - radius) {
             xDir *= -1;
         }
-        if (y < 0 || y > canvas.height()) {
+        if (y < radius || y > canvas.height() - radius) {
             yDir *= -1;
         }
         if (hit) {
             // Rotate vector a little bit randomly
-            float angle = ((float)random(-15, 15)) / 180 * PI;
+            float angle = ((float)random(-30, 30)) / 180 * PI;
             float xDirNew = xDir * cos(angle) - yDir * sin(angle);
             float yDirNew = xDir * sin(angle) + yDir * cos(angle);
             xDir = xDirNew;
             yDir = yDirNew;
         }
-        canvas.drawCircle(x, y, 16, random(0, 0xFFFF));
+        canvas.drawCircle(x, y, radius, 0xFFFF);
         if (lilka::controller.state().start) {
             return;
         }
+
+        // Calculate FPS
+        canvas.setCursor(16, 32);
+        canvas.println("FPS: " + String(1000 / (millis() - prevRenderTime)));
+        prevRenderTime = millis();
+
         lilka::display.renderCanvas(canvas);
     }
 }
 
 void demo3() {
+    lilka::Canvas canvas;
+    canvas.begin();
+    while (lilka::controller.state().start) {
+    };
+    float x = LILKA_DISPLAY_WIDTH / 2;
+    float y = LILKA_DISPLAY_HEIGHT / 4;
+    float xVelo = 320, yVelo = 0;
+    float gravity = 1500.0;
+    int16_t radius = 16;
+    uint64_t prevRenderTime = millis();
+    while (1) {
+        float delta = (millis() - prevRenderTime) / 1000.0;
+
+        canvas.fillScreen(canvas.color565(0, 0, 0));
+
+        yVelo += gravity * delta;
+        x += xVelo * delta;
+        y += yVelo * delta;
+
+        if (x < radius || x > canvas.width() - radius) {
+            xVelo *= -0.9;
+            x = x < radius ? radius : canvas.width() - radius;
+        }
+        if (y < radius || y > canvas.height() - radius) {
+            yVelo *= -0.9;
+            xVelo *= 0.95; // Тертя
+            y = y < radius ? radius : canvas.height() - radius;
+        }
+
+        canvas.fillCircle(x, y, radius, canvas.color565(255, 200, 0));
+        if (lilka::controller.state().start) {
+            return;
+        }
+
+        // Calculate FPS
+        canvas.setCursor(16, 32);
+        canvas.println("FPS: " + String(1000 / (millis() - prevRenderTime)));
+        prevRenderTime = millis();
+
+        lilka::display.renderCanvas(canvas);
+    }
+}
+
+void demo4() {
     while (lilka::controller.state().start) {
     };
     while (1) {
@@ -94,14 +146,15 @@ void demos_menu() {
 
     String demos[] = {
         "Хаос",
+        "Шайба",
         "М'ячик",
         "Епілепсія",
         "<< Назад",
     };
     int cursor;
     while (1) {
-        cursor = lilka::ui_menu("Оберіть демо:", demos, 4, cursor);
-        if (cursor == 3) {
+        cursor = lilka::ui_menu("Оберіть демо:", demos, 5, cursor);
+        if (cursor == 4) {
             return;
         }
         demo_funcs[cursor]();
