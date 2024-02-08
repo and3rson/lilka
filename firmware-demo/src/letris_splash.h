@@ -1,5 +1,9 @@
+// This file was generated automatically. Do not edit.
 // clang-format off
-const uint16_t letris[] = {
+#include <stdint.h>
+const uint16_t letris_splash_width = 240;
+const uint16_t letris_splash_height = 64;
+const uint16_t letris_splash[] = {
     0x0015,
     0x0015,
     0x0015,

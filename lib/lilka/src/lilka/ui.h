@@ -7,7 +7,7 @@
 
 namespace lilka {
 
-int ui_menu(String title, String menu[], int menu_size, int cursor, menu_icon_t *icons[] = 0);
+int ui_menu(String title, String menu[], int menu_size, int cursor, const menu_icon_t *icons[] = 0);
 void ui_alert(String title, String message);
 
 } // namespace lilka

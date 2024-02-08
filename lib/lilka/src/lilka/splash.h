@@ -1,4 +1,8 @@
+// This file was generated automatically. Do not edit.
 // clang-format off
+#include <stdint.h>
+const uint16_t splash_width = 240;
+const uint16_t splash_height = 280;
 const uint16_t splash[] = {
     0x00eb,
     0x00eb,

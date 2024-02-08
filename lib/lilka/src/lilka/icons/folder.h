@@ -1,5 +1,9 @@
+// This file was generated automatically. Do not edit.
 // clang-format off
-uint16_t folder[] = {
+#include <stdint.h>
+const uint16_t folder_width = 24;
+const uint16_t folder_height = 24;
+const uint16_t folder[] = {
     0x0000,
     0x0000,
     0x0000,

@@ -5,7 +5,7 @@
 
 namespace lilka {
 
-int ui_menu(String title, String menu[], int menu_size, int cursor, menu_icon_t *icons[]) {
+int ui_menu(String title, String menu[], int menu_size, int cursor, const menu_icon_t *icons[]) {
     display.fillScreen(display.color565(0, 0, 0));
     controller.resetState();
     while (1) {
@@ -21,7 +21,7 @@ int ui_menu(String title, String menu[], int menu_size, int cursor, menu_icon_t 
         for (int i = 0; i < menu_size; i++) {
             display.fillRect(0, 96 + i * 24 - 20, LILKA_DISPLAY_WIDTH, 24, i == cursor ? display.color565(255, 0, 0) : display.color565(0, 0, 0));
             if (icons != NULL && icons[i] != NULL) {
-                display.draw16bitRGBBitmapWithTranColor(0, 96 + i * 24 - 20, *icons[i], display.color565(0, 0, 0), 24, 24);
+                display.draw16bitRGBBitmap(0, 96 + i * 24 - 20, *icons[i], 24, 24);
             }
             display.setCursor(32, 96 + i * 24);
             display.setTextColor(display.color565(255, 255, 255));

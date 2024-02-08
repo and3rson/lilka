@@ -1,6 +1,6 @@
 #include <lilka.h>
 
-#include "letris.h"
+#include "letris_splash.h"
 
 #define BLOCK_SIZE 10
 #define FIELD_COLS 10
@@ -141,7 +141,7 @@ void demo_letris() {
         for (uint16_t y = 0; y < 64; y++) {
             int16_t xShift = sin(time * 5 + y / 4.0) * 8;
             for (uint16_t x = 0; x < 128; x++) {
-                canvas.drawPixel(x + xShift, y, letris[y * LILKA_DISPLAY_WIDTH + x]);
+                canvas.drawPixel(x + xShift, y, letris_splash[y * LILKA_DISPLAY_WIDTH + x]);
             }
         }
         lilka::display.renderCanvas(canvas);

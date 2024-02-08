@@ -1,5 +1,9 @@
+// This file was generated automatically. Do not edit.
 // clang-format off
-uint16_t nes[] = {
+#include <stdint.h>
+const uint16_t nes_width = 24;
+const uint16_t nes_height = 24;
+const uint16_t nes[] = {
     0x0000,
     0x0000,
     0x0000,

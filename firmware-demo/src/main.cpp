@@ -62,7 +62,7 @@ void sd_browser_menu(String path) {
     }
 
     String filenames[32];
-    menu_icon_t *icons[32];
+    const menu_icon_t *icons[32];
     for (int i = 0; i < numEntries; i++) {
         filenames[i] = entries[i].name;
         icons[i] = entries[i].type == lilka::EntryType::DIRECTORY ? &folder : (entries[i].name.endsWith(".rom") || entries[i].name.endsWith(".nes")) ? &nes : &file;
