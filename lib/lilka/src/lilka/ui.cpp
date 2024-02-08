@@ -6,28 +6,34 @@
 namespace lilka {
 
 int ui_menu(String title, String menu[], int menu_size, int cursor, const menu_icon_t *icons[]) {
-    display.fillScreen(display.color565(0, 0, 0));
+    Canvas canvas;
+    canvas.begin();
+    canvas.fillScreen(canvas.color565(0, 0, 0));
+    canvas.fillTriangle(0, 0, 64, 0, 0, 32, canvas.color565(0, 0, 255));
+    canvas.fillTriangle(LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, LILKA_DISPLAY_WIDTH - 64, LILKA_DISPLAY_HEIGHT, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT - 32, canvas.color565(255, 255, 0));
     controller.resetState();
     while (1) {
-        display.setCursor(32, 48);
-        display.setTextColor(display.color565(255, 255, 255));
-        display.setFont(u8g2_font_6x13_t_cyrillic);
-        display.setTextSize(2);
-        display.println(title);
-        display.println();
-        display.setTextSize(1);
-        display.setFont(u8g2_font_10x20_t_cyrillic);
+        canvas.setCursor(32, 48);
+        canvas.setTextColor(canvas.color565(255, 255, 255));
+        canvas.setFont(u8g2_font_6x13_t_cyrillic);
+        canvas.setTextSize(2);
+        canvas.println(title);
+        canvas.println();
+        canvas.setTextSize(1);
+        canvas.setFont(u8g2_font_10x20_t_cyrillic);
 
         for (int i = 0; i < menu_size; i++) {
-            display.fillRect(0, 96 + i * 24 - 20, LILKA_DISPLAY_WIDTH, 24, i == cursor ? display.color565(255, 0, 0) : display.color565(0, 0, 0));
+            canvas.fillRect(0, 96 + i * 24 - 20, LILKA_DISPLAY_WIDTH, 24, i == cursor ? canvas.color565(255, 64, 0) : canvas.color565(0, 0, 0));
+            canvas.setTextBound(0, 96 + i * 24 - 20, LILKA_DISPLAY_WIDTH, 24);
             if (icons != NULL && icons[i] != NULL) {
-                display.draw16bitRGBBitmap(0, 96 + i * 24 - 20, *icons[i], 24, 24);
+                canvas.draw16bitRGBBitmap(0, 96 + i * 24 - 20, const_cast<uint16_t *>(*icons[i]), 24, 24);
             }
-            display.setCursor(32, 96 + i * 24);
-            display.setTextColor(display.color565(255, 255, 255));
+            canvas.setCursor(32, 96 + i * 24);
+            canvas.setTextColor(canvas.color565(255, 255, 255));
             // gfx->print(i == cursor ? "> " : "  ");
-            display.println(menu[i]);
+            canvas.println(menu[i]);
         }
+        display.renderCanvas(canvas);
 
         State state = controller.getState();
 
@@ -67,14 +73,14 @@ void ui_alert(String title, String message) {
 
     controller.resetState();
 
-    display.fillRect(left, top, width, mid - top, display.color565(32, 96, 96));
+    display.fillRect(left, top, width, mid - top, display.color565(32, 32, 128));
     display.setFont(u8g2_font_6x13_t_cyrillic);
     display.setTextSize(2);
     display.setTextBound(left + xMargin, top, width - xMargin * 2, mid - top);
     display.setCursor(left + xMargin, top + 13 * 2);
     display.println(title);
 
-    display.fillRect(left, mid, width, bottom - mid, display.color565(32, 32, 32));
+    display.fillRect(left, mid, width, bottom - mid, display.color565(32, 96, 96));
     display.setFont(u8g2_font_10x20_t_cyrillic);
     display.setTextSize(1);
     display.setTextBound(left + xMargin, top, width - xMargin * 2, bottom - mid);

@@ -10,12 +10,12 @@
 
 const bool shapesData[7][4][4] = {
     {{0, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 0, 0}}, // I
-    {{1, 1, 0, 0}, {0, 1, 1, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}, // O
-    {{0, 1, 1, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}, // S
-    {{1, 1, 0, 0}, {0, 1, 1, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}, // Z
-    {{1, 1, 1, 0}, {0, 1, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}, // T
-    {{1, 1, 1, 1}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}, // L
-    {{1, 1, 1, 0}, {1, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}, // J
+    {{0, 0, 0, 0}, {0, 1, 1, 0}, {0, 1, 1, 0}, {0, 0, 0, 0}}, // O
+    {{0, 0, 0, 0}, {0, 1, 1, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}}, // S
+    {{0, 0, 0, 0}, {1, 1, 0, 0}, {0, 1, 1, 0}, {0, 0, 0, 0}}, // Z
+    {{0, 0, 0, 0}, {1, 1, 1, 0}, {0, 1, 0, 0}, {0, 0, 0, 0}}, // T
+    {{0, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 1, 0}}, // L
+    {{0, 0, 1, 0}, {0, 0, 1, 0}, {0, 0, 1, 0}, {0, 1, 1, 0}}, // J
 };
 
 const uint16_t colors[7] = {
@@ -52,12 +52,14 @@ public:
         y = 0;
     }
 
-    void draw() {
+    void draw(bool drawEmptyBlocks = false) {
         for (int yy = 0; yy < 4; yy++) {
             for (int xx = 0; xx < 4; xx++) {
                 if (this->shapeData[yy][xx]) {
                     canvas->fillRect(X_OFFSET + (this->x + xx) * BLOCK_SIZE, (this->y + yy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, color);
                     canvas->fillRect(X_OFFSET + (this->x + xx) * BLOCK_SIZE + 2, (this->y + yy) * BLOCK_SIZE + 2, BLOCK_SIZE - 4, BLOCK_SIZE - 4, lilka::display.color565(0, 0, 0));
+                } else if (drawEmptyBlocks) {
+                    canvas->fillRect(X_OFFSET + (this->x + xx) * BLOCK_SIZE, (this->y + yy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, lilka::display.color565(0, 0, 0));
                 }
             }
         }
@@ -105,6 +107,27 @@ public:
                 }
             }
         }
+        // Перевіряємо, чи є рядки, які можна видалити
+        for (int y = 0; y < FIELD_ROWS; y++) {
+            bool full = true;
+            for (int x = 0; x < FIELD_COLS; x++) {
+                if (!this->blocks[y][x]) {
+                    full = false;
+                    break;
+                }
+            }
+            if (full) {
+                // Видаляємо рядок
+                for (int yy = y; yy > 0; yy--) {
+                    for (int xx = 0; xx < FIELD_COLS; xx++) {
+                        this->blocks[yy][xx] = this->blocks[yy - 1][xx];
+                    }
+                }
+                for (int xx = 0; xx < FIELD_COLS; xx++) {
+                    this->blocks[0][xx] = 0;
+                }
+            }
+        }
     }
     bool willCollide(Shape *shape, int dx, int dy) {
         // Повертає true, якщо фігура зіткнеться з іншими блоками, якщо зміститься на (dx, dy)
@@ -133,15 +156,20 @@ void demo_letris() {
     Field field(&canvas);
     Shape shape(&canvas);
     Shape nextShape(&canvas);
+    nextShape.reset();
 
     // Вітання
     while (!lilka::controller.getState().start.justPressed) {
         float time = millis() / 1000.0;
         canvas.fillScreen(canvas.color565(0, 0, 0));
-        for (uint16_t y = 0; y < 64; y++) {
-            int16_t xShift = sin(time * 5 + y / 4.0) * 8;
-            for (uint16_t x = 0; x < 128; x++) {
-                canvas.drawPixel(x + xShift, y, letris_splash[y * LILKA_DISPLAY_WIDTH + x]);
+        float yShifts[letris_splash_width];
+        for (uint16_t x = 0; x < letris_splash_width; x++) {
+            yShifts[x] = cos(time + ((float)x) / 32.0) * 8;
+        }
+        for (uint16_t y = 0; y < letris_splash_height; y++) {
+            int16_t xShift = sin(time * 4 + y / 8.0) * 4;
+            for (uint16_t x = 0; x < letris_splash_width; x++) {
+                canvas.drawPixel(x + xShift, LILKA_DISPLAY_HEIGHT / 2 - letris_splash_height / 2 + y + yShifts[x], letris_splash[y * letris_splash_width + x]);
             }
         }
         lilka::display.renderCanvas(canvas);
@@ -166,7 +194,7 @@ void demo_letris() {
         bool fastDrop = false;
         while (1) {
             // Починаємо рух фігури
-            int nextMove = millis() + (fastDrop ? 50 : 500);
+            int nextMove = millis() + (fastDrop ? 25 : 500);
 
             // Затримуємо рух фігури, поки не наступив час для наступного кроку
             while (millis() < nextMove) {
@@ -179,7 +207,7 @@ void demo_letris() {
                 } else if (state.down.justPressed) { // TODO: Change to right
                     // Користувач натиснув вправо
                     dx = 1;
-                } else if (state.start.justPressed) { // TODO: Change to down
+                } else if (state.start.justPressed && !fastDrop) { // TODO: Change to down
                     // Користувач натиснув вниз
                     fastDrop = true;
                     nextMove = 0;
@@ -194,7 +222,7 @@ void demo_letris() {
                 // Малюємо поле та фігуру
                 field.draw();
                 shape.draw();
-                nextShape.draw();
+                nextShape.draw(true);
                 // Відображаємо зміни на екрані
                 lilka::display.renderCanvas(canvas);
             }
@@ -214,7 +242,4 @@ void demo_letris() {
 
     // Гра закінчилася. Виводимо повідомлення на екран
     lilka::ui_alert("Game over", "Гру завершено!\nТи намагався. :)");
-    while (!lilka::controller.getState().start.justPressed) {
-        delay(10);
-    }
 }
