@@ -39,7 +39,7 @@ for y in range(img.height):
 
 with open(out, "w") as f:
     print(f"Записуємо {len(pixels)} пікселів у {out}... ", end="")
-    print("// This file was generated automatically. Do not edit.", file=f)
+    print("// This is a generated file, do not edit.", file=f)
     print("// clang-format off", file=f)
     print(f"#include <stdint.h>", file=f)
     print(f"const uint16_t {var_name}_width = {img.width};", file=f)

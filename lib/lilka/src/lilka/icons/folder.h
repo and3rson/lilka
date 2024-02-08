@@ -1,4 +1,4 @@
-// This file was generated automatically. Do not edit.
+// This is a generated file, do not edit.
 // clang-format off
 #include <stdint.h>
 const uint16_t folder_width = 24;
