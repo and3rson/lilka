@@ -39,20 +39,23 @@ void demo1() {
 }
 
 void demo2() {
+    lilka::Canvas canvas;
+    canvas.begin();
     while (lilka::controller.state().start) {
     };
-    float x = random(16, lilka::display.width() - 16);
-    float y = random(16, lilka::display.height() - 16);
+    float x = random(16, canvas.width() - 16);
+    float y = random(16, canvas.height() - 16);
     float xDir = 1;
     float yDir = 1;
     while (1) {
+        canvas.fillScreen(canvas.color565(0, 0, 0));
         x += xDir * 0.25;
         y += yDir * 0.25;
         bool hit = false;
-        if (x < 0 || x > lilka::display.width()) {
+        if (x < 0 || x > canvas.width()) {
             xDir *= -1;
         }
-        if (y < 0 || y > lilka::display.height()) {
+        if (y < 0 || y > canvas.height()) {
             yDir *= -1;
         }
         if (hit) {
@@ -63,10 +66,11 @@ void demo2() {
             xDir = xDirNew;
             yDir = yDirNew;
         }
-        lilka::display.drawCircle(x, y, 16, random(0, 0xFFFF));
+        canvas.drawCircle(x, y, 16, random(0, 0xFFFF));
         if (lilka::controller.state().start) {
             return;
         }
+        lilka::display.renderCanvas(canvas);
     }
 }
 

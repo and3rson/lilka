@@ -6,29 +6,9 @@
 
 namespace lilka {
 
-LilkaBus::LilkaBus(int8_t dc, int8_t cs, int8_t sck, int8_t mosi, int8_t miso) : Arduino_ESP32SPI(dc, cs, sck, mosi, miso) {}
+Arduino_ESP32SPI displayBus(LILKA_DISPLAY_DC, LILKA_DISPLAY_CS, LILKA_SPI_SCK, LILKA_SPI_MOSI, LILKA_SPI_MISO);
 
-void LilkaBus::beginWrite() {
-#if CONFIG_IDF_TARGET_ESP32
-#    error "ESP32 is not supported"
-#elif CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3
-#    error "TODO"
-#else
-    SPIClass *spi = &SPI;
-#endif
-
-    // https://github.com/moononournation/Arduino_GFX/issues/433
-    // https://github.com/espressif/arduino-esp32/issues/9221
-    spi->beginTransaction(SPISettings(SPI_DEFAULT_FREQ, SPI_MSBFIRST, SPI_MODE3));
-    spi->write(0xFF);
-    spi->endTransaction();
-
-    Arduino_ESP32SPI::beginWrite();
-}
-
-LilkaBus lilkaBus(LILKA_DISPLAY_DC, LILKA_DISPLAY_CS, LILKA_SPI_SCK, LILKA_SPI_MOSI, LILKA_SPI_MISO);
-
-Display::Display() : Arduino_ST7789(&lilkaBus, LILKA_DISPLAY_RST, LILKA_DISPLAY_ROTATION, true, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, 0, 20) {}
+Display::Display() : Arduino_ST7789(&displayBus, LILKA_DISPLAY_RST, LILKA_DISPLAY_ROTATION, true, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, 0, 20) {}
 
 void Display::begin() {
     serial_log("initializing display");
@@ -69,6 +49,12 @@ void Display::begin() {
     }
     serial_log("display ok");
 }
+
+void Display::renderCanvas(Canvas &canvas) {
+    draw16bitRGBBitmap(0, 0, canvas.getFramebuffer(), LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT);
+}
+
+Canvas::Canvas() : Arduino_Canvas(LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, NULL) {}
 
 Display display;
 
