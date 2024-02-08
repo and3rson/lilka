@@ -18,143 +18,29 @@ extern "C" {
 #include <lilka/icons/folder.h>
 #include <lilka/icons/nes.h>
 
+extern void demo_lines();
+extern void demo_disc();
+extern void demo_epilepsy();
+extern void demo_ball();
+extern void demo_tetris();
+
 void setup() {
     lilka::begin();
 }
 
-void demo1() {
-    while (lilka::controller.state().start) {
-    };
-    while (1) {
-        int x1 = random(0, lilka::display.width());
-        int y1 = random(0, lilka::display.height());
-        int x2 = random(0, lilka::display.width());
-        int y2 = random(0, lilka::display.height());
-        uint16_t color = random(0, 0xFFFF);
-        lilka::display.drawLine(x1, y1, x2, y2, color);
-        if (lilka::controller.state().start) {
-            return;
-        }
-    }
-}
-
-void demo2() {
-    lilka::Canvas canvas;
-    canvas.begin();
-    while (lilka::controller.state().start) {
-    };
-    float x = random(16, canvas.width() - 16);
-    float y = random(16, canvas.height() - 16);
-    float xDir = 3;
-    float yDir = 3;
-    int16_t radius = 16;
-    uint64_t prevRenderTime = millis();
-    while (1) {
-        canvas.fillScreen(canvas.color565(0, 0, 0));
-        x += xDir;
-        y += yDir;
-        bool hit = false;
-        if (x < radius || x > canvas.width() - radius) {
-            xDir *= -1;
-        }
-        if (y < radius || y > canvas.height() - radius) {
-            yDir *= -1;
-        }
-        if (hit) {
-            // Rotate vector a little bit randomly
-            float angle = ((float)random(-30, 30)) / 180 * PI;
-            float xDirNew = xDir * cos(angle) - yDir * sin(angle);
-            float yDirNew = xDir * sin(angle) + yDir * cos(angle);
-            xDir = xDirNew;
-            yDir = yDirNew;
-        }
-        canvas.drawCircle(x, y, radius, 0xFFFF);
-        if (lilka::controller.state().start) {
-            return;
-        }
-
-        // Calculate FPS
-        canvas.setCursor(16, 32);
-        canvas.println("FPS: " + String(1000 / (millis() - prevRenderTime)));
-        prevRenderTime = millis();
-
-        lilka::display.renderCanvas(canvas);
-    }
-}
-
-void demo3() {
-    lilka::Canvas canvas;
-    canvas.begin();
-    while (lilka::controller.state().start) {
-    };
-    float x = LILKA_DISPLAY_WIDTH / 2;
-    float y = LILKA_DISPLAY_HEIGHT / 4;
-    float xVelo = 320, yVelo = 0;
-    float gravity = 1500.0;
-    int16_t radius = 16;
-    uint64_t prevRenderTime = millis();
-    while (1) {
-        float delta = (millis() - prevRenderTime) / 1000.0;
-
-        canvas.fillScreen(canvas.color565(0, 0, 0));
-
-        yVelo += gravity * delta;
-        x += xVelo * delta;
-        y += yVelo * delta;
-
-        if (x < radius || x > canvas.width() - radius) {
-            xVelo *= -0.9;
-            x = x < radius ? radius : canvas.width() - radius;
-        }
-        if (y < radius || y > canvas.height() - radius) {
-            yVelo *= -0.9;
-            xVelo *= 0.95; // Тертя
-            y = y < radius ? radius : canvas.height() - radius;
-        }
-
-        canvas.fillCircle(x, y, radius, canvas.color565(255, 200, 0));
-        if (lilka::controller.state().start) {
-            return;
-        }
-
-        // Calculate FPS
-        canvas.setCursor(16, 32);
-        canvas.println("FPS: " + String(1000 / (millis() - prevRenderTime)));
-        prevRenderTime = millis();
-
-        lilka::display.renderCanvas(canvas);
-    }
-}
-
-void demo4() {
-    while (lilka::controller.state().start) {
-    };
-    while (1) {
-        lilka::display.fillScreen(random(0, 0xFFFF));
-        if (lilka::controller.state().start) {
-            return;
-        }
-    }
-}
-
 void demos_menu() {
     void (*demo_funcs[])() = {
-        demo1,
-        demo2,
-        demo3,
+        demo_lines, demo_disc, demo_ball, demo_epilepsy, demo_tetris,
     };
 
     String demos[] = {
-        "Хаос",
-        "Шайба",
-        "М'ячик",
-        "Епілепсія",
-        "<< Назад",
+        "Лінії", "Шайба", "М'ячик", "Епілепсія", "Тетріс", "<< Назад",
     };
+    int count = sizeof(demos) / sizeof(demos[0]);
     int cursor;
     while (1) {
-        cursor = lilka::ui_menu("Оберіть демо:", demos, 5, cursor);
-        if (cursor == 4) {
+        cursor = lilka::ui_menu("Оберіть демо:", demos, count, cursor);
+        if (cursor == count - 1) {
             return;
         }
         demo_funcs[cursor]();
@@ -214,13 +100,13 @@ void sd_browser_menu(String path) {
 void loop() {
     String menu[] = {
         "Демо",
-        // "Емулятор NES",
         "Браузер SD-карти",
         "Про систему",
     };
     int cursor;
+    int count = sizeof(menu) / sizeof(menu[0]);
     while (1) {
-        cursor = lilka::ui_menu("Головне меню", menu, 4, cursor);
+        cursor = lilka::ui_menu("Головне меню", menu, count, cursor);
         if (cursor == 0) {
             demos_menu();
         } else if (cursor == 1) {
