@@ -1,8 +1,6 @@
 #include <lilka.h>
 
 void demo_lines() {
-    while (lilka::controller.state().start) {
-    };
     while (1) {
         int x1 = random(0, lilka::display.width());
         int y1 = random(0, lilka::display.height());
@@ -10,7 +8,7 @@ void demo_lines() {
         int y2 = random(0, lilka::display.height());
         uint16_t color = random(0, 0xFFFF);
         lilka::display.drawLine(x1, y1, x2, y2, color);
-        if (lilka::controller.state().start) {
+        if (lilka::controller.getState().start.justPressed) {
             return;
         }
     }

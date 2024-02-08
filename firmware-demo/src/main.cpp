@@ -22,7 +22,7 @@ extern void demo_lines();
 extern void demo_disc();
 extern void demo_epilepsy();
 extern void demo_ball();
-extern void demo_tetris();
+extern void demo_letris();
 
 void setup() {
     lilka::begin();
@@ -30,7 +30,7 @@ void setup() {
 
 void demos_menu() {
     void (*demo_funcs[])() = {
-        demo_lines, demo_disc, demo_ball, demo_epilepsy, demo_tetris,
+        demo_lines, demo_disc, demo_ball, demo_epilepsy, demo_letris,
     };
 
     String demos[] = {

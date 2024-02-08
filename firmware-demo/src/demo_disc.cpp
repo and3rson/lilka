@@ -3,8 +3,6 @@
 void demo_disc() {
     lilka::Canvas canvas;
     canvas.begin();
-    while (lilka::controller.state().start) {
-    };
     float x = random(16, canvas.width() - 16);
     float y = random(16, canvas.height() - 16);
     float xDir = 3;
@@ -31,7 +29,7 @@ void demo_disc() {
             yDir = yDirNew;
         }
         canvas.drawCircle(x, y, radius, 0xFFFF);
-        if (lilka::controller.state().start) {
+        if (lilka::controller.getState().start.justPressed) {
             return;
         }
 

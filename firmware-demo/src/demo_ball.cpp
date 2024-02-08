@@ -3,8 +3,6 @@
 void demo_ball() {
     lilka::Canvas canvas;
     canvas.begin();
-    while (lilka::controller.state().start) {
-    };
     float x = LILKA_DISPLAY_WIDTH / 2;
     float y = LILKA_DISPLAY_HEIGHT / 4;
     float xVelo = 320, yVelo = 0;
@@ -31,7 +29,7 @@ void demo_ball() {
         }
 
         canvas.fillCircle(x, y, radius, canvas.color565(255, 200, 0));
-        if (lilka::controller.state().start) {
+        if (lilka::controller.getState().start.justPressed) {
             return;
         }
 
@@ -43,4 +41,3 @@ void demo_ball() {
         lilka::display.renderCanvas(canvas);
     }
 }
-

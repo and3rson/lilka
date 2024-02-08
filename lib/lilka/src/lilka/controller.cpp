@@ -9,8 +9,10 @@ Controller *Controller::_instance = NULL;
 
 Controller::Controller() {
     for (int i = 0; i < Button::COUNT; i++) {
-        states[i] = (ButtonState){
+        state.buttons[i] = (ButtonState){
             .pressed = false,
+            .justPressed = false,
+            .justReleased = false,
             .time = 0,
         };
         handlers[i] = NULL;
@@ -19,11 +21,13 @@ Controller::Controller() {
 }
 
 void IRAM_ATTR Controller::handle_interrupt(int stateIndex) {
-    ButtonState *state = &states[stateIndex];
+    ButtonState *state = &Controller::_instance->state.buttons[stateIndex];
     if (millis() - state->time < LILKA_DEBOUNCE_TIME) {
         return;
     }
     state->pressed = !digitalRead(pins[stateIndex]);
+    state->justPressed = state->pressed;
+    state->justReleased = !state->pressed;
     if (handlers[stateIndex] != NULL) {
         handlers[stateIndex](state->pressed);
     }
@@ -62,6 +66,14 @@ void IRAM_ATTR Controller::on_start() {
     _instance->handle_interrupt(Button::START);
 }
 
+void Controller::resetState() {
+    for (int i = 0; i < Button::COUNT; i++) {
+        ButtonState *button = &_instance->state.buttons[i];
+        button->justPressed = false;
+        button->justReleased = false;
+    }
+}
+
 void Controller::begin() {
     serial_log("initializing controller");
     void (*handlers[])(void) = {
@@ -78,17 +90,10 @@ void Controller::begin() {
     serial_log("controller ready");
 }
 
-State Controller::state() {
-    return (State){
-        .up = states[Button::UP].pressed,
-        .down = states[Button::DOWN].pressed,
-        .left = states[Button::LEFT].pressed,
-        .right = states[Button::RIGHT].pressed,
-        .a = states[Button::A].pressed,
-        .b = states[Button::B].pressed,
-        .select = states[Button::SELECT].pressed,
-        .start = states[Button::START].pressed,
-    };
+State Controller::getState() {
+    State _current = state;
+    resetState();
+    return _current;
 }
 
 void Controller::setHandler(Button button, void (*handler)(bool)) {

@@ -7,6 +7,7 @@ namespace lilka {
 
 int ui_menu(String title, String menu[], int menu_size, int cursor, menu_icon_t *icons[]) {
     display.fillScreen(display.color565(0, 0, 0));
+    controller.resetState();
     while (1) {
         display.setCursor(32, 48);
         display.setTextColor(display.color565(255, 255, 255));
@@ -28,31 +29,26 @@ int ui_menu(String title, String menu[], int menu_size, int cursor, menu_icon_t 
             display.println(menu[i]);
         }
 
-        State state = controller.state();
-        while (state.up || state.down || state.start) {
-            // Wait for buttons to be released
-            state = controller.state();
+        State state = controller.getState();
+
+        while (!state.up.justPressed && !state.down.justPressed && !state.start.justPressed) {
+            state = controller.getState();
             delay(10);
         }
 
-        while (!state.up && !state.down && !state.start) {
-            state = controller.state();
-            delay(10);
-        }
-
-        if (state.up) {
+        if (state.up.justPressed) {
             // Move cursor up
             cursor--;
             if (cursor < 0) {
                 cursor = menu_size - 1;
             }
-        } else if (state.down) {
+        } else if (state.down.justPressed) {
             // Move cursor down
             cursor++;
             if (cursor >= menu_size) {
                 cursor = 0;
             }
-        } else if (state.start) {
+        } else if (state.start.justPressed) {
             // Execute selected function
             return cursor;
         }
@@ -69,6 +65,8 @@ void ui_alert(String title, String message) {
     int width = right - left;
     int xMargin = 4;
 
+    controller.resetState();
+
     display.fillRect(left, top, width, mid - top, display.color565(32, 96, 96));
     display.setFont(u8g2_font_6x13_t_cyrillic);
     display.setTextSize(2);
@@ -82,10 +80,7 @@ void ui_alert(String title, String message) {
     display.setTextBound(left + xMargin, top, width - xMargin * 2, bottom - mid);
     display.setCursor(left + xMargin, mid + 20);
     display.println(message);
-    while (controller.state().start) {
-        delay(10);
-    }
-    while (!controller.state().start) {
+    while (!controller.getState().start.justPressed) {
         delay(10);
     }
 }

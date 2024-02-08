@@ -23,25 +23,31 @@ typedef enum {
 
 typedef struct {
     bool pressed;
+    bool justPressed;
+    bool justReleased;
     uint64_t time;
 } ButtonState;
 
-typedef struct {
-    int up;
-    int down;
-    int left;
-    int right;
-    int a;
-    int b;
-    int select;
-    int start;
+typedef union {
+    struct {
+        ButtonState up;
+        ButtonState down;
+        ButtonState left;
+        ButtonState right;
+        ButtonState a;
+        ButtonState b;
+        ButtonState select;
+        ButtonState start;
+    };
+    ButtonState buttons[Button::COUNT];
 } State;
 
 class Controller {
 public:
     Controller();
     void begin();
-    State state();
+    void resetState();
+    State getState();
     void setHandler(Button button, void (*handler)(bool));
     void clearHandlers();
 
@@ -57,7 +63,7 @@ public:
 private:
     void handle_interrupt(int stateIndex);
     static Controller *_instance;
-    ButtonState states[Button::COUNT];
+    State state;
     int8_t pins[Button::COUNT] = {
         LILKA_GPIO_UP, LILKA_GPIO_DOWN, LILKA_GPIO_LEFT, LILKA_GPIO_RIGHT, LILKA_GPIO_A, LILKA_GPIO_B, LILKA_GPIO_SELECT, LILKA_GPIO_START,
     };
