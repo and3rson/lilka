@@ -14,20 +14,20 @@ void SDCard::begin() {
     serial_log("initializing SD card");
 
 #if LILKA_SDCARD_CS < 0
-    serial_log("SD init failed: no CS pin");
+    serial_err("SD init failed: no CS pin");
 #else
     fs->begin(LILKA_SDCARD_CS, SPI, 1000000, LILKA_SDROOT);
     sdcard_type_t cardType = fs->cardType();
 
     if (cardType == CARD_NONE) {
-        serial_log("no SD card found");
+        serial_err("no SD card found");
         return;
     }
 
     if (cardType == CARD_SD || cardType == CARD_SDHC) {
         serial_log("card type: %s, card size: %ld MB", cardType == CARD_SD ? "SD" : "SDHC", fs->totalBytes() / (1024 * 1024));
     } else {
-        serial_log("unknown SD card type: %d", cardType);
+        serial_err("unknown SD card type: %d", cardType);
     }
 #endif
 }
@@ -43,11 +43,11 @@ int SDCard::listDir(String path, Entry entries[]) {
     }
     File root = fs->open(path);
     if (!root) {
-        serial_log("listDir: failed to open directory: %s", path.c_str());
+        serial_err("listDir: failed to open directory: %s", path.c_str());
         return -1;
     }
     if (!root.isDirectory()) {
-        serial_log("listDir: not a directory: %s", path.c_str());
+        serial_err("listDir: not a directory: %s", path.c_str());
         return -1;
     }
 

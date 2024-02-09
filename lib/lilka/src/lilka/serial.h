@@ -5,6 +5,7 @@ namespace lilka {
 
 void serial_begin();
 void serial_log(const char *message, ...);
+void serial_err(const char *message, ...);
 
 } // namespace lilka
 

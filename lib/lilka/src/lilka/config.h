@@ -51,6 +51,31 @@
 
 #    define SDCARD_CS -1
 
+#elif LILKA_VERSION == 2
+
+// Lilka v2 (S3)
+
+#    define LILKA_GPIO_UP -1
+#    define LILKA_GPIO_DOWN -1
+#    define LILKA_GPIO_LEFT -1
+#    define LILKA_GPIO_RIGHT -1
+#    define LILKA_GPIO_SELECT -1
+#    define LILKA_GPIO_START -1
+#    define LILKA_GPIO_A -1
+#    define LILKA_GPIO_B -1
+
+#    define LILKA_SPI_SCK 42
+#    define LILKA_SPI_MOSI 41
+#    define LILKA_SPI_MISO 40
+#    define LILKA_DISPLAY_DC 39
+#    define LILKA_DISPLAY_CS 38
+#    define LILKA_DISPLAY_RST -1
+#    define LILKA_DISPLAY_ROTATION 0
+#    define LILKA_DISPLAY_WIDTH 240
+#    define LILKA_DISPLAY_HEIGHT 280
+
+#    define LILKA_SDCARD_CS 2
+
 #else
 #    error "LILKA_VERSION is not defined"
 #endif
