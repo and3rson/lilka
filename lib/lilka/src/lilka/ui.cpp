@@ -7,17 +7,32 @@
 
 namespace lilka {
 
+#define MENU_HEIGHT 7
+
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
 int ui_menu(String title, String menu[], int menu_size, int cursor, const menu_icon_t *icons[]) {
     Canvas canvas;
     canvas.begin();
     controller.resetState();
-    uint8_t cursorY = cursor * 24 + 96 - 20;
+    int16_t cursorY = cursor * 24 + 96 - 20;
+    int16_t scroll = 0;
     while (1) {
+        if (cursor < scroll) {
+            scroll = cursor;
+            cursorY = cursor * 24 + 96 - 20;
+        } else if (cursor > scroll + MENU_HEIGHT - 1) {
+            scroll = cursor - MENU_HEIGHT + 1;
+            cursorY = cursor * 24 + 96 - 20;
+        }
+
         uint8_t desiredCursorY = cursor * 24 + 96 - 20;
         canvas.fillScreen(canvas.color565(0, 0, 0));
         int8_t angleShift = sin(millis() / 1000.0) * 16;
+        // Draw triangle in top-left
         canvas.fillTriangle(0, 0, 48 - angleShift, 0, 0, 48 + angleShift, canvas.color565(0, 0, 255));
-        canvas.fillTriangle(LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, LILKA_DISPLAY_WIDTH - 48 + angleShift, LILKA_DISPLAY_HEIGHT, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT - 48 - angleShift, canvas.color565(255, 255, 0));
+        // Draw triangle in top-right
+        canvas.fillTriangle(LILKA_DISPLAY_WIDTH, 0, LILKA_DISPLAY_WIDTH - 48 - angleShift, 0, LILKA_DISPLAY_WIDTH, 48 - angleShift, canvas.color565(255, 255, 0));
         canvas.setCursor(32, 48);
         canvas.setTextColor(canvas.color565(255, 255, 255));
         canvas.setFont(u8g2_font_6x13_t_cyrillic);
@@ -27,7 +42,7 @@ int ui_menu(String title, String menu[], int menu_size, int cursor, const menu_i
         canvas.setTextSize(1);
         canvas.setFont(u8g2_font_10x20_t_cyrillic);
 
-        canvas.fillRect(0, cursorY, LILKA_DISPLAY_WIDTH, 24, canvas.color565(255, 64, 0));
+        canvas.fillRect(0, cursorY - scroll * 24, LILKA_DISPLAY_WIDTH, 24, canvas.color565(255, 64, 0));
         if (cursorY < desiredCursorY) {
             cursorY += ceil((float)(desiredCursorY - cursorY) / 2);
             if (cursorY > desiredCursorY) {
@@ -40,17 +55,29 @@ int ui_menu(String title, String menu[], int menu_size, int cursor, const menu_i
             }
         }
 
-        for (int i = 0; i < menu_size; i++) {
+        for (int i = scroll; i < MIN(scroll + MENU_HEIGHT, menu_size); i++) {
             // canvas.fillRect(0, 96 + i * 24 - 20, LILKA_DISPLAY_WIDTH, 24, i == cursor ? canvas.color565(255, 64, 0) : canvas.color565(0, 0, 0));
-            canvas.setTextBound(0, 96 + i * 24 - 20, LILKA_DISPLAY_WIDTH, 24);
+            int16_t screenI = i - scroll;
+            canvas.setTextBound(0, 96 + screenI * 24 - 20, LILKA_DISPLAY_WIDTH, 24);
             if (icons != NULL && icons[i] != NULL) {
                 canvas.draw16bitRGBBitmapWithTranColor(0, 96 + i * 24 - 20, const_cast<uint16_t *>(*icons[i]), canvas.color565(0, 0, 0), 24, 24);
             }
-            canvas.setCursor(32, 96 + i * 24);
+            canvas.setCursor(32, 96 + screenI * 24);
             canvas.setTextColor(canvas.color565(255, 255, 255));
             // gfx->print(i == cursor ? "> " : "  ");
             canvas.println(menu[i]);
         }
+
+        // Draw scrollbar
+        if (menu_size > MENU_HEIGHT) {
+            int top = 96 - 20;
+            int height = MENU_HEIGHT * 24;
+            canvas.fillRect(LILKA_DISPLAY_WIDTH - 8, top, 8, height, canvas.color565(96, 96, 96));
+            int barHeight = height * MENU_HEIGHT / menu_size;
+            int barTop = top + scroll * height / menu_size;
+            canvas.fillRect(LILKA_DISPLAY_WIDTH - 8, barTop, 8, barHeight, canvas.color565(255, 255, 255));
+        }
+
         display.renderCanvas(canvas);
 
         State state = controller.getState();
