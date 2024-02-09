@@ -23,6 +23,7 @@ extern void demo_disc();
 extern void demo_epilepsy();
 extern void demo_ball();
 extern void demo_letris();
+extern void demo_user_spi();
 
 void setup() {
     lilka::begin();
@@ -30,11 +31,11 @@ void setup() {
 
 void demos_menu() {
     void (*demo_funcs[])() = {
-        demo_lines, demo_disc, demo_ball, demo_epilepsy, demo_letris,
+        demo_lines, demo_disc, demo_ball, demo_epilepsy, demo_letris, demo_user_spi,
     };
 
     String demos[] = {
-        "Лінії", "Шайба", "М'ячик", "Епілепсія", "Летріс", "<< Назад",
+        "Лінії", "Шайба", "М'ячик", "Епілепсія", "Летріс", "User SPI test", "<< Назад",
     };
     int count = sizeof(demos) / sizeof(demos[0]);
     int cursor = 0;
