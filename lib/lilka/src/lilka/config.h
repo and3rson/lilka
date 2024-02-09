@@ -55,14 +55,14 @@
 
 // Lilka v2 (S3)
 
-#    define LILKA_GPIO_UP -1
-#    define LILKA_GPIO_DOWN -1
-#    define LILKA_GPIO_LEFT -1
-#    define LILKA_GPIO_RIGHT -1
-#    define LILKA_GPIO_SELECT -1
-#    define LILKA_GPIO_START -1
-#    define LILKA_GPIO_A -1
-#    define LILKA_GPIO_B -1
+#    define LILKA_GPIO_UP 4
+#    define LILKA_GPIO_DOWN 7
+#    define LILKA_GPIO_LEFT 5
+#    define LILKA_GPIO_RIGHT 6
+#    define LILKA_GPIO_SELECT 18
+#    define LILKA_GPIO_START 0
+#    define LILKA_GPIO_A 14
+#    define LILKA_GPIO_B 13
 
 #    define LILKA_SPI_SCK 42
 #    define LILKA_SPI_MOSI 41
