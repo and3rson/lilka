@@ -37,7 +37,7 @@ void demos_menu() {
         "Лінії", "Шайба", "М'ячик", "Епілепсія", "Летріс", "<< Назад",
     };
     int count = sizeof(demos) / sizeof(demos[0]);
-    int cursor;
+    int cursor = 0;
     while (1) {
         cursor = lilka::ui_menu("Оберіть демо:", demos, count, cursor);
         if (cursor == count - 1) {
@@ -103,7 +103,7 @@ void loop() {
         "Браузер SD-карти",
         "Про систему",
     };
-    int cursor;
+    int cursor = 0;
     int count = sizeof(menu) / sizeof(menu[0]);
     while (1) {
         cursor = lilka::ui_menu("Головне меню", menu, count, cursor);
