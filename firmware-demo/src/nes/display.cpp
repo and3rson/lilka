@@ -48,42 +48,18 @@ extern "C" void display_init() {
 }
 
 extern "C" void display_write_frame(const uint8_t *data[]) {
-    // nofrendo_log_printf("display_write_frame\n");
-    // gfx->fillScreen(gfx->color565(0, 0, 255));
-    // gfx->drawPixel(120, 140, gfx->color565(255, 255, 255));
-    // Arduino_TFT *gfx = lilka_display_get();
-
     last_frame_duration = micros() - last_render;
     last_render = micros();
 
-    // gfx->drawLine(0, 0, 280, 240, gfx->color565(255, 0, 0));
-    // bus = new Arduino_ESP32SPI(3 /* DC */, 21 /* CS */, 0 /* SCK */, 1 /* MOSI */, -1);
     lilka::display.startWrite();
-    if (w < 480) {
-        // for (int32_t y = 0; y < frame_height; y++)
-        // {
-        //     for (int32_t x = 0; x < frame_line_pixels; x++)
-        //     {
-        //         // uint8_t index = (data[y][x + frame_x_offset]);
-        //         // gfx->writeColor(myPalette[index], 1);
-        //         // gfx->writePixel(x + frame_x, y + frame_y, myPalette[index]);
-        //         nofrendo_log_printf("x: %d, y: %d\n", x, y);
-        //         gfx->writePixel(x + 32, y + 32, rand() % 65536);
-        //     }
-        // }
-        lilka::display.writeAddrWindow(frame_x, frame_y, frame_width, frame_height);
-        // nofrendo_log_printf("Start\n");
-        for (int32_t i = 0; i < NES_SCREEN_HEIGHT; i++) {
-            // nofrendo_log_printf("line %d of %d: \n", i, NES_SCREEN_HEIGHT);
-            lilka::display.writeIndexedPixels((uint8_t *)(data[i] + frame_x_offset), myPalette, frame_line_pixels);
-        }
-        // nofrendo_log_printf("End\n");
+    lilka::display.writeAddrWindow(frame_x, frame_y, frame_width, frame_height);
+    // nofrendo_log_printf("Start\n");
+    for (int32_t i = 0; i < NES_SCREEN_HEIGHT; i++) {
+        lilka::display.writeIndexedPixels((uint8_t *)(data[i] + frame_x_offset), myPalette, frame_line_pixels);
     }
-    // gfx->endWrite();
     lilka::display.endWrite();
     if (last_frame_duration > 0) {
         lilka::display.fillRect(80, LILKA_DISPLAY_HEIGHT - 20, 80, 20, lilka::display.color565(0, 0, 0));
-        // gfx->fillRect(0, 0, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, gfx->color565(255, 0, 0));
         lilka::display.setCursor(80, LILKA_DISPLAY_HEIGHT - 4);
         lilka::display.setTextSize(1);
         lilka::display.setTextColor(lilka::display.color565(128, 128, 128));

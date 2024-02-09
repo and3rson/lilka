@@ -1,6 +1,7 @@
 #include "sdcard.h"
 
 #include "serial.h"
+#include "spi.h"
 
 #define LILKA_SDROOT "/sd"
 
@@ -16,7 +17,7 @@ void SDCard::begin() {
 #if LILKA_SDCARD_CS < 0
     serial_err("SD init failed: no CS pin");
 #else
-    fs->begin(LILKA_SDCARD_CS, SPI, 1000000, LILKA_SDROOT);
+    fs->begin(LILKA_SDCARD_CS, SPI1, 1000000, LILKA_SDROOT);
     sdcard_type_t cardType = fs->cardType();
 
     if (cardType == CARD_NONE) {

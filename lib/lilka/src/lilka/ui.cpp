@@ -3,6 +3,8 @@
 #include "lilka/display.h"
 #include "lilka/controller.h"
 
+#include "serial.h"
+
 namespace lilka {
 
 int ui_menu(String title, String menu[], int menu_size, int cursor, const menu_icon_t *icons[]) {
