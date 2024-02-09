@@ -57,8 +57,8 @@
 
 #    define LILKA_GPIO_UP 4
 #    define LILKA_GPIO_DOWN 7
-#    define LILKA_GPIO_LEFT 5
-#    define LILKA_GPIO_RIGHT 6
+#    define LILKA_GPIO_LEFT 6
+#    define LILKA_GPIO_RIGHT 5
 #    define LILKA_GPIO_SELECT 18
 #    define LILKA_GPIO_START 0
 #    define LILKA_GPIO_A 14
@@ -66,7 +66,7 @@
 
 #    define LILKA_SPI_SCK 42
 #    define LILKA_SPI_MOSI 41
-#    define LILKA_SPI_MISO 40
+#    define LILKA_SPI_MISO 2 // Was 40
 #    define LILKA_DISPLAY_DC 39
 #    define LILKA_DISPLAY_CS 38
 #    define LILKA_DISPLAY_RST -1
@@ -74,7 +74,7 @@
 #    define LILKA_DISPLAY_WIDTH 240
 #    define LILKA_DISPLAY_HEIGHT 280
 
-#    define LILKA_SDCARD_CS 2
+#    define LILKA_SDCARD_CS 40 // Was 2
 
 #else
 #    error "LILKA_VERSION is not defined"
