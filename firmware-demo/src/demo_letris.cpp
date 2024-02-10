@@ -14,8 +14,8 @@ const bool shapesData[7][4][4] = {
     {{0, 0, 0, 0}, {0, 1, 1, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}}, // S
     {{0, 0, 0, 0}, {1, 1, 0, 0}, {0, 1, 1, 0}, {0, 0, 0, 0}}, // Z
     {{0, 0, 0, 0}, {1, 1, 1, 0}, {0, 1, 0, 0}, {0, 0, 0, 0}}, // T
-    {{0, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 1, 0}}, // L
-    {{0, 0, 1, 0}, {0, 0, 1, 0}, {0, 0, 1, 0}, {0, 1, 1, 0}}, // J
+    {{0, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 1, 0}, {0, 0, 0, 0}}, // L
+    {{0, 0, 1, 0}, {0, 0, 1, 0}, {0, 1, 1, 0}, {0, 0, 0, 0}}, // J
 };
 
 const uint16_t colors[7] = {
@@ -77,13 +77,15 @@ public:
 
     void rotate() {
         // Rotate shape right
-        for (int yy = 0; yy < 4; yy++) {
-            for (int xx = 0; xx < 4; xx++) {
-                int temp = this->shapeData[yy][xx];
-                this->shapeData[yy][xx] = this->shapeData[3 - xx][yy];
-                this->shapeData[3 - xx][yy] = this->shapeData[3 - yy][3 - xx];
-                this->shapeData[3 - yy][3 - xx] = this->shapeData[xx][3 - yy];
-                this->shapeData[xx][3 - yy] = temp;
+        int newShapeData[4][4];
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                newShapeData[i][j] = this->shapeData[3 - j][i];
+            }
+        }
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                this->shapeData[i][j] = newShapeData[i][j];
             }
         }
     }
