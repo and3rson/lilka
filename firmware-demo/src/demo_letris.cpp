@@ -223,7 +223,7 @@ void demo_letris() {
                 } else if (state.up.justPressed) {
                     // Користувач натиснув вгору
                     shape.rotate();
-                } else if (state.down.justPressed && !fastDrop) {
+                } else if ((state.down.justPressed || state.a.justPressed) && !fastDrop) {
                     // Користувач натиснув вниз
                     fastDrop = true;
                     nextMove = 0;
