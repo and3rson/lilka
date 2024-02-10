@@ -28,7 +28,6 @@ public:
     int x, y;
     int shapeData[4][4];
     uint16_t color;
-    int rotation;
 
     Shape(Arduino_Canvas *canvas) : canvas(canvas) {}
 
@@ -36,7 +35,6 @@ public:
         // Генерує нову фігуру. Нові фігури відображаються в вікні попереднього перегляду
         x = FIELD_COLS + 2;
         y = 2;
-        rotation = 0;
         uint8_t shapeIndex = random(0, 7);
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
@@ -74,6 +72,19 @@ public:
         if (this->canMove(dx, dy)) {
             this->x += dx;
             this->y += dy;
+        }
+    }
+
+    void rotate() {
+        // Rotate shape right
+        for (int yy = 0; yy < 4; yy++) {
+            for (int xx = 0; xx < 4; xx++) {
+                int temp = this->shapeData[yy][xx];
+                this->shapeData[yy][xx] = this->shapeData[3 - xx][yy];
+                this->shapeData[3 - xx][yy] = this->shapeData[3 - yy][3 - xx];
+                this->shapeData[3 - yy][3 - xx] = this->shapeData[xx][3 - yy];
+                this->shapeData[xx][3 - yy] = temp;
+            }
         }
     }
 
@@ -159,7 +170,7 @@ void demo_letris() {
     nextShape.reset();
 
     // Вітання
-    while (!lilka::controller.getState().start.justPressed) {
+    while (!lilka::controller.getState().a.justPressed) {
         float time = millis() / 1000.0;
         canvas.fillScreen(canvas.color565(0, 0, 0));
         float yShifts[letris_splash_width];
@@ -201,13 +212,16 @@ void demo_letris() {
                 // Обробляємо ввід
                 lilka::State state = lilka::controller.getState();
                 int8_t dx = 0, dy = 0;
-                if (state.up.justPressed) { // TODO: Change to left
+                if (state.left.justPressed) {
                     // Користувач натиснув вліво
                     dx = -1;
-                } else if (state.down.justPressed) { // TODO: Change to right
+                } else if (state.right.justPressed) {
                     // Користувач натиснув вправо
                     dx = 1;
-                } else if (state.start.justPressed && !fastDrop) { // TODO: Change to down
+                } else if (state.up.justPressed) {
+                    // Користувач натиснув вгору
+                    shape.rotate();
+                } else if (state.down.justPressed && !fastDrop) {
                     // Користувач натиснув вниз
                     fastDrop = true;
                     nextMove = 0;

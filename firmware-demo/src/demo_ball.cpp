@@ -30,7 +30,7 @@ void demo_ball() {
 
         canvas.fillCircle(x, y, radius, canvas.color565(255, 200, 0));
         lilka::State state = lilka::controller.getState();
-        if (state.start.justPressed) {
+        if (state.a.justPressed) {
             return;
         } else if (state.up.justPressed) {
             yVelo = -500;

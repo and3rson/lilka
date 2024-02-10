@@ -8,7 +8,7 @@ void demo_lines() {
         int y2 = random(0, lilka::display.height());
         uint16_t color = random(0, 0xFFFF);
         lilka::display.drawLine(x1, y1, x2, y2, color);
-        if (lilka::controller.getState().start.justPressed) {
+        if (lilka::controller.getState().a.justPressed) {
             return;
         }
     }

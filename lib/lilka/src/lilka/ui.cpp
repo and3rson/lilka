@@ -94,7 +94,7 @@ int ui_menu(String title, String menu[], int menu_size, int cursor, const menu_i
             if (cursor >= menu_size) {
                 cursor = 0;
             }
-        } else if (state.start.justPressed) {
+        } else if (state.a.justPressed) {
             // Execute selected function
             return cursor;
         }
@@ -126,7 +126,7 @@ void ui_alert(String title, String message) {
     display.setTextBound(left + xMargin, top, width - xMargin * 2, bottom - mid);
     display.setCursor(left + xMargin, mid + 20);
     display.println(message);
-    while (!controller.getState().start.justPressed) {
+    while (!controller.getState().a.justPressed) {
         delay(10);
     }
 }

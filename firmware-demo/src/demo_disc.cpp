@@ -29,7 +29,7 @@ void demo_disc() {
             yDir = yDirNew;
         }
         canvas.drawCircle(x, y, radius, 0xFFFF);
-        if (lilka::controller.getState().start.justPressed) {
+        if (lilka::controller.getState().a.justPressed) {
             return;
         }
 

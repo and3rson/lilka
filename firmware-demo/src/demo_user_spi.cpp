@@ -34,8 +34,8 @@ void demo_user_spi() {
     lilka::display.println("SPI2 end");
     lilka::SPI2.end();
 
-    lilka::display.println("Press start to exit");
-    while (!lilka::controller.getState().start.justPressed) {
+    lilka::display.println("Press A to exit");
+    while (!lilka::controller.getState().a.justPressed) {
         delay(10);
     }
 #else

@@ -33,7 +33,7 @@ void demo_scan_i2c() {
 
     Wire.end();
 
-    while (!lilka::controller.getState().start.justPressed) {
+    while (!lilka::controller.getState().a.justPressed) {
         delay(10);
     }
 }
