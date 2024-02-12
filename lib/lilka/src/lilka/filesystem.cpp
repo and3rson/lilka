@@ -12,10 +12,16 @@ void Filesystem::begin() {
     serial_log("initializing SPIFFS");
     if (!SPIFFS.begin(false, LILKA_FSROOT)) {
         serial_err("failed to initialize SPIFFS");
+        _available = false;
     } else {
         serial_log("SPIFFS ok");
+        _available = true;
     }
     _filesystem = &SPIFFS;
+}
+
+bool Filesystem::available() {
+    return _available;
 }
 
 int Filesystem::readdir(String filenames[]) {

@@ -1,5 +1,7 @@
 #include <Arduino.h>
 
+#include <driver/uart.h>
+
 #include "serial.h"
 #include "controller.h"
 
@@ -90,12 +92,28 @@ void Controller::begin() {
         on_up, on_down, on_left, on_right, on_a, on_b, on_select, on_start,
     };
 
+#if LILKA_VERSION == 1
+    // Detach UART from GPIO20 & GPIO21 to use them as normal IOs
+    // https://esp32developer.com/programming-in-c-c/console/using-uart0-disable-logging-output
+    esp_log_level_set("*", ESP_LOG_NONE); // DISABLE ESP32 LOGGING ON UART0
+    if (uart_driver_delete(UART_NUM_0) != ESP_OK) {
+        serial_err("failed to detach UART0");
+    }
+    gpio_reset_pin(GPIO_NUM_20);
+    gpio_reset_pin(GPIO_NUM_21);
+#endif
+
     for (int i = 0; i < Button::COUNT; i++) {
         if (pins[i] < 0) {
             continue;
         }
         pinMode(pins[i], INPUT_PULLUP);
-        attachInterrupt(digitalPinToInterrupt(pins[i]), handlers[i], CHANGE);
+        int intNum = digitalPinToInterrupt(pins[i]);
+        if (intNum < 0) {
+            serial_err("failed to get interrupt number");
+            continue;
+        }
+        attachInterrupt(intNum, handlers[i], CHANGE);
     }
     serial_log("controller ready");
 }

@@ -19,4 +19,4 @@ compile_commands:
 	pio run -t compiledb -e $(ENV)
 
 uploadfs:
-	pio run -t uploadfs
+	pio run -t uploadfs -e $(ENV)

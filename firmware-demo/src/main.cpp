@@ -99,10 +99,55 @@ void sd_browser_menu(String path) {
     }
 }
 
+void spiffs_browser_menu() {
+    if (!lilka::filesystem.available()) {
+        lilka::ui_alert("Помилка", "SPIFFS не підтримується");
+        return;
+    }
+
+    String filenames[32];
+    int numEntries = lilka::filesystem.readdir(filenames);
+
+    if (numEntries == -1) {
+        lilka::ui_alert("Помилка", "Не вдалося прочитати корінь SPIFFS");
+        return;
+    }
+
+    const menu_icon_t *icons[32];
+    for (int i = 0; i < numEntries; i++) {
+        icons[i] = (filenames[i].endsWith(".rom") || filenames[i].endsWith(".nes")) ? &nes : &file;
+    }
+    filenames[numEntries++] = "<< Назад";
+    icons[numEntries - 1] = 0;
+
+    int cursor = 0;
+    while (1) {
+        cursor = lilka::ui_menu(String("SPIFFS"), filenames, numEntries, cursor, icons);
+        if (cursor == numEntries - 1) {
+            return;
+        }
+        if (filenames[cursor].endsWith(".rom") || filenames[cursor].endsWith(".nes")) {
+            char *argv[1];
+            char fullFilename[256];
+            strcpy(fullFilename, lilka::filesystem.abspath(filenames[cursor]).c_str());
+            argv[0] = fullFilename;
+
+            TaskHandle_t idle_0 = xTaskGetIdleTaskHandleForCPU(0);
+            esp_task_wdt_delete(idle_0);
+
+            Serial.print("NoFrendo start! Filename: ");
+            Serial.println(argv[0]);
+            nofrendo_main(1, argv);
+            Serial.println("NoFrendo end!\n");
+        }
+    }
+}
+
 void loop() {
     String menu[] = {
         "Демо",
         "Браузер SD-карти",
+        "Браузер SPIFFS",
         "Про систему",
     };
     int cursor = 0;
@@ -114,6 +159,8 @@ void loop() {
         } else if (cursor == 1) {
             sd_browser_menu("/");
         } else if (cursor == 2) {
+            spiffs_browser_menu();
+        } else if (cursor == 3) {
             lilka::ui_alert("Лілка Demo OS", "by Андерсон\n& friends");
         }
     }
