@@ -99,8 +99,8 @@ angle_t			xtoviewangle[SCREENWIDTH+1];
 
 lighttable_t*		scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
 lighttable_t*		scalelightfixed[MAXLIGHTSCALE];
-lighttable_t***		zlight;
-
+// lighttable_t***		zlight;
+lighttable_t*        zlight[LIGHTLEVELS][MAXLIGHTZ];
 // bumped light from gun blasts
 int			extralight;
 
@@ -113,16 +113,29 @@ void (*transcolfunc) (void);
 void (*spanfunc) (void);
 
 
-void R_AllocMain (void)
+int R_AllocMain (void)
 {
-    viewangletox = malloc (sizeof(int) * FINEANGLES/2);
-    zlight = malloc (sizeof(lighttable_t*) * LIGHTLEVELS * MAXLIGHTZ);
+    int viewangletox_size = sizeof(int) * FINEANGLES/2;
+    viewangletox = malloc (viewangletox_size);
+    if (viewangletox == NULL)
+    {
+        return -1;
+    }
+    int zlight_size = sizeof(lighttable_t*) * LIGHTLEVELS * MAXLIGHTZ;
+    // zlight = malloc (zlight_size);
+    // if (zlight == NULL)
+    // {
+    //     free (viewangletox);
+    //     return -2;
+    // }
+    return viewangletox_size;
+    // return viewangletox_size + zlight_size;
 }
 
 void R_FreeMain (void)
 {
     free (viewangletox);
-    free (zlight);
+    // free (zlight);
 }
 
 
@@ -778,20 +791,28 @@ void R_ExecuteSetViewSize (void)
 
 void R_Init (void)
 {
+    printf("R_InitData ");
     R_InitData ();
     printf (".");
+    printf(" R_InitPointToAngle ");
     R_InitPointToAngle ();
     printf (".");
+    printf(" R_InitTables ");
     R_InitTables ();
     // viewwidth / viewheight / detailLevel are set by the defaults
     printf (".");
 
+    printf(" R_SetViewSize ");
     R_SetViewSize (screenblocks, detailLevel);
+    printf(" R_InitPlanes ");
     R_InitPlanes ();
     printf (".");
+    printf(" R_InitLightTables ");
     R_InitLightTables ();
     printf (".");
+    printf(" R_InitSkyMap ");
     R_InitSkyMap ();
+    printf (" R_InitTranslationTables ");
     R_InitTranslationTables ();
     printf (".");
 

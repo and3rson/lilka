@@ -17,8 +17,8 @@ Controller::Controller() {
             .justReleased = false,
             .time = 0,
         };
-        handlers[i] = NULL;
     }
+    clearHandlers();
     Controller::_instance = this;
 }
 
@@ -32,6 +32,9 @@ void IRAM_ATTR Controller::handle_interrupt(int stateIndex) {
     state->justReleased = !state->pressed;
     if (handlers[stateIndex] != NULL) {
         handlers[stateIndex](state->pressed);
+    }
+    if (globalHandler != NULL) {
+        globalHandler((Button)stateIndex, state->pressed);
     }
     if (state->pressed) {
         if (_seq[_seqIndex++] == stateIndex) {
@@ -124,6 +127,10 @@ State Controller::getState() {
     return _current;
 }
 
+void Controller::setGlobalHandler(void (*handler)(Button, bool)) {
+    globalHandler = handler;
+}
+
 void Controller::setHandler(Button button, void (*handler)(bool)) {
     handlers[button] = handler;
 }
@@ -132,6 +139,7 @@ void Controller::clearHandlers() {
     for (int i = 0; i < Button::COUNT; i++) {
         handlers[i] = NULL;
     }
+    globalHandler = NULL;
 }
 
 Controller controller;

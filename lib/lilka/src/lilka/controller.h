@@ -48,6 +48,7 @@ public:
     void begin();
     void resetState();
     State getState();
+    void setGlobalHandler(void (*handler)(Button, bool));
     void setHandler(Button button, void (*handler)(bool));
     void clearHandlers();
 
@@ -68,6 +69,7 @@ private:
         LILKA_GPIO_UP, LILKA_GPIO_DOWN, LILKA_GPIO_LEFT, LILKA_GPIO_RIGHT, LILKA_GPIO_A, LILKA_GPIO_B, LILKA_GPIO_SELECT, LILKA_GPIO_START,
     };
     void (*handlers[Button::COUNT])(bool);
+    void (*globalHandler)(Button, bool);
     int8_t _seq[10] = {0, 0, 1, 1, 2, 3, 2, 5, 4};
     int8_t _seqIndex = 0;
 };

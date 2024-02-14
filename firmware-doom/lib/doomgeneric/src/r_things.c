@@ -90,9 +90,15 @@ int		maxframe;
 char*		spritename;
 
 
-void R_AllocThings (void)
+int R_AllocThings (void)
 {
-    vissprites = malloc (MAXVISSPRITES * sizeof(vissprite_t));
+    int vissprites_size = MAXVISSPRITES * sizeof(vissprite_t);
+    vissprites = malloc (vissprites_size);
+    if (vissprites == NULL)
+    {
+        return -1;
+    }
+    return vissprites_size;
 }
 
 void R_FreeThings (void)

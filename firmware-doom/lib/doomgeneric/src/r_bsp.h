@@ -49,7 +49,7 @@ extern lighttable_t**	dscalelight;
 
 typedef void (*drawfunc_t) (int start, int stop);
 
-void R_AllocBSP (void);
+int R_AllocBSP (void);
 void R_FreeBSP (void);
 
 

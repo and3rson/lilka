@@ -41,7 +41,7 @@ extern fixed_t		yslope[SCREENHEIGHT];
 extern fixed_t		distscale[SCREENWIDTH];
 
 void R_InitPlanes (void);
-void R_AllocPlanes (void);
+int R_AllocPlanes (void);
 void R_FreePlanes (void);
 void R_ClearPlanes (void);
 

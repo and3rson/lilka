@@ -47,9 +47,15 @@ drawseg_t*	drawsegs;
 drawseg_t*	ds_p;
 
 
-void R_AllocBSP (void)
+int R_AllocBSP (void)
 {
-    drawsegs = malloc (sizeof(*drawsegs) * MAXDRAWSEGS);
+    int size = sizeof(drawseg_t) * MAXDRAWSEGS;
+    drawsegs = malloc (size);
+    if (drawsegs == NULL)
+    {
+        return -1;
+    }
+    return size;
 }
 
 void R_FreeBSP (void)

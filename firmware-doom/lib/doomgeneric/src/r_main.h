@@ -68,8 +68,8 @@ extern int		loopcount;
 
 extern lighttable_t*	scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
 extern lighttable_t*	scalelightfixed[MAXLIGHTSCALE];
-extern lighttable_t***	zlight;
-
+// extern lighttable_t***	zlight;
+extern lighttable_t*	zlight[LIGHTLEVELS][MAXLIGHTZ];
 extern int		extralight;
 extern lighttable_t*	fixedcolormap;
 
@@ -96,7 +96,7 @@ extern void		(*fuzzcolfunc) (void);
 // No shadow effects on floors.
 extern void		(*spanfunc) (void);
 
-void R_AllocMain (void);
+int R_AllocMain (void);
 void R_FreeMain (void);
 
 

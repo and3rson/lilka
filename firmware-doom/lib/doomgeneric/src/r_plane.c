@@ -32,6 +32,7 @@
 #include "r_local.h"
 #include "r_sky.h"
 
+#include "esp_heap_caps.h"
 
 
 planefunction_t		floorfunc;
@@ -43,7 +44,8 @@ planefunction_t		ceilingfunc;
 
 // Here comes the obnoxious "visplane".
 #define MAXVISPLANES	128
-visplane_t*		visplanes;
+visplane_t		visplanes[MAXVISPLANES];
+// visplane_t*		visplanes;
 visplane_t*		lastvisplane;
 visplane_t*		floorplane;
 visplane_t*		ceilingplane;
@@ -96,15 +98,28 @@ void R_InitPlanes (void)
   // Doh!
 }
 
-void R_AllocPlanes (void)
+int R_AllocPlanes (void)
 {
-    visplanes = malloc (sizeof(visplane_t) * MAXVISPLANES);
-    openings = malloc (sizeof(short) * MAXOPENINGS);
+    int visplanes_size = 0;
+    // int visplanes_size = sizeof(visplane_t) * MAXVISPLANES;
+    // visplanes = heap_caps_malloc (visplanes_size, MALLOC_CAP_8BIT);
+    // if (visplanes == NULL)
+    // {
+    //     return -1;
+    // }
+    int openings_size = sizeof(short) * MAXOPENINGS;
+    openings = malloc (openings_size);
+    if (openings == NULL)
+    {
+        // free (visplanes);
+        return -2;
+    }
+    return visplanes_size + openings_size;
 }
 
 void R_FreePlanes (void)
 {
-    free (visplanes);
+    // free (visplanes);
     free (openings);
 }
 
