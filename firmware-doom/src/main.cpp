@@ -43,12 +43,24 @@ extern "C" void DG_DrawFrame() {
     lilka::display.startWrite();
     lilka::display.writeAddrWindow(0, 65, 240, 150);
     uint16_t row[240];
+    // Цей код - застарілий. Я адаптував Doom Generic для роботи з 240x150 за замовчуванням.
     // Convert 640x400 to 240x150
+    // for (int y = 0; y < 150; y++) {
+    //     for (int x = 0; x < 240; x++) {
+    //         int yy = y * 8 / 3;
+    //         int xx = x * 8 / 3;
+    //         uint32_t pixel = DG_ScreenBuffer[yy * 640 + xx];
+    //         uint8_t r = (pixel >> 16) & 0xff;
+    //         uint8_t g = (pixel >> 8) & 0xff;
+    //         uint8_t b = pixel & 0xff;
+    //         row[x] = lilka::display.color565(r, g, b);
+    //     }
+    //     lilka::display.writePixels(row, 240);
+    // }
+    // Нова версія:
     for (int y = 0; y < 150; y++) {
         for (int x = 0; x < 240; x++) {
-            int yy = y * 8 / 3;
-            int xx = x * 8 / 3;
-            uint32_t pixel = DG_ScreenBuffer[yy * 640 + xx];
+            uint32_t pixel = DG_ScreenBuffer[y * 240 + x];
             uint8_t r = (pixel >> 16) & 0xff;
             uint8_t g = (pixel >> 8) & 0xff;
             uint8_t b = pixel & 0xff;
@@ -56,25 +68,6 @@ extern "C" void DG_DrawFrame() {
         }
         lilka::display.writePixels(row, 240);
     }
-    // for (int y = 0; y < 200; y++) {
-    //     // For every 8 rows, draw only 3
-    //     if (y % 8 != 0 && y % 8 != 3 && y % 8 != 6) {
-    //         continue;
-    //     }
-    //     uint8_t pixelIndex = 0;
-    //     for (int x = 0; x < 320; x++) {
-    //         // For every 8 pixels, draw only 3
-    //         if (x % 8 != 0 && x % 8 != 3 && x % 8 != 6) {
-    //             continue;
-    //         }
-    //         uint32_t pixel = DG_ScreenBuffer[y * 320 + x];
-    //         uint8_t r = (pixel >> 16) & 0xff;
-    //         uint8_t g = (pixel >> 8) & 0xff;
-    //         uint8_t b = pixel & 0xff;
-    //         row[pixelIndex++] = lilka::display.color565(r, g, b);
-    //     }
-    //     lilka::display.writePixels(row, 240);
-    // }
     lilka::display.endWrite();
 }
 
