@@ -42,4 +42,4 @@ void R_FreePlanes (void)
 
 Повний перелік нових алокацій знаходиться в [d_alloc.c](./src/d_alloc.c).
 
-Він викликається в [main.c](../../src/main.cpp).
+Він викликається в [main.cpp](../../src/main.cpp).
