@@ -20,6 +20,7 @@
 #ifndef __D_MAIN__
 #define __D_MAIN__
 
+#include "d_log.h"
 #include "doomdef.h"
 
 
@@ -27,8 +28,8 @@
 
 // Read events from all input devices
 
-void D_ProcessEvents (void); 
-	
+void D_ProcessEvents (void);
+
 
 //
 // BASE LEVEL
@@ -38,7 +39,7 @@ void D_PageDrawer (void);
 void D_AdvanceDemo (void);
 void D_DoAdvanceDemo (void);
 void D_StartTitle (void);
- 
+
 //
 // GLOBAL VARIABLES
 //

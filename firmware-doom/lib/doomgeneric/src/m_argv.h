@@ -14,13 +14,14 @@
 //
 // DESCRIPTION:
 //  Nil.
-//    
+//
 
 
 #ifndef __M_ARGV__
 #define __M_ARGV__
 
 #include "doomtype.h"
+#include "d_log.h"
 
 //
 // MISC

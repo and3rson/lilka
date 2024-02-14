@@ -14,13 +14,14 @@
 //
 // DESCRIPTION:
 //      Configuration file interface.
-//    
+//
 
 
 #ifndef __M_CONFIG__
 #define __M_CONFIG__
 
 #include "doomtype.h"
+#include "d_log.h"
 
 void M_LoadDefaults(void);
 void M_SaveDefaults(void);

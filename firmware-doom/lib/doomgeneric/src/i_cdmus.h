@@ -18,6 +18,8 @@
 #ifndef __ICDMUS__
 #define __ICDMUS__
 
+#include "d_log.h"
+
 #define CDERR_NOTINSTALLED   10 // MSCDEX not installed
 #define CDERR_NOAUDIOSUPPORT 11 // CD-ROM Doesn't support audio
 #define CDERR_NOAUDIOTRACKS  12 // Current CD has no audio tracks

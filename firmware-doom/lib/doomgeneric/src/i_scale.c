@@ -374,10 +374,10 @@ static void I_InitStretchTables(byte *palette)
     // mix 80%  =  stretch_tables[0] used backwards
     // mix 100% =  just write line 2
 
-    printf("I_InitStretchTables: Generating lookup tables..");
+    DG_printf("I_InitStretchTables: Generating lookup tables..");
     fflush(stdout);
     stretch_tables[0] = GenerateStretchTable(palette, 20);
-    printf(".."); fflush(stdout);
+    DG_printf(".."); fflush(stdout);
     stretch_tables[1] = GenerateStretchTable(palette, 40);
     puts("");
 }
@@ -391,7 +391,7 @@ static void I_InitSquashTable(byte *palette)
         return;
     }
 
-    printf("I_InitSquashTable: Generating lookup table..");
+    DG_printf("I_InitSquashTable: Generating lookup table..");
     fflush(stdout);
     half_stretch_table = GenerateStretchTable(palette, 50);
     puts("");
@@ -408,7 +408,7 @@ void I_ResetScaleTables(byte *palette)
         Z_Free(stretch_tables[0]);
         Z_Free(stretch_tables[1]);
 
-        printf("I_ResetScaleTables: Regenerating lookup tables..\n");
+        DG_printf("I_ResetScaleTables: Regenerating lookup tables..\n");
         stretch_tables[0] = GenerateStretchTable(palette, 20);
         stretch_tables[1] = GenerateStretchTable(palette, 40);
     }
@@ -417,7 +417,7 @@ void I_ResetScaleTables(byte *palette)
     {
         Z_Free(half_stretch_table);
 
-        printf("I_ResetScaleTables: Regenerating lookup table..\n");
+        DG_printf("I_ResetScaleTables: Regenerating lookup table..\n");
 
         half_stretch_table = GenerateStretchTable(palette, 50);
     }

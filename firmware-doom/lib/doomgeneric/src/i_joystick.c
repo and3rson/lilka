@@ -127,7 +127,7 @@ void I_InitJoystick(void)
 
     if (joystick_index < 0 || joystick_index >= SDL_NumJoysticks())
     {
-        printf("I_InitJoystick: Invalid joystick ID: %i\n", joystick_index);
+        DG_printf("I_InitJoystick: Invalid joystick ID: %i\n", joystick_index);
         SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
         return;
     }
@@ -138,7 +138,7 @@ void I_InitJoystick(void)
 
     if (joystick == NULL)
     {
-        printf("I_InitJoystick: Failed to open joystick #%i\n",
+        DG_printf("I_InitJoystick: Failed to open joystick #%i\n",
                joystick_index);
         SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
         return;
@@ -148,7 +148,7 @@ void I_InitJoystick(void)
      || !IsValidAxis(joystick_y_axis)
      || !IsValidAxis(joystick_strafe_axis))
     {
-        printf("I_InitJoystick: Invalid joystick axis for joystick #%i "
+        DG_printf("I_InitJoystick: Invalid joystick axis for joystick #%i "
                "(run joystick setup again)\n",
                joystick_index);
 
@@ -161,7 +161,7 @@ void I_InitJoystick(void)
 
     // Initialized okay!
 
-    printf("I_InitJoystick: %s\n", SDL_JoystickName(joystick_index));
+    DG_printf("I_InitJoystick: %s\n", SDL_JoystickName(joystick_index));
 
     I_AtExit(I_ShutdownJoystick, true);
 #endif

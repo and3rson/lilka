@@ -21,6 +21,8 @@
 #ifndef __R_DATA__
 #define __R_DATA__
 
+#include "d_log.h"
+
 #include "r_defs.h"
 #include "r_state.h"
 

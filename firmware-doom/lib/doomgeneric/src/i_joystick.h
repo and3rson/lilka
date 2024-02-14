@@ -19,6 +19,8 @@
 #ifndef __I_JOYSTICK__
 #define __I_JOYSTICK__
 
+#include "d_log.h"
+
 // Number of "virtual" joystick buttons defined in configuration files.
 // This needs to be at least as large as the number of different key
 // bindings supported by the higher-level game code (joyb* variables).

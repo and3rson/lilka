@@ -94,7 +94,7 @@ void I_CDMusPrintStartup(void)
 #ifdef ORIGCODE
     if (cd_name != NULL)
     {
-        printf("I_CDMusInit: Using CD-ROM drive: %s\n", cd_name);
+        DG_printf("I_CDMusInit: Using CD-ROM drive: %s\n", cd_name);
     }
 
     if (startup_error != NULL)

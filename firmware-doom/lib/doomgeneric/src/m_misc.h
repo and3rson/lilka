@@ -14,7 +14,7 @@
 //
 // DESCRIPTION:
 //      Miscellaneous.
-//    
+//
 
 
 #ifndef __M_MISC__
@@ -24,6 +24,7 @@
 #include <stdarg.h>
 
 #include "doomtype.h"
+#include "d_log.h"
 
 boolean M_WriteFile(char *name, void *source, int length);
 int M_ReadFile(char *name, byte **buffer);

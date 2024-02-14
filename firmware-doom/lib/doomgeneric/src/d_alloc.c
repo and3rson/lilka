@@ -11,15 +11,15 @@
 #include "r_bsp.h"
 
 void D_AllocBuffers() {
-    printf("D_AllocBuffers: Allocating buffers\n");
-    printf("R_AllocMain: allocated %d bytes\n", R_AllocMain());
-    printf("R_AllocPlanes: allocated %d bytes\n", R_AllocPlanes());
-    printf("R_AllocThings: allocated %d bytes\n", R_AllocThings());
-    printf("R_AllocBSP: allocated %d bytes\n", R_AllocBSP());
+    DG_printf("D_AllocBuffers: Allocating buffers\n");
+    DG_printf("R_AllocMain: allocated %d bytes\n", R_AllocMain());
+    DG_printf("R_AllocPlanes: allocated %d bytes\n", R_AllocPlanes());
+    DG_printf("R_AllocThings: allocated %d bytes\n", R_AllocThings());
+    DG_printf("R_AllocBSP: allocated %d bytes\n", R_AllocBSP());
 }
 
 void D_FreeBuffers() {
-    printf("D_FreeBuffers: Freeing buffers\n");
+    DG_printf("D_FreeBuffers: Freeing buffers\n");
     R_FreeMain();
     R_FreePlanes();
     R_FreeThings();

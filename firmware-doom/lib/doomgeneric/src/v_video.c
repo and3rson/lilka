@@ -710,12 +710,12 @@ void WritePCXfile(char *filename, byte *data,
 
 static void error_fn(png_structp p, png_const_charp s)
 {
-    printf("libpng error: %s\n", s);
+    DG_printf("libpng error: %s\n", s);
 }
 
 static void warning_fn(png_structp p, png_const_charp s)
 {
-    printf("libpng warning: %s\n", s);
+    DG_printf("libpng warning: %s\n", s);
 }
 
 void WritePNGfile(char *filename, byte *data,

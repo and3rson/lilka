@@ -18,6 +18,8 @@
 #ifndef W_MAIN_H
 #define W_MAIN_H
 
+#include "d_log.h"
+
 boolean W_ParseCommandLine(void);
 
 #endif /* #ifndef W_MAIN_H */

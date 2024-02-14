@@ -19,6 +19,7 @@ typedef struct {
 doomkey_t keyqueue[16];
 uint16_t keyqueueRead = 0;
 uint16_t keyqueueWrite = 0;
+uint64_t lastRender = 0;
 
 void buttonHandler(lilka::Button button, bool pressed) {
     doomkey_t *key = &keyqueue[keyqueueWrite];
@@ -65,9 +66,7 @@ void setup() {
     char arg3[] = "/sd/doom.wad";
     char *argv[] = {arg, arg2, arg3};
 
-    Serial.begin(115200);
-    Serial.println("Doomgeneric starting...");
-    delay(1000);
+    DG_printf("Doomgeneric starting...");
 
     D_AllocBuffers();
     doomgeneric_Create(argc, argv);
@@ -83,7 +82,10 @@ void setup() {
 extern "C" void DG_Init() {}
 
 extern "C" void DG_DrawFrame() {
-    Serial.println("Draw frame");
+    // Calculate FPS
+    uint64_t now = millis();
+    uint64_t delta = now - lastRender;
+    lastRender = now;
     lilka::display.startWrite();
     lilka::display.writeAddrWindow(0, 65, 240, 150);
     uint16_t row[240];
@@ -127,6 +129,13 @@ extern "C" void DG_DrawFrame() {
         lilka::display.writePixels(row, 240);
     }
     lilka::display.endWrite();
+    lilka::display.setTextBound(0, 0, 240, 280);
+    lilka::display.setCursor(0, 32);
+    lilka::display.setTextColor(lilka::display.color565(255, 255, 255), lilka::display.color565(0, 0, 0));
+    lilka::display.setFont(u8g2_font_10x20_t_cyrillic);
+    lilka::display.print(" FPS: ");
+    lilka::display.print(1000 / delta);
+    lilka::display.print(" ");
 }
 
 extern "C" void DG_SetWindowTitle(const char *title) {
@@ -152,6 +161,32 @@ extern "C" int DG_GetKey(int *pressed, unsigned char *doomKey) {
         return 1;
     }
     return 0;
+}
+
+bool hadNewLine = true;
+
+extern "C" void DG_printf(const char *format, ...) {
+    // Save string to buffer
+    char buffer[256];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+    printf("[DG log] %s", buffer);
+    int bottom = 280 / 2 + 150 / 2;
+    lilka::display.setFont(u8g2_font_6x12_t_cyrillic);
+    if (hadNewLine) {
+        hadNewLine = false;
+        lilka::display.fillRect(0, bottom, 240, 280 - bottom, lilka::display.color565(0, 0, 0));
+        lilka::display.setCursor(0, bottom + 10);
+    }
+    lilka::display.setTextBound(0, bottom, 240, 280 - bottom);
+    lilka::display.print(buffer);
+    for (int i = 0; i < strlen(buffer); i++) {
+        if (buffer[i] == '\n') {
+            hadNewLine = true;
+        }
+    }
 }
 
 void loop() {}

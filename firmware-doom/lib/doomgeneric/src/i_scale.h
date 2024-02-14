@@ -21,6 +21,7 @@
 #define __I_SCALE__
 
 #include "doomtype.h"
+#include "d_log.h"
 
 void I_InitScale(byte *_src_buffer, byte *_dest_buffer, int _dest_pitch);
 void I_ResetScaleTables(byte *palette);

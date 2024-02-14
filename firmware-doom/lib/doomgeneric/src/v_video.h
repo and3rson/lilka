@@ -22,6 +22,8 @@
 #ifndef __V_VIDEO__
 #define __V_VIDEO__
 
+#include "d_log.h"
+
 #include "doomtype.h"
 
 // Needed because we are refering to patches.
@@ -85,7 +87,7 @@ void V_UseBuffer(byte *buffer);
 
 void V_RestoreBuffer(void);
 
-// Save a screenshot of the current screen to a file, named in the 
+// Save a screenshot of the current screen to a file, named in the
 // format described in the string passed to the function, eg.
 // "DOOM%02i.pcx"
 

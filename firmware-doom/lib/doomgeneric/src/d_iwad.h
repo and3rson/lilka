@@ -19,6 +19,7 @@
 #ifndef __D_IWAD__
 #define __D_IWAD__
 
+#include "d_log.h"
 #include "d_mode.h"
 
 #define IWAD_MASK_DOOM    ((1 << doom)           \

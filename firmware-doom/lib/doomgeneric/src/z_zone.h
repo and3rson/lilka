@@ -25,6 +25,7 @@
 #define __Z_ZONE__
 
 #include <stdio.h>
+#include "d_log.h"
 
 //
 // ZONE MEMORY
@@ -38,7 +39,7 @@ enum
     PU_FREE,                        // a free block
     PU_LEVEL,                       // static until level exited
     PU_LEVSPEC,                     // a special thinker in a level
-    
+
     // Tags >= PU_PURGELEVEL are purgable whenever needed.
 
     PU_PURGELEVEL,
@@ -48,7 +49,7 @@ enum
 
     PU_NUM_TAGS
 };
-        
+
 
 void	Z_Init (void);
 void*	Z_Malloc (int size, int tag, void *ptr);

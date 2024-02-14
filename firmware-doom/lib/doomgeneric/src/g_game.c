@@ -2181,7 +2181,7 @@ void G_DoPlayDemo (void)
                         "    This appears to be %s.";
 
         //I_Error(message, demoversion, G_VanillaVersionCode(),
-        printf(message, demoversion, G_VanillaVersionCode(),
+        DG_printf(message, demoversion, G_VanillaVersionCode(),
                          DemoVersionDescription(demoversion));
     }
     
