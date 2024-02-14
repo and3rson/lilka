@@ -52,8 +52,8 @@ extern int		viewheight;
 extern int		firstflat;
 
 // for global animation
-extern int*		flattranslation;	
-extern int*		texturetranslation;	
+extern int*		flattranslation;
+extern int*		texturetranslation;
 
 
 // Sprite....
@@ -105,7 +105,7 @@ extern player_t*	viewplayer;
 // ?
 extern angle_t		clipangle;
 
-extern int		viewangletox[FINEANGLES/2];
+extern int*		viewangletox;
 extern angle_t		xtoviewangle[SCREENWIDTH+1];
 //extern fixed_t		finetangent[FINEANGLES/2];
 

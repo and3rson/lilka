@@ -24,7 +24,7 @@
 
 #define MAXVISSPRITES  	128
 
-extern vissprite_t	vissprites[MAXVISSPRITES];
+extern vissprite_t*	vissprites;
 extern vissprite_t*	vissprite_p;
 extern vissprite_t	vsprsortedhead;
 
@@ -42,6 +42,9 @@ extern fixed_t		sprtopscreen;
 extern fixed_t		pspritescale;
 extern fixed_t		pspriteiscale;
 
+
+void R_AllocThings (void);
+void R_FreeThings (void);
 
 void R_DrawMaskedColumn (column_t* column);
 

@@ -3,6 +3,7 @@
 #include "m_argv.h"
 
 #include "doomgeneric.h"
+#include "d_alloc.h"
 
 uint32_t* DG_ScreenBuffer = 0;
 
@@ -20,8 +21,12 @@ void doomgeneric_Create(int argc, char **argv)
 
 	DG_ScreenBuffer = malloc(DOOMGENERIC_RESX * DOOMGENERIC_RESY * 4);
 
+    D_AllocBuffers();
+
 	DG_Init();
 
 	D_DoomMain ();
+
+    D_FreeBuffers();
 }
 

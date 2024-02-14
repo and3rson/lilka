@@ -24,8 +24,8 @@
 
 // Screen width and height.
 
-#define SCREENWIDTH  320
-#define SCREENHEIGHT 200
+#define SCREENWIDTH  240
+#define SCREENHEIGHT 150
 
 // Screen width used for "squash" scale functions
 
@@ -50,7 +50,7 @@ typedef struct
     // If NULL, no init function is called.
 
     void (*InitMode)(byte *palette);
-    
+
     // Function to call to draw the screen from the source buffer.
     // Return true if draw was successful.
 

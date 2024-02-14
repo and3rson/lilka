@@ -42,15 +42,15 @@ planefunction_t		ceilingfunc;
 //
 
 // Here comes the obnoxious "visplane".
-#define MAXVISPLANES	32
-visplane_t		visplanes[MAXVISPLANES];
+#define MAXVISPLANES	128
+visplane_t*		visplanes;
 visplane_t*		lastvisplane;
 visplane_t*		floorplane;
 visplane_t*		ceilingplane;
 
 // ?
 #define MAXOPENINGS	SCREENWIDTH*64
-short			openings[MAXOPENINGS];
+short*			openings;
 short*			lastopening;
 
 
@@ -94,6 +94,18 @@ fixed_t			cachedystep[SCREENHEIGHT];
 void R_InitPlanes (void)
 {
   // Doh!
+}
+
+void R_AllocPlanes (void)
+{
+    visplanes = malloc (sizeof(visplane_t) * MAXVISPLANES);
+    openings = malloc (sizeof(short) * MAXOPENINGS);
+}
+
+void R_FreePlanes (void)
+{
+    free (visplanes);
+    free (openings);
 }
 
 

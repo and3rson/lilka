@@ -53,7 +53,7 @@ static const char *player_colors[] =
 
 // Array of end-of-level statistics that have been captured.
 
-#define MAX_CAPTURES 8
+#define MAX_CAPTURES 32
 static wbstartstruct_t captured_stats[MAX_CAPTURES];
 static int num_captured_stats = 0;
 
@@ -284,7 +284,7 @@ static void PrintLevelName(FILE *stream, int episode, int level)
             break;
         default:
         case none:
-            fprintf(stream, "E%iM%i / MAP%02i\n",
+            fprintf(stream, "E%iM%i / MAP%02i\n", 
                     episode + 1, level + 1, level + 1);
             break;
     }
