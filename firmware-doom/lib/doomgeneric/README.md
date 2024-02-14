@@ -9,17 +9,17 @@
 ```cpp
 // До:
 
-#define MAXVISPLANES	128
-visplane_t visplanes[MAXVISPLANES];
-#define MAXOPENINGS	SCREENWIDTH*64
-short openings[MAXOPENINGS];
+#define MAXVISPLANES 128
+visplane_t           visplanes[MAXVISPLANES];
+#define MAXOPENINGS  SCREENWIDTH*64
+short                openings[MAXOPENINGS];
 
 // Після:
 
-#define MAXVISPLANES	128
-visplane_t* visplanes;
-#define MAXOPENINGS	SCREENWIDTH*64
-short* openings;
+#define MAXVISPLANES 128
+visplane_t*          visplanes;
+#define MAXOPENINGS	 SCREENWIDTH*64
+short*               openings;
 
 void R_AllocPlanes (void)
 {
