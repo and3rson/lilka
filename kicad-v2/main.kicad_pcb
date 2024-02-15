@@ -1491,7 +1491,7 @@
     (pad "1" thru_hole rect (at 1.5 1.6 180) (size 1.7 1.5) (drill 1) (layers "*.Cu" "*.Mask")
       (net 20 "VBUS") (pinfunction "IN+") (pintype "power_in") (tstamp ea9697c7-5ec4-4c87-9396-23042d70ef64))
     (pad "2" thru_hole rect (at 1.5 15.6 180) (size 1.7 1.5) (drill 1) (layers "*.Cu" "*.Mask")
-      (net 3 "GND") (pinfunction "IN-") (pintype "power_in") (tstamp b8658bb3-986e-4335-a4c9-b15f00062f08))
+      (net 19 "GND1") (pinfunction "IN-") (pintype "power_in") (tstamp b8658bb3-986e-4335-a4c9-b15f00062f08))
     (pad "3" thru_hole rect (at 24.5 1.6 180) (size 1.7 1.5) (drill 1) (layers "*.Cu" "*.Mask")
       (net 40 "Net-(J8-OUT+)") (pinfunction "OUT+") (pintype "power_out") (tstamp c9d6f008-b909-4313-a522-4742ef6c32bb))
     (pad "4" thru_hole rect (at 24.5 15.6 180) (size 1.7 1.5) (drill 1) (layers "*.Cu" "*.Mask")
