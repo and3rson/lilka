@@ -578,7 +578,7 @@
 
   (footprint "Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical" (layer "F.Cu")
     (tstamp 529311c6-281d-4286-b47a-f7776b9b98ba)
-    (at 87.63 44.45 90)
+    (at 90.17 44.45 90)
     (descr "Through hole straight pin header, 2x05, 2.54mm pitch, double rows")
     (tags "Through hole pin header THT 2x05 2.54mm double row")
     (property "Sheetfile" "main.kicad_sch")
@@ -2721,7 +2721,7 @@
   (gr_text "MAX98357A" (at 79.275 100.965 -90) (layer "B.SilkS") (tstamp d0b882b5-8bc3-49f3-a5b5-5569688a8a37)
     (effects (font (size 1 1) (thickness 0.15)) (justify left bottom mirror))
   )
-  (gr_text "GND" (at 102.87 39.37) (layer "F.SilkS") (tstamp 044301a1-39f1-4438-a028-3bef4536ccc4)
+  (gr_text "GND" (at 97.79 39.37) (layer "F.SilkS") (tstamp 044301a1-39f1-4438-a028-3bef4536ccc4)
     (effects (font (size 0.8 0.8) (thickness 0.15)))
   )
   (gr_text "OFF" (at 40.455 41.935 90) (layer "F.SilkS" knockout) (tstamp 0b242569-42ef-42c6-8a52-358946730687)
@@ -2748,11 +2748,8 @@
   (gr_text "~{RES}" (at 116.84 69.85) (layer "F.SilkS") (tstamp 3ca49e2f-ebfa-4f7d-8f33-c650cb95d54b)
     (effects (font (size 0.8 0.8) (thickness 0.15)) (justify right))
   )
-  (gr_text "3V3" (at 102.87 46.99) (layer "F.SilkS") (tstamp 3e0ac2fc-791e-479d-b188-fbc1692a8c15)
+  (gr_text "3V3" (at 97.79 46.99) (layer "F.SilkS") (tstamp 3e0ac2fc-791e-479d-b188-fbc1692a8c15)
     (effects (font (size 0.8 0.8) (thickness 0.15)))
-  )
-  (gr_text "16" (at 97.79 39.37) (layer "F.SilkS") (tstamp 3e1dbdec-bef8-454d-b8af-351d4f3829a5)
-    (effects (font (size 0.9 0.9) (thickness 0.15)))
   )
   (gr_text "GND" (at 77.47 40.005) (layer "F.SilkS") (tstamp 45a30783-1b74-437e-99ab-db9aaf3b6e08)
     (effects (font (size 0.8 0.8) (thickness 0.15)) (justify bottom))
@@ -2775,7 +2772,7 @@
   (gr_text "3V3" (at 87.63 39.37) (layer "F.SilkS") (tstamp 74d9c91c-f2df-4df6-97b9-b04b4d494cf3)
     (effects (font (size 0.8 0.8) (thickness 0.15)))
   )
-  (gr_text "1" (at 90.17 46.99) (layer "F.SilkS") (tstamp 886c2561-0fad-45b9-b875-caac988100f4)
+  (gr_text "48" (at 90.17 46.99) (layer "F.SilkS") (tstamp 886c2561-0fad-45b9-b875-caac988100f4)
     (effects (font (size 0.9 0.9) (thickness 0.15)))
   )
   (gr_text "TOUCH14" (at 146.573349 81.442815) (layer "F.SilkS") (tstamp 8db54ff8-5977-4fd0-a0b3-6c4dc3c1de61)
@@ -2790,28 +2787,19 @@
   (gr_text "MOSI (SDA)" (at 116.84 67.31) (layer "F.SilkS") (tstamp 9f8024e0-0596-4289-b662-1db7a43501a3)
     (effects (font (size 0.8 0.8) (thickness 0.15)) (justify right))
   )
-  (gr_text "10" (at 92.71 39.37) (layer "F.SilkS") (tstamp a6bd7e52-7d1d-414d-bb54-5cf07f151751)
+  (gr_text "14" (at 92.71 39.37) (layer "F.SilkS") (tstamp a6bd7e52-7d1d-414d-bb54-5cf07f151751)
     (effects (font (size 0.9 0.9) (thickness 0.15)))
-  )
-  (gr_text "~{RES}" (at 100.33 39.37) (layer "F.SilkS") (tstamp b048dda9-60b5-4659-920b-c99c831eb226)
-    (effects (font (size 0.8 0.8) (thickness 0.15)))
   )
   (gr_text "+5V" (at 113.03 46.355) (layer "F.SilkS") (tstamp b7d5c5e7-11c8-4339-bc25-3bd3c0642adc)
     (effects (font (size 0.8 0.8) (thickness 0.15)))
   )
-  (gr_text "9" (at 92.71 46.99) (layer "F.SilkS") (tstamp c3926b51-1f0f-4966-9b9c-4fe1844fdcfc)
+  (gr_text "21" (at 92.71 46.99) (layer "F.SilkS") (tstamp c3926b51-1f0f-4966-9b9c-4fe1844fdcfc)
     (effects (font (size 0.9 0.9) (thickness 0.15)))
   )
   (gr_text "12" (at 95.25 39.37) (layer "F.SilkS") (tstamp ca27129d-c069-460e-889d-24a276dcd6c6)
     (effects (font (size 0.9 0.9) (thickness 0.15)))
   )
-  (gr_text "17" (at 100.33 46.99) (layer "F.SilkS") (tstamp d13da168-9848-4d64-8701-bc88a6658bc7)
-    (effects (font (size 0.9 0.9) (thickness 0.15)))
-  )
-  (gr_text "11" (at 95.25 46.99) (layer "F.SilkS") (tstamp db9eda16-0add-40c3-b113-b148fa80f130)
-    (effects (font (size 0.9 0.9) (thickness 0.15)))
-  )
-  (gr_text "15" (at 97.79 46.99) (layer "F.SilkS") (tstamp de4604a8-d196-4cb5-8bba-7fcfad2c4cbc)
+  (gr_text "13" (at 95.25 46.99) (layer "F.SilkS") (tstamp db9eda16-0add-40c3-b113-b148fa80f130)
     (effects (font (size 0.9 0.9) (thickness 0.15)))
   )
   (gr_text "3V3" (at 80.01 40.005) (layer "F.SilkS") (tstamp df63da56-2a5e-4e9e-baa1-6b6655f2b461)
@@ -2823,7 +2811,7 @@
   (gr_text "~{CS}" (at 116.84 74.93) (layer "F.SilkS") (tstamp f337ae74-2f9a-4597-93cc-0088dc685c83)
     (effects (font (size 0.8 0.8) (thickness 0.15)) (justify right))
   )
-  (gr_text "8" (at 90.17 39.37) (layer "F.SilkS") (tstamp f5ba4782-7d58-44ff-886f-ed7a924715e9)
+  (gr_text "47" (at 90.17 39.37) (layer "F.SilkS") (tstamp f5ba4782-7d58-44ff-886f-ed7a924715e9)
     (effects (font (size 0.9 0.9) (thickness 0.15)))
   )
   (gr_text "v2 by Андерсон" (at 50.8 101.6) (layer "F.SilkS") (tstamp fe21f085-fa2c-4853-a8eb-7b5a361b6329)
@@ -2886,18 +2874,14 @@
     (members
       044301a1-39f1-4438-a028-3bef4536ccc4
       3e0ac2fc-791e-479d-b188-fbc1692a8c15
-      3e1dbdec-bef8-454d-b8af-351d4f3829a5
       45feed9b-dae6-41ad-8210-edf923b9c969
       529311c6-281d-4286-b47a-f7776b9b98ba
       74d9c91c-f2df-4df6-97b9-b04b4d494cf3
       886c2561-0fad-45b9-b875-caac988100f4
       a6bd7e52-7d1d-414d-bb54-5cf07f151751
-      b048dda9-60b5-4659-920b-c99c831eb226
       c3926b51-1f0f-4966-9b9c-4fe1844fdcfc
       ca27129d-c069-460e-889d-24a276dcd6c6
-      d13da168-9848-4d64-8701-bc88a6658bc7
       db9eda16-0add-40c3-b113-b148fa80f130
-      de4604a8-d196-4cb5-8bba-7fcfad2c4cbc
       f5ba4782-7d58-44ff-886f-ed7a924715e9
     )
   )
