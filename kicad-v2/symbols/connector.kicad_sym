@@ -200,7 +200,7 @@
     (property "Value" "" (at -1.27 7.62 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "" (at -1.27 7.62 0)
+    (property "Footprint" "Connectors:USB_2.0_PCB" (at -1.27 7.62 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "" (at -1.27 7.62 0)
