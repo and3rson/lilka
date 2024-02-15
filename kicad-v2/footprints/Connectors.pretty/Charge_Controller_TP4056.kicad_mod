@@ -25,6 +25,11 @@
   (pad "2" thru_hole rect (at 1.5 15.6) (size 1.7 1.5) (drill 1) (layers "*.Cu" "*.Mask") (tstamp 0543c102-ceb1-41d8-9924-d5b08697d7b0))
   (pad "3" thru_hole rect (at 24.5 1.6) (size 1.7 1.5) (drill 1) (layers "*.Cu" "*.Mask") (tstamp dc0cc81a-c94f-47fb-9f46-202dd1d95448))
   (pad "4" thru_hole rect (at 24.5 15.6) (size 1.7 1.5) (drill 1) (layers "*.Cu" "*.Mask") (tstamp 9b7beac6-bb00-443e-acd8-506d03ded91a))
-  (pad "5" thru_hole rect (at 24.5 4.14) (size 1.7 1.5) (drill 1) (layers "*.Cu" "*.Mask") (tstamp 077cdab6-abbd-4bf1-ae03-eb8ae89be6e2))
-  (pad "6" thru_hole rect (at 24.5 13.06) (size 1.7 1.5) (drill 1) (layers "*.Cu" "*.Mask") (tstamp b6d6904c-862e-4f6b-bf90-86c4205964a8))
+  (pad "5" thru_hole rect (at 24.5 4.89) (size 1.7 3) (drill oval 1 2) (layers "*.Cu" "*.Mask") (tstamp bd796e4b-45ac-4071-81f6-e6840cfb30dd))
+  (pad "6" thru_hole rect (at 24.5 12.31) (size 1.7 3) (drill oval 1 2) (layers "*.Cu" "*.Mask") (tstamp 59b9f53d-2167-42d1-9096-95c4850aca55))
+  (model "${KIPRJMOD}/3dmodels/tp4056_pcb_asm.stp"
+    (offset (xyz 14 -8.5 1.5))
+    (scale (xyz 1 1 1))
+    (rotate (xyz 0 0 -90))
+  )
 )

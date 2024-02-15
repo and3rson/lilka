@@ -136,11 +136,11 @@
         (name "VIN" (effects (font (size 1.27 1.27))))
         (number "7" (effects (font (size 1.27 1.27))))
       )
-      (pin output line (at 8.89 1.27 180) (length 2.54)
+      (pin no_connect line (at 8.89 1.27 180) (length 2.54) hide
         (name "OUT-" (effects (font (size 1.27 1.27))))
         (number "8" (effects (font (size 1.27 1.27))))
       )
-      (pin output line (at 8.89 -1.27 180) (length 2.54)
+      (pin no_connect line (at 8.89 -1.27 180) (length 2.54) hide
         (name "OUT+" (effects (font (size 1.27 1.27))))
         (number "9" (effects (font (size 1.27 1.27))))
       )
