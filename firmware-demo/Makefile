@@ -1,4 +1,4 @@
-ENV ?= esp32c3
+ENV ?= v2
 
 all:
 	pio -f -c vim run -e $(ENV)

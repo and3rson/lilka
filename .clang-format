@@ -26,6 +26,7 @@ SpaceBeforeAssignmentOperators: 'true'
 SpaceBeforeParens: ControlStatements
 SpaceInEmptyParentheses: 'false'
 SpacesBeforeTrailingComments: 1
+AlignTrailingComments: 'false'
 TabWidth: '4'
 UseTab: Never
 

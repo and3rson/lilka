@@ -9,14 +9,18 @@ namespace lilka {
 
 typedef enum {
     UP = 0,
-    DOWN = 1,
-    LEFT = 2,
-    RIGHT = 3,
-    A = 4,
-    B = 5,
-    SELECT = 6,
-    START = 7,
-    COUNT = 8,
+    DOWN,
+    LEFT,
+    RIGHT,
+    A,
+    B,
+#if LILKA_VERSION >= 2
+    C,
+    D,
+#endif
+    SELECT,
+    START,
+    COUNT,
 } Button;
 
 #define LILKA_DEBOUNCE_TIME 10 // 10ms
@@ -36,6 +40,10 @@ typedef union {
         ButtonState right;
         ButtonState a;
         ButtonState b;
+#if LILKA_VERSION >= 2
+        ButtonState c;
+        ButtonState d;
+#endif
         ButtonState select;
         ButtonState start;
     };
@@ -58,6 +66,10 @@ public:
     static void on_right();
     static void on_a();
     static void on_b();
+#if LILKA_VERSION >= 2
+    static void on_c();
+    static void on_d();
+#endif
     static void on_select();
     static void on_start();
 
@@ -66,11 +78,15 @@ private:
     static Controller *_instance;
     State state;
     int8_t pins[Button::COUNT] = {
-        LILKA_GPIO_UP, LILKA_GPIO_DOWN, LILKA_GPIO_LEFT, LILKA_GPIO_RIGHT, LILKA_GPIO_A, LILKA_GPIO_B, LILKA_GPIO_SELECT, LILKA_GPIO_START,
+        LILKA_GPIO_UP,     LILKA_GPIO_DOWN,  LILKA_GPIO_LEFT, LILKA_GPIO_RIGHT, LILKA_GPIO_A, LILKA_GPIO_B,
+#if LILKA_VERSION >= 2
+        LILKA_GPIO_C,      LILKA_GPIO_D,
+#endif
+        LILKA_GPIO_SELECT, LILKA_GPIO_START,
     };
     void (*handlers[Button::COUNT])(bool);
     void (*globalHandler)(Button, bool);
-    int8_t _seq[10] = {0, 0, 1, 1, 2, 3, 2, 5, 4};
+    int8_t _seq[10] = {UP, UP, DOWN, DOWN, LEFT, RIGHT, LEFT, RIGHT, B, A};
     int8_t _seqIndex = 0;
 };
 

@@ -102,7 +102,8 @@ int R_AllocPlanes (void)
 {
     int visplanes_size = 0;
     // int visplanes_size = sizeof(visplane_t) * MAXVISPLANES;
-    // visplanes = heap_caps_malloc (visplanes_size, MALLOC_CAP_8BIT);
+    // visplanes = heap_caps_malloc (visplanes_size, MALLOC_CAP_8BIT | MALLOC_CAP_DEFAULT);
+    // visplanes = heap_caps_malloc (visplanes_size, MALLOC_CAP_8BIT | MALLOC_CAP_SPIRAM);
     // if (visplanes == NULL)
     // {
     //     return -1;
