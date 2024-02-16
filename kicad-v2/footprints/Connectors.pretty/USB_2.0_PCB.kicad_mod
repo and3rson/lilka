@@ -39,4 +39,9 @@
   (pad "2" thru_hole circle (at 7.28 2.54 90) (size 1.7 1.7) (drill 1) (layers "*.Cu" "*.Mask") (tstamp f66f8556-90a5-4e08-a090-bf1abb9a8e81))
   (pad "3" thru_hole circle (at 4.74 2.54 90) (size 1.7 1.7) (drill 1) (layers "*.Cu" "*.Mask") (tstamp 4f608837-31da-4193-b202-7f2f2d0c890e))
   (pad "4" thru_hole circle (at 2.2 2.54 90) (size 1.7 1.7) (drill 1) (layers "*.Cu" "*.Mask") (tstamp ddd8ca8e-d0b8-4ac4-ba11-85f6d7beccc6))
+  (model "${KIPRJMOD}/3dmodels/USB-C board JRC-B023.step"
+    (offset (xyz 6 -10.5 1.5))
+    (scale (xyz 1 1 1))
+    (rotate (xyz 180 0 0))
+  )
 )
