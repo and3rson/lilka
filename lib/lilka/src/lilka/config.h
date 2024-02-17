@@ -63,8 +63,8 @@
 #    define LILKA_GPIO_START 4
 #    define LILKA_GPIO_A 5
 #    define LILKA_GPIO_B 6
-#    define LILKA_GPIO_C 9
-#    define LILKA_GPIO_D 10
+#    define LILKA_GPIO_C 10
+#    define LILKA_GPIO_D 9
 // SPI
 #    define LILKA_SPI_SCK 18
 #    define LILKA_SPI_MOSI 17
