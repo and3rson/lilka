@@ -4,6 +4,13 @@
 
   (paper "A3")
 
+  (title_block
+    (title "Lilka")
+    (date "2024-02-17")
+    (rev "v2")
+    (company "Anderson")
+  )
+
   (lib_symbols
     (symbol "Connector_Generic:Conn_01x02" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
       (property "Reference" "J" (at 0 2.54 0)
@@ -3189,10 +3196,10 @@
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
   )
-  (global_label "D" (shape input) (at 322.58 67.31 0) (fields_autoplaced)
+  (global_label "D" (shape input) (at 322.58 69.85 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27) (color 255 244 119 1)) (justify left))
     (uuid d67a7ecb-e233-4192-ad1e-de1b0c17f8ca)
-    (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 326.8352 67.31 0)
+    (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 326.8352 69.85 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
   )
@@ -3210,10 +3217,10 @@
       (effects (font (size 1.27 1.27)) (justify right) hide)
     )
   )
-  (global_label "C" (shape input) (at 322.58 69.85 0) (fields_autoplaced)
+  (global_label "C" (shape input) (at 322.58 67.31 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27) (color 255 244 119 1)) (justify left))
     (uuid eef89061-964c-463c-93e0-c14f79ac45f1)
-    (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 326.8352 69.85 0)
+    (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 326.8352 67.31 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
   )
