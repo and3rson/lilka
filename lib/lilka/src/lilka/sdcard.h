@@ -8,8 +8,8 @@
 namespace lilka {
 
 typedef enum {
-    FILE,
-    DIRECTORY,
+    ENT_FILE,
+    ENT_DIRECTORY,
 } EntryType;
 
 typedef struct {

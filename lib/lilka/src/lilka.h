@@ -10,6 +10,7 @@
 #include "lilka/battery.h"
 #include "lilka/buzzer.h"
 #include "lilka/ui.h"
+#include "lilka/loader.h"
 
 namespace lilka {
 void begin();

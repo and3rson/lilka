@@ -67,7 +67,7 @@ void sd_browser_menu(String path) {
     const menu_icon_t *icons[32];
     for (int i = 0; i < numEntries; i++) {
         filenames[i] = entries[i].name;
-        icons[i] = entries[i].type == lilka::EntryType::DIRECTORY ? &folder : (entries[i].name.endsWith(".rom") || entries[i].name.endsWith(".nes")) ? &nes : &file;
+        icons[i] = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : (entries[i].name.endsWith(".rom") || entries[i].name.endsWith(".nes")) ? &nes : &file;
     }
     filenames[numEntries++] = "<< Назад";
     icons[numEntries - 1] = 0;
@@ -78,7 +78,7 @@ void sd_browser_menu(String path) {
         if (cursor == numEntries - 1) {
             return;
         }
-        if (entries[cursor].type == lilka::EntryType::DIRECTORY) {
+        if (entries[cursor].type == lilka::EntryType::ENT_DIRECTORY) {
             sd_browser_menu(path + entries[cursor].name + "/");
         } else if (entries[cursor].name.endsWith(".rom") || entries[cursor].name.endsWith(".nes")) {
             char *argv[1];
@@ -93,6 +93,8 @@ void sd_browser_menu(String path) {
             Serial.println(argv[0]);
             nofrendo_main(1, argv);
             Serial.println("NoFrendo end!\n");
+        } else if (entries[cursor].name.endsWith(".bin")) {
+            lilka::loader.execute(path + entries[cursor].name);
         } else {
             lilka::ui_alert(entries[cursor].name, "Розмір:\n" + String(entries[cursor].size) + " байт");
         }

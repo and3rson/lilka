@@ -57,9 +57,9 @@ int SDCard::listDir(String path, Entry entries[]) {
     while (file) {
         entries[i].name = file.name();
         if (file.isDirectory()) {
-            entries[i].type = DIRECTORY;
+            entries[i].type = ENT_DIRECTORY;
         } else {
-            entries[i].type = FILE;
+            entries[i].type = ENT_FILE;
         }
         entries[i].size = file.size();
         file.close();

@@ -13,6 +13,7 @@ void begin() {
     controller.begin(); // Must be initialized AFTER SD card (since SD card somehow messes with GPIO)
     filesystem.begin();
     battery.begin();
+    loader.begin();
     // TODO: I2S
     esp_wifi_deinit();
 }
