@@ -11,6 +11,7 @@
 #include "lilka/buzzer.h"
 #include "lilka/ui.h"
 #include "lilka/loader.h"
+#include "lilka/sys.h"
 
 namespace lilka {
 void begin();
