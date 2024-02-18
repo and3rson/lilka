@@ -145,12 +145,46 @@ void spiffs_browser_menu() {
     }
 }
 
+void system_utils_menu() {
+    String menu[] = {
+        "Перезавантаження", "Deep Sleep", "Версія SDK", "Версія ESP-IDF", "Інфо про пристрій", "Таблиця розділів", "<< Назад",
+    };
+    int cursor = 0;
+    int count = sizeof(menu) / sizeof(menu[0]);
+    while (1) {
+        cursor = lilka::ui_menu("Системні утиліти", menu, count, cursor);
+        if (cursor == 0) {
+            esp_restart();
+        } else if (cursor == 1) {
+            esp_deep_sleep_start();
+        } else if (cursor == 2) {
+            lilka::ui_alert("Версія SDK", "Версія: " + String(ESP.getSdkVersion()));
+        } else if (cursor == 3) {
+            lilka::ui_alert("Версія ESP-IDF", "Версія: " + String(esp_get_idf_version()));
+        } else if (cursor == 4) {
+            char buf[256];
+            sprintf(buf,
+                    "Модель: %s\n"
+                    "Ревізія: %d\n"
+                    "Версія SDK: %s\n"
+                    "Версія ESP-IDF: %s\n"
+                    "Частота: %d МГц\n"
+                    "Кількість ядер: %d\n",
+                    ESP.getChipModel(), ESP.getChipRevision(), ESP.getSdkVersion(), esp_get_idf_version(), ESP.getCpuFreqMHz(), ESP.getChipCores());
+            lilka::ui_alert("Інфо про пристрій", buf);
+        } else if (cursor == 5) {
+            String labels[16];
+            int labelCount = lilka::sys.get_partition_labels(labels);
+            lilka::ui_menu("Таблиця розділів", labels, labelCount);
+        } else if (cursor == count - 1) {
+            return;
+        }
+    }
+}
+
 void loop() {
     String menu[] = {
-        "Демо",
-        "Браузер SD-карти",
-        "Браузер SPIFFS",
-        "Про систему",
+        "Демо", "Браузер SD-карти", "Браузер SPIFFS", "Системні утиліти", "Про систему",
     };
     int cursor = 0;
     int count = sizeof(menu) / sizeof(menu[0]);
@@ -163,6 +197,8 @@ void loop() {
         } else if (cursor == 2) {
             spiffs_browser_menu();
         } else if (cursor == 3) {
+            system_utils_menu();
+        } else if (cursor == 4) {
             lilka::ui_alert("Лілка Demo OS", "by Андерсон\n& friends");
         }
     }
