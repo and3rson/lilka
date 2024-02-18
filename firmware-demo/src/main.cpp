@@ -94,7 +94,40 @@ void sd_browser_menu(String path) {
             nofrendo_main(1, argv);
             Serial.println("NoFrendo end!\n");
         } else if (entries[cursor].name.endsWith(".bin")) {
-            lilka::loader.execute(path + entries[cursor].name);
+            int error;
+            lilka::LoaderHandle *handle = lilka::loader.createHandle(path + entries[cursor].name);
+            error = handle->start();
+            if (error) {
+                lilka::ui_alert("Помилка", String("Етап: 1\nКод: ") + error);
+                continue;
+            }
+            lilka::display.fillScreen(lilka::display.color565(0, 0, 0));
+            lilka::display.setTextColor(lilka::display.color565(255, 255, 255), lilka::display.color565(0, 0, 0));
+            lilka::display.setFont(u8g2_font_10x20_t_cyrillic);
+            lilka::display.setTextBound(16, 0, LILKA_DISPLAY_WIDTH - 16, LILKA_DISPLAY_HEIGHT);
+            while ((error = handle->process()) != 0) {
+                float progress = (float)handle->getBytesWritten() / handle->getBytesTotal();
+                lilka::display.setCursor(16, LILKA_DISPLAY_HEIGHT / 2 - 10);
+                lilka::display.printf("Завантаження (%d%%)\n", (int)(progress * 100));
+                lilka::display.println(entries[cursor].name);
+                String buf = String(handle->getBytesWritten()) + " / " + handle->getBytesTotal();
+                int16_t x, y;
+                uint16_t w, h;
+                lilka::display.getTextBounds(buf, lilka::display.getCursorX(), lilka::display.getCursorY(), &x, &y, &w, &h);
+                lilka::display.fillRect(x, y, w, h, lilka::display.color565(0, 0, 0));
+                lilka::display.println(buf);
+                lilka::display.fillRect(16, LILKA_DISPLAY_HEIGHT / 2 + 40, LILKA_DISPLAY_WIDTH - 32, 5, lilka::display.color565(64, 64, 64));
+                lilka::display.fillRect(16, LILKA_DISPLAY_HEIGHT / 2 + 40, (LILKA_DISPLAY_WIDTH - 32) * progress, 5, lilka::display.color565(255, 128, 0));
+            }
+            if (error) {
+                lilka::ui_alert("Помилка", String("Етап: 2\nКод: ") + error);
+                continue;
+            }
+            error = handle->finishAndReboot();
+            if (error) {
+                lilka::ui_alert("Помилка", String("Етап: 3\nКод: ") + error);
+                continue;
+            }
         } else {
             lilka::ui_alert(entries[cursor].name, "Розмір:\n" + String(entries[cursor].size) + " байт");
         }

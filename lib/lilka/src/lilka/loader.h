@@ -12,18 +12,37 @@
 #ifndef LILKA_LOADER_H
 #define LILKA_LOADER_H
 
+#include <esp_ota_ops.h>
 #include <Arduino.h>
 
+#include "sdcard.h"
+
 namespace lilka {
+
+class LoaderHandle {
+public:
+    LoaderHandle(String path);
+
+    int start();
+    int process();
+    int getBytesWritten();
+    int getBytesTotal();
+    int finishAndReboot();
+
+private:
+    String path;
+    File file;
+    esp_ota_handle_t ota_handle;
+    const esp_partition_t *ota_partition;
+    int bytesWritten;
+    int bytesTotal;
+};
 
 class Loader {
 public:
     void begin();
-    int execute(String path);
 
-    int start(String path);
-    int process();
-    int finish();
+    LoaderHandle *createHandle(String path);
 };
 
 extern Loader loader;

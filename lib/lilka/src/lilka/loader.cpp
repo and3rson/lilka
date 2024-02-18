@@ -1,9 +1,11 @@
-#include <esp_ota_ops.h>
-
 #include "loader.h"
 #include "sdcard.h"
 #include "serial.h"
 #include "stdio.h"
+
+extern "C" bool verifyRollbackLater() {
+    return true;
+}
 
 namespace lilka {
 
@@ -15,9 +17,9 @@ void Loader::begin() {
     const esp_partition_t *ota_partition = esp_ota_get_next_update_partition(current_partition); // get ota1 (we're in ota0 now)
     serial_log("OTA partition: %s, type: %d, subtype: %d, size: %d", ota_partition->label, ota_partition->type, ota_partition->subtype, ota_partition->size);
 
-    // Auto-rollback does not work properly - my dev board's bootloader might be messing it up,
-    // since every OTA update is marked as successful, even if we don't mark it as valid
-    // TODO: Maybe it will work with actual Lilka v2?
+    // А тут я згаяв трохи часу. Нижче наведено спроби увімкнути автоматичний відкат прошивки з кінцевим рішенням.
+
+    // Спроба 1:
 
     /*
     // Check if rollback is possible
@@ -39,21 +41,41 @@ void Loader::begin() {
     }
     */
 
+    // Спроба 2:
+    // Auto-rollback does not work properly - my dev board's bootloader might be messing it up,
+    // since every OTA update is marked as successful, even if we don't mark it as valid
+    // TODO: Maybe it will work with actual Lilka v2?
     // So here's a workaround: I'm going to set ota0 as active partition anyway, so that we return to main application after next restart.
 
     // Mark ota0 as active partition so that we return to main application after next restart
+    // esp_ota_img_states_t ota_state;
+    // esp_err_t err = esp_ota_get_state_partition(esp_ota_get_running_partition(), &ota_state);
+    // serial_log("OTA state: %d", ota_state);
+    // if (err != ESP_OK) {
+    //     serial_err("Failed to get state partition: %d", err);
+    //     return;
+    // }
+    // if (current_partition->subtype == ESP_PARTITION_SUBTYPE_APP_OTA_1) {
+    //     esp_ota_set_boot_partition(esp_ota_get_next_update_partition(NULL));
+    // }
+
+    // Спроба 3:
+    // Ок, розібрався. (Так, я по звичці писав попередні коментарі англійською мовою, але намагаюсь використовувати українську.)
+    // Потрібно було перевизначити verifyRollbackLater(), щоб він завжди повертав false, тоді автоматичний відкат працюватиме.
+    // https://github.com/espressif/arduino-esp32/issues/7423
+
     esp_ota_img_states_t ota_state;
     esp_err_t err = esp_ota_get_state_partition(esp_ota_get_running_partition(), &ota_state);
-    if (err != ESP_OK) {
-        serial_err("Failed to get state partition: %d", err);
-        return;
-    }
-    if (current_partition->subtype == ESP_PARTITION_SUBTYPE_APP_OTA_1) {
-        esp_ota_set_boot_partition(esp_ota_get_next_update_partition(NULL));
-    }
+    serial_log("OTA state: %d", ota_state);
 }
 
-int Loader::execute(String path) {
+LoaderHandle *Loader::createHandle(String path) {
+    return new LoaderHandle(path);
+}
+
+LoaderHandle::LoaderHandle(String path) : path(path) {}
+
+int LoaderHandle::start() {
     // Завантаження прошивки з microSD-картки.
     if (!sdcard.available()) {
         serial_err("SD card not available");
@@ -63,16 +85,18 @@ int Loader::execute(String path) {
     // String abspath = sdcard.abspath(path);
 
     // TODO: Use sdcard instead of SD
-    File file = SD.open(path, FILE_READ);
+    file = SD.open(path, FILE_READ);
     if (!file) {
         serial_err("Failed to open file: %s", path.c_str());
         return -2;
     }
 
-    esp_ota_handle_t ota_handle;
+    bytesWritten = 0;
+    bytesTotal = file.size();
+
     const esp_partition_t *current_partition = esp_ota_get_running_partition();
     serial_log("Current partition: %s, type: %d, subtype: %d, size: %d", current_partition->label, current_partition->type, current_partition->subtype, current_partition->size);
-    const esp_partition_t *ota_partition = esp_ota_get_next_update_partition(current_partition); // get ota1 (we're in ota0 now)
+    ota_partition = esp_ota_get_next_update_partition(current_partition); // get ota1 (we're in ota0 now)
     serial_log("OTA partition: %s, type: %d, subtype: %d, size: %d", ota_partition->label, ota_partition->type, ota_partition->subtype, ota_partition->size);
     if (ota_partition == NULL) {
         serial_err("Failed to get next OTA partition");
@@ -85,34 +109,50 @@ int Loader::execute(String path) {
         return -4;
     }
 
-    size_t written = 0;
+    return 0;
+}
+
+int LoaderHandle::process() {
     char buf[1024];
-    while (true) {
+
+    // Записуємо 32 КБ.
+
+    for (int i = 0; i < 32; i++) {
         int len = file.readBytes(buf, sizeof(buf));
         if (len == 0) {
-            break;
+            file.close();
+            return 0;
         }
 
-        err = esp_ota_write(ota_handle, buf, len);
+        esp_err_t err = esp_ota_write(ota_handle, buf, len);
         if (err != ESP_OK) {
             serial_err("Failed to write OTA: %d", err);
             return -5;
         }
 
-        written += len;
-
-        if (written % (1024 * 64) == 0) {
-            serial_log("Written %d bytes", written);
-        }
+        bytesWritten += len;
     }
 
-    err = esp_ota_end(ota_handle);
+    serial_log("Written %d bytes", bytesWritten);
+    return bytesWritten;
+}
+
+int LoaderHandle::getBytesTotal() {
+    return bytesTotal;
+}
+
+int LoaderHandle::getBytesWritten() {
+    return bytesWritten;
+}
+
+int LoaderHandle::finishAndReboot() {
+    serial_log("Written %d bytes", bytesWritten);
+
+    esp_err_t err = esp_ota_end(ota_handle);
     if (err != ESP_OK) {
         serial_err("Failed to end OTA: %d", err);
         return -6;
     }
-
-    serial_log("Written %d bytes", written);
 
     // Перевстановлення активного розділу на OTA-розділ (його буде запущено лише один раз, після чого активним залишиться основний розділ).
     err = esp_ota_set_boot_partition(ota_partition);
@@ -123,6 +163,8 @@ int Loader::execute(String path) {
 
     // Запуск нової прошивки.
     esp_restart();
+
+    return 0; // unreachable
 }
 
 Loader loader;
