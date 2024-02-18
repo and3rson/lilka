@@ -20,6 +20,10 @@ class Loader {
 public:
     void begin();
     int execute(String path);
+
+    int start(String path);
+    int process();
+    int finish();
 };
 
 extern Loader loader;

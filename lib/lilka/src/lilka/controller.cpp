@@ -40,7 +40,7 @@ void IRAM_ATTR Controller::handle_interrupt(int stateIndex) {
         if (_seq[_seqIndex++] == stateIndex) {
             if (_seqIndex == 10) {
                 _seqIndex = 0;
-                serial_log("do the barrel roll!");
+                // serial_log("do the barrel roll!");
             }
         } else {
             _seqIndex = 0;
@@ -73,6 +73,14 @@ void IRAM_ATTR Controller::on_b() {
     _instance->handle_interrupt(Button::B);
 }
 
+void IRAM_ATTR Controller::on_c() {
+    _instance->handle_interrupt(Button::C);
+}
+
+void IRAM_ATTR Controller::on_d() {
+    _instance->handle_interrupt(Button::D);
+}
+
 void IRAM_ATTR Controller::on_select() {
     _instance->handle_interrupt(Button::SELECT);
 }
@@ -92,7 +100,7 @@ void Controller::resetState() {
 void Controller::begin() {
     serial_log("initializing controller");
     void (*handlers[])(void) = {
-        on_up, on_down, on_left, on_right, on_a, on_b, on_select, on_start,
+        on_up, on_down, on_left, on_right, on_a, on_b, on_c, on_d, on_select, on_start,
     };
 
 #if LILKA_VERSION == 1

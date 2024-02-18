@@ -17,7 +17,11 @@ Display::Display() : Arduino_ST7789(&displayBus, LILKA_DISPLAY_RST, LILKA_DISPLA
 
 void Display::begin() {
     serial_log("initializing display");
+#ifdef LILKA_BREADBOARD
+    Arduino_ST7789::begin(40000000);
+#else
     Arduino_ST7789::begin(80000000);
+#endif
     setFont(u8g2_font_10x20_t_cyrillic);
     setUTF8Print(true);
     uint16_t row[LILKA_DISPLAY_WIDTH];
