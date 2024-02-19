@@ -1,17 +1,23 @@
 {
     "name": "Lilka",
-    "version": "1.0.1",
+    "version": "1.0.5",
     "license": "MIT",
     "repository": {
         "type": "git",
         "url": "https://github.com/and3rson/lilka.git"
     },
-    "include": "sdk/lib/lilka",
     "dependencies": {
         "Arduino_GFX": "https://github.com/moononournation/Arduino_GFX.git",
         "olikraus/U8g2": "^2.35.9"
     },
     "homepage": "https://github.com/and3rson/lilka",
     "frameworks": "arduino",
-    "platforms": "espressif32"
+    "platforms": "espressif32",
+    "exclude": [
+        ".*",
+        "compile_commands.json",
+        "platformio.ini",
+        "Makefile",
+        "*.tar.gz"
+    ]
 }

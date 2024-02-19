@@ -101,7 +101,7 @@
 #    define LILKA_P6 12
 
 #else
-#    error "LILKA_VERSION is not defined"
+#    error "LILKA_VERSION is not defined - did you forget to set board to lilka_v2 in your platformio.ini?"
 #endif
 
 #endif // LILKA_CONFIG_H
