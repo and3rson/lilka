@@ -25,6 +25,7 @@ extern void demo_ball();
 extern void demo_letris();
 extern void demo_user_spi();
 extern void demo_scan_i2c();
+extern int lua_run(String path);
 
 void setup() {
     lilka::begin();
@@ -46,6 +47,72 @@ void demos_menu() {
             return;
         }
         demo_funcs[cursor]();
+    }
+}
+
+void select_file(String path) {
+    if (path.endsWith(".rom") || path.endsWith(".nes")) {
+        char *argv[1];
+        char fullFilename[256];
+        strcpy(fullFilename, path.c_str());
+        argv[0] = fullFilename;
+
+        TaskHandle_t idle_0 = xTaskGetIdleTaskHandleForCPU(0);
+        esp_task_wdt_delete(idle_0);
+
+        Serial.print("NoFrendo start! Filename: ");
+        Serial.println(argv[0]);
+        nofrendo_main(1, argv);
+        Serial.println("NoFrendo end!\n");
+    } else if (path.endsWith(".bin")) {
+        int error;
+        lilka::LoaderHandle *handle = lilka::loader.createHandle(path);
+        error = handle->start();
+        if (error) {
+            lilka::ui_alert("Помилка", String("Етап: 1\nКод: ") + error);
+            return;
+        }
+        lilka::display.fillScreen(lilka::display.color565(0, 0, 0));
+        lilka::display.setTextColor(lilka::display.color565(255, 255, 255), lilka::display.color565(0, 0, 0));
+        lilka::display.setFont(u8g2_font_10x20_t_cyrillic);
+        lilka::display.setTextBound(16, 0, LILKA_DISPLAY_WIDTH - 16, LILKA_DISPLAY_HEIGHT);
+        while ((error = handle->process()) != 0) {
+            float progress = (float)handle->getBytesWritten() / handle->getBytesTotal();
+            lilka::display.setCursor(16, LILKA_DISPLAY_HEIGHT / 2 - 10);
+            lilka::display.printf("Завантаження (%d%%)\n", (int)(progress * 100));
+            lilka::display.println(path);
+            String buf = String(handle->getBytesWritten()) + " / " + handle->getBytesTotal();
+            int16_t x, y;
+            uint16_t w, h;
+            lilka::display.getTextBounds(buf, lilka::display.getCursorX(), lilka::display.getCursorY(), &x, &y, &w, &h);
+            lilka::display.fillRect(x, y, w, h, lilka::display.color565(0, 0, 0));
+            lilka::display.println(buf);
+            lilka::display.fillRect(16, LILKA_DISPLAY_HEIGHT / 2 + 40, LILKA_DISPLAY_WIDTH - 32, 5, lilka::display.color565(64, 64, 64));
+            lilka::display.fillRect(16, LILKA_DISPLAY_HEIGHT / 2 + 40, (LILKA_DISPLAY_WIDTH - 32) * progress, 5, lilka::display.color565(255, 128, 0));
+        }
+        if (error) {
+            lilka::ui_alert("Помилка", String("Етап: 2\nКод: ") + error);
+            return;
+        }
+        error = handle->finishAndReboot();
+        if (error) {
+            lilka::ui_alert("Помилка", String("Етап: 3\nКод: ") + error);
+            return;
+        }
+    } else if (path.endsWith(".lua")) {
+        int retCode = lua_run(path);
+        lilka::ui_alert("Lua", String("Код завершення: ") + retCode);
+    } else {
+        // Get file size
+        FILE *file = fopen(path.c_str(), "r");
+        if (!file) {
+            lilka::ui_alert("Помилка", "Не вдалося відкрити файл");
+            return;
+        }
+        fseek(file, 0, SEEK_END);
+        long size = ftell(file);
+        fclose(file);
+        lilka::ui_alert(path, String("Розмір:\n") + size + " байт");
     }
 }
 
@@ -80,56 +147,8 @@ void sd_browser_menu(String path) {
         }
         if (entries[cursor].type == lilka::EntryType::ENT_DIRECTORY) {
             sd_browser_menu(path + entries[cursor].name + "/");
-        } else if (entries[cursor].name.endsWith(".rom") || entries[cursor].name.endsWith(".nes")) {
-            char *argv[1];
-            char fullFilename[256];
-            strcpy(fullFilename, lilka::sdcard.abspath(entries[cursor].name).c_str());
-            argv[0] = fullFilename;
-
-            TaskHandle_t idle_0 = xTaskGetIdleTaskHandleForCPU(0);
-            esp_task_wdt_delete(idle_0);
-
-            Serial.print("NoFrendo start! Filename: ");
-            Serial.println(argv[0]);
-            nofrendo_main(1, argv);
-            Serial.println("NoFrendo end!\n");
-        } else if (entries[cursor].name.endsWith(".bin")) {
-            int error;
-            lilka::LoaderHandle *handle = lilka::loader.createHandle(path + entries[cursor].name);
-            error = handle->start();
-            if (error) {
-                lilka::ui_alert("Помилка", String("Етап: 1\nКод: ") + error);
-                continue;
-            }
-            lilka::display.fillScreen(lilka::display.color565(0, 0, 0));
-            lilka::display.setTextColor(lilka::display.color565(255, 255, 255), lilka::display.color565(0, 0, 0));
-            lilka::display.setFont(u8g2_font_10x20_t_cyrillic);
-            lilka::display.setTextBound(16, 0, LILKA_DISPLAY_WIDTH - 16, LILKA_DISPLAY_HEIGHT);
-            while ((error = handle->process()) != 0) {
-                float progress = (float)handle->getBytesWritten() / handle->getBytesTotal();
-                lilka::display.setCursor(16, LILKA_DISPLAY_HEIGHT / 2 - 10);
-                lilka::display.printf("Завантаження (%d%%)\n", (int)(progress * 100));
-                lilka::display.println(entries[cursor].name);
-                String buf = String(handle->getBytesWritten()) + " / " + handle->getBytesTotal();
-                int16_t x, y;
-                uint16_t w, h;
-                lilka::display.getTextBounds(buf, lilka::display.getCursorX(), lilka::display.getCursorY(), &x, &y, &w, &h);
-                lilka::display.fillRect(x, y, w, h, lilka::display.color565(0, 0, 0));
-                lilka::display.println(buf);
-                lilka::display.fillRect(16, LILKA_DISPLAY_HEIGHT / 2 + 40, LILKA_DISPLAY_WIDTH - 32, 5, lilka::display.color565(64, 64, 64));
-                lilka::display.fillRect(16, LILKA_DISPLAY_HEIGHT / 2 + 40, (LILKA_DISPLAY_WIDTH - 32) * progress, 5, lilka::display.color565(255, 128, 0));
-            }
-            if (error) {
-                lilka::ui_alert("Помилка", String("Етап: 2\nКод: ") + error);
-                continue;
-            }
-            error = handle->finishAndReboot();
-            if (error) {
-                lilka::ui_alert("Помилка", String("Етап: 3\nКод: ") + error);
-                continue;
-            }
         } else {
-            lilka::ui_alert(entries[cursor].name, "Розмір:\n" + String(entries[cursor].size) + " байт");
+            select_file(lilka::sdcard.abspath(path + entries[cursor].name));
         }
     }
 }
@@ -161,20 +180,7 @@ void spiffs_browser_menu() {
         if (cursor == numEntries - 1) {
             return;
         }
-        if (filenames[cursor].endsWith(".rom") || filenames[cursor].endsWith(".nes")) {
-            char *argv[1];
-            char fullFilename[256];
-            strcpy(fullFilename, lilka::filesystem.abspath(filenames[cursor]).c_str());
-            argv[0] = fullFilename;
-
-            TaskHandle_t idle_0 = xTaskGetIdleTaskHandleForCPU(0);
-            esp_task_wdt_delete(idle_0);
-
-            Serial.print("NoFrendo start! Filename: ");
-            Serial.println(argv[0]);
-            nofrendo_main(1, argv);
-            Serial.println("NoFrendo end!\n");
-        }
+        select_file(lilka::filesystem.abspath(filenames[cursor]));
     }
 }
 

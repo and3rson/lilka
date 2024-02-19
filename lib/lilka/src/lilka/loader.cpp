@@ -85,14 +85,17 @@ int LoaderHandle::start() {
     // String abspath = sdcard.abspath(path);
 
     // TODO: Use sdcard instead of SD
-    file = SD.open(path, FILE_READ);
-    if (!file) {
+    file = fopen(path.c_str(), "r");
+    if (file == NULL) {
         serial_err("Failed to open file: %s", path.c_str());
         return -2;
     }
 
     bytesWritten = 0;
-    bytesTotal = file.size();
+    // Get file size
+    fseek(file, 0, SEEK_END);
+    bytesTotal = ftell(file);
+    fseek(file, 0, SEEK_SET);
 
     const esp_partition_t *current_partition = esp_ota_get_running_partition();
     serial_log("Current partition: %s, type: %d, subtype: %d, size: %d", current_partition->label, current_partition->type, current_partition->subtype, current_partition->size);
@@ -103,7 +106,7 @@ int LoaderHandle::start() {
         return -3;
     }
 
-    esp_err_t err = esp_ota_begin(ota_partition, file.size(), &ota_handle);
+    esp_err_t err = esp_ota_begin(ota_partition, bytesTotal, &ota_handle);
     if (err != ESP_OK) {
         serial_err("Failed to begin OTA: %d", err);
         return -4;
@@ -118,9 +121,10 @@ int LoaderHandle::process() {
     // Записуємо 32 КБ.
 
     for (int i = 0; i < 32; i++) {
-        int len = file.readBytes(buf, sizeof(buf));
+        // Read 1024 bytes
+        int len = fread(buf, 1, sizeof(buf), file);
         if (len == 0) {
-            file.close();
+            fclose(file);
             return 0;
         }
 
