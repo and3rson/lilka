@@ -5,13 +5,16 @@ local util = require("util")
 
 console.print("Printing stuff to console, yay!")
 
-display.fill_rect(50, 50, 200, 200, 0x159C)
-display.draw_line(0, 0, 240, 280, 0xC951)
+for i = 10, 1, -1 do
+    display.fill_rect(0, 0, display.width, display.height, util.random(0xFFFF))
+    display.set_cursor(64, 64)
+    display.print("Start in " .. i .. "...")
+    display.render()
+    util.delay(250)
+end
 
-display.set_cursor(64, 64)
-display.print("Hello, World!")
-display.set_cursor(64, 128)
-display.print("Press A to quit.")
+-- Now, we draw lines really fast directly to display!
+display.set_buffered(false)
 
 local key = controller.get_state()
 -- Loop while key.a.just_pressed is false

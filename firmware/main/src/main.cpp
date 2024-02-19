@@ -101,7 +101,9 @@ void select_file(String path) {
         }
     } else if (path.endsWith(".lua")) {
         int retCode = lua_run(path);
-        lilka::ui_alert("Lua", String("Код завершення: ") + retCode);
+        if (retCode) {
+            lilka::ui_alert("Lua", String("Увага!\nКод завершення: ") + retCode);
+        }
     } else {
         // Get file size
         FILE *file = fopen(path.c_str(), "r");
