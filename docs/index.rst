@@ -3,12 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Lilka's documentation!
-=================================
+Вітаємо вас у документації проекту Lilka!
+=========================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    :maxdepth: 2
+    :caption: Зміст:
+
+    about/index
+    hardware/index
 
 
 
