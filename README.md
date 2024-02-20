@@ -1,6 +1,6 @@
 # Лілка
 
-[![PlatformIO CI](https://github.com/and3rson/lilka/actions/workflows/pio.yml/badge.svg)](https://github.com/and3rson/lilka/actions/workflows/pio.yml)
+[![Documentation Status](https://readthedocs.org/projects/lilka/badge/?version=latest)](https://lilka.readthedocs.io/uk/latest/?badge=latest) [![PlatformIO CI](https://github.com/and3rson/lilka/actions/workflows/pio.yml/badge.svg)](https://github.com/and3rson/lilka/actions/workflows/pio.yml)
 
 DIY-консоль, яку можна зібрати з дешевих готових модулів.
 
