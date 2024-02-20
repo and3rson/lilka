@@ -13,7 +13,7 @@ jobs:
           path: |
             ~/.cache/pip
             ~/.platformio/.cache
-            ./firmware-demo/.pio
+            ./firmware/main/.pio
           key: ${{ runner.os }}-pio
       - uses: actions/setup-python@v4
         with:
@@ -22,5 +22,5 @@ jobs:
         run: pip install --upgrade platformio
 
       - name: Build PlatformIO Project
-        working-directory: ./firmware-demo
+        working-directory: ./firmware/main
         run: pio run
