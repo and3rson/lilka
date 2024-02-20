@@ -1,4 +1,4 @@
-name: PlatformIO CI
+name: firmware/main
 
 on: [push]
 
