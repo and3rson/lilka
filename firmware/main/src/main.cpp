@@ -1,9 +1,5 @@
 #include <esp_wifi.h>
 #include <esp_task_wdt.h>
-#include <FFat.h>
-#include <SPIFFS.h>
-#include <SD.h>
-#include <SD_MMC.h>
 
 #include <Arduino_GFX_Library.h>
 
@@ -18,14 +14,8 @@ extern "C" {
 #include <lilka/icons/folder.h>
 #include <lilka/icons/nes.h>
 
-extern void demo_lines();
-extern void demo_disc();
-extern void demo_epilepsy();
-extern void demo_ball();
-extern void demo_letris();
-extern void demo_user_spi();
-extern void demo_scan_i2c();
-extern int lua_run(String path);
+#include "demos/demos.h"
+#include "luarunner/luarunner.h"
 
 void setup() {
     lilka::begin();

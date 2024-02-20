@@ -20,7 +20,7 @@
     (41 "Cmts.User" user "User.Comments")
     (42 "Eco1.User" user "User.Eco1")
     (43 "Eco2.User" user "User.Eco2")
-    (44 "Edge.Cuts" user "Board")
+    (44 "Edge.Cuts" user)
     (45 "Margin" user)
     (46 "B.CrtYd" user "B.Courtyard")
     (47 "F.CrtYd" user "F.Courtyard")
