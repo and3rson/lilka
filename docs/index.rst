@@ -12,6 +12,7 @@
 
     about/index
     hardware/index
+    library/index
 
 
 

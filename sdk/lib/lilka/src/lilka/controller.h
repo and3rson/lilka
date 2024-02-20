@@ -23,13 +23,18 @@ typedef enum {
 
 #define LILKA_DEBOUNCE_TIME 10 // 10ms
 
+/// Містить стан кнопки, який був вимінярий в певний момент часу.
 typedef struct {
+    /// `true`, якщо кнопка була в натиснутому стані в момент виклику `lilka::controller.getState()`.
     bool pressed;
+    /// `true`, якщо кнопка була вперше натиснута в момент виклику `lilka::controller.getState()` (до цього була відпущена).
     bool justPressed;
+    /// `true`, якщо кнопка була вперше відпущена в момент виклику `lilka::controller.getState()` (до цього була натиснута).
     bool justReleased;
     uint64_t time;
 } ButtonState;
 
+/// Містить стани всіх кнопок, які були виміряні в певний момент часу.
 typedef union {
     struct {
         ButtonState up;
@@ -46,14 +51,44 @@ typedef union {
     ButtonState buttons[Button::COUNT];
 } State;
 
+/// Клас для роботи з контролером.
+///
+/// Використовується для вимірювання стану кнопок.
+///
+/// Приклад використання:
+///
+/// @code
+/// #include <lilka.h>
+///
+/// void setup() {
+///     lilka::begin();
+/// }
+///
+/// void loop() {
+///     while (1) {
+///         lilka::State state = lilka::controller.getState();
+///         if (state.up.justPressed) {
+///             Serial.println("Ви щойно натиснули кнопку 'Вгору'");
+///         } else if (state.up.justReleased) {
+///             Serial.println("Ви щойно відпустили кнопку 'Вгору'");
+///         }
+///     }
+/// }
+/// @endcode
 class Controller {
 public:
     Controller();
+    /// Почати вимірювання стану кнопок.
+    /// \warning Цей метод викликається автоматично при виклику `lilka::begin()`.
     void begin();
     void resetState();
+    /// Прочитати стан кнопок.
     State getState();
+    /// Встановити глобальний обробник подій, який буде викликатися при натисненні або відпусканні будь-якої кнопки.
     void setGlobalHandler(void (*handler)(Button, bool));
+    /// Встановити обробник подій для певної кнопки, який буде викликатися при натисненні або відпусканні цієї кнопки.
     void setHandler(Button button, void (*handler)(bool));
+    /// Видалити всі обробники подій.
     void clearHandlers();
 
     static void on_up();
@@ -80,6 +115,8 @@ private:
     int8_t _seqIndex = 0;
 };
 
+/// Екземпляр класу `Controller`, який можна використовувати для вимірювання стану кнопок.
+/// Вам не потрібно інстанціювати `Controller` вручну.
 extern Controller controller;
 
 } // namespace lilka

@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "Lilka"
+project = "Лілка"
 copyright = "2024, Andrew Dunai"
 author = "Andrew Dunai"
 
@@ -28,3 +28,16 @@ html_static_path = ["_static"]
 html_theme_options = {
     "collapse_navigation": False,
 }
+
+# -- Breathe configuration ---------------------------------------------------
+
+extensions.append("breathe")
+
+breathe_projects = {
+    "lilka": "./_doxygen/xml",
+}
+breathe_default_project = "lilka"
+
+primary_domain = "cpp"
+
+highlight_language = "cpp"

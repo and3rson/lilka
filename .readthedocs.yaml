@@ -8,6 +8,8 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.12"
+  apt_packages:
+    - doxygen
   # Ubuntu 22.04 has KiCad 6.0, which does not have kicad-cli.
   # We'll have to keep this commented (and generate PDFs manually with `make gen`) until ReadTheDocs adds Ubuntu 24.04.
   # apt_packages:
@@ -16,6 +18,9 @@ build:
   #   pre_install:
   #     - bash -c "mkdir -p ~/.config/kicad/7.0/colors && cp ./docs/assets/kicad/colors/Dark.json ~/.config/kicad/7.0/colors/Dark.json"
   #     - make -C docs gen
+  jobs:
+    pre_install:
+      - make -C docs doxygen
 
 sphinx:
   configuration: docs/conf.py
