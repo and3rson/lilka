@@ -8,10 +8,14 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.12"
-  apt_packages:
-    - kicad
+  # apt_packages:
+  #   - kicad
   jobs:
     pre_install:
+      - apt-get install software-properties-common -y
+      - add-apt-repository ppa:kicad/kicad-7.0-releases
+      - apt update
+        apt install kicad
       - bash -c "mkdir -p ~/.config/kicad/7.0/colors && cp ./docs/assets/kicad/colors/Dark.json ~/.config/kicad/7.0/colors/Dark.json"
       - make -C docs gen
 
