@@ -23,4 +23,4 @@ jobs:
 
       - name: Build PlatformIO Project
         working-directory: ./firmware/main
-        run: pio run
+        run: pio run -e v2

@@ -1,6 +1,6 @@
 # Лілка
 
-[![Documentation Status](https://readthedocs.org/projects/lilka/badge/?version=latest)](https://lilka.readthedocs.io/uk/latest/?badge=latest) [![PlatformIO Registry](https://badges.registry.platformio.org/packages/and3rson/library/Lilka.svg)](https://registry.platformio.org/libraries/and3rson/Lilka) [![CI](https://github.com/and3rson/lilka/actions/workflows/pio.yml/badge.svg)](https://github.com/and3rson/lilka/actions/workflows/pio.yml)
+[![Documentation Status](https://readthedocs.org/projects/lilka/badge/?version=latest)](https://lilka.readthedocs.io/uk/latest/?badge=latest) [![PlatformIO Registry](https://badges.registry.platformio.org/packages/and3rson/library/Lilka.svg)](https://registry.platformio.org/libraries/and3rson/Lilka) [![firmware/main](https://github.com/and3rson/lilka/actions/workflows/firmware_main.yml/badge.svg)](https://github.com/and3rson/lilka/actions/workflows/firmware_main.yml)
 
 DIY-консоль, яку можна зібрати з дешевих готових модулів.
 
