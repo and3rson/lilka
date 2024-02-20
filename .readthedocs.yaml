@@ -12,7 +12,7 @@ build:
     - kicad
   jobs:
     pre_install:
-      - bash -c "mkdir -p [/.config/kicad/7.0/colors && cp ./docs/assets/kicad/colors/Dark.json ~/.config/kicad/7.0/colors/Dark.json"
+      - bash -c "mkdir -p [~/.config/kicad/7.0/colors && cp ./docs/assets/kicad/colors/Dark.json ~/.config/kicad/7.0/colors/Dark.json"
 
 sphinx:
   configuration: docs/conf.py
