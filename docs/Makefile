@@ -12,7 +12,7 @@ doxygen:
 	cd _doxygen && doxygen Doxyfile
 
 .PHONY: autobuild
-autobuild: clean
+autobuild: clean doxygen
 	@# Live-reload the documentation
 	sphinx-autobuild . _build/html --ignore '**/_doxygen/**'
 

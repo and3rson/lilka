@@ -1438,7 +1438,7 @@
     (property "Footprint" "footprints:MicroSD-Adapter-3v3" (at -3.81 3.81 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Datasheet" "https://www.aliexpress.com/item/1005006220398106.html?spm=a2g0o.productlist.main.7.5dc56442mb8YKe&algo_pvid=6137478a-6794-48f5-ad77-d4086d1bc1a4&algo_exp_id=6137478a-6794-48f5-ad77-d4086d1bc1a4-3&pdp_npi=4%40dis%21UAH%21181.14%2137.96%21%21%2133.77%217.08%21%402101e5f717069882723556060e06ad%2112000036340394823%21sea%21UA%210%21AB&curPageLogUid=iQA9UHjLMs4O&utparam-url=scene%3Asearch%7Cquery_from%3A" (at -3.81 3.81 0)
+    (property "Datasheet" "https://www.aliexpress.com/item/1005006220398106.html" (at -3.81 3.81 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (symbol "uSD-adapter-3v3_0_1"

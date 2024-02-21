@@ -29,6 +29,13 @@ html_theme_options = {
     "collapse_navigation": False,
 }
 
+# -- Custom CSS --------------------------------------------------------------
+
+
+def setup(app):
+    app.add_css_file("extra_style.css")
+
+
 # -- Breathe configuration ---------------------------------------------------
 
 extensions.append("breathe")
