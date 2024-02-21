@@ -1,6 +1,6 @@
 {
     "name": "Lilka",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "license": "MIT",
     "repository": {
         "type": "git",
@@ -19,5 +19,9 @@
         "platformio.ini",
         "Makefile",
         "*.tar.gz"
+    ],
+    "include": [
+        "src",
+        "README.md"
     ]
 }

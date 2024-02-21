@@ -8,6 +8,5 @@ TODO
 
     assembly
     environment
-    flashing
     development
     extension
