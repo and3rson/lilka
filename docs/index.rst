@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Вітаємо вас у документації проекту Lilka!
+Вітаємо вас у документації проєкту Lilka!
 =========================================
 
 .. toctree::
