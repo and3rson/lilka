@@ -1,5 +1,5 @@
-Контролер
-=========
+``Controller``: Кнопки
+======================
 
 .. doxygenvariable:: lilka::controller
 
@@ -8,7 +8,6 @@
     :undoc-members:
 
 .. doxygenunion:: lilka::State
-    :membergroups: struct
 
 .. doxygenclass:: lilka::Controller
     :members:

@@ -1,5 +1,5 @@
 .PHONY: all
-all: gen doxygen
+all: clean gen doxygen
 	sphinx-build -M html . _build
 
 .PHONY: gen
@@ -12,6 +12,10 @@ doxygen:
 	cd _doxygen && doxygen Doxyfile
 
 .PHONY: autobuild
-autobuild:
+autobuild: clean
 	@# Live-reload the documentation
 	sphinx-autobuild . _build/html --ignore '**/_doxygen/**'
+
+.PHONY: clean
+clean:
+	rm -rf _build

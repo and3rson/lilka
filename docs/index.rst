@@ -11,10 +11,9 @@
     :caption: Зміст:
 
     about/index
-    hardware/index
+    manual/index
     library/index
-
-
+    hardware/index
 
 Indices and tables
 ==================

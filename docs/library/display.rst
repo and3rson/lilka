@@ -1,5 +1,5 @@
-Дисплей
-=======
+``Display``: Дисплей
+====================
 
 .. doxygenvariable:: lilka::display
 

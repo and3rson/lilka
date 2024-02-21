@@ -9,6 +9,7 @@ namespace lilka {
 // Лілка v0 і v1
 #    define SPI1_NUM HSPI
 #    define SPI2_NUM FSPI
+/// asd
 extern SPIClass SPI1; // Системний SPI (Дисплей та SD-карта)
 extern SPIClass SPI2; // Користувацький SPI
 

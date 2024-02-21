@@ -59,6 +59,7 @@ void select_file(String path) {
         lilka::LoaderHandle *handle = lilka::loader.createHandle(path);
         error = handle->start();
         if (error) {
+            delete handle;
             lilka::ui_alert("Помилка", String("Етап: 1\nКод: ") + error);
             return;
         }
@@ -81,11 +82,13 @@ void select_file(String path) {
             lilka::display.fillRect(16, LILKA_DISPLAY_HEIGHT / 2 + 40, (LILKA_DISPLAY_WIDTH - 32) * progress, 5, lilka::display.color565(255, 128, 0));
         }
         if (error) {
+            delete handle;
             lilka::ui_alert("Помилка", String("Етап: 2\nКод: ") + error);
             return;
         }
         error = handle->finishAndReboot();
         if (error) {
+            delete handle;
             lilka::ui_alert("Помилка", String("Етап: 3\nКод: ") + error);
             return;
         }
