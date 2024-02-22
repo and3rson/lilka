@@ -10,9 +10,11 @@ extern "C" {
 }
 
 #include <lilka.h>
-#include <lilka/icons/file.h>
-#include <lilka/icons/folder.h>
-#include <lilka/icons/nes.h>
+#include "icons/file.h"
+#include "icons/folder.h"
+#include "icons/nes.h"
+#include "icons/bin.h"
+#include "icons/lua.h"
 
 #include "demos/demos.h"
 
@@ -110,6 +112,18 @@ void select_file(String path) {
     }
 }
 
+const menu_icon_t *get_file_icon(const String &filename) {
+    if (filename.endsWith(".rom") || filename.endsWith(".nes")) {
+        return &nes;
+    } else if (filename.endsWith(".bin")) {
+        return &bin;
+    } else if (filename.endsWith(".lua")) {
+        return &lua;
+    } else {
+        return &file;
+    }
+}
+
 void sd_browser_menu(String path) {
     if (!lilka::sdcard.available()) {
         lilka::ui_alert("Помилка", "SD-карта не знайдена");
@@ -128,7 +142,7 @@ void sd_browser_menu(String path) {
     const menu_icon_t *icons[32];
     for (int i = 0; i < numEntries; i++) {
         filenames[i] = entries[i].name;
-        icons[i] = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : (entries[i].name.endsWith(".rom") || entries[i].name.endsWith(".nes")) ? &nes : &file;
+        icons[i] = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(filenames[i]);
     }
     filenames[numEntries++] = "<< Назад";
     icons[numEntries - 1] = 0;
@@ -163,7 +177,7 @@ void spiffs_browser_menu() {
 
     const menu_icon_t *icons[32];
     for (int i = 0; i < numEntries; i++) {
-        icons[i] = (filenames[i].endsWith(".rom") || filenames[i].endsWith(".nes")) ? &nes : &file;
+        icons[i] = get_file_icon(filenames[i]);
     }
     filenames[numEntries++] = "<< Назад";
     icons[numEntries - 1] = 0;
