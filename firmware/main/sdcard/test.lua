@@ -5,7 +5,7 @@ local resources = require("resources")
 
 print("Printing stuff to console, yay!")
 
-local face = resources.load_image("face.bmp")
+local face = resources.load_bitmap("face.bmp", display.color565(0, 0, 0))
 
 for i = 10, 1, -1 do
     display.fill_rect(0, 0, display.width, display.height, util.random(0xFFFF))
@@ -14,7 +14,7 @@ for i = 10, 1, -1 do
 
     x = util.random(240 - 64)
     y = util.random(280 - 64)
-    display.draw_image(face, x, y, display.color565(0, 0, 0))
+    display.draw_bitmap(face, x, y)
 
     display.render()
 
@@ -35,7 +35,7 @@ while not key.a.just_pressed do
 
     local x = util.random(240 - 64)
     local y = util.random(280 - 64)
-    display.draw_image(face, x, y, display.color565(0, 0, 0))
+    display.draw_bitmap(face, x, y, display.color565(0, 0, 0))
 
     key = controller.get_state()
 end

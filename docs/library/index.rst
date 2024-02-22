@@ -100,5 +100,6 @@
     controller
     display
     loader
+    resources
     spi
     ui

@@ -12,6 +12,8 @@
 #include "lilka/ui.h"
 #include "lilka/loader.h"
 #include "lilka/sys.h"
+#include "lilka/resources.h"
+#include "lua/luarunner.h"
 
 namespace lilka {
 void begin();

@@ -1,14 +1,15 @@
 {
     "name": "Lilka",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "license": "MIT",
     "repository": {
         "type": "git",
         "url": "https://github.com/and3rson/lilka.git"
     },
     "dependencies": {
-        "Arduino_GFX": "https://github.com/moononournation/Arduino_GFX.git",
-        "olikraus/U8g2": "^2.35.9"
+        "Arduino_GFX": "^1.4.5",
+        "olikraus/U8g2": "^2.35.9",
+        "mischief/lua": "^0.1.1"
     },
     "homepage": "https://github.com/and3rson/lilka",
     "frameworks": "arduino",

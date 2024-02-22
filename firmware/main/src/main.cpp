@@ -15,7 +15,6 @@ extern "C" {
 #include <lilka/icons/nes.h>
 
 #include "demos/demos.h"
-#include "luarunner/luarunner.h"
 
 void setup() {
     lilka::begin();
@@ -93,7 +92,7 @@ void select_file(String path) {
             return;
         }
     } else if (path.endsWith(".lua")) {
-        int retCode = lua_run(path);
+        int retCode = lilka::lua_run(path);
         if (retCode) {
             lilka::ui_alert("Lua", String("Увага!\nКод завершення: ") + retCode);
         }

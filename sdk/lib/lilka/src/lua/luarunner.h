@@ -3,6 +3,10 @@
 
 #include <Arduino.h>
 
+namespace lilka {
+
 int lua_run(String path);
+
+}
 
 #endif // LILKA_LUARUNNER_H

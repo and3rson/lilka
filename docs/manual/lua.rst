@@ -58,8 +58,8 @@
     local color = display.color565(255, 0, 0)
     display.draw_line(0, 0, 100, 100, color)
 
-    local face = resources.load_image("face.bmp")
-    display.draw_image(face, 50, 80)
+    local face = resources.load_bitmap("face.bmp", display.color565(0, 0, 0))
+    display.draw_bitmap(face, 50, 80)
 
     display.set_buffered(true)
     display.fill_rect(0, 0, 100, 100, color)
@@ -153,18 +153,16 @@
 
     Заповнює прямокутник з координатами (x, y) і шириною w та висотою h кольором color.
 
-.. lua:function:: draw_image(id, x, y, [trans_color])
+.. lua:function:: draw_bitmap(id, x, y)
 
     Виводить зображення на екран.
 
     :type id: number
-    :param id: Ідентифікатор зображення, отриманий з :lua:func:`resources.load_image`.
+    :param id: Ідентифікатор зображення, отриманий з :lua:func:`resources.load_bitmap`.
     :type x: number
     :param x: Координата x.
     :type y: number
     :param y: Координата y.
-    :type trans_color: number
-    :param trans_color: Колір, який буде вважатися прозорим. Якщо цей параметр не вказаний, зображення виводиться без прозорості.
 
     Приклад використання:
 
@@ -174,8 +172,8 @@
         local display = require("display")
         local resources = require("resources")
 
-        local face = resources.load_image("face.bmp")
-        display.draw_image(face, 50, 80)
+        local face = resources.load_bitmap("face.bmp", display.color565(0, 0, 0))
+        display.draw_bitmap(face, 50, 80)
 
 .. lua:function:: set_buffered(value)
 
@@ -209,19 +207,21 @@
     local display = require("display")
     local resources = require("resources")
 
-    local face = resources.load_image("face.bmp")
-    display.draw_image(face, 50, 80)
+    local face = resources.load_bitmap("face.bmp", display.color565(0, 0, 0))
+    display.draw_bitmap(face, 50, 80)
 
 .. lua:module:: resources
 
-.. lua:function:: load_image(filename)
+.. lua:function:: load_bitmap(filename, [transparent_color])
 
     Завантажує зображення з файлу.
 
     :type filename: string
     :param filename: Шлях до файлу з зображенням (відносно місця знаходження скрипта, що виконується).
+    :type transparent_color: number
+    :param transparent_color: Колір, який буде вважатися прозорим. Якщо цей параметр не вказаний, зображення виводиться без прозорості.
 
-    Повертає ідентифікатор зображення, який можна використовувати для виведення зображення на екран.
+    Повертає ідентифікатор зображення, який можна використовувати для малювання зображення на екрані.
 
     Приклад використання:
 
@@ -231,8 +231,8 @@
         local display = require("display")
         local resources = require("resources")
 
-        local face = resources.load_image("face.bmp")
-        display.draw_image(face, 50, 80)
+        local face = resources.load_bitmap("face.bmp", display.color565(0, 0, 0))
+        display.draw_bitmap(face, 50, 80)
 
 Введення
 --------
@@ -308,6 +308,23 @@
 -------
 
 Різні корисні функції.
+
+.. code-block:: lua
+    :linenos:
+
+    local utils = require("utils")
+    local display = require("display")
+
+    display.set_cursor(0, 32)
+
+    local r = utils.random(10, 20)
+    display.print("Випадкове число: " .. r)
+
+    display.print("Зачекайте 1 секунду...")
+    utils.delay(1000) -- Затримує виконання програми на 1 секунду.
+
+    r = utils.random(10, 20)
+    display.print("Нове випадкове число: " .. r)
 
 .. lua:module:: utils
 
