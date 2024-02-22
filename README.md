@@ -1,6 +1,10 @@
 # Лілка
 
-[![Documentation Status](https://readthedocs.org/projects/lilka/badge/?version=latest)](https://lilka.readthedocs.io/uk/latest/?badge=latest) [![PlatformIO Registry](https://badges.registry.platformio.org/packages/and3rson/library/Lilka.svg)](https://registry.platformio.org/libraries/and3rson/Lilka) [![firmware/main](https://github.com/and3rson/lilka/actions/workflows/firmware_main.yml/badge.svg)](https://github.com/and3rson/lilka/actions/workflows/firmware_main.yml)
+![Made in Ukraine](https://img.shields.io/badge/Made%20in-Ukraine-blue?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjgwMCI%2BCjxyZWN0IHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjgwMCIgZmlsbD0iIzAwNTdCNyIvPgo8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI0MDAiIHk9IjQwMCIgZmlsbD0iI0ZGRDcwMCIvPgo8L3N2Zz4%3D)
+[![Documentation Status](https://readthedocs.org/projects/lilka/badge/?version=latest)](https://lilka.readthedocs.io/uk/latest/?badge=latest)
+[![PlatformIO Registry](https://badges.registry.platformio.org/packages/and3rson/library/Lilka.svg)](https://registry.platformio.org/libraries/and3rson/Lilka)
+[![firmware/main](https://github.com/and3rson/lilka/actions/workflows/firmware_main.yml/badge.svg)](https://github.com/and3rson/lilka/actions/workflows/firmware_main.yml)
+[![Discord](https://img.shields.io/discord/1202315568846213172?label=Discord)][discord]
 
 DIY-консоль, яку можна зібрати з дешевих готових модулів.
 
