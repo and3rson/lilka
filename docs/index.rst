@@ -14,6 +14,7 @@
     manual/index
     library/index
     hardware/index
+    glossary
 
 Indices and tables
 ==================

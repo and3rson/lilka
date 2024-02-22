@@ -28,6 +28,8 @@ html_static_path = ["_static"]
 html_theme_options = {
     "collapse_navigation": False,
     "logo_only": True,
+    "titles_only": True,
+    "display_version": False,
 }
 html_logo = "_static/lilka_logo.png"
 
