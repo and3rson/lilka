@@ -8,5 +8,7 @@ TODO
 
     assembly
     environment
+    main_firmware
+    lua
     development
     extension

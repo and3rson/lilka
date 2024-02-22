@@ -50,3 +50,7 @@ breathe_default_project = "lilka"
 primary_domain = "cpp"
 
 highlight_language = "cpp"
+
+# -- Lua ---------------------------------------------------------------------
+
+extensions.append("sphinxcontrib.luadomain")
