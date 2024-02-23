@@ -6,7 +6,7 @@
 
   (paper "A4")
   (layers
-    (0 "F.Cu" signal "Top")
+    (0 "F.Cu" jumper "Top")
     (31 "B.Cu" signal "Bot")
     (32 "B.Adhes" user "B.Adhesive")
     (33 "F.Adhes" user "F.Adhesive")
@@ -34,13 +34,13 @@
     (55 "User.6" user)
     (56 "User.7" user)
     (57 "User.8" user)
-    (58 "User.9" user)
+    (58 "User.9" user "User.Case")
   )
 
   (setup
     (pad_to_mask_clearance 0)
     (pcbplotparams
-      (layerselection 0x00010f0_ffffffff)
+      (layerselection 0x4000000_7ffffffe)
       (plot_on_all_layers_selection 0x0000000_00000000)
       (disableapertmacros false)
       (usegerberextensions false)
@@ -67,11 +67,11 @@
       (plotinvisibletext false)
       (sketchpadsonfab false)
       (subtractmaskfromsilk false)
-      (outputformat 1)
+      (outputformat 3)
       (mirror false)
       (drillshape 0)
       (scaleselection 1)
-      (outputdirectory "gerber/")
+      (outputdirectory "")
     )
   )
 
@@ -3382,6 +3382,63 @@
     )
 
     (stroke (width 0.15) (type solid)) (fill none) (layer "Edge.Cuts") (tstamp f91ca47a-c6b5-4e89-bf4b-f27bacc28c5d))
+  (gr_rect (start 76.2 40.64) (end 104.14 50.8)
+    (stroke (width 0.15) (type default)) (fill none) (layer "User.9") (tstamp 02243892-fc60-40b5-8182-a599a0990c05))
+  (gr_circle (center 132.588 90.17) (end 135.382 92.964)
+    (stroke (width 0.15) (type default)) (fill none) (layer "User.9") (tstamp 1b5fcea6-4f60-47f5-a109-a056575c0050))
+  (gr_circle (center 33.02 53.34) (end 34.29 53.34)
+    (stroke (width 0.15) (type default)) (fill none) (layer "User.9") (tstamp 1c8ec533-4cb8-4e82-b676-2272344c8c01))
+  (gr_poly
+    (pts
+      (xy 138.43 53.34)
+      (xy 123.19 68.58)
+      (xy 123.19 73.66)
+      (xy 138.43 88.9)
+      (xy 143.51 88.9)
+      (xy 158.75 73.66)
+      (xy 158.75 68.58)
+      (xy 143.51 53.34)
+    )
+
+    (stroke (width 0.5) (type solid)) (fill none) (layer "User.9") (tstamp 253f52a6-da5e-48a4-9642-28f2bda94ff8))
+  (gr_poly
+    (pts
+      (xy 46.99 53.34)
+      (xy 31.75 68.58)
+      (xy 31.75 73.66)
+      (xy 46.99 88.9)
+      (xy 52.07 88.9)
+      (xy 67.31 73.66)
+      (xy 67.31 68.58)
+      (xy 52.07 53.34)
+    )
+
+    (stroke (width 0.5) (type solid)) (fill none) (layer "User.9") (tstamp 51fca01e-3a0f-4a00-bff4-13325f499809))
+  (gr_poly
+    (pts
+      (xy 40.64 38.1)
+      (xy 27.94 50.8)
+      (xy 27.94 88.9)
+      (xy 40.64 101.6)
+      (xy 149.86 101.6)
+      (xy 162.56 88.9)
+      (xy 162.56 50.8)
+      (xy 149.86 38.1)
+    )
+
+    (stroke (width 0.5) (type solid)) (fill none) (layer "User.9") (tstamp 7b758321-ca7b-457e-9d83-c942e173bac5))
+  (gr_rect (start 76.2 53.34) (end 115.57 83.82)
+    (stroke (width 0.15) (type default)) (fill none) (layer "User.9") (tstamp 8919b117-8caa-4468-a13f-a0206ab07574))
+  (gr_circle (center 33.02 86.36) (end 34.29 86.36)
+    (stroke (width 0.15) (type default)) (fill none) (layer "User.9") (tstamp 98f5b4c1-1473-4fa8-9eca-60b4762286a1))
+  (gr_circle (center 157.48 53.34) (end 158.75 53.34)
+    (stroke (width 0.15) (type default)) (fill none) (layer "User.9") (tstamp c1740320-4868-491f-ae60-e484372a9c17))
+  (gr_circle (center 57.912 90.17) (end 60.706 92.964)
+    (stroke (width 0.15) (type default)) (fill none) (layer "User.9") (tstamp c4c78fd8-224f-4458-8fe7-d12c59c5f05a))
+  (gr_circle (center 116.205 92.964) (end 118.999 95.758)
+    (stroke (width 0.15) (type default)) (fill none) (layer "User.9") (tstamp d11808ad-b256-4854-a7de-1340405d7a82))
+  (gr_circle (center 157.48 86.36) (end 158.75 86.36)
+    (stroke (width 0.15) (type default)) (fill none) (layer "User.9") (tstamp f835f71b-97dd-4a29-b456-899d6f1d74ac))
   (gr_text "B+" (at 78.74 64.77) (layer "B.SilkS") (tstamp 6aab5bd4-8080-475a-b576-d4712316978a)
     (effects (font (size 1.5 1.5) (thickness 0.2) bold) (justify bottom mirror))
   )
