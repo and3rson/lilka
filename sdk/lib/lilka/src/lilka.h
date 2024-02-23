@@ -14,6 +14,7 @@
 #include "lilka/sys.h"
 #include "lilka/resources.h"
 #include "lua/luarunner.h"
+#include "mjs/mjsrunner.h"
 
 namespace lilka {
 void begin();

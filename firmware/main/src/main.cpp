@@ -15,6 +15,7 @@ extern "C" {
 #include "icons/nes.h"
 #include "icons/bin.h"
 #include "icons/lua.h"
+#include "icons/js.h"
 
 #include "demos/demos.h"
 
@@ -38,6 +39,20 @@ void demos_menu() {
             return;
         }
         demo_funcs[cursor]();
+    }
+}
+
+const menu_icon_t *get_file_icon(const String &filename) {
+    if (filename.endsWith(".rom") || filename.endsWith(".nes")) {
+        return &nes;
+    } else if (filename.endsWith(".bin")) {
+        return &bin;
+    } else if (filename.endsWith(".lua")) {
+        return &lua;
+    } else if (filename.endsWith(".js")) {
+        return &js;
+    } else {
+        return &file;
     }
 }
 
@@ -79,8 +94,13 @@ void select_file(String path) {
             lilka::display.getTextBounds(buf, lilka::display.getCursorX(), lilka::display.getCursorY(), &x, &y, &w, &h);
             lilka::display.fillRect(x, y, w, h, lilka::display.color565(0, 0, 0));
             lilka::display.println(buf);
-            lilka::display.fillRect(16, LILKA_DISPLAY_HEIGHT / 2 + 40, LILKA_DISPLAY_WIDTH - 32, 5, lilka::display.color565(64, 64, 64));
-            lilka::display.fillRect(16, LILKA_DISPLAY_HEIGHT / 2 + 40, (LILKA_DISPLAY_WIDTH - 32) * progress, 5, lilka::display.color565(255, 128, 0));
+            lilka::display.fillRect(
+                16, LILKA_DISPLAY_HEIGHT / 2 + 40, LILKA_DISPLAY_WIDTH - 32, 5, lilka::display.color565(64, 64, 64)
+            );
+            lilka::display.fillRect(
+                16, LILKA_DISPLAY_HEIGHT / 2 + 40, (LILKA_DISPLAY_WIDTH - 32) * progress, 5,
+                lilka::display.color565(255, 128, 0)
+            );
         }
         if (error) {
             delete handle;
@@ -98,6 +118,11 @@ void select_file(String path) {
         if (retCode) {
             lilka::ui_alert("Lua", String("Увага!\nКод завершення: ") + retCode);
         }
+    } else if (path.endsWith(".js")) {
+        int retCode = lilka::mjs_run(path);
+        if (retCode) {
+            lilka::ui_alert("Lua", String("Увага!\nКод завершення: ") + retCode);
+        }
     } else {
         // Get file size
         FILE *file = fopen(path.c_str(), "r");
@@ -109,18 +134,6 @@ void select_file(String path) {
         long size = ftell(file);
         fclose(file);
         lilka::ui_alert(path, String("Розмір:\n") + size + " байт");
-    }
-}
-
-const menu_icon_t *get_file_icon(const String &filename) {
-    if (filename.endsWith(".rom") || filename.endsWith(".nes")) {
-        return &nes;
-    } else if (filename.endsWith(".bin")) {
-        return &bin;
-    } else if (filename.endsWith(".lua")) {
-        return &lua;
-    } else {
-        return &file;
     }
 }
 
@@ -194,7 +207,8 @@ void spiffs_browser_menu() {
 
 void system_utils_menu() {
     String menu[] = {
-        "Перезавантаження", "Deep Sleep", "Версія SDK", "Версія ESP-IDF", "Інфо про пристрій", "Таблиця розділів", "<< Назад",
+        "Перезавантаження",  "Deep Sleep",       "Версія SDK", "Версія ESP-IDF",
+        "Інфо про пристрій", "Таблиця розділів", "<< Назад",
     };
     int cursor = 0;
     int count = sizeof(menu) / sizeof(menu[0]);
@@ -210,14 +224,17 @@ void system_utils_menu() {
             lilka::ui_alert("Версія ESP-IDF", "Версія: " + String(esp_get_idf_version()));
         } else if (cursor == 4) {
             char buf[256];
-            sprintf(buf,
-                    "Модель: %s\n"
-                    "Ревізія: %d\n"
-                    "Версія SDK: %s\n"
-                    "Версія ESP-IDF: %s\n"
-                    "Частота: %d МГц\n"
-                    "Кількість ядер: %d\n",
-                    ESP.getChipModel(), ESP.getChipRevision(), ESP.getSdkVersion(), esp_get_idf_version(), ESP.getCpuFreqMHz(), ESP.getChipCores());
+            sprintf(
+                buf,
+                "Модель: %s\n"
+                "Ревізія: %d\n"
+                "Версія SDK: %s\n"
+                "Версія ESP-IDF: %s\n"
+                "Частота: %d МГц\n"
+                "Кількість ядер: %d\n",
+                ESP.getChipModel(), ESP.getChipRevision(), ESP.getSdkVersion(), esp_get_idf_version(),
+                ESP.getCpuFreqMHz(), ESP.getChipCores()
+            );
             lilka::ui_alert("Інфо про пристрій", buf);
         } else if (cursor == 5) {
             String labels[16];
