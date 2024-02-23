@@ -27,7 +27,6 @@ void Display::begin() {
 #else
     Arduino_ST7789::begin(80000000);
 #endif
-    drawArc();
     setFont(u8g2_font_10x20_t_cyrillic);
     setUTF8Print(true);
     uint16_t row[LILKA_DISPLAY_WIDTH];
