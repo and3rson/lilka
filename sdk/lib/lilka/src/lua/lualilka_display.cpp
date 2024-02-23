@@ -3,7 +3,9 @@
 namespace lilka {
 
 Arduino_GFX* getDrawable(lua_State* L) {
-    // Check if display is buffered
+    // Check if display is buffered.
+    // If buffered, return canvas pointer from registry.
+    // If not buffered, return pointer to actual display.
     lua_getfield(L, LUA_REGISTRYINDEX, "isBuffered");
     bool isBuffered = lua_toboolean(L, -1);
     lua_pop(L, 1);
@@ -46,6 +48,47 @@ int lualilka_display_setCursor(lua_State* L) {
     return 0;
 }
 
+const uint8_t* fonts[] = {
+    u8g2_font_4x6_t_cyrillic,  u8g2_font_5x7_t_cyrillic,  u8g2_font_5x8_t_cyrillic,
+    u8g2_font_6x12_t_cyrillic, u8g2_font_6x13_t_cyrillic, u8g2_font_7x13_t_cyrillic,
+    u8g2_font_8x13_t_cyrillic, u8g2_font_9x15_t_cyrillic, u8g2_font_10x20_t_cyrillic,
+};
+
+const char fontNames[][12] = {
+    "4x6", "5x7", "5x8", "6x12", "6x13", "7x13", "8x13", "9x15", "10x20",
+};
+
+int lualilka_display_setFont(lua_State* L) {
+    const char* fontName = luaL_checkstring(L, 1);
+    for (int i = 0; i < 9; i++) {
+        if (strcmp(fontName, fontNames[i]) == 0) {
+            getDrawable(L)->setFont(fonts[i]);
+            return 0;
+        }
+    }
+    return luaL_error(L, "Unknown font - %s", fontName);
+}
+
+int lualilka_display_setTextSize(lua_State* L) {
+    int size = luaL_checkinteger(L, 1);
+    getDrawable(L)->setTextSize(size);
+    return 0;
+}
+
+int lualilka_display_setTextColor(lua_State* L) {
+    uint16_t fgColor = luaL_checkinteger(L, 1);
+    // Check if bgColor is provided
+    if (lua_gettop(L) > 1) {
+        uint16_t bgColor = luaL_checkinteger(L, 2);
+        // Set both fgColor & bgColor
+        getDrawable(L)->setTextColor(fgColor, bgColor);
+        return 0;
+    }
+    // Set only fgColor
+    getDrawable(L)->setTextColor(fgColor);
+    return 0;
+}
+
 int lualilka_display_print(lua_State* L) {
     int n = lua_gettop(L);
     for (int i = 1; i <= n; i++) {
@@ -62,6 +105,20 @@ int lualilka_display_print(lua_State* L) {
     return 0;
 }
 
+int lualilka_display_fillScreen(lua_State* L) {
+    uint16_t color = luaL_checkinteger(L, 1);
+    getDrawable(L)->fillScreen(color);
+    return 0;
+}
+
+int lualilka_display_drawPixel(lua_State* L) {
+    int x = luaL_checkinteger(L, 1);
+    int y = luaL_checkinteger(L, 2);
+    uint16_t color = luaL_checkinteger(L, 3);
+    getDrawable(L)->drawPixel(x, y, color);
+    return 0;
+}
+
 int lualilka_display_drawLine(lua_State* L) {
     int x0 = luaL_checkinteger(L, 1);
     int y0 = luaL_checkinteger(L, 2);
@@ -69,6 +126,16 @@ int lualilka_display_drawLine(lua_State* L) {
     int y1 = luaL_checkinteger(L, 4);
     uint16_t color = luaL_checkinteger(L, 5);
     getDrawable(L)->drawLine(x0, y0, x1, y1, color);
+    return 0;
+}
+
+int lualilka_display_drawRect(lua_State* L) {
+    int x = luaL_checkinteger(L, 1);
+    int y = luaL_checkinteger(L, 2);
+    int w = luaL_checkinteger(L, 3);
+    int h = luaL_checkinteger(L, 4);
+    uint16_t color = luaL_checkinteger(L, 5);
+    getDrawable(L)->drawRect(x, y, w, h, color);
     return 0;
 }
 
@@ -82,6 +149,92 @@ int lualilka_display_fillRect(lua_State* L) {
     return 0;
 }
 
+int lualilka_display_drawCircle(lua_State* L) {
+    int x = luaL_checkinteger(L, 1);
+    int y = luaL_checkinteger(L, 2);
+    int r = luaL_checkinteger(L, 3);
+    uint16_t color = luaL_checkinteger(L, 4);
+    getDrawable(L)->drawCircle(x, y, r, color);
+    return 0;
+}
+
+int lualilka_display_fillCircle(lua_State* L) {
+    int x = luaL_checkinteger(L, 1);
+    int y = luaL_checkinteger(L, 2);
+    int r = luaL_checkinteger(L, 3);
+    uint16_t color = luaL_checkinteger(L, 4);
+    getDrawable(L)->fillCircle(x, y, r, color);
+    return 0;
+}
+
+int lualilka_display_drawTriangle(lua_State* L) {
+    int x0 = luaL_checkinteger(L, 1);
+    int y0 = luaL_checkinteger(L, 2);
+    int x1 = luaL_checkinteger(L, 3);
+    int y1 = luaL_checkinteger(L, 4);
+    int x2 = luaL_checkinteger(L, 5);
+    int y2 = luaL_checkinteger(L, 6);
+    uint16_t color = luaL_checkinteger(L, 7);
+    getDrawable(L)->drawTriangle(x0, y0, x1, y1, x2, y2, color);
+    return 0;
+}
+
+int lualilka_display_fillTriangle(lua_State* L) {
+    int x0 = luaL_checkinteger(L, 1);
+    int y0 = luaL_checkinteger(L, 2);
+    int x1 = luaL_checkinteger(L, 3);
+    int y1 = luaL_checkinteger(L, 4);
+    int x2 = luaL_checkinteger(L, 5);
+    int y2 = luaL_checkinteger(L, 6);
+    uint16_t color = luaL_checkinteger(L, 7);
+    getDrawable(L)->fillTriangle(x0, y0, x1, y1, x2, y2, color);
+    return 0;
+}
+
+int lualila_display_drawEllipse(lua_State* L) {
+    int x = luaL_checkinteger(L, 1);
+    int y = luaL_checkinteger(L, 2);
+    int rx = luaL_checkinteger(L, 3);
+    int ry = luaL_checkinteger(L, 4);
+    uint16_t color = luaL_checkinteger(L, 5);
+    getDrawable(L)->drawEllipse(x, y, rx, ry, color);
+    return 0;
+}
+
+int lualila_display_fillEllipse(lua_State* L) {
+    int x = luaL_checkinteger(L, 1);
+    int y = luaL_checkinteger(L, 2);
+    int rx = luaL_checkinteger(L, 3);
+    int ry = luaL_checkinteger(L, 4);
+    uint16_t color = luaL_checkinteger(L, 5);
+    getDrawable(L)->fillEllipse(x, y, rx, ry, color);
+    return 0;
+}
+
+int lualilka_display_drawArc(lua_State* L) {
+    int x = luaL_checkinteger(L, 1);
+    int y = luaL_checkinteger(L, 2);
+    int r1 = luaL_checkinteger(L, 3);
+    int r2 = luaL_checkinteger(L, 4);
+    int startAngle = luaL_checkinteger(L, 5);
+    int endAngle = luaL_checkinteger(L, 6);
+    uint16_t color = luaL_checkinteger(L, 7);
+    getDrawable(L)->drawArc(x, y, r1, r2, startAngle, endAngle, color);
+    return 0;
+}
+
+int lualilka_display_fillArc(lua_State* L) {
+    int x = luaL_checkinteger(L, 1);
+    int y = luaL_checkinteger(L, 2);
+    int r1 = luaL_checkinteger(L, 3);
+    int r2 = luaL_checkinteger(L, 4);
+    int startAngle = luaL_checkinteger(L, 5);
+    int endAngle = luaL_checkinteger(L, 6);
+    uint16_t color = luaL_checkinteger(L, 7);
+    getDrawable(L)->fillArc(x, y, r1, r2, startAngle, endAngle, color);
+    return 0;
+}
+
 int lualilka_display_drawBitmap(lua_State* L) {
     // Args are bitmap handler, X & Y
     // First argument is pointer to bitmap data
@@ -90,7 +243,9 @@ int lualilka_display_drawBitmap(lua_State* L) {
     int16_t y = luaL_checkinteger(L, 3);
 
     if (bitmap->transparentColor >= 0) {
-        getDrawable(L)->draw16bitRGBBitmapWithTranColor(x, y, bitmap->pixels, bitmap->transparentColor, bitmap->width, bitmap->height);
+        getDrawable(L)->draw16bitRGBBitmapWithTranColor(
+            x, y, bitmap->pixels, bitmap->transparentColor, bitmap->width, bitmap->height
+        );
     } else {
         getDrawable(L)->draw16bitRGBBitmap(x, y, bitmap->pixels, bitmap->width, bitmap->height);
     }
@@ -114,18 +269,30 @@ int lualilka_display_render(lua_State* L) {
     return 0;
 }
 
-// int lualilka_display_drawBitmap(lua_State* L) {
-//     int x = luaL_checkinteger(L, 1);
-//     int y = luaL_checkinteger(L, 2);
-//     int w = luaL_checkinteger(L, 3);
-//     int h = luaL_checkinteger(L, 4);
-//     const uint8_t* bitmap = (const uint8_t*)luaL_checkstring(L, 5);
-//     getDrawable(L)->drawBitmap(x, y, w, h, bitmap);
-//     return 0;
-// }
-
 static const luaL_Reg lualilka_display[] = {
-    {"set_buffered", lualilka_display_setBuffered}, {"color565", lualilka_display_color565}, {"set_cursor", lualilka_display_setCursor}, {"print", lualilka_display_print}, {"draw_line", lualilka_display_drawLine}, {"fill_rect", lualilka_display_fillRect}, {"draw_bitmap", lualilka_display_drawBitmap}, {"render", lualilka_display_render}, {NULL, NULL},
+    {"set_buffered", lualilka_display_setBuffered},
+    {"color565", lualilka_display_color565},
+    {"set_cursor", lualilka_display_setCursor},
+    {"set_font", lualilka_display_setFont},
+    {"set_text_size", lualilka_display_setTextSize},
+    {"set_text_color", lualilka_display_setTextColor},
+    {"print", lualilka_display_print},
+    {"fill_screen", lualilka_display_fillScreen},
+    {"draw_pixel", lualilka_display_drawPixel},
+    {"draw_line", lualilka_display_drawLine},
+    {"draw_rect", lualilka_display_drawRect},
+    {"fill_rect", lualilka_display_fillRect},
+    {"draw_circle", lualilka_display_drawCircle},
+    {"fill_circle", lualilka_display_fillCircle},
+    {"draw_triangle", lualilka_display_drawTriangle},
+    {"fill_triangle", lualilka_display_fillTriangle},
+    {"draw_ellipse", lualila_display_drawEllipse},
+    {"fill_ellipse", lualila_display_fillEllipse},
+    {"draw_arc", lualilka_display_drawArc},
+    {"fill_arc", lualilka_display_fillArc},
+    {"draw_bitmap", lualilka_display_drawBitmap},
+    {"render", lualilka_display_render},
+    {NULL, NULL},
 };
 
 int luaopen_lilka_display(lua_State* L) {
@@ -142,4 +309,4 @@ int luaopen_lilka_display(lua_State* L) {
     return 1;
 }
 
-}
+} // namespace lilka

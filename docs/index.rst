@@ -15,6 +15,7 @@
     about/index
     manual/index
     library/index
+    lua/index
     hardware/index
     glossary
 

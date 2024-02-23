@@ -1,7 +1,7 @@
 ---
 BasedOnStyle: Google
 AccessModifierOffset: -4
-AlignAfterOpenBracket: Align
+AlignAfterOpenBracket: BlockIndent
 # IndentAccessModifiers: 'true'
 # AlignConsecutiveAssignments: 'true'
 # AlignConsecutiveDeclarations: 'true'
@@ -15,7 +15,7 @@ AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: 'false'
 BinPackArguments: 'true'
 BinPackParameters: 'true'
-ColumnLimit: '1000'
+ColumnLimit: '120'
 IndentCaseLabels: 'true'
 IndentPPDirectives: AfterHash
 IndentWidth: '4'
@@ -29,5 +29,8 @@ SpacesBeforeTrailingComments: 1
 AlignTrailingComments: 'false'
 TabWidth: '4'
 UseTab: Never
+ShortNamespaceLines: 0
+BreakArrays: 'true'
+ContinuationIndentWidth: 4
 
 ...

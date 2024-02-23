@@ -10,10 +10,15 @@ namespace lilka {
 #if LILKA_VERSION == 1
 Arduino_ESP32SPI displayBus(LILKA_DISPLAY_DC, LILKA_DISPLAY_CS, LILKA_SPI_SCK, LILKA_SPI_MOSI);
 #else
-Arduino_ESP32SPI displayBus(LILKA_DISPLAY_DC, LILKA_DISPLAY_CS, LILKA_SPI_SCK, LILKA_SPI_MOSI, LILKA_SPI_MISO, SPI1_NUM);
+Arduino_ESP32SPI displayBus(
+    LILKA_DISPLAY_DC, LILKA_DISPLAY_CS, LILKA_SPI_SCK, LILKA_SPI_MOSI, LILKA_SPI_MISO, SPI1_NUM
+);
 #endif
 
-Display::Display() : Arduino_ST7789(&displayBus, LILKA_DISPLAY_RST, LILKA_DISPLAY_ROTATION, true, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, 0, 20) {}
+Display::Display()
+    : Arduino_ST7789(
+          &displayBus, LILKA_DISPLAY_RST, LILKA_DISPLAY_ROTATION, true, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, 0, 20
+      ) {}
 
 void Display::begin() {
     serial_log("initializing display");
@@ -22,6 +27,7 @@ void Display::begin() {
 #else
     Arduino_ST7789::begin(80000000);
 #endif
+    drawArc();
     setFont(u8g2_font_10x20_t_cyrillic);
     setUTF8Print(true);
     uint16_t row[LILKA_DISPLAY_WIDTH];
