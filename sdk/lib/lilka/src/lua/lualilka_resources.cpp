@@ -9,8 +9,15 @@ int lualilka_resources_loadBitmap(lua_State* L) {
     const char* dir = lua_tostring(L, -1);
     lua_pop(L, 1);
     String fullPath = String(dir) + "/" + path;
+    // 2nd argument is optional transparency color (16-bit 5-6-5)
+    int32_t transparencyColor = -1;
+    if (lua_gettop(L) > 1) {
+        if (lua_isnumber(L, 2)) {
+            transparencyColor = lua_tointeger(L, 2);
+        }
+    }
 
-    Bitmap* bitmap = resources.loadBitmap(path);
+    Bitmap* bitmap = resources.loadBitmap(fullPath, transparencyColor);
 
     if (!bitmap) {
         return luaL_error(L, "Failed to load bitmap %s", fullPath.c_str());

@@ -9,12 +9,21 @@ namespace lilka {
 ///
 /// Містить розміри, прозорий колір та пікселі зображення (в 16-бітному форматі, 5-6-5).
 /// Пікселі зберігаються в рядку зліва направо, зверху вниз.
-typedef struct {
+class Bitmap {
+public:
+    inline Bitmap(uint32_t width, uint32_t height, int32_t transparentColor = -1)
+        : width(width), height(height), transparentColor(transparentColor) {
+        pixels = new uint16_t[width * height];
+    }
+    inline ~Bitmap() {
+        delete[] pixels;
+    }
     uint32_t width;
     uint32_t height;
+    /// 16-бітний колір (5-6-5), який буде прозорим. За замовчуванням -1 (прозорість відсутня).
     int32_t transparentColor;
     uint16_t *pixels;
-} Bitmap;
+};
 
 /// Клас для завантаження ресурсів.
 class Resources {
@@ -25,18 +34,20 @@ public:
     /// \param transparentColor 16-бітний колір (5-6-5), який буде прозорим. За замовчуванням -1 (прозорість відсутня).
     /// \return Вказівник на зображення.
     ///
-    /// \warning Пам'ять для зображення виділяється динамічно. Після використання зображення, його потрібно видалити за допомогою `delete`.
+    /// \warning Пам'ять для зображення виділяється динамічно. Після використання зображення, його потрібно видалити за
+    /// допомогою `delete`.
     ///
     /// Приклад:
     ///
     /// \code
-    /// lilka::Bitmap *bitmap = lilka::resources.loadBitmap("image.bmp", lilka::display.color565(255, 255, 0)); // Жовтий колір буде прозорим
-    /// if (!bitmap) {
+    /// lilka::Bitmap *bitmap = lilka::resources.loadBitmap("image.bmp", lilka::display.color565(255, 255, 0)); //
+    /// Жовтий колір буде прозорим if (!bitmap) {
     ///     Serial.println("Failed to load image");
     ///     return;
     /// }
     /// // Відобразити зображення на екрані
-    /// lilka::display.draw16bitRGBBitmapWithTranColor(50, 100, bitmap->pixels, bitmap->transparentColor, bitmap->width, bitmap->height);
+    /// lilka::display.draw16bitRGBBitmapWithTranColor(50, 100, bitmap->pixels, bitmap->transparentColor, bitmap->width,
+    /// bitmap->height);
     /// // Звільнити пам'ять
     /// delete bitmap;
     /// \endcode
