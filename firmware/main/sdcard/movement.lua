@@ -3,12 +3,12 @@ local ball_y = display.height / 2
 
 local ball = resources.load_bitmap("ball.bmp", display.color565(255, 255, 255))
 
-function _update()
+function lilka._update()
     local ball_speed_x = 0
     local ball_speed_y = 0
 
     -- Обробляємо введення користувача:
-    state = controller.get_state()
+    local state = controller.get_state()
     if state.up.pressed then
         ball_speed_y = -4
     elseif state.down.pressed then

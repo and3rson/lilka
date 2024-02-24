@@ -85,12 +85,14 @@ int lua_run(String path) {
             longjmp(stopjmp, retCode);
         }
 
-        // Check if _update function exists and call it
+        // Check if lilka._update function exists and call it
         const uint32_t perfectDelta = 1000 / 30;
         uint32_t delta = perfectDelta; // Delta for first frame is always 1/30
         while (true) {
             uint32_t now = millis();
-            lua_getglobal(L, "_update");
+            // Check for lilka._update function
+            lua_getglobal(L, "lilka");
+            lua_getfield(L, -1, "_update");
             if (lua_isfunction(L, -1)) {
                 // Call _update function, passing delta as argument
                 lua_pushnumber(L, delta);

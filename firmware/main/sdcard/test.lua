@@ -9,8 +9,8 @@ for i = 10, 1, -1 do
     display.set_cursor(64, 64)
     display.print("Start in " .. i .. "...")
 
-    x = math.random(240 - 64)
-    y = math.random(280 - 64)
+    local x = math.random(240 - 64)
+    local y = math.random(280 - 64)
     display.draw_bitmap(face, x, y)
 
     display.render()
@@ -32,7 +32,7 @@ while not key.a.just_pressed do
 
     local x = math.random(240 - 64)
     local y = math.random(280 - 64)
-    display.draw_bitmap(face, x, y, display.color565(0, 0, 0))
+    display.draw_bitmap(face, x, y)
 
     key = controller.get_state()
 end

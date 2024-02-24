@@ -58,7 +58,7 @@ highlight_language = "cpp"
 extensions.append("sphinxcontrib.luadomain")
 extensions.append("sphinx_lua")
 
-lua_source_path = ["./lua"]
+lua_source_path = ["../sdk/addons/lualilka/"]
 lua_source_encoding = 'utf8'
 lua_source_comment_prefix = '---'
 lua_source_use_emmy_lua_syntax = True
