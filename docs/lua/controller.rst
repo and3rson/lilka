@@ -3,10 +3,6 @@
 
 Функції для роботи з введенням.
 
-.. contents::
-    :local:
-    :depth: 1
-
 Приклад:
 
 .. code-block:: lua

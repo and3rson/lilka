@@ -521,3 +521,5 @@ function math.deg(x) end
 ---@param x number кут (в градусах)
 ---@return number
 function math.rad(x) end
+
+---@alias _update fun(delta: number)
