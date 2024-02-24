@@ -16,7 +16,7 @@ author = "Andrew Dunai"
 extensions = []
 
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "_old"]
 
 language = "uk_UA"
 
@@ -56,3 +56,10 @@ highlight_language = "cpp"
 # -- Lua ---------------------------------------------------------------------
 
 extensions.append("sphinxcontrib.luadomain")
+extensions.append("sphinx_lua")
+
+lua_source_path = ["./lua"]
+lua_source_encoding = 'utf8'
+lua_source_comment_prefix = '---'
+lua_source_use_emmy_lua_syntax = True
+lua_source_private_prefix = '_'

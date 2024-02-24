@@ -120,6 +120,18 @@ int lualilka_math_sqrt(lua_State* L) {
     return 1;
 }
 
+int lualilka_math_pow(lua_State* L) {
+    int n = lua_gettop(L);
+    if (n != 2) {
+        return luaL_error(L, "Invalid number of arguments");
+    }
+
+    float base = luaL_checknumber(L, 1);
+    float exponent = luaL_checknumber(L, 2);
+    lua_pushnumber(L, pow(base, exponent));
+    return 1;
+}
+
 int assert_table_arg(lua_State* L, int index) {
     // Check if there's only one argument, and if it's a table, and if it's not empty
     int n = lua_gettop(L);
@@ -259,15 +271,149 @@ int lualilka_math_round(lua_State* L) {
     return 1;
 }
 
+int lualilka_math_sin(lua_State* L) {
+    int n = lua_gettop(L);
+    if (n != 1) {
+        return luaL_error(L, "Invalid number of arguments");
+    }
+
+    float value = luaL_checknumber(L, 1);
+    lua_pushnumber(L, sin(value));
+    return 1;
+}
+
+int lualilka_math_cos(lua_State* L) {
+    int n = lua_gettop(L);
+    if (n != 1) {
+        return luaL_error(L, "Invalid number of arguments");
+    }
+
+    float value = luaL_checknumber(L, 1);
+    lua_pushnumber(L, cos(value));
+    return 1;
+}
+
+int lualilka_math_tan(lua_State* L) {
+    int n = lua_gettop(L);
+    if (n != 1) {
+        return luaL_error(L, "Invalid number of arguments");
+    }
+
+    float value = luaL_checknumber(L, 1);
+    lua_pushnumber(L, tan(value));
+    return 1;
+}
+
+int lualilka_math_asin(lua_State* L) {
+    int n = lua_gettop(L);
+    if (n != 1) {
+        return luaL_error(L, "Invalid number of arguments");
+    }
+
+    float value = luaL_checknumber(L, 1);
+    lua_pushnumber(L, asin(value));
+    return 1;
+}
+
+int lualilka_math_acos(lua_State* L) {
+    int n = lua_gettop(L);
+    if (n != 1) {
+        return luaL_error(L, "Invalid number of arguments");
+    }
+
+    float value = luaL_checknumber(L, 1);
+    lua_pushnumber(L, acos(value));
+    return 1;
+}
+
+int lualilka_math_atan(lua_State* L) {
+    int n = lua_gettop(L);
+    if (n != 1) {
+        return luaL_error(L, "Invalid number of arguments");
+    }
+
+    float value = luaL_checknumber(L, 1);
+    lua_pushnumber(L, atan(value));
+    return 1;
+}
+
+int lualilka_math_atan2(lua_State* L) {
+    int n = lua_gettop(L);
+    if (n != 2) {
+        return luaL_error(L, "Invalid number of arguments");
+    }
+
+    float y = luaL_checknumber(L, 1);
+    float x = luaL_checknumber(L, 2);
+    lua_pushnumber(L, atan2(y, x));
+    return 1;
+}
+
+int lualilka_math_log(lua_State* L) {
+    int n = lua_gettop(L);
+    if (n == 1) {
+        float value = luaL_checknumber(L, 1);
+        lua_pushnumber(L, log(value));
+        return 1;
+    } else if (n == 2) {
+        float value = luaL_checknumber(L, 1);
+        float base = luaL_checknumber(L, 2);
+        lua_pushnumber(L, log(value) / log(base));
+        return 1;
+    } else {
+        return luaL_error(L, "Invalid number of arguments");
+    }
+}
+
+int lualilka_math_deg(lua_State* L) {
+    int n = lua_gettop(L);
+    if (n != 1) {
+        return luaL_error(L, "Invalid number of arguments");
+    }
+    float value = luaL_checknumber(L, 1);
+    lua_pushnumber(L, value * 180 / M_PI);
+    return 1;
+}
+
+int lualilka_math_rad(lua_State* L) {
+    int n = lua_gettop(L);
+    if (n != 1) {
+        return luaL_error(L, "Invalid number of arguments");
+    }
+    float value = luaL_checknumber(L, 1);
+    lua_pushnumber(L, value * M_PI / 180);
+    return 1;
+}
+
 static const luaL_Reg lualilka_math[] = {
-    {"random", lualilka_math_random}, {"clamp", lualilka_math_clamp},
-    {"lerp", lualilka_math_lerp},     {"map", lualilka_math_map},
-    {"dist", lualilka_math_dist},     {"abs", lualilka_math_abs},
-    {"sign", lualilka_math_sign},     {"sqrt", lualilka_math_sqrt},
-    {"min", lualilka_math_min},       {"max", lualilka_math_max},
-    {"sum", lualilka_math_sum},       {"avg", lualilka_math_avg},
-    {"floor", lualilka_math_floor},   {"ceil", lualilka_math_ceil},
-    {"round", lualilka_math_round},   {NULL, NULL},
+    {"random", lualilka_math_random},
+    {"clamp", lualilka_math_clamp},
+    {"lerp", lualilka_math_lerp},
+    {"map", lualilka_math_map},
+    {"dist", lualilka_math_dist},
+    {"abs", lualilka_math_abs},
+    {"sign", lualilka_math_sign},
+    {"sqrt", lualilka_math_sqrt},
+    {"sqrt", lualilka_math_pow},
+    {"min", lualilka_math_min},
+    {"max", lualilka_math_max},
+    {"sum", lualilka_math_sum},
+    {"avg", lualilka_math_avg},
+    {"floor", lualilka_math_floor},
+    {"ceil", lualilka_math_ceil},
+    {"round", lualilka_math_round},
+    {"sin", lualilka_math_sin},
+    {"cos", lualilka_math_cos},
+    {"tan", lualilka_math_tan},
+    {"asin", lualilka_math_asin},
+    {"acos", lualilka_math_acos},
+    {"atan", lualilka_math_atan},
+    {"atan2", lualilka_math_atan},
+    {"log", lualilka_math_log},
+    {"deg", lualilka_math_deg},
+    {"rad", lualilka_math_rad},
+
+    {NULL, NULL},
 };
 
 // int luaopen_lilka_math(lua_State* L) {
@@ -278,6 +424,15 @@ static const luaL_Reg lualilka_math[] = {
 int lualilka_math_register(lua_State* L) {
     // Create global "math" table that contains all math functions
     luaL_newlib(L, lualilka_math);
+    // Add PI constant
+    lua_pushnumber(L, M_PI);
+    lua_setfield(L, -2, "pi");
+    // Add E constant
+    lua_pushnumber(L, M_E);
+    lua_setfield(L, -2, "e");
+    // Add Tau constant
+    lua_pushnumber(L, M_PI * 2);
+    lua_setfield(L, -2, "tau");
     lua_setglobal(L, "math");
     return 0;
 }
