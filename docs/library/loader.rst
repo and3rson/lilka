@@ -1,6 +1,8 @@
 ``Loader``: Завантажувач прошивок
 =================================
 
+.. doxygenvariable:: lilka::loader
+
 .. doxygenclass:: lilka::Loader
     :members:
     :undoc-members:
