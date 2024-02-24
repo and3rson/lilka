@@ -3,13 +3,14 @@
 
 Функції для роботи з введенням.
 
+.. contents::
+    :local:
+    :depth: 1
+
 Приклад:
 
 .. code-block:: lua
     :linenos:
-
-    local controller = require("controller")
-    local display = require("display")
 
     display.set_cursor(32, 32)
 
@@ -55,9 +56,6 @@ controller.get_state()
 
     .. code-block:: lua
         :linenos:
-
-        local controller = require("controller")
-        local display = require("display")
 
         display.set_cursor(0, 32)
 

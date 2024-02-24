@@ -32,9 +32,16 @@ static const luaL_Reg lualilka_controller[] = {
     {NULL, NULL},
 };
 
-int luaopen_lilka_controller(lua_State* L) {
+// int luaopen_lilka_controller(lua_State* L) {
+//     luaL_newlib(L, lualilka_controller);
+//     return 1;
+// }
+
+int lualilka_controller_register(lua_State* L) {
+    // Create global "controller" table that contains all controller functions
     luaL_newlib(L, lualilka_controller);
-    return 1;
+    lua_setglobal(L, "controller");
+    return 0;
 }
 
 } // namespace lilka

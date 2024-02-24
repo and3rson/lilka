@@ -5,4 +5,5 @@ Lua API
     display
     controller
     resources
+    math
     utils

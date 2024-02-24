@@ -236,9 +236,12 @@ int lualilka_display_fillArc(lua_State* L) {
 }
 
 int lualilka_display_drawBitmap(lua_State* L) {
-    // Args are bitmap handler, X & Y
-    // First argument is pointer to bitmap data
-    Bitmap* bitmap = (Bitmap*)lua_touserdata(L, 1);
+    // Args are bitmap table, X & Y
+    // First argument is table that contains bitmap width, height and pointer. We only need the pointer.
+    lua_getfield(L, 1, "pointer");
+    Bitmap* bitmap = (Bitmap*)lua_touserdata(L, -1);
+    lua_pop(L, 1);
+
     int16_t x = luaL_checkinteger(L, 2);
     int16_t y = luaL_checkinteger(L, 3);
 
@@ -295,18 +298,33 @@ static const luaL_Reg lualilka_display[] = {
     {NULL, NULL},
 };
 
-int luaopen_lilka_display(lua_State* L) {
-    // Set isBuffered to true by default in registry
-    lua_pushboolean(L, true);
-    lua_setfield(L, LUA_REGISTRYINDEX, "isBuffered");
+// int luaopen_lilka_display(lua_State* L) {
+//     // Set isBuffered to true by default in registry
+//     lua_pushboolean(L, true);
+//     lua_setfield(L, LUA_REGISTRYINDEX, "isBuffered");
+//
+//     luaL_newlib(L, lualilka_display);
+//     // Add display width & height as library properties
+//     lua_pushinteger(L, LILKA_DISPLAY_WIDTH);
+//     lua_setfield(L, -2, "width");
+//     lua_pushinteger(L, LILKA_DISPLAY_HEIGHT);
+//     lua_setfield(L, -2, "height");
+//     return 1;
+// }
 
+int lualilka_display_register(lua_State* L) {
+    // Create global "display" table that contains all display functions
     luaL_newlib(L, lualilka_display);
     // Add display width & height as library properties
     lua_pushinteger(L, LILKA_DISPLAY_WIDTH);
     lua_setfield(L, -2, "width");
     lua_pushinteger(L, LILKA_DISPLAY_HEIGHT);
     lua_setfield(L, -2, "height");
-    return 1;
+    // Set isBuffered to true by default in registry
+    lua_pushboolean(L, true);
+    lua_setfield(L, LUA_REGISTRYINDEX, "isBuffered");
+    lua_setglobal(L, "display");
+    return 0;
 }
 
 } // namespace lilka

@@ -3,13 +3,14 @@
 
 Функції для роботи з ресурсами (зображеннями, звуками, тощо).
 
+.. contents::
+    :local:
+    :depth: 1
+
 Приклад:
 
 .. code-block:: lua
     :linenos:
-
-    local display = require("display")
-    local resources = require("resources")
 
     local face = resources.load_bitmap("face.bmp", display.color565(0, 0, 0))
     display.draw_bitmap(face, 50, 80)
@@ -27,16 +28,15 @@ load_bitmap(filename, [transparent_color])
     :param filename: Шлях до файлу з зображенням (відносно місця знаходження скрипта, що виконується).
     :type transparent_color: number
     :param transparent_color: Колір, який буде вважатися прозорим. Якщо цей параметр не вказаний, зображення виводиться без прозорості.
+    :rtype: table
 
-    Повертає ідентифікатор зображення, який можна використовувати для малювання зображення на екрані.
+    Повертає таблицю з ідентифікатором зображення (а також з його розмірами), яку можна використовувати для малювання зображення на екрані.
 
     Приклад використання:
 
     .. code-block:: lua
         :linenos:
 
-        local display = require("display")
-        local resources = require("resources")
-
         local face = resources.load_bitmap("face.bmp", display.color565(0, 0, 0))
-        display.draw_bitmap(face, 50, 80)
+        print(face.width, face.height) -- Виведе розміри зображення
+        display.draw_bitmap(face, 50, 80) -- Виведе зображення на екран у позицію (50, 80)

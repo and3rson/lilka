@@ -6,7 +6,8 @@
 
 namespace lilka {
 
-int luaopen_lilka_console(lua_State* L);
+// int luaopen_lilka_console(lua_State* L);
+int lualilka_console_register(lua_State* L);
 
 }
 

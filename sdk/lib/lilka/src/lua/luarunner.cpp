@@ -5,61 +5,78 @@
 #include "lualilka_display.h"
 #include "lualilka_console.h"
 #include "lualilka_controller.h"
+#include "lualilka_math.h"
 #include "lualilka_util.h"
 #include "lualilka_resources.h"
 
 namespace lilka {
 
 int lua_run(String path) {
-    lilka::serial_log("Lua: init libs");
+    lilka::serial_log("lua: init libs");
 
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
-    lilka::serial_log("Lua: init display");
-    luaL_requiref(L, "display", luaopen_lilka_display, 1);
-    lua_pop(L, 1);
-    lilka::serial_log("Lua: init console");
-    luaL_requiref(L, "console", luaopen_lilka_console, 1);
-    lua_pop(L, 1);
-    lilka::serial_log("Lua: init controller");
-    luaL_requiref(L, "controller", luaopen_lilka_controller, 1);
-    lua_pop(L, 1);
-    lilka::serial_log("Lua: init util");
-    luaL_requiref(L, "util", luaopen_lilka_util, 1);
-    lua_pop(L, 1);
-    lilka::serial_log("Lua: init resources");
-    luaL_requiref(L, "resources", luaopen_lilka_resources, 1);
-    lua_pop(L, 1);
+    // lilka::serial_log("Lua: init display");
+    // luaL_requiref(L, "display", luaopen_lilka_display, 1);
+    // lua_pop(L, 1);
+    // lilka::serial_log("Lua: init console");
+    // luaL_requiref(L, "console", luaopen_lilka_console, 1);
+    // lua_pop(L, 1);
+    // lilka::serial_log("Lua: init controller");
+    // luaL_requiref(L, "controller", luaopen_lilka_controller, 1);
+    // lua_pop(L, 1);
+    // lilka::serial_log("Lua: init math");
+    // luaL_requiref(L, "math", luaopen_lilka_math, 1);
+    // lua_pop(L, 1);
+    // lilka::serial_log("Lua: init util");
+    // luaL_requiref(L, "util", luaopen_lilka_util, 1);
+    // lua_pop(L, 1);
+    // lilka::serial_log("Lua: init resources");
+    // luaL_requiref(L, "resources", luaopen_lilka_resources, 1);
+    // lua_pop(L, 1);
+
+    lilka::serial_log("lua: init display");
+    lualilka_display_register(L);
+    lilka::serial_log("lua: init console");
+    lualilka_console_register(L);
+    lilka::serial_log("lua: init controller");
+    lualilka_controller_register(L);
+    lilka::serial_log("lua: init math");
+    lualilka_math_register(L);
+    lilka::serial_log("lua: init util");
+    lualilka_util_register(L);
+    lilka::serial_log("lua: init resources");
+    lualilka_resources_register(L);
 
     // Get dir name from path (without the trailing slash)
     String dir = path.substring(0, path.lastIndexOf('/'));
-    lilka::serial_log("Lua: script dir: %s", dir.c_str());
+    lilka::serial_log("lua: script dir: %s", dir.c_str());
     // Store dir in registry with "dir" key
     lua_pushstring(L, dir.c_str());
     lua_setfield(L, LUA_REGISTRYINDEX, "dir");
 
-    lilka::serial_log("Lua: init canvas");
+    lilka::serial_log("lua: init canvas");
     lilka::Canvas canvas;
     lilka::display.setFont(u8g2_font_10x20_t_cyrillic);
     canvas.setFont(u8g2_font_10x20_t_cyrillic);
     canvas.begin();
     // Store canvas in registry with "canvas" key
-    lilka::serial_log("Lua: store canvas in registry");
+    lilka::serial_log("lua: store canvas in registry");
     lua_pushlightuserdata(L, &canvas);
     lua_setfield(L, LUA_REGISTRYINDEX, "canvas");
     // Initialize table for bitmap pointers
-    lilka::serial_log("Lua: init memory for bitmaps");
+    lilka::serial_log("lua: init memory for bitmaps");
     lua_newtable(L);
     lua_setfield(L, LUA_REGISTRYINDEX, "bitmaps");
 
-    lilka::serial_log("Lua: run script");
+    lilka::serial_log("lua: run script");
     int retCode = luaL_dofile(L, path.c_str());
     if (retCode) {
         const char* err = lua_tostring(L, -1);
         lilka::ui_alert("Lua", String("Помилка: ") + err);
     }
 
-    lilka::serial_log("Lua: cleanup");
+    lilka::serial_log("lua: cleanup");
 
     // Free bitmaps from registry
     lua_getfield(L, LUA_REGISTRYINDEX, "bitmaps");

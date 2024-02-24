@@ -23,7 +23,7 @@ int lualilka_resources_loadBitmap(lua_State* L) {
         return luaL_error(L, "Failed to load bitmap %s", fullPath.c_str());
     }
 
-    serial_log("Lua: loaded bitmap %s, width: %d, height: %d", path, bitmap->width, bitmap->height);
+    serial_log("lua: loaded bitmap %s, width: %d, height: %d", path, bitmap->width, bitmap->height);
 
     // Append bitmap to bitmaps table in registry
     lua_getfield(L, LUA_REGISTRYINDEX, "bitmaps");
@@ -31,8 +31,14 @@ int lualilka_resources_loadBitmap(lua_State* L) {
     lua_setfield(L, -2, path);
     lua_pop(L, 1);
 
-    // Return pointer to bitmap
+    // Create and return table that contains bitmap width, height and pointer
+    lua_newtable(L);
+    lua_pushinteger(L, bitmap->width);
+    lua_setfield(L, -2, "width");
+    lua_pushinteger(L, bitmap->height);
+    lua_setfield(L, -2, "height");
     lua_pushlightuserdata(L, bitmap);
+    lua_setfield(L, -2, "pointer");
 
     return 1;
 }
@@ -42,9 +48,16 @@ static const luaL_Reg lualilka_resources[] = {
     {NULL, NULL},
 };
 
-int luaopen_lilka_resources(lua_State* L) {
+// int luaopen_lilka_resources(lua_State* L) {
+//     luaL_newlib(L, lualilka_resources);
+//     return 1;
+// }
+
+int lualilka_resources_register(lua_State* L) {
+    // Create global "resources" table that contains all resources functions
     luaL_newlib(L, lualilka_resources);
-    return 1;
+    lua_setglobal(L, "resources");
+    return 0;
 }
 
 } // namespace lilka

@@ -3,12 +3,14 @@
 
 Основні функції для роботи з дисплеєм.
 
+.. contents::
+    :local:
+    :depth: 1
+
 Приклад:
 
 .. code-block:: lua
     :linenos:
-
-    local display = require("display")
 
     display.set_cursor(0, 0)
     display.print("Hello,", "world!", 69, 420, "nice")
@@ -53,8 +55,6 @@ color565(r, g, b)
     .. code-block:: lua
         :linenos:
 
-        local display = require("display")
-
         local color = display.color565(255, 0, 0)
         display.draw_line(0, 0, 100, 100, color)
 
@@ -93,8 +93,6 @@ set_font(font)
 
     .. code-block:: lua
         :linenos:
-
-        local display = require("display")
 
         display.set_font("6x13")
         display.set_cursor(8, 32)
@@ -182,8 +180,6 @@ draw_line(x1, y1, x2, y2, color)
 
     .. code-block:: lua
         :linenos:
-
-        local display = require("display")
 
         local color = display.color565(255, 0, 0)
         display.draw_line(0, 0, 100, 100, color)
@@ -283,20 +279,17 @@ draw_bitmap(id, x, y)
     :type id: number
     :param id: Ідентифікатор зображення, отриманий з :lua:func:`resources.load_bitmap`.
     :type x: number
-    :param x: Координата x.
+    :param x: Координата x верхнього лівого кута зображення.
     :type y: number
-    :param y: Координата y.
+    :param y: Координата y верхнього лівого кута зображення.
 
     Приклад використання:
 
     .. code-block:: lua
         :linenos:
 
-        local display = require("display")
-        local resources = require("resources")
-
         local face = resources.load_bitmap("face.bmp", display.color565(0, 0, 0))
-        display.draw_bitmap(face, 50, 80)
+        display.draw_bitmap(face, 50, 80) -- Виводить зображення на екран у точці (50, 80)
 
 set_buffered(value)
 ^^^^^^^^^^^^^^^^^^^
@@ -319,8 +312,6 @@ set_buffered(value)
     .. code-block:: lua
         :linenos:
 
-        local display = require("display")
-
         -- Вимикаємо буферизацію екрану:
         display.set_buffered(false)
 
@@ -336,8 +327,6 @@ set_buffered(value)
 
     .. code-block:: lua
         :linenos:
-
-        local display = require("display")
 
         while true do
             -- Заповнюємо екран чорним кольором:
