@@ -11,6 +11,7 @@ void *mjslilka_ffi_resolver(void *handle, const char *name) {
 }
 
 int mjs_run(String path) {
+#ifndef LILKA_NO_MJS
     struct mjs *mjs = mjs_create();
 
     mjs_val_t res;
@@ -23,6 +24,9 @@ int mjs_run(String path) {
         return 1;
     }
     return 0;
+#else
+    lilka::ui_alert("Помилка", "MJS не підтримується");
+#endif
 }
 
 } // namespace lilka

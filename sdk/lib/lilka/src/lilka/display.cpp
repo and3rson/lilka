@@ -29,6 +29,7 @@ void Display::begin() {
 #endif
     setFont(u8g2_font_10x20_t_cyrillic);
     setUTF8Print(true);
+#ifndef LILKA_NO_SPLASH
     uint16_t row[LILKA_DISPLAY_WIDTH];
     for (int i = 0; i <= 4; i++) {
         startWrite();
@@ -61,6 +62,7 @@ void Display::begin() {
         }
         endWrite();
     }
+#endif
     serial_log("display ok");
 }
 

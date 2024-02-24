@@ -126,7 +126,7 @@ set_text_color(color, [background])
     :param background: Колір фону тексту. Якщо цей параметр не вказаний, фон тексту буде прозорим.
 
 print(text, ...)
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^
 
 .. lua:function:: print(text, ...)
 
@@ -145,14 +145,14 @@ print(text, ...)
         display.print("Hello,", "world!", 69, 420, "nice")
 
 fill_screen(color)
-^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^
 
 .. lua:function:: fill_screen(color)
 
     Заповнює екран кольором.
 
 draw_pixel(x, y, color)
-^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
 
 .. lua:function:: draw_pixel(x, y, color)
 
@@ -185,14 +185,14 @@ draw_line(x1, y1, x2, y2, color)
         display.draw_line(0, 0, 100, 100, color)
 
 draw_rect(x, y, w, h, color)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. lua:function:: draw_rect(x, y, w, h, color)
 
     Малює прямокутник з координатами (x, y) і шириною w та висотою h кольором color.
 
 fill_rect(x, y, w, h, color)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. lua:function:: fill_rect(x, y, w, h, color)
 
@@ -206,7 +206,7 @@ draw_circle(x, y, r, color)
     Малює коло з центром у точці (x, y) та радіусом r кольором color.
 
 fill_circle(x, y, r, color)
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. lua:function:: fill_circle(x, y, r, color)
 
@@ -339,7 +339,7 @@ set_buffered(value)
         end
 
 render()
-^^^^^^^
+^^^^^^^^
 
 .. lua:function:: render()
 

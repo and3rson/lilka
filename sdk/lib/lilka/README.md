@@ -2,6 +2,8 @@
 
 Бібліотека для роботи з компонентами [Лілки](https://lilka.readthedocs.io/).
 
+Офіційна документація доступна [за цим посиланням](https://lilka.readthedocs.io/uk/latest/library/index.html).
+
 # Приклад використання
 
 ```cpp

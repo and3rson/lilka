@@ -16,6 +16,7 @@ namespace lilka {
 jmp_buf stopjmp;
 
 int lua_run(String path) {
+#ifndef LILKA_NO_LUA
     lilka::serial_log("lua: init libs");
 
     lua_State* L = luaL_newstate();
@@ -142,6 +143,9 @@ int lua_run(String path) {
 
     lua_close(L);
     return retCode;
+#else
+    ui_alert("Помилка", "Lua не підтримується");
+#endif
 }
 
 } // namespace lilka

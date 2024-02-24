@@ -103,3 +103,4 @@
     resources
     spi
     ui
+    build_flags
