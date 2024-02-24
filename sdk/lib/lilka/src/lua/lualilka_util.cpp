@@ -3,8 +3,8 @@
 namespace lilka {
 
 int lualilka_util_delay(lua_State* L) {
-    int ms = luaL_checkinteger(L, 1);
-    delay(ms);
+    float s = luaL_checknumber(L, 1);
+    delayMicroseconds(s * 1000000);
     return 0;
 }
 

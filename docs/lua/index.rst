@@ -6,4 +6,4 @@ Lua API
     controller
     resources
     math
-    utils
+    util

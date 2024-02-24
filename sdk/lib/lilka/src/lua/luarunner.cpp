@@ -76,6 +76,37 @@ int lua_run(String path) {
         lilka::ui_alert("Lua", String("Помилка: ") + err);
     }
 
+    // Check if _update function exists and call it
+    const uint32_t perfectDelta = 1000 / 30;
+    uint32_t delta = perfectDelta; // Delta for first frame is always 1/30
+    while (true) {
+        uint32_t now = millis();
+        lua_getglobal(L, "_update");
+        if (lua_isfunction(L, -1)) {
+            // Call _update function, passing delta as argument
+            lua_pushnumber(L, delta);
+            retCode = lua_pcall(L, 1, 0, 0);
+            if (retCode) {
+                const char* err = lua_tostring(L, -1);
+                lilka::ui_alert("Lua", String("Помилка в _update: ") + err);
+                break;
+            }
+        } else {
+            // No _update function - we're done
+            break;
+        }
+        // Calculate time spent in _update
+        uint32_t elapsed = millis() - now;
+        // If we're too fast, delay to keep 30 FPS
+        if (elapsed < perfectDelta) {
+            delay(perfectDelta - elapsed);
+            delta = perfectDelta;
+        } else {
+            // If we're too slow, don't delay and set delta to elapsed time
+            delta = elapsed;
+        }
+    }
+
     lilka::serial_log("lua: cleanup");
 
     // Free bitmaps from registry
