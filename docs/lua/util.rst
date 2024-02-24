@@ -28,3 +28,23 @@ delay(ms)
         display.print("Зачекайте півсекунди...")
         util.delay(0.5) -- Затримує виконання програми на півсекунди.
         display.print("Готово!")
+
+exit()
+^^^^^^
+
+.. lua:function:: exit()
+
+    Завершує виконання програми.
+
+    Приклад використання:
+
+    .. code-block:: lua
+        :linenos:
+
+        function _update()
+            state = controller.get_state()
+            if state.a.pressed then
+                util.exit() -- Завершує виконання програми.
+            end
+            print('Staying alive!')
+        end

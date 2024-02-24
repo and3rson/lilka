@@ -1,6 +1,10 @@
+#include <csetjmp>
+
 #include "lualilka_util.h"
 
 namespace lilka {
+
+extern jmp_buf stopjmp;
 
 int lualilka_util_delay(lua_State* L) {
     float s = luaL_checknumber(L, 1);
@@ -8,8 +12,14 @@ int lualilka_util_delay(lua_State* L) {
     return 0;
 }
 
+int lualilka_util_exit(lua_State* L) {
+    longjmp(stopjmp, 32); // TODO: 32 marks an "exit" condition
+    return 0;
+}
+
 static const luaL_Reg lualilka_util[] = {
     {"delay", lualilka_util_delay},
+    {"exit", lualilka_util_exit},
     {NULL, NULL},
 };
 

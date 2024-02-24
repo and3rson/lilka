@@ -8,17 +8,18 @@ function _update()
     local ball_speed_y = 0
 
     -- Обробляємо введення користувача:
-    if controller.up.pressed then
+    state = controller.get_state()
+    if state.up.pressed then
         ball_speed_y = -4
-    elseif controller.down.pressed then
+    elseif state.down.pressed then
         ball_speed_y = 4
     end
-    if controller.left.pressed then
+    if state.left.pressed then
         ball_speed_x = -4
-    elseif controller.right.pressed then
+    elseif state.right.pressed then
         ball_speed_x = 4
     end
-    if controller.a.pressed then
+    if state.a.pressed then
         -- Вихід з програми:
         util.exit()
     end
