@@ -13,10 +13,10 @@
     :caption: Зміст:
 
     about/index
+    hardware/index
     manual/index
     library/index
     lua/index
-    hardware/index
     faq
     glossary
 

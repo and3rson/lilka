@@ -29,7 +29,7 @@
 
 Ви можете зберегти цей код у файл з розширенням ``.lua`` на SD-картці, а потім виконати його, обравши його в браузері SD-картки.
 
-Повний перелік доступних модулів та їх функцій можна знайти в розділі `Lua API </lua>`_.
+Повний перелік доступних модулів та їх функцій можна знайти в розділі :doc:`Lua API </lua/index>`.
 
 Написання ігор
 --------------
@@ -60,27 +60,32 @@
     local ball_x = display.width / 2
     local ball_y = display.height / 2
 
-    local ball_speed_x = 100 -- швидкість м'яча по горизонталі (пікселів на секунду)
-    local ball_speed_y = 100 -- швидкість м'яча по вертикалі (пікселів на секунду)
-
     local ball = resources.load_bitmap("ball.bmp", display.color565(255, 255, 255))
 
-    function lilka._update(delta)
+    function lilka._update()
+        local ball_speed_x = 0
+        local ball_speed_y = 0
+
         -- Обробляємо введення користувача:
-        if controller.up.pressed then
-            ball_x = ball_x + ball_speed_x * delta
-        elseif controller.down.pressed then
-            ball_x = ball_x - ball_speed_x * delta
+        local state = controller.get_state()
+        if state.up.pressed then
+            ball_speed_y = -4
+        elseif state.down.pressed then
+            ball_speed_y = 4
         end
-        if controller.left.pressed then
-            ball_y = ball_y - ball_speed_y * delta
-        elseif controller.right.pressed then
-            ball_y = ball_y + ball_speed_y * delta
+        if state.left.pressed then
+            ball_speed_x = -4
+        elseif state.right.pressed then
+            ball_speed_x = 4
         end
-        if controller.a.pressed then
+        if state.a.pressed then
             -- Вихід з програми:
             util.exit()
         end
+
+        -- Оновлюємо стан гри:
+        ball_x = ball_x + ball_speed_x
+        ball_y = ball_y + ball_speed_y
 
         -- Малюємо графіку:
         display.fill_screen(display.color565(0, 0, 0))
