@@ -48,6 +48,24 @@ Bitmap* Resources::loadBitmap(String filename, int32_t transparentColor) {
     return bitmap;
 }
 
+int Resources::readFile(String filename, String& fileContent) {
+    FILE* file = fopen(filename.c_str(), "r");
+    if (!file) {
+        // serial_err("File not found: %s\n", filename.c_str());
+        return 1;
+    }
+    fseek(file, 0, SEEK_END);
+    long fileSize = ftell(file);
+    fseek(file, 0, SEEK_SET);
+    char* buffer = new char[fileSize + 1];
+    fread(buffer, 1, fileSize, file);
+    buffer[fileSize] = 0;
+    fileContent = String(buffer);
+    delete[] buffer;
+    fclose(file);
+    return 0;
+}
+
 Resources resources;
 
 } // namespace lilka

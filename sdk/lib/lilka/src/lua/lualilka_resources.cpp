@@ -43,8 +43,27 @@ int lualilka_resources_loadBitmap(lua_State* L) {
     return 1;
 }
 
+int lualilka_resources_readFile(lua_State* L) {
+    const char* path = luaL_checkstring(L, 1);
+    // Get dir from registry
+    lua_getfield(L, LUA_REGISTRYINDEX, "dir");
+    const char* dir = lua_tostring(L, -1);
+    lua_pop(L, 1);
+    String fullPath = String(dir) + "/" + path;
+
+    String fileContent;
+    int result = resources.readFile(fullPath, fileContent);
+    if (result) {
+        return luaL_error(L, "Failed to read file %s", fullPath.c_str());
+    }
+
+    lua_pushstring(L, fileContent.c_str());
+    return 1;
+}
+
 static const luaL_Reg lualilka_resources[] = {
     {"load_bitmap", lualilka_resources_loadBitmap},
+    {"read_file", lualilka_resources_readFile},
     {NULL, NULL},
 };
 

@@ -19,4 +19,12 @@ resources = {}
 --- display.draw_bitmap(face, 50, 80) -- Виведе зображення на екран у позицію (50, 80)
 function resources.load_bitmap(filename, transparent_color) end
 
+---Читає вміст файлу і повертає його як текст.
+---@param filename string шлях до файлу (відносно місця знаходження скрипта, що виконується)
+---@return string
+---@usage
+--- local content = resources.read_file("file.txt")
+--- print(content) -- Виведе вміст файлу
+function resources.read_file(filename) end
+
 return resources

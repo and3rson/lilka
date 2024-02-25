@@ -16,74 +16,12 @@ namespace lilka {
 
 jmp_buf stopjmp;
 
-int lua_run(String path) {
-#ifndef LILKA_NO_LUA
-    lilka::serial_log("lua: init libs");
-
-    lua_State* L = luaL_newstate();
-    luaL_openlibs(L);
-    // lilka::serial_log("Lua: init display");
-    // luaL_requiref(L, "display", luaopen_lilka_display, 1);
-    // lua_pop(L, 1);
-    // lilka::serial_log("Lua: init console");
-    // luaL_requiref(L, "console", luaopen_lilka_console, 1);
-    // lua_pop(L, 1);
-    // lilka::serial_log("Lua: init controller");
-    // luaL_requiref(L, "controller", luaopen_lilka_controller, 1);
-    // lua_pop(L, 1);
-    // lilka::serial_log("Lua: init math");
-    // luaL_requiref(L, "math", luaopen_lilka_math, 1);
-    // lua_pop(L, 1);
-    // lilka::serial_log("Lua: init util");
-    // luaL_requiref(L, "util", luaopen_lilka_util, 1);
-    // lua_pop(L, 1);
-    // lilka::serial_log("Lua: init resources");
-    // luaL_requiref(L, "resources", luaopen_lilka_resources, 1);
-    // lua_pop(L, 1);
-
-    lilka::serial_log("lua: init display");
-    lualilka_display_register(L);
-    lilka::serial_log("lua: init console");
-    lualilka_console_register(L);
-    lilka::serial_log("lua: init controller");
-    lualilka_controller_register(L);
-    lilka::serial_log("lua: init resources");
-    lualilka_resources_register(L);
-    lilka::serial_log("lua: init math");
-    lualilka_math_register(L);
-    lilka::serial_log("lua: init gpio");
-    lualilka_gpio_register(L);
-    lilka::serial_log("lua: init util");
-    lualilka_util_register(L);
-
-    // Get dir name from path (without the trailing slash)
-    String dir = path.substring(0, path.lastIndexOf('/'));
-    lilka::serial_log("lua: script dir: %s", dir.c_str());
-    // Store dir in registry with "dir" key
-    lua_pushstring(L, dir.c_str());
-    lua_setfield(L, LUA_REGISTRYINDEX, "dir");
-
-    lilka::serial_log("lua: init canvas");
-    lilka::Canvas canvas;
-    lilka::display.setFont(u8g2_font_10x20_t_cyrillic);
-    canvas.setFont(u8g2_font_10x20_t_cyrillic);
-    canvas.begin();
-    // Store canvas in registry with "canvas" key
-    lilka::serial_log("lua: store canvas in registry");
-    lua_pushlightuserdata(L, &canvas);
-    lua_setfield(L, LUA_REGISTRYINDEX, "canvas");
-    // Initialize table for bitmap pointers
-    lilka::serial_log("lua: init memory for bitmaps");
-    lua_newtable(L);
-    lua_setfield(L, LUA_REGISTRYINDEX, "bitmaps");
-
-    lilka::serial_log("lua: run script");
-
+int execute(lua_State* L, const char* path) {
     int jmpCode = setjmp(stopjmp);
 
     if (jmpCode == 0) {
         // Run script
-        int retCode = luaL_dofile(L, path.c_str());
+        int retCode = luaL_dofile(L, path);
         if (retCode) {
             longjmp(stopjmp, retCode);
         }
@@ -126,8 +64,72 @@ int lua_run(String path) {
     int retCode = jmpCode;
     if (retCode == 32) {
         // Normal exit through longjmp
-        retCode = 0;
+        return 0;
     }
+    return retCode;
+}
+
+int lua_run(String path) {
+#ifndef LILKA_NO_LUA
+    // Get dir name from path (without the trailing slash)
+    String dir = path.substring(0, path.lastIndexOf('/'));
+    lilka::serial_log("lua: script dir: %s", dir.c_str());
+
+    lilka::serial_log("lua: init libs");
+
+    lua_State* L = luaL_newstate();
+    luaL_openlibs(L);
+
+    lilka::serial_log("lua: set path");
+
+    // Set package.path to point to the same directory as the script
+    lua_getglobal(L, "package");
+    lua_pushstring(L, (dir + "/?.lua").c_str());
+    lua_setfield(L, -2, "path");
+    lua_pop(L, 1);
+
+    // Set path to C modules to the same directory as the script (I wonder if anyone will ever use this)
+    lua_getglobal(L, "package");
+    lua_pushstring(L, (dir + "/?.so").c_str());
+    lua_setfield(L, -2, "cpath");
+    lua_pop(L, 1);
+
+    lilka::serial_log("lua: init display");
+    lualilka_display_register(L);
+    lilka::serial_log("lua: init console");
+    lualilka_console_register(L);
+    lilka::serial_log("lua: init controller");
+    lualilka_controller_register(L);
+    lilka::serial_log("lua: init resources");
+    lualilka_resources_register(L);
+    lilka::serial_log("lua: init math");
+    lualilka_math_register(L);
+    lilka::serial_log("lua: init gpio");
+    lualilka_gpio_register(L);
+    lilka::serial_log("lua: init util");
+    lualilka_util_register(L);
+
+    // Store dir in registry with "dir" key
+    lua_pushstring(L, dir.c_str());
+    lua_setfield(L, LUA_REGISTRYINDEX, "dir");
+
+    lilka::serial_log("lua: init canvas");
+    lilka::Canvas canvas;
+    lilka::display.setFont(u8g2_font_10x20_t_cyrillic);
+    canvas.setFont(u8g2_font_10x20_t_cyrillic);
+    canvas.begin();
+    // Store canvas in registry with "canvas" key
+    lilka::serial_log("lua: store canvas in registry");
+    lua_pushlightuserdata(L, &canvas);
+    lua_setfield(L, LUA_REGISTRYINDEX, "canvas");
+    // Initialize table for bitmap pointers
+    lilka::serial_log("lua: init memory for bitmaps");
+    lua_newtable(L);
+    lua_setfield(L, LUA_REGISTRYINDEX, "bitmaps");
+
+    lilka::serial_log("lua: run script");
+
+    int retCode = execute(L, path.c_str());
 
     if (retCode) {
         const char* err = lua_tostring(L, -1);
@@ -140,7 +142,6 @@ int lua_run(String path) {
     lua_getfield(L, LUA_REGISTRYINDEX, "bitmaps");
     lua_pushnil(L);
     while (lua_next(L, -2) != 0) {
-        // TODO: Is this correct?
         lilka::Bitmap* bitmap = (lilka::Bitmap*)lua_touserdata(L, -1);
         delete bitmap;
         lua_pop(L, 1);

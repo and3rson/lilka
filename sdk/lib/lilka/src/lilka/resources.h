@@ -52,6 +52,15 @@ public:
     /// delete bitmap;
     /// \endcode
     Bitmap *loadBitmap(String filename, int32_t transparentColor = -1);
+    /// Прочитати вміст файлу.
+    ///
+    /// TODO: Update sdcard/filesystem stuff
+    ///
+    /// \param filename Шлях до файлу.
+    /// \return Вміст файлу.
+    /// \warning Не використовуйте цей метод для читання великих файлів, оскільки весь вміст файлу зберігається в
+    /// пам'яті. Для великих файлів використовуйте методи `sdcard` та `filesystem`.
+    int readFile(String filename, String &fileContent);
 };
 
 /// Екземпляр класу `Resources`, який можна використовувати для завантаження ресурсів.
