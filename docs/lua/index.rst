@@ -8,4 +8,5 @@ Lua API
     controller
     resources
     math
+    gpio
     util

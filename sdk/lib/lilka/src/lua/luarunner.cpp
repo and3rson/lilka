@@ -7,9 +7,10 @@
 #include "lualilka_display.h"
 #include "lualilka_console.h"
 #include "lualilka_controller.h"
-#include "lualilka_math.h"
-#include "lualilka_util.h"
 #include "lualilka_resources.h"
+#include "lualilka_math.h"
+#include "lualilka_gpio.h"
+#include "lualilka_util.h"
 
 namespace lilka {
 
@@ -46,12 +47,14 @@ int lua_run(String path) {
     lualilka_console_register(L);
     lilka::serial_log("lua: init controller");
     lualilka_controller_register(L);
-    lilka::serial_log("lua: init math");
-    lualilka_math_register(L);
-    lilka::serial_log("lua: init util");
-    lualilka_util_register(L);
     lilka::serial_log("lua: init resources");
     lualilka_resources_register(L);
+    lilka::serial_log("lua: init math");
+    lualilka_math_register(L);
+    lilka::serial_log("lua: init gpio");
+    lualilka_gpio_register(L);
+    lilka::serial_log("lua: init util");
+    lualilka_util_register(L);
 
     // Get dir name from path (without the trailing slash)
     String dir = path.substring(0, path.lastIndexOf('/'));

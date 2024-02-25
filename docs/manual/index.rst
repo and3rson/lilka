@@ -6,6 +6,7 @@
 
     assembly
     environment
+    first_flash
     main_firmware
     lua
     development
