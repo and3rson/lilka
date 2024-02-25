@@ -17,6 +17,7 @@
     library/index
     lua/index
     hardware/index
+    faq
     glossary
 
 Indices and tables
