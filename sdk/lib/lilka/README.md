@@ -1,8 +1,8 @@
 # Lilka
 
-Бібліотека для роботи з компонентами [Лілки](https://lilka.readthedocs.io/).
+Бібліотека для роботи з компонентами [Лілки](https://docs.lilka.dev/).
 
-Офіційна документація доступна [за цим посиланням](https://lilka.readthedocs.io/uk/latest/library/index.html).
+Офіційна документація доступна [за цим посиланням](https://docs.lilka.dev/uk/latest/library/index.html).
 
 # Приклад використання
 

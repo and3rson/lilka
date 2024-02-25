@@ -5,7 +5,7 @@
 
 Вона використовує PlatformIO.
 
-Інструкцію з прошивання Лілки з використанням Visual Studio та PlatformIO можна прочитати [ось тут](https://lilka.readthedocs.io/uk/latest/manual/environment.html).
+Інструкцію з прошивання Лілки з використанням Visual Studio та PlatformIO можна прочитати [ось тут](https://docs.lilka.dev/uk/latest/manual/environment.html).
 
 Крім того, цю прошивку можна зібрати та записати в Лілку за допомогою консолі:
 
