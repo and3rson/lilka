@@ -72,21 +72,6 @@ int lualilka_math_map(lua_State* L) {
     return 1;
 }
 
-int lualilka_math_dist(lua_State* L) {
-    int n = lua_gettop(L);
-    if (n != 4) {
-        return luaL_error(L, "Invalid number of arguments");
-    }
-
-    float x1 = luaL_checknumber(L, 1);
-    float y1 = luaL_checknumber(L, 2);
-    float x2 = luaL_checknumber(L, 3);
-    float y2 = luaL_checknumber(L, 4);
-
-    lua_pushnumber(L, sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)));
-    return 1;
-}
-
 int lualilka_math_abs(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 1) {
@@ -390,7 +375,6 @@ static const luaL_Reg lualilka_math[] = {
     {"clamp", lualilka_math_clamp},
     {"lerp", lualilka_math_lerp},
     {"map", lualilka_math_map},
-    {"dist", lualilka_math_dist},
     {"abs", lualilka_math_abs},
     {"sign", lualilka_math_sign},
     {"sqrt", lualilka_math_sqrt},

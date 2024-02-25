@@ -61,9 +61,27 @@ int lualilka_resources_readFile(lua_State* L) {
     return 1;
 }
 
+int lualilka_resources_writeFile(lua_State* L) {
+    const char* path = luaL_checkstring(L, 1);
+    const char* content = luaL_checkstring(L, 2);
+    // Get dir from registry
+    lua_getfield(L, LUA_REGISTRYINDEX, "dir");
+    const char* dir = lua_tostring(L, -1);
+    lua_pop(L, 1);
+    String fullPath = String(dir) + "/" + path;
+
+    int result = resources.writeFile(fullPath, content);
+    if (result) {
+        return luaL_error(L, "Failed to write file %s", fullPath.c_str());
+    }
+
+    return 0;
+}
+
 static const luaL_Reg lualilka_resources[] = {
     {"load_bitmap", lualilka_resources_loadBitmap},
     {"read_file", lualilka_resources_readFile},
+    {"write_file", lualilka_resources_writeFile},
     {NULL, NULL},
 };
 

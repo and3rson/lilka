@@ -27,4 +27,11 @@ function resources.load_bitmap(filename, transparent_color) end
 --- print(content) -- Виведе вміст файлу
 function resources.read_file(filename) end
 
+---Записує текст у файл.
+---@param filename string шлях до файлу (відносно місця знаходження скрипта, що виконується)
+---@param content string текст, який буде записаний у файл
+---@usage
+--- resources.write_file("file.txt", "Hello, world!")
+function resources.write_file(filename, content) end
+
 return resources

@@ -25,7 +25,7 @@ public:
     uint16_t *pixels;
 };
 
-/// Клас для завантаження ресурсів.
+/// Клас для роботи з ресурсами - зображенням, файлами даних тощо.
 class Resources {
 public:
     /// Завантажити зображення в форматі BMP з файлу.
@@ -57,10 +57,15 @@ public:
     /// TODO: Update sdcard/filesystem stuff
     ///
     /// \param filename Шлях до файлу.
-    /// \return Вміст файлу.
+    /// \return 0, якщо читання успішне; -1, якщо файл не знайдено
     /// \warning Не використовуйте цей метод для читання великих файлів, оскільки весь вміст файлу зберігається в
     /// пам'яті. Для великих файлів використовуйте методи `sdcard` та `filesystem`.
     int readFile(String filename, String &fileContent);
+    /// Записати вміст файлу.
+    /// \param filename Шлях до файлу.
+    /// \param fileContent Вміст файлу.
+    /// \return 0, якщо запис успішний; -1, якщо запис не вдався
+    int writeFile(String filename, String fileContent);
 };
 
 /// Екземпляр класу `Resources`, який можна використовувати для завантаження ресурсів.

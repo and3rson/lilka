@@ -58,17 +58,6 @@ function math.lerp(min, max, t) end
 --- print(math.map(71.25, 0, 100, 0, 1) -- Виведе 0.7125
 function math.map(x, in_min, in_max, out_min, out_max) end
 
----Повертає відстань між точками (x1;y1) та (x2;y2).
----@param x1 number координата x першої точки
----@param y1 number координата y першої точки
----@param x2 number координата x другої точки
----@param y2 number координата y другої точки
----@return number
----@usage
---- print(math.dist(0, 0, 3, 4) -- Виведе 5
---- print(math.dist(0, 0, 1, 1) -- Виведе 1.4142135623731
-function math.dist(x1, y1, x2, y2) end
-
 ---Повертає модуль числа ``x``.
 ---@param x number число
 ---@return number

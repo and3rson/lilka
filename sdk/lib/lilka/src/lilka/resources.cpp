@@ -66,6 +66,17 @@ int Resources::readFile(String filename, String& fileContent) {
     return 0;
 }
 
+int Resources::writeFile(String filename, String fileContent) {
+    FILE* file = fopen(filename.c_str(), "w");
+    if (!file) {
+        // serial_err("Failed to open file for writing: %s\n", filename.c_str());
+        return 1;
+    }
+    fwrite(fileContent.c_str(), 1, fileContent.length(), file);
+    fclose(file);
+    return 0;
+}
+
 Resources resources;
 
 } // namespace lilka

@@ -9,8 +9,10 @@
 #include "lualilka_controller.h"
 #include "lualilka_resources.h"
 #include "lualilka_math.h"
+#include "lualilka_geometry.h"
 #include "lualilka_gpio.h"
 #include "lualilka_util.h"
+#include "lualilka_state.h"
 
 namespace lilka {
 
@@ -104,6 +106,8 @@ int lua_run(String path) {
     lualilka_resources_register(L);
     lilka::serial_log("lua: init math");
     lualilka_math_register(L);
+    lilka::serial_log("lua: init geometry");
+    lualilka_geometry_register(L);
     lilka::serial_log("lua: init gpio");
     lualilka_gpio_register(L);
     lilka::serial_log("lua: init util");
@@ -127,6 +131,16 @@ int lua_run(String path) {
     lua_newtable(L);
     lua_setfield(L, LUA_REGISTRYINDEX, "bitmaps");
 
+    // Load state from file (file name is "path" with .lua replaced with .state)
+    String statePath = path.substring(0, path.lastIndexOf('.')) + ".state";
+    // Check if state file exists
+    FILE* stateFile = fopen(statePath.c_str(), "r");
+    if (stateFile) {
+        lilka::serial_log("lua: found state file %s", statePath.c_str());
+        // Load state from file
+        lualilka_state_load(L, statePath.c_str());
+    }
+
     lilka::serial_log("lua: run script");
 
     int retCode = execute(L, path.c_str());
@@ -134,6 +148,17 @@ int lua_run(String path) {
     if (retCode) {
         const char* err = lua_tostring(L, -1);
         lilka::ui_alert("Lua", String("Помилка: ") + err);
+    }
+
+    // Check if state table exists and save it to file if so
+    lua_getglobal(L, "state");
+    bool hasState = lua_istable(L, -1);
+    lua_pop(L, 1);
+    if (hasState) {
+        lilka::serial_log("lua: saving state to file %s", statePath.c_str());
+        lualilka_state_save(L, statePath.c_str());
+    } else {
+        lilka::serial_log("lua: no state to save");
     }
 
     lilka::serial_log("lua: cleanup");

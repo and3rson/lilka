@@ -8,5 +8,7 @@ Lua API
     controller
     resources
     math
+    geometry
     gpio
     util
+    state
