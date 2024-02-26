@@ -128,7 +128,7 @@
 
    * - 1
      - J7
-     - ~
+     - MAX98357
      - `Mono Audio Amplifier Module <https://arduino.ua/prod4112-modyl-aydioysilitelya-mono-3vt-klassa-d-na-max98357>`__
      - arduino.ua
      -
@@ -208,7 +208,7 @@
 
    * - 1
      - SW1-SW8
-     - ~
+     - Arrows + A/B/C/D
      - `Button Kit (12mm) <https://arduino.ua/prod2506-komplekt-knopok-12mm-s-kolpachkom-5-cvetov>`__
      - arduino.ua
      - 27
@@ -216,7 +216,7 @@
      -
      - Потрібно ще 2 (в комплекті лише 6)
 
-   * - 1
+   * - 2
      - SW9, SW10
      - Select/Start
      - `SMD Tactile Button <https://arduino.ua/prod6165-taktova-knopka-smd-4pin-6h6x9-5mm-shtok-6-0mm>`__
@@ -248,7 +248,7 @@
 
    * - 1
      - U2
-     - 280x240 1.69" TFT
+     - 280x240 1.69\" TFT
      - `1.7" TFT Display <https://arduino.ua/prod6568-tft-displei-1-7-spi-240x280-rgb>`__
      - arduino.ua
      - 176
@@ -293,17 +293,17 @@
      -
      - .. raw:: html
 
-            <div id="total-base">
+            <div id="total-base"></div>
             <script>document.querySelector('#total-base').innerText = getColumnTotal(6);
             </script>
      - .. raw:: html
 
-            <div id="total-battery">
+            <div id="total-battery"></div>
             <script>document.querySelector('#total-battery').innerText = getColumnTotal(7);
             </script>
      - .. raw:: html
 
-            <div id="total-sound">
+            <div id="total-sound"></div>
             <script>document.querySelector('#total-sound').innerText = getColumnTotal(8);
             </script>
      -
