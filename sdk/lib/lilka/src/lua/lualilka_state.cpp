@@ -14,43 +14,43 @@ int lualilka_state_load(lua_State* L, const char* path) {
     lua_newtable(L);
     // Read state table
     char key[256];
+    char type[32];
     while (fscanf(file, "%s", key) != EOF) {
-        if (strcmp(key, "number") == 0) {
+        // Read value type
+        fscanf(file, "%s", type);
+        if (strcmp(type, "number") == 0) {
             // Read number
             double value;
             fscanf(file, "%lf", &value);
             serial_log("lua: state: load number %s = %lf", key, value);
             lua_pushnumber(L, value);
+            lua_setfield(L, -2, key);
             count++;
-        } else if (strcmp(key, "string") == 0) {
+        } else if (strcmp(type, "string") == 0) {
             // Read string
             char value[256];
             fscanf(file, "%s", value);
-            String valueStr = value;
-            valueStr.replace("\\n", "\n");
-            valueStr.replace("\\r", "\r");
-            serial_log("lua: state: load string %s = %s", key, valueStr.c_str());
-            lua_pushstring(L, valueStr.c_str());
+            serial_log("lua: state: load string %s = %s", key, value);
+            lua_pushstring(L, value);
+            lua_setfield(L, -2, key);
             count++;
-        } else if (strcmp(key, "boolean") == 0) {
+        } else if (strcmp(type, "boolean") == 0) {
             // Read boolean
             int value;
             fscanf(file, "%d", &value);
             serial_log("lua: state: load boolean %s = %d", key, value);
             lua_pushboolean(L, value);
+            lua_setfield(L, -2, key);
             count++;
-        } else if (strcmp(key, "nil") == 0) {
+        } else if (strcmp(type, "nil") == 0) {
             // Read nil
             serial_log("lua: state: load nil %s", key);
             lua_pushnil(L);
+            lua_setfield(L, -2, key);
             count++;
         } else {
             // Skip unsupported types
         }
-        // Read next key
-        fscanf(file, "%s", key);
-        // Set value in state table
-        lua_setfield(L, -2, key);
     }
 
     serial_log("lua: state: loaded %d values", count);
@@ -108,6 +108,7 @@ int lualilka_state_save(lua_State* L, const char* path) {
             count++;
         } else {
             // Skip unsupported types
+            serial_log("lua: state: skip %s (cannot serialize)", key);
         }
         // Remove value from stack
         lua_pop(L, 1);

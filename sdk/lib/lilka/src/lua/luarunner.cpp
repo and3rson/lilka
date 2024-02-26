@@ -35,6 +35,12 @@ int execute(lua_State* L, const char* path) {
             uint32_t now = millis();
             // Check for lilka._update function
             lua_getglobal(L, "lilka");
+            // If no lilka table, we're done
+            if (!lua_istable(L, -1)) {
+                // TODO: pop?
+                serial_log("lua: no lilka table");
+                longjmp(stopjmp, 32);
+            }
             lua_getfield(L, -1, "_update");
             if (lua_isfunction(L, -1)) {
                 // Call _update function, passing delta as argument
@@ -47,6 +53,7 @@ int execute(lua_State* L, const char* path) {
                 }
             } else {
                 // No _update function - we're done
+                serial_log("lua: no _update function in lilka table");
                 longjmp(stopjmp, 32);
             }
 
@@ -131,11 +138,14 @@ int lua_run(String path) {
     lua_newtable(L);
     lua_setfield(L, LUA_REGISTRYINDEX, "bitmaps");
 
+    // Set global "lilka" table for user stuff
+    lua_newtable(L);
+    lua_setglobal(L, "lilka");
+
     // Load state from file (file name is "path" with .lua replaced with .state)
     String statePath = path.substring(0, path.lastIndexOf('.')) + ".state";
     // Check if state file exists
-    FILE* stateFile = fopen(statePath.c_str(), "r");
-    if (stateFile) {
+    if (access(statePath.c_str(), F_OK) != -1) {
         lilka::serial_log("lua: found state file %s", statePath.c_str());
         // Load state from file
         lualilka_state_load(L, statePath.c_str());
