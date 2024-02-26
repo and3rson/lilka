@@ -20,7 +20,9 @@
 ---     state.counter = 0
 --- end
 --- state.counter = state.counter + 1
---- display.set_cursor(0, 32)
---- display.print('Лічильник запусків програми:')
---- display.print(state.counter)
+--- display.fill_screen(display.color565(64, 0, 64))
+--- display.set_cursor(0, 64)
+--- display.print('Лічильник запусків\nпрограми: ', state.counter)
+--- display.render()
+--- util.delay(0.5)
 state = {}
