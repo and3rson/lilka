@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Лілка: DIY-консоль для ентузіастів</title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style type="text/css">
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .background {
+            background-image: url('/img/lilka.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            height: 100%;
+            width: 100%;
+            font-family: "Roboto", sans-serif;
+        }
+
+        .content {
+            background-color: rgba(0, 0, 0, 0.9);
+            height: 100%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            flex-direction: column;
+        }
+
+        .soon {
+            text-align: center;
+            margin-bottom: 4em;
+        }
+
+        .title {
+            font-size: 5em;
+            font-weight: 300;
+        }
+
+        .title .glow {
+            animation: glow 2s infinite;
+            animation-timing-function: linear;
+        }
+
+        @keyframes glow {
+            0% {
+                text-shadow: 0 0 20px hsl(0, 100%, 50%);
+                color: hsl(0, 100%, 90%);
+            }
+
+            33% {
+                text-shadow: 0 0 20px hsl(120, 100%, 50%);
+                color: hsl(120, 100%, 90%);
+            }
+
+            66% {
+                text-shadow: 0 0 20px hsl(240, 100%, 50%);
+                color: hsl(240, 100%, 90%);
+            }
+
+            100% {
+                text-shadow: 0 0 20px hsl(360, 100%, 50%);
+                color: hsl(360, 100%, 90%);
+            }
+        }
+
+        .sub {
+            font-size: 3em;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 1);
+        }
+
+        .badges {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 1em;
+        }
+
+        .badges a {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background">
+        <div class="content">
+            <div class="soon">
+                <div class="title">Лілка <span class="glow">v2</span></div>
+                <div class="sub">Скоро буде.</div>
+            </div>
+            <div class="badges">
+                <a href="https://discord.gg/ycmaz4vnbs">
+                    <img alt="Discord"
+                        src="https://img.shields.io/badge/Discord-%D0%BF%D1%80%D0%B8%D1%94%D0%B4%D0%BD%D1%83%D0%B9%D1%82%D0%B5%D1%81%D1%8C_%D0%B4%D0%BE_%D0%B4%D0%B8%D1%81%D0%BA%D1%83%D1%81%D1%96%D1%97-%23444444?style=for-the-badge&logo=discord&logoColor=white&labelColor=%234400AA" />
+                </a>
+
+                <a href="https://youtu.be/6Tz70vqRrs0?si=fLhjktC660w-Vw-n">
+                    <img alt="YouTube"
+                        src="https://img.shields.io/badge/YouTube-%D0%BF%D1%80%D0%BE_%D0%BF%D1%80%D0%BE%D1%94%D0%BA%D1%82-%23444444?style=for-the-badge&logo=youtube&logoColor=white&labelColor=%23AA0000">
+                </a>
+
+                <a href="https://docs.lilka.dev">
+                    <img alt="Static Badge"
+                        src="https://img.shields.io/badge/%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D1%96%D1%8F-%D0%B2_%D0%BF%D1%80%D0%BE%D1%86%D0%B5%D1%81%D1%96_%D1%80%D0%BE%D0%B7%D1%80%D0%BE%D0%B1%D0%BA%D0%B8-%23444444?style=for-the-badge&logo=readthedocs&logoColor=white&labelColor=%23297FB9">
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
