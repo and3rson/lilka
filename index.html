@@ -12,6 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 
     <style type="text/css">
+        * {
+            box-sizing: border-box;
+        }
+
         html,
         body {
             height: 100%;
@@ -20,10 +24,8 @@
         }
 
         .background {
-            background-image: url('/img/lilka.jpg');
+            background: url('/img/lilka.jpg') no-repeat center center;
             background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
             height: 100%;
             width: 100%;
             font-family: "Roboto", sans-serif;
@@ -90,8 +92,86 @@
             gap: 1em;
         }
 
-        .badges a {
+        .badge {
             display: block;
+            text-decoration: none;
+            display: block;
+            background-color: #444444;
+            color: #FFFFFF;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .badge .left,
+        .badge .right {
+            padding: 0.5em;
+            font-size: 1em;
+            text-transform: uppercase;
+        }
+
+        .badge .left {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .badge .left .icon {
+            width: 1.5em;
+            height: 1.5em;
+            padding-right: 0.5em;
+            color: white;
+            display: flex;
+            vertical-align: middle;
+        }
+
+        .badge .left .title {
+            font-size: 1em;
+            font-weight: 700;
+        }
+
+        .badge .right {
+            font-weight: 300;
+        }
+
+        .badge.discord .icon,
+        .badge.discord .left {
+            background-color: #4400AA;
+        }
+
+        .badge.youtube .icon,
+        .badge.youtube .left {
+            background-color: #AA0000;
+        }
+
+        .badge.readthedocs .icon,
+        .badge.readthedocs .left {
+            background-color: #297FB9;
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 3em;
+            }
+
+            .sub {
+                font-size: 2em;
+            }
+
+            .badges {
+                width: 100%;
+                padding: 0 2rem;
+            }
+
+            .badge {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .badge .left,
+            .badge .right {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -104,19 +184,46 @@
                 <div class="sub">Скоро буде.</div>
             </div>
             <div class="badges">
-                <a href="https://discord.gg/ycmaz4vnbs">
-                    <img alt="Discord"
-                        src="https://img.shields.io/badge/Discord-%D0%BF%D1%80%D0%B8%D1%94%D0%B4%D0%BD%D1%83%D0%B9%D1%82%D0%B5%D1%81%D1%8C_%D0%B4%D0%BE_%D0%B4%D0%B8%D1%81%D0%BA%D1%83%D1%81%D1%96%D1%97-%23444444?style=for-the-badge&logo=discord&logoColor=white&labelColor=%234400AA" />
+                <a href="https://discord.gg/ycmaz4vnbs" class="badge discord">
+                    <div class="left">
+                        <div class="icon">
+                            <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <title>Discord</title>
+                                <path fill="white"
+                                    d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" />
+                            </svg>
+                        </div>
+                        <div class="title">Discord</div>
+                    </div>
+                    <div class="right">Приєднуйтесь до дискусії</div>
                 </a>
 
-                <a href="https://youtu.be/6Tz70vqRrs0?si=fLhjktC660w-Vw-n">
-                    <img alt="YouTube"
-                        src="https://img.shields.io/badge/YouTube-%D0%BF%D1%80%D0%BE_%D0%BF%D1%80%D0%BE%D1%94%D0%BA%D1%82-%23444444?style=for-the-badge&logo=youtube&logoColor=white&labelColor=%23AA0000">
+                <a href="https://youtu.be/6Tz70vqRrs0?si=fLhjktC660w-Vw-n" class="badge youtube">
+                    <div class="left">
+                        <div class="icon">
+                            <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <title>YouTube</title>
+                                <path fill="white"
+                                    d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                            </svg>
+                        </div>
+                        <div class="title">YouTube</div>
+                    </div>
+                    <div class="right">Відео про проєкт</div>
                 </a>
 
-                <a href="https://docs.lilka.dev">
-                    <img alt="Static Badge"
-                        src="https://img.shields.io/badge/%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D1%96%D1%8F-%D0%B2_%D0%BF%D1%80%D0%BE%D1%86%D0%B5%D1%81%D1%96_%D1%80%D0%BE%D0%B7%D1%80%D0%BE%D0%B1%D0%BA%D0%B8-%23444444?style=for-the-badge&logo=readthedocs&logoColor=white&labelColor=%23297FB9">
+                <a href="https://docs.lilka.dev" class="badge readthedocs">
+                    <div class="left">
+                        <div class="icon">
+                            <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <title>Read the Docs</title>
+                                <path fill="white"
+                                    d="M7.732 0a59.316 59.316 0 0 0-4.977.218V24a62.933 62.933 0 0 1 3.619-.687c.17-.028.34-.053.509-.078.215-.033.43-.066.644-.096l.205-.03zm1.18.003V22.96a61.042 61.042 0 0 1 12.333-.213V1.485A60.859 60.859 0 0 0 8.912.003zm1.707 1.81a.59.59 0 0 1 .015 0c3.06.088 6.125.404 9.167.95a.59.59 0 0 1 .476.686.59.59 0 0 1-.569.484.59.59 0 0 1-.116-.009 60.622 60.622 0 0 0-8.992-.931.59.59 0 0 1-.573-.607.59.59 0 0 1 .592-.572zm-4.212.028a.59.59 0 0 1 .578.565.59.59 0 0 1-.564.614 59.74 59.74 0 0 0-2.355.144.59.59 0 0 1-.04.002.59.59 0 0 1-.595-.542.59.59 0 0 1 .54-.635c.8-.065 1.6-.114 2.401-.148a.59.59 0 0 1 .035 0zm4.202 2.834a.59.59 0 0 1 .015 0 61.6 61.6 0 0 1 9.167.8.59.59 0 0 1 .488.677.59.59 0 0 1-.602.494.59.59 0 0 1-.076-.006 60.376 60.376 0 0 0-8.99-.786.59.59 0 0 1-.584-.596.59.59 0 0 1 .582-.583zm-4.211.097a.59.59 0 0 1 .587.555.59.59 0 0 1-.554.622c-.786.046-1.572.107-2.356.184a.59.59 0 0 1-.04.003.59.59 0 0 1-.603-.533.59.59 0 0 1 .53-.644c.8-.078 1.599-.14 2.4-.187a.59.59 0 0 1 .036 0zM10.6 7.535a.59.59 0 0 1 .015 0c3.06-.013 6.125.204 9.167.65a.59.59 0 0 1 .498.67.59.59 0 0 1-.593.504.59.59 0 0 1-.076-.006 60.142 60.142 0 0 0-8.992-.638.59.59 0 0 1-.592-.588.59.59 0 0 1 .573-.592zm1.153 2.846a61.093 61.093 0 0 1 8.02.515.59.59 0 0 1 .509.66.59.59 0 0 1-.586.514.59.59 0 0 1-.076-.005 59.982 59.982 0 0 0-8.99-.492.59.59 0 0 1-.603-.577.59.59 0 0 1 .578-.603c.382-.008.765-.012 1.148-.012zm1.139 2.832a60.92 60.92 0 0 1 6.871.394.59.59 0 0 1 .52.652.59.59 0 0 1-.577.523.59.59 0 0 1-.076-.004 59.936 59.936 0 0 0-8.991-.344.59.59 0 0 1-.61-.568.59.59 0 0 1 .567-.611c.765-.028 1.53-.042 2.296-.042z" />
+                            </svg>
+                        </div>
+                        <div class="title">Документація</div>
+                    </div>
+                    <div class="right">В процесі розробки</div>
                 </a>
             </div>
         </div>
