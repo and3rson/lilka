@@ -5,7 +5,11 @@
 
 namespace lilka {
 
-int lua_run(String path);
+int lua_runfile(String path);
+int lua_runsource(String source);
+int lua_repl_start();
+int lua_repl_input(String input);
+int lua_repl_stop();
 
 }
 

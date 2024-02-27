@@ -114,7 +114,7 @@ void select_file(String path) {
             return;
         }
     } else if (path.endsWith(".lua")) {
-        int retCode = lilka::lua_run(path);
+        int retCode = lilka::lua_runfile(path);
         if (retCode) {
             lilka::ui_alert("Lua", String("Увага!\nКод завершення: ") + retCode);
         }
@@ -205,6 +205,123 @@ void spiffs_browser_menu() {
     }
 }
 
+void live_lua() {
+    // Drain the serial buffer
+    Serial.setTimeout(10);
+    while (Serial.available()) {
+        Serial.read();
+    }
+
+    while (1) {
+        if (lilka::controller.getState().a.justPressed) {
+            return;
+        }
+        lilka::display.setFont(FONT_10x20);
+        lilka::display.setCursor(8, 48);
+        lilka::display.fillScreen(lilka::display.color565(0, 0, 0));
+        lilka::display.setTextBound(8, 0, LILKA_DISPLAY_WIDTH - 16, LILKA_DISPLAY_HEIGHT);
+        lilka::display.print("Очікування коду\nз UART...\n\n");
+        lilka::display.print("Натисніть [A]\n");
+        lilka::display.print("для виходу.");
+        lilka::display.setCursor(8, 180);
+
+        // Read serial data
+        Serial.setTimeout(100);
+        String code;
+        while (!Serial.available()) {
+            if (lilka::controller.getState().a.justPressed) {
+                return;
+            }
+        }
+        while (1) {
+            // Read lines from serial.
+            // It nothing is read for 0.5 seconds, stop reading.
+            if (lilka::controller.getState().a.justPressed) {
+                return;
+            }
+            String line = Serial.readStringUntil('\n');
+            if (line.length() == 0) {
+                lilka::display.print("!");
+                break;
+            }
+            lilka::display.print(".");
+            code += line;
+        }
+
+        Serial.println("Code received:");
+        Serial.println(code);
+
+        // Run the code
+        int retCode = lilka::lua_runsource(code);
+        if (retCode) {
+            lilka::ui_alert("Lua", String("Увага!\nКод завершення: ") + retCode);
+        }
+    }
+}
+
+void lua_repl() {
+    // Drain the serial buffer
+    Serial.setTimeout(10);
+    while (Serial.available()) {
+        Serial.read();
+    }
+
+    lilka::display.setFont(FONT_10x20);
+    lilka::display.setCursor(8, 48);
+    lilka::display.fillScreen(lilka::display.color565(0, 0, 0));
+    lilka::display.setTextBound(8, 0, LILKA_DISPLAY_WIDTH - 16, LILKA_DISPLAY_HEIGHT);
+    lilka::display.print("Lua REPL\n\n");
+    lilka::display.print("Під'єднайтесь до\nЛілки через серійний\nтермінал та починайте\nвводити команди!");
+
+    int retCode = lilka::lua_repl_start();
+    if (retCode) {
+        lilka::ui_alert("Lua", String("Увага!\nКод завершення: ") + retCode);
+        return;
+    }
+
+    bool quit = false;
+    while (!quit) {
+        String input;
+        bool eol = false;
+        while (!eol) {
+            if (lilka::controller.getState().a.justPressed) {
+                quit = true;
+                break;
+            }
+            if (Serial.available()) {
+                char c = Serial.read();
+                // If backspace
+                if (c == 8) {
+                    if (input.length() > 0) {
+                        input.remove(input.length() - 1);
+                        Serial.write(c);
+                        Serial.write(' ');
+                        Serial.write(c);
+                    }
+                } else {
+                    input += c;
+                    Serial.write(c);
+                    if (c == 13) {
+                        Serial.write(10);
+                    }
+                }
+            }
+            if (input.endsWith("\n") || input.endsWith("\r")) {
+                eol = true;
+            }
+        }
+        int retCode = lilka::lua_repl_input(input);
+        if (retCode) {
+            lilka::serial_log("lua: return code: %d", retCode);
+        }
+    }
+
+    retCode = lilka::lua_repl_stop();
+    if (retCode) {
+        lilka::ui_alert("Lua", String("Увага!\nКод завершення: ") + retCode);
+    }
+}
+
 void system_utils_menu() {
     String menu[] = {
         "Перезавантаження",  "Deep Sleep",       "Версія SDK", "Версія ESP-IDF",
@@ -246,9 +363,29 @@ void system_utils_menu() {
     }
 }
 
+void dev_menu() {
+    String menu[] = {
+        "Live Lua",
+        "Lua REPL",
+        "<< Назад",
+    };
+    int cursor = 0;
+    int count = sizeof(menu) / sizeof(menu[0]);
+    while (1) {
+        cursor = lilka::ui_menu("Розробка", menu, count, cursor);
+        if (cursor == 0) {
+            live_lua();
+        } else if (cursor == 1) {
+            lua_repl();
+        } else if (cursor == count - 1) {
+            return;
+        }
+    }
+}
+
 void loop() {
     String menu[] = {
-        "Демо", "Браузер SD-карти", "Браузер SPIFFS", "Системні утиліти", "Про систему",
+        "Демо", "Браузер SD-карти", "Браузер SPIFFS", "Розробка", "Системні утиліти", "Про систему",
     };
     int cursor = 0;
     int count = sizeof(menu) / sizeof(menu[0]);
@@ -261,8 +398,10 @@ void loop() {
         } else if (cursor == 2) {
             spiffs_browser_menu();
         } else if (cursor == 3) {
-            system_utils_menu();
+            dev_menu();
         } else if (cursor == 4) {
+            system_utils_menu();
+        } else if (cursor == 5) {
             lilka::ui_alert("Лілка Demo OS", "by Андерсон\n& friends");
         }
     }
