@@ -37,6 +37,22 @@ html_favicon = "_static/favicon.ico"
 #     'GitHub': 'https://github.com/and3rson/lilka',
 # }
 
+# https://protips.readthedocs.io/pdf-font.html
+latex_elements = {
+# The paper size ('letterpaper' or 'a4paper').
+    'papersize': 'a4paper',
+
+# The font size ('10pt', '11pt' or '12pt').
+    'pointsize': '11pt',
+
+# Additional stuff for the LaTeX preamble.
+    'preamble': r'''
+        \usepackage{charter}
+        \usepackage[defaultsans]{lato}
+        \usepackage{inconsolata}
+    ''',
+}
+
 # -- Custom CSS --------------------------------------------------------------
 
 
