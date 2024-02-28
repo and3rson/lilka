@@ -157,8 +157,8 @@
    * - 1
      - U3
      - TLV1117LV33DCYR (не плутати з TLV1117-33!)
-     - `TLV1117LV33DCYR Voltage Regulator <https://www.rcscomponents.kiev.ua/product/tlv1117lv33dcyr_118502.html>`__
-     - rcscomponents.kiev.ua
+     - `TLV1117LV33DCYR Voltage Regulator <https://kosmodrom.ua/ru/stabilizator-napryazheniya/tlv1117lv33dcyr.html>`__
+     - kosmodrom.ua
      - 26
      -
 
