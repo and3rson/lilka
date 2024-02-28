@@ -20,6 +20,10 @@
     faq
     glossary
 
+.. sidebar-links::
+    :caption: Посилання:
+    :github:
+
 Indices and tables
 ==================
 

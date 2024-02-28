@@ -32,6 +32,10 @@ html_theme_options = {
     "display_version": False,
 }
 html_logo = "_static/lilka_logo.png"
+html_favicon = "_static/favicon.ico"
+# html_additional_pages = {
+#     'GitHub': 'https://github.com/and3rson/lilka',
+# }
 
 # -- Custom CSS --------------------------------------------------------------
 
@@ -63,3 +67,10 @@ lua_source_encoding = 'utf8'
 lua_source_comment_prefix = '---'
 lua_source_use_emmy_lua_syntax = True
 lua_source_private_prefix = '_'
+
+# -- Toolbox -----------------------------------------------------------------
+
+extensions.append("sphinx_toolbox.sidebar_links")
+extensions.append("sphinx_toolbox.github")
+github_username = "and3rson"
+github_repository = "lilka"
