@@ -10,6 +10,7 @@ build:
     python: "3.12"
   apt_packages:
     - doxygen
+    - ca-certificates
   # Ubuntu 22.04 has KiCad 6.0, which does not have kicad-cli.
   # We'll have to keep this commented (and generate PDFs manually with `make gen`) until ReadTheDocs adds Ubuntu 24.04.
   # apt_packages:
@@ -20,6 +21,7 @@ build:
   #     - make -C docs gen
   jobs:
     pre_install:
+      - ./docs/scripts/install_kicad.sh
       - make -C docs doxygen
 
 sphinx:
