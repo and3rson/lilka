@@ -23,7 +23,7 @@
      - Значення
      - Посилання
      - Постачальник
-     - Ціна
+     - Ціна (разом)
      - Примітка
 
    * - 1
@@ -34,21 +34,13 @@
      - 5
      -
 
-   * - 1
-     - C1
+   * - 3
+     - C1, C2, C3
      - 1uF
      - `1uF Capacitor <https://m-teh.com.ua/kondensator-ct4-1uf-50v-x7r-10/>`__
      - m-teh.com.ua
-     - 3
+     - 9
      - Можна комплектувати `з цього набору <https://arduino.ua/prod2798-nabor-mnogosloinih-keramicheskih-kondensatorov-180-sht>`__
-
-   * - 2
-     - C2, C3
-     - 22uF
-     - `1uF Capacitor * <https://m-teh.com.ua/kondensator-ct4-1uf-50v-x7r-10/>`__
-     - justas-electronics.com.ua
-     - 6
-     - \* В альфа-версії можна використати 10 uF чи навіть 1 uF. Можна комплектувати `з цього набору <https://arduino.ua/prod2798-nabor-mnogosloinih-keramicheskih-kondensatorov-180-sht>`__
 
    * - 1
      - J1
@@ -200,7 +192,7 @@
      - Значення
      - Посилання
      - Постачальник
-     - Ціна
+     - Ціна (разом)
      - Примітка
 
    * - 1
@@ -264,7 +256,7 @@
      - Значення
      - Посилання
      - Постачальник
-     - Ціна
+     - Ціна (разом)
      - Примітка
 
    * - 1
