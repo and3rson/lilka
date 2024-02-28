@@ -4,7 +4,7 @@
 .. toctree::
     :maxdepth: 1
 
-    assembly
+    assembly/index
     environment
     first_flash
     main_firmware
