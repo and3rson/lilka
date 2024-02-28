@@ -9,13 +9,13 @@
     <script>
     function calculateTotal(el, colNumber) {
         var tbody = el.closest('tbody');
-        var total = Array.prototype.slice.call(tbody.querySelectorAll('td:nth-child(' + colNumber + ')')).slice(1, -1).map(x => (parseFloat(x.innerText) || 0)).reduce((a, b) => a + b, 0);
+        var total = Array.prototype.slice.call(tbody.querySelectorAll('td:nth-child(' + colNumber + ')')).slice(0, -1).map(x => (parseFloat(x.innerText) || 0)).reduce((a, b) => a + b, 0);
         el.innerText = total;
     }
     </script>
 
 .. list-table:: Базовий комплект
-   :widths: 5 15 15 25 15 10 15
+   :widths: 5 10 25 25 15 5 15
    :header-rows: 1
 
    * - К-сть
@@ -28,7 +28,7 @@
 
    * - 1
      - BZ1
-     - Buzzer
+     - Buzzer (2.54mm між контактами)
      - `Passive Buzzer <https://www.mini-tech.com.ua/ua/passivnyj-zummer>`__
      - mini-tech.com.ua
      - 5
@@ -45,10 +45,10 @@
    * - 2
      - C2, C3
      - 22uF
-     - `22uF Capacitor <https://justas-electronics.com.ua/cm-100n-x7r/>`__
+     - `1uF Capacitor * <https://m-teh.com.ua/kondensator-ct4-1uf-50v-x7r-10/>`__
      - justas-electronics.com.ua
      - 6
-     - 0.1 uF can be used for v2 alpha. Можна комплектувати `з цього набору <https://arduino.ua/prod2798-nabor-mnogosloinih-keramicheskih-kondensatorov-180-sht>`__
+     - \* В альфа-версії можна використати 10 uF чи навіть 1 uF. Можна комплектувати `з цього набору <https://arduino.ua/prod2798-nabor-mnogosloinih-keramicheskih-kondensatorov-180-sht>`__
 
    * - 1
      - J1
@@ -164,9 +164,9 @@
 
    * - 1
      - U3
-     - TLV1117-33
-     - `TLV1117-33 Voltage Regulator <http://www.kosmodrom.com.ua/el.php?name=TLV1117-33IKVURG3>`__
-     - kosmodrom.com.ua
+     - TLV1117LV33DCYR (не плутати з TLV1117-33!)
+     - `TLV1117LV33DCYR Voltage Regulator <https://www.rcscomponents.kiev.ua/product/tlv1117lv33dcyr_118502.html>`__
+     - rcscomponents.kiev.ua
      - 26
      -
 
@@ -214,7 +214,7 @@
    * - 1
      - J2
      - Bat
-     - `Li-Po Battery <https://m-teh.com.ua/li-pol-akumuliator-603048p-1000-ma-hod-3.7v-z-plato%D1%96u-zakhystu/?gad_source=1&gclid=CjwKCAiA29auBhBxEiwAnKcSqmJoC5UaOLX_kOIJX7G_EQOqEse5RDJBtxz8IvMHU9rLfGlj-MlgyhoCXgEQAvD_BwE>`__
+     - `Будь-яка LiPo на ваш розсуд <https://m-teh.com.ua/li-pol-akumuliator-603048p-1000-ma-hod-3.7v-z-plato%D1%96u-zakhystu/?gad_source=1&gclid=CjwKCAiA29auBhBxEiwAnKcSqmJoC5UaOLX_kOIJX7G_EQOqEse5RDJBtxz8IvMHU9rLfGlj-MlgyhoCXgEQAvD_BwE>`__
      - m-teh.com.ua
      - 116
      -
@@ -229,7 +229,7 @@
 
    * - 1
      - Q1
-     - IRLML6401
+     - IRLML6401 (SOT-23)
      - `IRLML6401 MOSFET <https://www.rcscomponents.kiev.ua/product/irlml6401trpbf_34344.html>`__
      - rcscomponents.kiev.ua
      - 4
@@ -237,11 +237,11 @@
 
    * - 1
      - Q2
-     - TP2104
+     - TP2104 *
      -
      -
      -
-     - Запасне місце для THT-альтернативи Q1
+     - \* Запасне місце для THT-альтернативи Q1
 
    * - Разом
      -
@@ -273,6 +273,14 @@
      - `PCM5102A Audio Module <https://prom.ua/ua/p1401452703-pcm5102a-modul-tsap.html>`__
      - prom.ua
      - 299
+     -
+
+   * -
+     -
+     -
+     - АБО
+     -
+     -
      -
 
    * - 1
