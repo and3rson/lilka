@@ -17,8 +17,7 @@ Player = {
     width = 32, -- Розмір спрайту - 32x32
     height = 32,
     sprites = {
-        -- stand = { resources.load_bitmap(ROOT .. "boy_stand.bmp") },
-        stand = { resources.load_bitmap("face.bmp", BLACK) },
+        stand = { resources.load_bitmap(ROOT .. "boy_stand.bmp") },
         run = {
             resources.load_bitmap(ROOT .. "boy_run_1.bmp", BLACK),
             resources.load_bitmap(ROOT .. "boy_run_2.bmp", BLACK),

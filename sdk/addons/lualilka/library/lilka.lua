@@ -3,6 +3,7 @@
 ---@class lilka
 lilka = {}
 
----@alias lilka._update fun(delta: number)
+---Функція, яка викликається кожен кадр.
+---lilka._update fun(delta: number)
 
 return lilka

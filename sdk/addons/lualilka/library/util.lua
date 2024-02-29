@@ -17,7 +17,7 @@ function util.sleep(sec) end
 ---Завершує виконання програми.
 ---@return nil
 ---@usage
---- function _update()
+--- function lilka._update(delta)
 ---     state = controller.get_state()
 ---     if state.a.pressed then
 ---         util.exit() -- Завершує виконання програми.
