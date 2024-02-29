@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-typedef uint16_t menu_icon_t[576];
+typedef uint16_t const menu_icon_t[576]; // 24x24px icon
 
 namespace lilka {
 

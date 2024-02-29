@@ -71,7 +71,7 @@ void Display::draw16bitRGBBitmapWithTranColor(
     int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
 ) {
     // Цей cast безпечний, оскільки Arduino_GFX.draw16bitRGBBitmapWithTranColor не змінює bitmap.
-    Arduino_GFX::draw16bitRGBBitmapWithTranColor(x, y, const_cast<uint16_t *>(bitmap), w, h, transparent_color);
+    Arduino_ST7789::draw16bitRGBBitmapWithTranColor(x, y, const_cast<uint16_t *>(bitmap), transparent_color, w, h);
 }
 
 void Display::renderCanvas(Canvas &canvas) {
@@ -87,7 +87,8 @@ void Canvas::draw16bitRGBBitmapWithTranColor(
     int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
 ) {
     // Цей cast безпечний, оскільки Arduino_GFX.draw16bitRGBBitmapWithTranColor не змінює bitmap.
-    Arduino_GFX::draw16bitRGBBitmapWithTranColor(x, y, const_cast<uint16_t *>(bitmap), w, h, transparent_color);
+    Serial.println("const");
+    Arduino_Canvas::draw16bitRGBBitmapWithTranColor(x, y, const_cast<uint16_t * const>(bitmap), transparent_color, w, h);
 }
 
 Display display;

@@ -16,6 +16,10 @@ extern "C" {
 #include "icons/bin.h"
 #include "icons/lua.h"
 #include "icons/js.h"
+#include "icons/sdcard.h"
+#include "icons/memory.h"
+#include "icons/settings.h"
+#include "icons/demos.h"
 
 #include "demos/demos.h"
 
@@ -387,10 +391,13 @@ void loop() {
     String menu[] = {
         "Демо", "Браузер SD-карти", "Браузер SPIFFS", "Розробка", "Системні утиліти", "Про систему",
     };
+    const menu_icon_t *icons[] = {
+        &demos, &sdcard, &memory, 0, &settings, 0,
+    };
     int cursor = 0;
     int count = sizeof(menu) / sizeof(menu[0]);
     while (1) {
-        cursor = lilka::ui_menu("Головне меню", menu, count, cursor);
+        cursor = lilka::ui_menu("Головне меню", menu, count, cursor, icons);
         if (cursor == 0) {
             demos_menu();
         } else if (cursor == 1) {

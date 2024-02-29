@@ -32,5 +32,6 @@ UseTab: Never
 ShortNamespaceLines: 0
 BreakArrays: 'true'
 ContinuationIndentWidth: 4
+ReflowComments: false
 
 ...
