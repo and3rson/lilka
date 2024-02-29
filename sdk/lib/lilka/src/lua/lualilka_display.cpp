@@ -239,6 +239,13 @@ int lualilka_display_drawBitmap(lua_State* L) {
     // Args are bitmap table, X & Y
     // First argument is table that contains bitmap width, height and pointer. We only need the pointer.
     lua_getfield(L, 1, "pointer");
+    // Check if value is a valid pointer
+
+    // TODO: Check if crap ain't broken since the user may pass anything here and this often causes core panic
+    if (!lua_islightuserdata(L, -1)) {
+        return luaL_error(L, "Invalid bitmap");
+    }
+
     Bitmap* bitmap = (Bitmap*)lua_touserdata(L, -1);
     lua_pop(L, 1);
 

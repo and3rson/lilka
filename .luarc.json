@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
-  "workspace.library": ["sdk/addons/lualilka"],
+  "workspace.library": ["sdk/addons/lualilka/library"],
   "runtime.version": "Lua 5.4",
   "hint.enable": false
 }

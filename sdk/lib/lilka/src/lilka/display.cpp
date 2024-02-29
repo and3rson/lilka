@@ -27,7 +27,7 @@ void Display::begin() {
 #else
     Arduino_ST7789::begin(80000000);
 #endif
-    setFont(u8g2_font_10x20_t_cyrillic);
+    setFont(FONT_10x20);
     setUTF8Print(true);
 #ifndef LILKA_NO_SPLASH
     uint16_t row[LILKA_DISPLAY_WIDTH];
@@ -87,7 +87,6 @@ void Canvas::draw16bitRGBBitmapWithTranColor(
     int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
 ) {
     // Цей cast безпечний, оскільки Arduino_GFX.draw16bitRGBBitmapWithTranColor не змінює bitmap.
-    Serial.println("const");
     Arduino_Canvas::draw16bitRGBBitmapWithTranColor(x, y, const_cast<uint16_t * const>(bitmap), transparent_color, w, h);
 }
 

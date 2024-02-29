@@ -22,6 +22,8 @@ Bitmap* Resources::loadBitmap(String filename, int32_t transparentColor) {
     int dataOffset = fileheader[10] + (fileheader[11] << 8) + (fileheader[12] << 16) + (fileheader[13] << 24);
     uint8_t fileinfo[40];
     fread(fileinfo, 1, 40, file);
+    // Get number of bits per pixel (offset from start of file: 0x1C)
+    int bitsPerPixel = fileinfo[14] + (fileinfo[15] << 8);
     uint32_t width = fileinfo[4] + (fileinfo[5] << 8) + (fileinfo[6] << 16) + (fileinfo[7] << 24);
     uint32_t height = fileinfo[8] + (fileinfo[9] << 8) + (fileinfo[10] << 16) + (fileinfo[11] << 24);
     // int bitsPerPixel = fileinfo[14] + (fileinfo[15] << 8);
@@ -39,7 +41,18 @@ Bitmap* Resources::loadBitmap(String filename, int32_t transparentColor) {
     for (int y = height - 1; y >= 0; y--) {
         for (int x = 0; x < width; x++) {
             uint32_t color;
-            fread(&color, 1, 3, file);
+            if (bitsPerPixel == 24) {
+                fread(&color, 1, 3, file);
+            } else if (bitsPerPixel == 32) {
+                fread(&color, 1, 4, file);
+            } else {
+                // TODO
+                serial_err("Unsupported bits per pixel: %d\n", bitsPerPixel);
+                fclose(file);
+                delete bitmap;
+                return 0;
+            }
+
             bitmap->pixels[x + y * width] = display.color565((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF);
         }
     }

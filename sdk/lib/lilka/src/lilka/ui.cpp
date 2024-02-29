@@ -38,12 +38,12 @@ int ui_menu(String title, String menu[], int menu_size, int cursor, const menu_i
         );
         canvas.setCursor(32, 48);
         canvas.setTextColor(canvas.color565(255, 255, 255));
-        canvas.setFont(u8g2_font_6x13_t_cyrillic);
+        canvas.setFont(FONT_6x13);
         canvas.setTextSize(2);
         canvas.println(title);
         canvas.println();
         canvas.setTextSize(1);
-        canvas.setFont(u8g2_font_10x20_t_cyrillic);
+        canvas.setFont(FONT_10x20);
 
         canvas.fillRect(0, cursorY - scroll * 24, LILKA_DISPLAY_WIDTH, 24, canvas.color565(255, 64, 0));
         if (cursorY < desiredCursorY) {
@@ -121,14 +121,14 @@ void ui_alert(String title, String message) {
     controller.resetState();
 
     display.fillRect(left, top, width, mid - top, display.color565(32, 32, 128));
-    display.setFont(u8g2_font_6x13_t_cyrillic);
+    display.setFont(FONT_6x13);
     display.setTextSize(2);
     display.setTextBound(left + xMargin, top, width - xMargin * 2, mid - top);
     display.setCursor(left + xMargin, top + 13 * 2);
     display.println(title);
 
     display.fillRect(left, mid, width, bottom - mid, display.color565(32, 96, 96));
-    display.setFont(u8g2_font_10x20_t_cyrillic);
+    display.setFont(FONT_9x15);
     display.setTextSize(1);
     display.setTextBound(left + xMargin, top, width - xMargin * 2, bottom - mid);
     display.setCursor(left + xMargin, mid + 20);

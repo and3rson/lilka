@@ -243,7 +243,7 @@ void live_lua() {
             if (lilka::controller.getState().a.justPressed) {
                 return;
             }
-            String line = Serial.readStringUntil('\n');
+            String line = Serial.readString();
             if (line.length() == 0) {
                 lilka::display.print("!");
                 break;
@@ -252,8 +252,24 @@ void live_lua() {
             code += line;
         }
 
-        Serial.println("Code received:");
-        Serial.println(code);
+        // Serial.println("Code received:");
+        // Serial.println(code);
+
+        // Those darn line ends...
+        // If code contains \r and \n - replace them with \n
+        // If code contains only \r - replace it with \n
+        // If code contains only \n - leave it as is
+        if (code.indexOf('\r') != -1) {
+            if (code.indexOf('\n') != -1) {
+                lilka::serial_log("Line ends: CR and LF");
+                code.replace("\r", "");
+            } else {
+                lilka::serial_log("Line ends: CR only");
+                code.replace("\r", "\n");
+            }
+        } else {
+            lilka::serial_log("Line ends: LF only");
+        }
 
         // Run the code
         int retCode = lilka::lua_runsource(code);

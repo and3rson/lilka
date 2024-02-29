@@ -124,8 +124,8 @@ lua_State* lua_setup(const char* dir) {
 
     lilka::serial_log("lua: init canvas");
     lilka::Canvas* canvas = new lilka::Canvas();
-    lilka::display.setFont(u8g2_font_10x20_t_cyrillic);
-    canvas->setFont(u8g2_font_10x20_t_cyrillic);
+    lilka::display.setFont(FONT_10x20);
+    canvas->setFont(FONT_10x20);
     canvas->begin();
     // Store canvas in registry with "canvas" key
     lilka::serial_log("lua: store canvas in registry");
