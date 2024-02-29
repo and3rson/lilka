@@ -12,8 +12,8 @@ PlayerState = {
 }
 
 Player = {
-    x = 0,
-    y = 0,
+    x = 32,
+    y = 128,
     width = 32, -- Розмір спрайту - 32x32
     height = 32,
     sprites = {
@@ -36,24 +36,31 @@ function Player:new(o)
     return o
 end
 
-function Player:update()
+function Player:update(delta)
+    self.x = self.x + 50 * delta
 end
 
 function Player:draw()
+    local bitmap
+    if self.state == PlayerState.STAND then
+        bitmap = self.sprites.stand[1]
+    elseif self.state == PlayerState.RUN then
+        -- Перемикаємо спрайти бігу кожні 0.25 секунди
+        bitmap = self.sprites.run[math.floor(util.time() * 4) % #self.sprites.run + 1]
+    elseif self.state == PlayerState.JUMP then
+        bitmap = self.sprites.jump[1]
+    end
     -- Малюємо гравця на екрані так, щоб середина нижнього краю спрайту була в координатах (x, y)
-    display.draw_bitmap(self.sprites.run[1], self.x - self.width / 2, self.y - self.height)
+    display.draw_bitmap(bitmap, self.x - self.width / 2, self.y - self.height)
 end
 
 local player = Player:new({ x = 128, y = 128 })
 
--- display.fill_screen(WHITE)
--- display.draw_bitmap(sprites.run[1], 128, 128)
--- display.render()
--- util.sleep(1)
+display.fill_screen(BLACK)
+display.render()
 
--- display.fill_screen(WHITE)
--- display.render()
--- util.sleep(1)
--- display.fill_screen(BLACK)
--- display.render()
--- util.sleep(1)
+function lilka._update(delta)
+    player:update(delta)
+    player:draw()
+    display.render()
+end
