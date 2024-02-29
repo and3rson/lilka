@@ -105,4 +105,5 @@
     resources
     spi
     ui
+    fmath
     build_flags
