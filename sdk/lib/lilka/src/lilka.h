@@ -13,6 +13,7 @@
 #include "lilka/loader.h"
 #include "lilka/sys.h"
 #include "lilka/resources.h"
+#include "lilka/fmath.h"
 #include "lua/luarunner.h"
 #include "mjs/mjsrunner.h"
 

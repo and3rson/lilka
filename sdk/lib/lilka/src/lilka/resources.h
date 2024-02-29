@@ -11,13 +11,28 @@ namespace lilka {
 /// Пікселі зберігаються в рядку зліва направо, зверху вниз.
 class Bitmap {
 public:
-    inline Bitmap(uint32_t width, uint32_t height, int32_t transparentColor = -1)
-        : width(width), height(height), transparentColor(transparentColor) {
-        pixels = new uint16_t[width * height];
-    }
-    inline ~Bitmap() {
-        delete[] pixels;
-    }
+    Bitmap(uint32_t width, uint32_t height, int32_t transparentColor = -1);
+    ~Bitmap();
+    /// Повертає зображення, яке отримане обертанням поточного зображення на заданий кут (в градусах), і записує його в `dest`.
+    ///
+    /// @param angle Кут обертання в градусах.
+    /// @param dest Вказівник на зображення, в яке буде записано обернуте зображення.
+    /// @param blankColor 16-бітний колір (5-6-5), який буде використаний для заповнення пікселів, які виходять за межі зображення.
+    /// @warning `dest` повинен бути ініціалізований заздалегідь.
+    ///
+    /// Приклад:
+    ///
+    /// @code
+    /// lilka::Bitmap *bitmap = lilka::resources.loadBitmap("image.bmp");
+    /// if (!bitmap) {
+    ///    Serial.println("Failed to load image");
+    ///    return;
+    /// }
+    /// lilka::Bitmap *rotatedBitmap = new lilka::Bitmap(bitmap->width, bitmap->height);
+    /// // Повертаємо на 30 градусів, заповнюючи пікселі, які виходять за межі зображення, білим кольором:
+    /// bitmap->rotate(30, rotatedBitmap, lilka::display.color565(255, 255, 255));
+    /// @endcode
+    void rotate(int16_t angle, Bitmap *dest, int32_t blankColor);
     uint32_t width;
     uint32_t height;
     /// 16-бітний колір (5-6-5), який буде прозорим. За замовчуванням -1 (прозорість відсутня).
