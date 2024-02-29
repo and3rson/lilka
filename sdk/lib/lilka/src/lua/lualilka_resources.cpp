@@ -43,6 +43,45 @@ int lualilka_resources_loadBitmap(lua_State* L) {
     return 1;
 }
 
+int lualilka_resources_rotateBitmap(lua_State* L) {
+    // Args are bitmap table and angle in degrees
+    // First argument is table that contains bitmap width, height and pointer. We need all of them.
+    // Second argument is angle in degrees.
+    // Third argument is blank color for pixels that are not covered by the bitmap after rotation.
+    lua_getfield(L, 1, "pointer");
+    // Check if value is a valid pointer
+    if (!lua_islightuserdata(L, -1)) {
+        return luaL_error(L, "Invalid bitmap");
+    }
+    Bitmap* bitmap = (Bitmap*)lua_touserdata(L, -1);
+    lua_pop(L, 1);
+
+    int16_t angle = luaL_checkinteger(L, 2);
+    int32_t blankColor = luaL_checkinteger(L, 3);
+
+    // Instantiate a new bitmap
+    lilka::Bitmap* rotatedBitmap = new lilka::Bitmap(bitmap->width, bitmap->height, bitmap->transparentColor);
+    // Rotate the bitmap
+    bitmap->rotate(angle, rotatedBitmap, blankColor);
+
+    // Append rotatedBitmap to bitmaps table in registry
+    lua_getfield(L, LUA_REGISTRYINDEX, "bitmaps");
+    lua_pushlightuserdata(L, rotatedBitmap);
+    lua_setfield(L, -2, (String("rotatedBitmap-") + random(100000)).c_str());
+    lua_pop(L, 1);
+
+    // Create and return table that contains bitmap width, height and pointer
+    lua_newtable(L);
+    lua_pushinteger(L, rotatedBitmap->width);
+    lua_setfield(L, -2, "width");
+    lua_pushinteger(L, rotatedBitmap->height);
+    lua_setfield(L, -2, "height");
+    lua_pushlightuserdata(L, rotatedBitmap);
+    lua_setfield(L, -2, "pointer");
+
+    return 1;
+}
+
 int lualilka_resources_readFile(lua_State* L) {
     const char* path = luaL_checkstring(L, 1);
     // Get dir from registry
@@ -80,6 +119,7 @@ int lualilka_resources_writeFile(lua_State* L) {
 
 static const luaL_Reg lualilka_resources[] = {
     {"load_bitmap", lualilka_resources_loadBitmap},
+    {"rotate_bitmap", lualilka_resources_rotateBitmap},
     {"read_file", lualilka_resources_readFile},
     {"write_file", lualilka_resources_writeFile},
     {NULL, NULL},

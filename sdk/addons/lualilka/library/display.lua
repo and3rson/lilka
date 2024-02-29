@@ -172,7 +172,7 @@ function display.draw_arc(x, y, r1, r2, start_angle, end_angle, color) end
 function display.fill_arc(x, y, r1, r2, start_angle, end_angle, color) end
 
 ---Малює зображення на екрані.
----@param bitmap table ідентифікатор зображення, отриманий з :lua:func:`resources.load_bitmap`
+---@param bitmap table ідентифікатор зображення
 ---@param x integer координата x лівого верхнього кута зображення
 ---@param y integer координата y лівого верхнього кута зображення
 ---@usage
