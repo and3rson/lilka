@@ -16,10 +16,10 @@
     while true do
         -- Вмикаємо світлодіод
         gpio.write(led_pin, gpio.HIGH)
-        util.delay(0.5)
+        util.sleep(0.5)
         -- Вимикаємо світлодіод
         gpio.write(led_pin, gpio.LOW)
-        util.delay(0.5)
+        util.sleep(0.5)
         if controller.get_state().a.just_pressed then
             -- Кнопку A щойно натиснули, зупиняємо цикл
             break

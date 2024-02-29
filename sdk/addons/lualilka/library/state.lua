@@ -24,5 +24,5 @@
 --- display.set_cursor(0, 64)
 --- display.print('Лічильник запусків\nпрограми: ', state.counter)
 --- display.render()
---- util.delay(0.5)
+--- util.sleep(0.5)
 state = {}

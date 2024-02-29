@@ -6,7 +6,13 @@ namespace lilka {
 
 extern jmp_buf stopjmp;
 
-int lualilka_util_delay(lua_State* L) {
+int lualilka_util_time(lua_State* L) {
+    float time = micros() / 1000000.0;
+    lua_pushnumber(L, time);
+    return 1;
+}
+
+int lualilka_util_sleep(lua_State* L) {
     float s = luaL_checknumber(L, 1);
     delayMicroseconds(s * 1000000);
     return 0;
@@ -18,7 +24,8 @@ int lualilka_util_exit(lua_State* L) {
 }
 
 static const luaL_Reg lualilka_util[] = {
-    {"delay", lualilka_util_delay},
+    {"time", lualilka_util_time},
+    {"sleep", lualilka_util_sleep},
     {"exit", lualilka_util_exit},
     {NULL, NULL},
 };

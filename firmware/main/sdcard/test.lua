@@ -15,7 +15,7 @@ for i = 10, 1, -1 do
 
     display.render()
 
-    util.delay(0.25)
+    util.sleep(0.25)
 end
 
 -- Now, we want to draw random lines & faces really fast directly to display, without any buffering!

@@ -1,11 +1,17 @@
 -- Character sprites by https://laredgames.itch.io/coins-free
 
-local WHITE = display.color565(255, 255, 255)
-local BLACK = display.color565(0, 0, 0)
+WHITE = display.color565(255, 255, 255)
+BLACK = display.color565(0, 0, 0)
 
-local ROOT = 'runner/'
+ROOT = 'runner/'
 
-local Player = {
+PlayerState = {
+    STAND = "stand",
+    RUN = "run",
+    JUMP = "jump",
+}
+
+Player = {
     x = 0,
     y = 0,
     width = 32, -- Розмір спрайту - 32x32
@@ -18,7 +24,9 @@ local Player = {
             resources.load_bitmap(ROOT .. "boy_run_2.bmp", BLACK),
             resources.load_bitmap(ROOT .. "boy_run_3.bmp", BLACK),
         },
+        jump = { resources.load_bitmap(ROOT .. "boy_jump.bmp", BLACK) },
     },
+    state = PlayerState.RUN,
 }
 
 function Player:new(o)
@@ -26,6 +34,9 @@ function Player:new(o)
     setmetatable(o, self)
     self.__index = self
     return o
+end
+
+function Player:update()
 end
 
 function Player:draw()
@@ -38,11 +49,11 @@ local player = Player:new({ x = 128, y = 128 })
 -- display.fill_screen(WHITE)
 -- display.draw_bitmap(sprites.run[1], 128, 128)
 -- display.render()
--- util.delay(1)
+-- util.sleep(1)
 
 -- display.fill_screen(WHITE)
 -- display.render()
--- util.delay(1)
+-- util.sleep(1)
 -- display.fill_screen(BLACK)
 -- display.render()
--- util.delay(1)
+-- util.sleep(1)
