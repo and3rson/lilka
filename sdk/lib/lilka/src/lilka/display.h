@@ -157,7 +157,47 @@ public:
     /// Намалювати заповнену дугу.
     /// @see drawArc
     void fillArc(int16_t x, int16_t y, int16_t r1, int16_t r2, int16_t start, int16_t end, uint16_t color);
+
+    /// Намалювати зображення.
+    /// @param x Координата X лівого верхнього кута зображення.
+    /// @param y Координата Y лівого верхнього кута зображення.
+    /// @param bitmap Вказівник на зображення.
+    /// @param w Ширина зображення.
+    /// @param h Висота зображення.
+    ///
+    /// Приклад використання:
+    /// @code
+    /// lilka::Bitmap *bitmap = lilka::resources.loadBitmap("image.bmp");
+    /// lilka::display.drawBitmap(0, 0, bitmap->pixels, bitmap->width, bitmap->height);
+    /// @endcode
+    void draw16bitRGBBitmap(int16_t x, int16_t y, uint16_t *bitmap, int16_t w, int16_t h);
+    /// @see draw16bitRGBBitmap
+    void draw16bitRGBBitmap(int16_t x, int16_t y, const uint16_t bitmap[], int16_t w, int16_t h);
+
+    /// Намалювати зображення з прозорістю.
+    /// @param x Координата X лівого верхнього кута зображення.
+    /// @param y Координата Y лівого верхнього кута зображення.
+    /// @param bitmap Вказівник на зображення.
+    /// @param transparent_color Колір, який буде вважатися прозорим.
+    /// @param w Ширина зображення.
+    /// @param h Висота зображення.
+    ///
+    /// Приклад використання:
+    /// @code
+    /// // Завантажити зображення з файлу "image.bmp", використовуючи білий колір як прозорий.
+    /// lilka::Bitmap *bitmap = lilka::resources.loadBitmap("image.bmp", lilka::display.color565(255, 255, 255));
+    /// lilka::display.draw16bitRGBBitmapWithTranColor(
+    ///     0, 0, bitmap->pixels, bitmap->transparentColor, bitmap->width, bitmap->height
+    /// );
+    /// @endcode
+    void draw16bitRGBBitmapWithTranColor(
+        int16_t x, int16_t y, uint16_t *bitmap, uint16_t transparent_color, int16_t w, int16_t h
+    );
 #endif
+    /// @see draw16bitRGBBitmapWithTranColor
+    void draw16bitRGBBitmapWithTranColor(
+        int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
+    );
     /// Відобразити буфер на екрані (див. `lilka::Canvas`).
     void renderCanvas(Canvas &canvas);
 };
@@ -204,6 +244,9 @@ public:
 class Canvas : public Arduino_Canvas {
 public:
     Canvas();
+    void draw16bitRGBBitmapWithTranColor(
+        int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
+    );
 };
 
 /// Екземпляр класу `Display`, який можна використовувати для роботи з дисплеєм.

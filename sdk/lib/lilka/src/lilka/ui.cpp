@@ -32,7 +32,10 @@ int ui_menu(String title, String menu[], int menu_size, int cursor, const menu_i
         // Draw triangle in top-left
         canvas.fillTriangle(0, 0, 48 - angleShift, 0, 0, 48 + angleShift, canvas.color565(0, 0, 255));
         // Draw triangle in top-right
-        canvas.fillTriangle(LILKA_DISPLAY_WIDTH, 0, LILKA_DISPLAY_WIDTH - 48 - angleShift, 0, LILKA_DISPLAY_WIDTH, 48 - angleShift, canvas.color565(255, 255, 0));
+        canvas.fillTriangle(
+            LILKA_DISPLAY_WIDTH, 0, LILKA_DISPLAY_WIDTH - 48 - angleShift, 0, LILKA_DISPLAY_WIDTH, 48 - angleShift,
+            canvas.color565(255, 255, 0)
+        );
         canvas.setCursor(32, 48);
         canvas.setTextColor(canvas.color565(255, 255, 255));
         canvas.setFont(u8g2_font_6x13_t_cyrillic);
@@ -56,11 +59,14 @@ int ui_menu(String title, String menu[], int menu_size, int cursor, const menu_i
         }
 
         for (int i = scroll; i < MIN(scroll + MENU_HEIGHT, menu_size); i++) {
-            // canvas.fillRect(0, 96 + i * 24 - 20, LILKA_DISPLAY_WIDTH, 24, i == cursor ? canvas.color565(255, 64, 0) : canvas.color565(0, 0, 0));
+            // canvas.fillRect(0, 96 + i * 24 - 20, LILKA_DISPLAY_WIDTH, 24, i == cursor ? canvas.color565(255, 64, 0) :
+            // canvas.color565(0, 0, 0));
             int16_t screenI = i - scroll;
             canvas.setTextBound(0, 96 + screenI * 24 - 20, LILKA_DISPLAY_WIDTH, 24);
             if (icons != NULL && icons[i] != NULL) {
-                canvas.draw16bitRGBBitmapWithTranColor(0, 96 + i * 24 - 20, const_cast<uint16_t *>(*icons[i]), canvas.color565(0, 0, 0), 24, 24);
+                canvas.draw16bitRGBBitmapWithTranColor(
+                    0, 96 + i * 24 - 20, *icons[i], canvas.color565(0, 0, 0), 24, 24
+                );
             }
             canvas.setCursor(32, 96 + screenI * 24);
             canvas.setTextColor(canvas.color565(255, 255, 255));

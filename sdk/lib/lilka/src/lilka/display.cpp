@@ -66,6 +66,14 @@ void Display::begin() {
     serial_log("display ok");
 }
 
+// Чомусь в Arduino_GFX немає варіанту цього методу для const uint16_t[] - є лише для uint16_t.
+void Display::draw16bitRGBBitmapWithTranColor(
+    int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
+) {
+    // Цей cast безпечний, оскільки Arduino_GFX.draw16bitRGBBitmapWithTranColor не змінює bitmap.
+    Arduino_GFX::draw16bitRGBBitmapWithTranColor(x, y, const_cast<uint16_t *>(bitmap), w, h, transparent_color);
+}
+
 void Display::renderCanvas(Canvas &canvas) {
     draw16bitRGBBitmap(0, 0, canvas.getFramebuffer(), LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT);
 }
@@ -73,6 +81,13 @@ void Display::renderCanvas(Canvas &canvas) {
 Canvas::Canvas() : Arduino_Canvas(LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, NULL) {
     setFont(u8g2_font_10x20_t_cyrillic);
     setUTF8Print(true);
+}
+
+void Canvas::draw16bitRGBBitmapWithTranColor(
+    int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
+) {
+    // Цей cast безпечний, оскільки Arduino_GFX.draw16bitRGBBitmapWithTranColor не змінює bitmap.
+    Arduino_GFX::draw16bitRGBBitmapWithTranColor(x, y, const_cast<uint16_t *>(bitmap), w, h, transparent_color);
 }
 
 Display display;
