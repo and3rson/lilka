@@ -19,11 +19,22 @@ for i = 2, ANGLE_COUNT do
     SHIP_BACKWARD_SPRITES[i] = resources.rotate_image(SHIP_BACKWARD_SPRITES[1], angle * ANGLE_STEP, MAGENTA)
 end
 
+ASTEROID_16_SPRITES = { resources.load_image(ROOT .. "asteroid_16.bmp", MAGENTA) }
+ASTEROID_32_SPRITES = { resources.load_image(ROOT .. "asteroid_32.bmp", MAGENTA) }
+ASTEROID_48_SPRITES = { resources.load_image(ROOT .. "asteroid_48.bmp", MAGENTA) }
+ASTEROID_64_SPRITES = { resources.load_image(ROOT .. "asteroid_64.bmp", MAGENTA) }
+for i = 2, 8 do
+    ASTEROID_16_SPRITES[i] = resources.rotate_image(ASTEROID_16_SPRITES[1], i * 45, MAGENTA)
+    ASTEROID_32_SPRITES[i] = resources.rotate_image(ASTEROID_32_SPRITES[1], i * 45, MAGENTA)
+    ASTEROID_48_SPRITES[i] = resources.rotate_image(ASTEROID_48_SPRITES[1], i * 45, MAGENTA)
+    ASTEROID_64_SPRITES[i] = resources.rotate_image(ASTEROID_64_SPRITES[1], i * 45, MAGENTA)
+end
+
 Ship = {
     x = display.width / 2,
     y = display.height / 2,
-    width = 32, -- Розмір спрайту - 32x32
-    height = 32,
+    width = SHIP_SPRITES[1].width, -- Розмір спрайту
+    height = SHIP_SPRITES[1].height,
     sprites = SHIP_SPRITES,
     forward_sprites = SHIP_FORWARD_SPRITES,
     backward_sprites = SHIP_BACKWARD_SPRITES,
@@ -96,16 +107,55 @@ function Ship:draw()
     end
 end
 
+Bullet = {
+    x = 0,
+    y = 0,
+    speed_x = 0,
+    speed_y = 0,
+    radius = 2,
+    dead = false,
+}
+
+function Bullet:new(o)
+    o = o or {}
+    setmetatable(o, self)
+    self.__index = self
+    return o
+end
+
+function Bullet:update(delta)
+    if self.dead then
+        return
+    end
+    self.x = self.x + self.speed_x * delta
+    self.y = self.y + self.speed_y * delta
+    if self.x < 0 or self.x > display.width or self.y < 0 or self.y > display.height then
+        self.dead = true
+    end
+end
+
+function Bullet:draw()
+    display.draw_circle(math.floor(self.x), math.floor(self.y), self.radius, WHITE)
+end
+
 local ship = Ship:new()
+local bullets = {}
 
 display.fill_screen(BLACK)
 display.render()
 
 function lilka._update(delta)
-    display.fill_screen(BLACK)
     ship:update(delta)
-    ship:draw()
-    display.render()
+    for _, bullet in ipairs(bullets) do
+        bullet:update(delta)
+    end
+    -- Remove dead bullets
+    for i = #bullets, 1, -1 do
+        if bullets[i].dead then
+            table.remove(bullets, i)
+        end
+    end
+
     local state = controller.get_state()
     -- if state.left.pressed then
     --     ship.rotate(-1 * delta)
@@ -129,6 +179,24 @@ function lilka._update(delta)
     end
 
     if state.a.just_pressed then
+        local bullet = Bullet:new()
+        local dir_x = math.cos(math.rad(-ship.rotation))
+        local dir_y = math.sin(math.rad(-ship.rotation))
+        bullet.x = ship.x + dir_x * ship.width / 2
+        bullet.y = ship.y + dir_y * ship.height / 2
+        bullet.speed_x = 200 * dir_x
+        bullet.speed_y = 200 * dir_y
+        table.insert(bullets, bullet)
+    end
+
+    if state.start.just_pressed then
         util.exit()
     end
+
+    display.fill_screen(BLACK)
+    ship:draw()
+    for _, bullet in ipairs(bullets) do
+        bullet:draw()
+    end
+    display.render()
 end
