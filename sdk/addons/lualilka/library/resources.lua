@@ -19,6 +19,13 @@ resources = {}
 --- display.draw_image(face, 50, 80) -- Виведе зображення на екран у позицію (50, 80)
 function resources.load_image(filename, transparent_color) end
 
+---Повертає зображення на певну кількість градусів.
+---
+---@param image table ідентифікатор зображення
+---@param angle integer кут (в градусах)
+---@param blank_color integer колір для пікселів, які залишаться незаповненими
+function resources.rotate_image(image, angle, blank_color) end
+
 ---Читає вміст файлу і повертає його як текст.
 ---@param filename string шлях до файлу (відносно місця знаходження скрипта, що виконується)
 ---@return string

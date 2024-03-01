@@ -10,9 +10,13 @@ ANGLE_COUNT = 60
 ANGLE_STEP = 360 / ANGLE_COUNT
 
 SHIP_SPRITES = { resources.load_image(ROOT .. "ship.bmp", MAGENTA) }
+SHIP_FORWARD_SPRITES = { resources.load_image(ROOT .. "ship_forward.bmp", MAGENTA) }
+SHIP_BACKWARD_SPRITES = { resources.load_image(ROOT .. "ship_backward.bmp", MAGENTA) }
 for i = 2, ANGLE_COUNT do
     local angle = i - 1
-    SHIP_SPRITES[i] = display.rotate_image(SHIP_SPRITES[1], angle * ANGLE_STEP, MAGENTA)
+    SHIP_SPRITES[i] = resources.rotate_image(SHIP_SPRITES[1], angle * ANGLE_STEP, MAGENTA)
+    SHIP_FORWARD_SPRITES[i] = resources.rotate_image(SHIP_FORWARD_SPRITES[1], angle * ANGLE_STEP, MAGENTA)
+    SHIP_BACKWARD_SPRITES[i] = resources.rotate_image(SHIP_BACKWARD_SPRITES[1], angle * ANGLE_STEP, MAGENTA)
 end
 
 Ship = {
@@ -21,6 +25,8 @@ Ship = {
     width = 32, -- Розмір спрайту - 32x32
     height = 32,
     sprites = SHIP_SPRITES,
+    forward_sprites = SHIP_FORWARD_SPRITES,
+    backward_sprites = SHIP_BACKWARD_SPRITES,
     rotation = 0, -- Поворот корабля в градусах
     speed_x = 0,
     speed_y = 0,
@@ -70,13 +76,23 @@ function Ship:draw()
     -- Координати верхнього лівого кута спрайту
     local cx = math.floor(self.x - self.width / 2)
     local cy = math.floor(self.y - self.height / 2)
-    display.draw_image(self.sprites[rotation_index], cx, cy)
+
+    local sprite_set
+    if self.accel_forward > 0 then
+        sprite_set = self.forward_sprites
+    elseif self.accel_forward < 0 then
+        sprite_set = self.backward_sprites
+    else
+        sprite_set = self.sprites
+    end
+
+    display.draw_image(sprite_set[rotation_index], cx, cy)
     -- Якщо ми біля краю екрану, малюємо корабель ще раз на протилежному боці
     if self.x < self.width / 2 or self.x > display.width - self.width / 2 then
-        display.draw_image(self.sprites[rotation_index], cx + display.width, cy)
+        display.draw_image(sprite_set[rotation_index], cx + display.width, cy)
     end
     if self.y < self.height / 2 or self.y > display.height - self.height / 2 then
-        display.draw_image(self.sprites[rotation_index], cx, cy + display.height)
+        display.draw_image(sprite_set[rotation_index], cx, cy + display.height)
     end
 end
 
@@ -96,26 +112,21 @@ function lilka._update(delta)
     --     ship.rotation = (ship.rotation - 1) % #ship.sprites
     -- end
 
-    -- if state.up.pressed then
-    --     ship:set_forward_acceleration(50)
-    -- elseif state.down.pressed then
-    --     -- ship:set_forward_acceleration(-50)
-    -- else
-    --     ship:set_forward_acceleration(0)
-    -- end
-
     if state.up.pressed then
         ship:set_forward_acceleration(50)
+    elseif state.down.pressed then
+        ship:set_forward_acceleration(-50)
     else
         ship:set_forward_acceleration(0)
     end
 
-    if state.down.pressed then
+    if state.left.pressed then
         ship:set_angular_speed(90)
+    elseif state.right.pressed then
+        ship:set_angular_speed(-90)
     else
         ship:set_angular_speed(0)
     end
-
 
     if state.a.just_pressed then
         util.exit()
