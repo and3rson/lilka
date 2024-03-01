@@ -4,6 +4,8 @@
 #include "config.h"
 
 #include <stdint.h>
+#include <FreeRTOS.h>
+#include <semphr.h>
 
 namespace lilka {
 
@@ -81,9 +83,9 @@ public:
     /// Почати вимірювання стану кнопок.
     /// \warning Цей метод викликається автоматично при виклику `lilka::begin()`.
     void begin();
-    void resetState();
     /// Прочитати стан кнопок.
     State getState();
+    void resetState();
     /// Встановити глобальний обробник подій, який буде викликатися при натисненні або відпусканні будь-якої кнопки.
     void setGlobalHandler(void (*handler)(Button, bool));
     /// Встановити обробник подій для певної кнопки, який буде викликатися при натисненні або відпусканні цієї кнопки.
@@ -91,23 +93,15 @@ public:
     /// Видалити всі обробники подій.
     void clearHandlers();
 
-    static void on_up();
-    static void on_down();
-    static void on_left();
-    static void on_right();
-    static void on_a();
-    static void on_b();
-    static void on_c();
-    static void on_d();
-    static void on_select();
-    static void on_start();
-
 private:
-    void handle_interrupt(int stateIndex);
-    static Controller *_instance;
+    // Input task FreeRTOS semaphore
+    static SemaphoreHandle_t semaphore;
+    static void inputTask(void *self);
+    void _resetState();
     State state;
     int8_t pins[Button::COUNT] = {
-        LILKA_GPIO_UP, LILKA_GPIO_DOWN, LILKA_GPIO_LEFT, LILKA_GPIO_RIGHT, LILKA_GPIO_A, LILKA_GPIO_B, LILKA_GPIO_C, LILKA_GPIO_D, LILKA_GPIO_SELECT, LILKA_GPIO_START,
+        LILKA_GPIO_UP, LILKA_GPIO_DOWN, LILKA_GPIO_LEFT, LILKA_GPIO_RIGHT,  LILKA_GPIO_A,
+        LILKA_GPIO_B,  LILKA_GPIO_C,    LILKA_GPIO_D,    LILKA_GPIO_SELECT, LILKA_GPIO_START,
     };
     void (*handlers[Button::COUNT])(bool);
     void (*globalHandler)(Button, bool);

@@ -7,7 +7,7 @@
 
 namespace lilka {
 
-Controller *Controller::_instance = NULL;
+SemaphoreHandle_t Controller::semaphore;
 
 Controller::Controller() {
     for (int i = 0; i < Button::COUNT; i++) {
@@ -19,89 +19,72 @@ Controller::Controller() {
         };
     }
     clearHandlers();
-    Controller::_instance = this;
 }
 
-void IRAM_ATTR Controller::handle_interrupt(int stateIndex) {
-    ButtonState *state = &Controller::_instance->state.buttons[stateIndex];
-    if (millis() - state->time < LILKA_DEBOUNCE_TIME) {
-        return;
-    }
-    state->pressed = !digitalRead(pins[stateIndex]);
-    state->justPressed = state->pressed;
-    state->justReleased = !state->pressed;
-    if (handlers[stateIndex] != NULL) {
-        handlers[stateIndex](state->pressed);
-    }
-    if (globalHandler != NULL) {
-        globalHandler((Button)stateIndex, state->pressed);
-    }
-    if (state->pressed) {
-        if (_seq[_seqIndex++] == stateIndex) {
-            if (_seqIndex == 10) {
-                _seqIndex = 0;
-                // serial_log("do the barrel roll!");
+void Controller::inputTask(void *arg) {
+    Controller *self = (Controller *)arg;
+    while (1) {
+        // Sleep for 10ms
+        xSemaphoreTake(self->semaphore, portMAX_DELAY);
+        for (int i = 0; i < Button::COUNT; i++) {
+            ButtonState *state = &self->state.buttons[i];
+            if (self->pins[i] < 0) {
+                continue;
             }
-        } else {
-            _seqIndex = 0;
+            if (millis() - state->time < LILKA_DEBOUNCE_TIME) {
+                continue;
+            }
+            state->pressed = !digitalRead(self->pins[i]);
+            state->justPressed = state->pressed;
+            state->justReleased = !state->pressed;
+            if (self->handlers[i] != NULL) {
+                self->handlers[i](state->pressed);
+            }
+            if (self->globalHandler != NULL) {
+                self->globalHandler((Button)i, state->pressed);
+            }
+            state->time = millis();
         }
+        xSemaphoreGive(self->semaphore);
+        vTaskDelay(5 / portTICK_PERIOD_MS);
     }
-    state->time = millis();
 }
 
-void IRAM_ATTR Controller::on_up() {
-    _instance->handle_interrupt(Button::UP);
-}
-
-void IRAM_ATTR Controller::on_down() {
-    _instance->handle_interrupt(Button::DOWN);
-}
-
-void IRAM_ATTR Controller::on_left() {
-    _instance->handle_interrupt(Button::LEFT);
-}
-
-void IRAM_ATTR Controller::on_right() {
-    _instance->handle_interrupt(Button::RIGHT);
-}
-
-void IRAM_ATTR Controller::on_a() {
-    _instance->handle_interrupt(Button::A);
-}
-
-void IRAM_ATTR Controller::on_b() {
-    _instance->handle_interrupt(Button::B);
-}
-
-void IRAM_ATTR Controller::on_c() {
-    _instance->handle_interrupt(Button::C);
-}
-
-void IRAM_ATTR Controller::on_d() {
-    _instance->handle_interrupt(Button::D);
-}
-
-void IRAM_ATTR Controller::on_select() {
-    _instance->handle_interrupt(Button::SELECT);
-}
-
-void IRAM_ATTR Controller::on_start() {
-    _instance->handle_interrupt(Button::START);
-}
+// void IRAM_ATTR Controller::handle_interrupt(int stateIndex) {
+//     ButtonState *state = &Controller::_instance->state.buttons[stateIndex];
+//     if (millis() - state->time < LILKA_DEBOUNCE_TIME) {
+//         return;
+//     }
+//     state->pressed = !digitalRead(pins[stateIndex]);
+//     state->justPressed = state->pressed;
+//     state->justReleased = !state->pressed;
+//     if (handlers[stateIndex] != NULL) {
+//         handlers[stateIndex](state->pressed);
+//     }
+//     if (globalHandler != NULL) {
+//         globalHandler((Button)stateIndex, state->pressed);
+//     }
+//     if (state->pressed) {
+//         if (_seq[_seqIndex++] == stateIndex) {
+//             if (_seqIndex == 10) {
+//                 _seqIndex = 0;
+//                 // serial_log("do the barrel roll!");
+//             }
+//         } else {
+//             _seqIndex = 0;
+//         }
+//     }
+//     state->time = millis();
+// }
 
 void Controller::resetState() {
-    for (int i = 0; i < Button::COUNT; i++) {
-        ButtonState *button = &_instance->state.buttons[i];
-        button->justPressed = false;
-        button->justReleased = false;
-    }
+    xSemaphoreTake(semaphore, portMAX_DELAY);
+    _resetState();
+    xSemaphoreGive(semaphore);
 }
 
 void Controller::begin() {
     serial_log("initializing controller");
-    void (*handlers[])(void) = {
-        on_up, on_down, on_left, on_right, on_a, on_b, on_c, on_d, on_select, on_start,
-    };
 
 #if LILKA_VERSION == 1
     // Detach UART from GPIO20 & GPIO21 to use them as normal IOs
@@ -119,35 +102,49 @@ void Controller::begin() {
             continue;
         }
         pinMode(pins[i], INPUT_PULLUP);
-        int intNum = digitalPinToInterrupt(pins[i]);
-        if (intNum < 0) {
-            serial_err("failed to get interrupt number");
-            continue;
-        }
-        attachInterrupt(intNum, handlers[i], CHANGE);
     }
+
+    // Create RTOS task for handling button presses
+    semaphore = xSemaphoreCreateBinary();
+    xTaskCreate(Controller::inputTask, "input", 2048, this, 1, NULL);
+
     serial_log("controller ready");
 }
 
 State Controller::getState() {
+    xSemaphoreTake(semaphore, portMAX_DELAY);
     State _current = state;
-    resetState();
+    _resetState();
     return _current;
+    xSemaphoreGive(semaphore);
+}
+
+void Controller::_resetState() {
+    for (int i = 0; i < Button::COUNT; i++) {
+        state.buttons[i].justPressed = false;
+        state.buttons[i].justReleased = false;
+    }
 }
 
 void Controller::setGlobalHandler(void (*handler)(Button, bool)) {
+    xSemaphoreTake(semaphore, portMAX_DELAY);
     globalHandler = handler;
+    xSemaphoreGive(semaphore);
 }
 
 void Controller::setHandler(Button button, void (*handler)(bool)) {
+    xSemaphoreTake(semaphore, portMAX_DELAY);
     handlers[button] = handler;
+    xSemaphoreGive(semaphore);
 }
 
 void Controller::clearHandlers() {
+    xSemaphoreTake(semaphore, portMAX_DELAY);
     for (int i = 0; i < Button::COUNT; i++) {
         handlers[i] = NULL;
     }
     globalHandler = NULL;
+    xSemaphoreGive(semaphore);
 }
 
 Controller controller;
