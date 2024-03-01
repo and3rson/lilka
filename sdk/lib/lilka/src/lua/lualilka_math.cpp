@@ -22,7 +22,7 @@ int lualilka_math_random(lua_State* L) {
         lua_pushinteger(L, random(min, max));
         return 1;
     } else {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 0, 1 або 2 аргументи, отримано %d", n);
     }
 
     return 0;
@@ -31,7 +31,7 @@ int lualilka_math_random(lua_State* L) {
 int lualilka_math_clamp(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 3) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 3 аргументи, отримано %d", n);
     }
 
     float value = luaL_checknumber(L, 1);
@@ -45,7 +45,7 @@ int lualilka_math_clamp(lua_State* L) {
 int lualilka_math_lerp(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 3) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 3 аргументи, отримано %d", n);
     }
 
     float a = luaL_checknumber(L, 1);
@@ -59,7 +59,7 @@ int lualilka_math_lerp(lua_State* L) {
 int lualilka_math_map(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 5) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 5 аргументів, отримано %d", n);
     }
 
     float value = luaL_checknumber(L, 1);
@@ -75,7 +75,7 @@ int lualilka_math_map(lua_State* L) {
 int lualilka_math_abs(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 1) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
 
     float value = luaL_checknumber(L, 1);
@@ -86,7 +86,7 @@ int lualilka_math_abs(lua_State* L) {
 int lualilka_math_sign(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 1) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
 
     int value = luaL_checknumber(L, 1);
@@ -97,7 +97,7 @@ int lualilka_math_sign(lua_State* L) {
 int lualilka_math_sqrt(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 1) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
 
     float value = luaL_checknumber(L, 1);
@@ -108,7 +108,7 @@ int lualilka_math_sqrt(lua_State* L) {
 int lualilka_math_pow(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 2) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 2 аргументи, отримано %d", n);
     }
 
     float base = luaL_checknumber(L, 1);
@@ -121,15 +121,15 @@ int assert_table_arg(lua_State* L, int index) {
     // Check if there's only one argument, and if it's a table, and if it's not empty
     int n = lua_gettop(L);
     if (n != 1) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
 
     if (!lua_istable(L, index)) {
-        return luaL_error(L, "Argument is not a table");
+        return luaL_error(L, "Агрумент має бути таблицею");
     }
 
     if (lua_rawlen(L, index) == 0) {
-        return luaL_error(L, "Table is empty");
+        return luaL_error(L, "Таблиця не може бути пустою");
     }
 
     return 0;
@@ -226,7 +226,7 @@ int lualilka_math_avg(lua_State* L) {
 int lualilka_math_floor(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 1) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
 
     float value = luaL_checknumber(L, 1);
@@ -237,7 +237,7 @@ int lualilka_math_floor(lua_State* L) {
 int lualilka_math_ceil(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 1) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
 
     float value = luaL_checknumber(L, 1);
@@ -248,7 +248,7 @@ int lualilka_math_ceil(lua_State* L) {
 int lualilka_math_round(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 1) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
 
     float value = luaL_checknumber(L, 1);
@@ -259,7 +259,7 @@ int lualilka_math_round(lua_State* L) {
 int lualilka_math_sin(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 1) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
 
     float value = luaL_checknumber(L, 1);
@@ -270,7 +270,7 @@ int lualilka_math_sin(lua_State* L) {
 int lualilka_math_cos(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 1) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
 
     float value = luaL_checknumber(L, 1);
@@ -281,7 +281,7 @@ int lualilka_math_cos(lua_State* L) {
 int lualilka_math_tan(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 1) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
 
     float value = luaL_checknumber(L, 1);
@@ -292,7 +292,7 @@ int lualilka_math_tan(lua_State* L) {
 int lualilka_math_asin(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 1) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
 
     float value = luaL_checknumber(L, 1);
@@ -303,7 +303,7 @@ int lualilka_math_asin(lua_State* L) {
 int lualilka_math_acos(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 1) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
 
     float value = luaL_checknumber(L, 1);
@@ -314,7 +314,7 @@ int lualilka_math_acos(lua_State* L) {
 int lualilka_math_atan(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 1) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
 
     float value = luaL_checknumber(L, 1);
@@ -325,7 +325,7 @@ int lualilka_math_atan(lua_State* L) {
 int lualilka_math_atan2(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 2) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 2 аргументи, отримано %d", n);
     }
 
     float y = luaL_checknumber(L, 1);
@@ -346,14 +346,14 @@ int lualilka_math_log(lua_State* L) {
         lua_pushnumber(L, log(value) / log(base));
         return 1;
     } else {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 1 або 2 аргументи, отримано %d", n);
     }
 }
 
 int lualilka_math_deg(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 1) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
     float value = luaL_checknumber(L, 1);
     lua_pushnumber(L, value * 180 / M_PI);
@@ -363,7 +363,7 @@ int lualilka_math_deg(lua_State* L) {
 int lualilka_math_rad(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 1) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
     float value = luaL_checknumber(L, 1);
     lua_pushnumber(L, value * M_PI / 180);
@@ -378,7 +378,7 @@ static const luaL_Reg lualilka_math[] = {
     {"abs", lualilka_math_abs},
     {"sign", lualilka_math_sign},
     {"sqrt", lualilka_math_sqrt},
-    {"sqrt", lualilka_math_pow},
+    {"pow", lualilka_math_pow},
     {"min", lualilka_math_min},
     {"max", lualilka_math_max},
     {"sum", lualilka_math_sum},
@@ -392,7 +392,7 @@ static const luaL_Reg lualilka_math[] = {
     {"asin", lualilka_math_asin},
     {"acos", lualilka_math_acos},
     {"atan", lualilka_math_atan},
-    {"atan2", lualilka_math_atan},
+    {"atan2", lualilka_math_atan2},
     {"log", lualilka_math_log},
     {"deg", lualilka_math_deg},
     {"rad", lualilka_math_rad},

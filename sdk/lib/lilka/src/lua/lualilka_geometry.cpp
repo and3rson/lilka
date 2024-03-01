@@ -5,7 +5,7 @@ namespace lilka {
 int lualilka_geometry_dist(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 4) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 4 аргументи, отримано %d", n);
     }
 
     float x1 = luaL_checknumber(L, 1);
@@ -20,7 +20,7 @@ int lualilka_geometry_dist(lua_State* L) {
 int lualilka_geometry_intersectLines(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 8) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 8 аргументів, отримано %d", n);
     }
 
     float ax = luaL_checknumber(L, 1);
@@ -54,7 +54,7 @@ int lualilka_geometry_intersectLines(lua_State* L) {
 int lualilka_geometry_intersectAABB(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 8) {
-        return luaL_error(L, "Invalid number of arguments");
+        return luaL_error(L, "Очікується 8 аргументів, отримано %d", n);
     }
 
     float ax = luaL_checknumber(L, 1);

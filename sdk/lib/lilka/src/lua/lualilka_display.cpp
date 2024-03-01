@@ -66,7 +66,7 @@ int lualilka_display_setFont(lua_State* L) {
             return 0;
         }
     }
-    return luaL_error(L, "Unknown font - %s", fontName);
+    return luaL_error(L, "Невідомий шрифт - %s", fontName);
 }
 
 int lualilka_display_setTextSize(lua_State* L) {
@@ -243,7 +243,7 @@ int lualilka_display_drawImage(lua_State* L) {
 
     // TODO: Check if crap ain't broken since the user may pass anything here and this often causes core panic
     if (!lua_islightuserdata(L, -1)) {
-        return luaL_error(L, "Invalid image");
+        return luaL_error(L, "Некоректне зображення");
     }
 
     Image* image = (Image*)lua_touserdata(L, -1);
@@ -270,7 +270,7 @@ int lualilka_display_render(lua_State* L) {
     lua_pop(L, 1);
     if (!isBuffered) {
         // Throw error
-        return luaL_error(L, "Display is not buffered, no need to call render");
+        return luaL_error(L, "Буферизація вимкнена, використовуйте display.render() тільки з буферизацією");
     }
     lua_getfield(L, LUA_REGISTRYINDEX, "canvas");
     Canvas* canvas = (Canvas*)lua_touserdata(L, -1);

@@ -46,7 +46,7 @@ void IRAM_ATTR Controller::handle_interrupt(int stateIndex) {
             _seqIndex = 0;
         }
     }
-    state->time = micros();
+    state->time = millis();
 }
 
 void IRAM_ATTR Controller::on_up() {

@@ -20,7 +20,7 @@ int lualilka_resources_loadImage(lua_State* L) {
     Image* image = resources.loadImage(fullPath, transparencyColor);
 
     if (!image) {
-        return luaL_error(L, "Failed to load image %s", fullPath.c_str());
+        return luaL_error(L, "Не вдалося завантажити зображення %s", fullPath.c_str());
     }
 
     serial_log("lua: loaded image %s, width: %d, height: %d", path, image->width, image->height);
@@ -51,7 +51,7 @@ int lualilka_resources_rotateImage(lua_State* L) {
     lua_getfield(L, 1, "pointer");
     // Check if value is a valid pointer
     if (!lua_islightuserdata(L, -1)) {
-        return luaL_error(L, "Invalid image");
+        return luaL_error(L, "Невірне зображення");
     }
     Image* image = (Image*)lua_touserdata(L, -1);
     lua_pop(L, 1);
@@ -93,7 +93,7 @@ int lualilka_resources_readFile(lua_State* L) {
     String fileContent;
     int result = resources.readFile(fullPath, fileContent);
     if (result) {
-        return luaL_error(L, "Failed to read file %s", fullPath.c_str());
+        return luaL_error(L, "Не вдалося прочитати файл %s", fullPath.c_str());
     }
 
     lua_pushstring(L, fileContent.c_str());
@@ -111,7 +111,7 @@ int lualilka_resources_writeFile(lua_State* L) {
 
     int result = resources.writeFile(fullPath, content);
     if (result) {
-        return luaL_error(L, "Failed to write file %s", fullPath.c_str());
+        return luaL_error(L, "Не вдалося записати файл %s", fullPath.c_str());
     }
 
     return 0;
