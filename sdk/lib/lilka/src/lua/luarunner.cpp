@@ -46,7 +46,7 @@ int execute(lua_State* L) {
             lua_getfield(L, -1, "_update");
             if (lua_isfunction(L, -1)) {
                 // Call _update function, passing delta as argument
-                lua_pushnumber(L, delta);
+                lua_pushnumber(L, delta / 1000.0);
                 retCode = lua_pcall(L, 1, 0, 0);
                 if (retCode) {
                     // const char* err = lua_tostring(L, -1);
