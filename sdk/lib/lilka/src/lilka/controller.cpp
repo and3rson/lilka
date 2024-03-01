@@ -7,7 +7,7 @@
 
 namespace lilka {
 
-SemaphoreHandle_t Controller::semaphore;
+SemaphoreHandle_t Controller::semaphore = NULL;
 
 Controller::Controller() {
     for (int i = 0; i < Button::COUNT; i++) {
@@ -18,13 +18,14 @@ Controller::Controller() {
             .time = 0,
         };
     }
-    clearHandlers();
+    _clearHandlers();
 }
+
+// example function that uses xSemaphoreTake and xSemaphoreGive
 
 void Controller::inputTask(void *arg) {
     Controller *self = (Controller *)arg;
     while (1) {
-        // Sleep for 10ms
         xSemaphoreTake(self->semaphore, portMAX_DELAY);
         for (int i = 0; i < Button::COUNT; i++) {
             ButtonState *state = &self->state.buttons[i];
@@ -34,48 +35,25 @@ void Controller::inputTask(void *arg) {
             if (millis() - state->time < LILKA_DEBOUNCE_TIME) {
                 continue;
             }
-            state->pressed = !digitalRead(self->pins[i]);
-            state->justPressed = state->pressed;
-            state->justReleased = !state->pressed;
-            if (self->handlers[i] != NULL) {
-                self->handlers[i](state->pressed);
+            bool pressed = !digitalRead(self->pins[i]);
+            if (pressed != state->pressed) {
+                state->justPressed = pressed;
+                state->justReleased = !pressed;
+                if (self->handlers[i] != NULL) {
+                    self->handlers[i](state->pressed);
+                }
+                if (self->globalHandler != NULL) {
+                    self->globalHandler((Button)i, state->pressed);
+                }
             }
-            if (self->globalHandler != NULL) {
-                self->globalHandler((Button)i, state->pressed);
-            }
+            state->pressed = pressed;
             state->time = millis();
         }
         xSemaphoreGive(self->semaphore);
+        // Sleep for 5ms
         vTaskDelay(5 / portTICK_PERIOD_MS);
     }
 }
-
-// void IRAM_ATTR Controller::handle_interrupt(int stateIndex) {
-//     ButtonState *state = &Controller::_instance->state.buttons[stateIndex];
-//     if (millis() - state->time < LILKA_DEBOUNCE_TIME) {
-//         return;
-//     }
-//     state->pressed = !digitalRead(pins[stateIndex]);
-//     state->justPressed = state->pressed;
-//     state->justReleased = !state->pressed;
-//     if (handlers[stateIndex] != NULL) {
-//         handlers[stateIndex](state->pressed);
-//     }
-//     if (globalHandler != NULL) {
-//         globalHandler((Button)stateIndex, state->pressed);
-//     }
-//     if (state->pressed) {
-//         if (_seq[_seqIndex++] == stateIndex) {
-//             if (_seqIndex == 10) {
-//                 _seqIndex = 0;
-//                 // serial_log("do the barrel roll!");
-//             }
-//         } else {
-//             _seqIndex = 0;
-//         }
-//     }
-//     state->time = millis();
-// }
 
 void Controller::resetState() {
     xSemaphoreTake(semaphore, portMAX_DELAY);
@@ -106,6 +84,7 @@ void Controller::begin() {
 
     // Create RTOS task for handling button presses
     semaphore = xSemaphoreCreateBinary();
+    xSemaphoreGive(semaphore);
     xTaskCreate(Controller::inputTask, "input", 2048, this, 1, NULL);
 
     serial_log("controller ready");
@@ -115,8 +94,8 @@ State Controller::getState() {
     xSemaphoreTake(semaphore, portMAX_DELAY);
     State _current = state;
     _resetState();
-    return _current;
     xSemaphoreGive(semaphore);
+    return _current;
 }
 
 void Controller::_resetState() {
@@ -140,11 +119,17 @@ void Controller::setHandler(Button button, void (*handler)(bool)) {
 
 void Controller::clearHandlers() {
     xSemaphoreTake(semaphore, portMAX_DELAY);
+    _clearHandlers();
+    xSemaphoreGive(semaphore);
+}
+
+void Controller::_clearHandlers() {
+    // xSemaphoreTake(semaphore, portMAX_DELAY);
     for (int i = 0; i < Button::COUNT; i++) {
         handlers[i] = NULL;
     }
     globalHandler = NULL;
-    xSemaphoreGive(semaphore);
+    // xSemaphoreGive(semaphore);
 }
 
 Controller controller;

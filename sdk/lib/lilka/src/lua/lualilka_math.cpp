@@ -370,6 +370,19 @@ int lualilka_math_rad(lua_State* L) {
     return 1;
 }
 
+int lualilka_math_norm(lua_State* L) {
+    int n = lua_gettop(L);
+    if (n != 2) {
+        return luaL_error(L, "Очікується 2 аргументи, отримано %d", n);
+    }
+    float x = luaL_checknumber(L, 1);
+    float y = luaL_checknumber(L, 2);
+    float length = sqrt(x * x + y * y);
+    lua_pushnumber(L, x / length);
+    lua_pushnumber(L, y / length);
+    return 2;
+}
+
 static const luaL_Reg lualilka_math[] = {
     {"random", lualilka_math_random},
     {"clamp", lualilka_math_clamp},
@@ -396,6 +409,7 @@ static const luaL_Reg lualilka_math[] = {
     {"log", lualilka_math_log},
     {"deg", lualilka_math_deg},
     {"rad", lualilka_math_rad},
+    {"norm", lualilka_math_norm},
 
     {NULL, NULL},
 };

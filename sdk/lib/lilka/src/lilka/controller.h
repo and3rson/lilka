@@ -98,6 +98,7 @@ private:
     static SemaphoreHandle_t semaphore;
     static void inputTask(void *self);
     void _resetState();
+    void _clearHandlers();
     State state;
     int8_t pins[Button::COUNT] = {
         LILKA_GPIO_UP, LILKA_GPIO_DOWN, LILKA_GPIO_LEFT, LILKA_GPIO_RIGHT,  LILKA_GPIO_A,

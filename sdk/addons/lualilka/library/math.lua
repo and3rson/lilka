@@ -220,4 +220,10 @@ function math.deg(x) end
 ---@return number
 function math.rad(x) end
 
+---Нормалізує вектор (x, y) до одиничної довжини.
+---@param x number координата x
+---@param y number координата y
+---@return number, number
+function math.norm(x, y) end
+
 return math
