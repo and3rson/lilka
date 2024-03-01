@@ -3,14 +3,14 @@
 namespace lilka {
 
 int lualilka_math_random(lua_State* L) {
-    // If no args - return random value from 0 to max int
+    // If no args - return random float from 0 to 1
     // If 1 arg - return random value from 0 to arg
     // If 2 args - return random value from arg1 to arg2
 
     int n = lua_gettop(L);
 
     if (n == 0) {
-        lua_pushinteger(L, random());
+        lua_pushnumber(L, (float)rand() / RAND_MAX);
         return 1;
     } else if (n == 1) {
         int max = luaL_checkinteger(L, 1);
@@ -383,6 +383,30 @@ int lualilka_math_norm(lua_State* L) {
     return 2;
 }
 
+int lualilka_math_len(lua_State* L) {
+    int n = lua_gettop(L);
+    if (n != 2) {
+        return luaL_error(L, "Очікується 2 аргументи, отримано %d", n);
+    }
+    float x = luaL_checknumber(L, 1);
+    float y = luaL_checknumber(L, 2);
+    lua_pushnumber(L, sqrt(x * x + y * y));
+    return 1;
+}
+
+int lualilka_math_dist(lua_State* L) {
+    int n = lua_gettop(L);
+    if (n != 4) {
+        return luaL_error(L, "Очікується 4 аргументи, отримано %d", n);
+    }
+    float x1 = luaL_checknumber(L, 1);
+    float y1 = luaL_checknumber(L, 2);
+    float x2 = luaL_checknumber(L, 3);
+    float y2 = luaL_checknumber(L, 4);
+    lua_pushnumber(L, sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)));
+    return 1;
+}
+
 static const luaL_Reg lualilka_math[] = {
     {"random", lualilka_math_random},
     {"clamp", lualilka_math_clamp},
@@ -410,6 +434,8 @@ static const luaL_Reg lualilka_math[] = {
     {"deg", lualilka_math_deg},
     {"rad", lualilka_math_rad},
     {"norm", lualilka_math_norm},
+    {"len", lualilka_math_len},
+    {"dist", lualilka_math_dist},
 
     {NULL, NULL},
 };
