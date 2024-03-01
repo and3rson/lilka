@@ -131,10 +131,10 @@ lua_State* lua_setup(const char* dir) {
     lilka::serial_log("lua: store canvas in registry");
     lua_pushlightuserdata(L, canvas);
     lua_setfield(L, LUA_REGISTRYINDEX, "canvas");
-    // Initialize table for bitmap pointers
-    lilka::serial_log("lua: init memory for bitmaps");
+    // Initialize table for image pointers
+    lilka::serial_log("lua: init memory for images");
     lua_newtable(L);
-    lua_setfield(L, LUA_REGISTRYINDEX, "bitmaps");
+    lua_setfield(L, LUA_REGISTRYINDEX, "images");
 
     // Set global "lilka" table for user stuff
     lua_newtable(L);
@@ -146,12 +146,12 @@ lua_State* lua_setup(const char* dir) {
 void lua_teardown(lua_State* L) {
     lilka::serial_log("lua: cleanup");
 
-    // Free bitmaps from registry
-    lua_getfield(L, LUA_REGISTRYINDEX, "bitmaps");
+    // Free images from registry
+    lua_getfield(L, LUA_REGISTRYINDEX, "images");
     lua_pushnil(L);
     while (lua_next(L, -2) != 0) {
-        lilka::Bitmap* bitmap = (lilka::Bitmap*)lua_touserdata(L, -1);
-        delete bitmap;
+        lilka::Image* image = (lilka::Image*)lua_touserdata(L, -1);
+        delete image;
         lua_pop(L, 1);
     }
 

@@ -2,40 +2,10 @@
 #include "stdio.h"
 #include "display.h"
 #include "serial.h"
-#include "fmath.h"
 
 namespace lilka {
 
-Bitmap::Bitmap(uint32_t width, uint32_t height, int32_t transparentColor)
-    : width(width), height(height), transparentColor(transparentColor) {
-    pixels = new uint16_t[width * height];
-}
-
-Bitmap::~Bitmap() {
-    delete[] pixels;
-}
-
-void Bitmap::rotate(int16_t angle, Bitmap* dest, int32_t blankColor) {
-    // Rotate the bitmap
-    int cx = width / 2;
-    int cy = height / 2;
-
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            int dx = x - cx;
-            int dy = y - cy;
-            int x2 = cx + dx * fCos360(angle) - dy * fSin360(angle);
-            int y2 = cy + dx * fSin360(angle) + dy * fCos360(angle);
-            if (x2 >= 0 && x2 < width && y2 >= 0 && y2 < height) {
-                dest->pixels[x + y * width] = pixels[x2 + y2 * width];
-            } else {
-                dest->pixels[x + y * width] = blankColor;
-            }
-        }
-    }
-}
-
-Bitmap* Resources::loadBitmap(String filename, int32_t transparentColor) {
+Image* Resources::loadImage(String filename, int32_t transparentColor) {
     FILE* file = fopen(filename.c_str(), "r");
     if (!file) {
         // serial_err("File not found: %s\n", filename.c_str());
@@ -66,7 +36,7 @@ Bitmap* Resources::loadBitmap(String filename, int32_t transparentColor) {
         return 0;
     }
 
-    Bitmap* bitmap = new Bitmap(width, height, transparentColor);
+    Image* image = new Image(width, height, transparentColor);
     fseek(file, dataOffset, SEEK_SET);
     for (int y = height - 1; y >= 0; y--) {
         for (int x = 0; x < width; x++) {
@@ -79,16 +49,16 @@ Bitmap* Resources::loadBitmap(String filename, int32_t transparentColor) {
                 // TODO
                 serial_err("Unsupported bits per pixel: %d\n", bitsPerPixel);
                 fclose(file);
-                delete bitmap;
+                delete image;
                 return 0;
             }
 
-            bitmap->pixels[x + y * width] = display.color565((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF);
+            image->pixels[x + y * width] = display.color565((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF);
         }
     }
     fclose(file);
 
-    return bitmap;
+    return image;
 }
 
 int Resources::readFile(String filename, String& fileContent) {

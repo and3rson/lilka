@@ -2,7 +2,7 @@
 
 namespace lilka {
 
-int lualilka_resources_loadBitmap(lua_State* L) {
+int lualilka_resources_loadImage(lua_State* L) {
     const char* path = luaL_checkstring(L, 1);
     // Get dir from registry
     lua_getfield(L, LUA_REGISTRYINDEX, "dir");
@@ -17,66 +17,66 @@ int lualilka_resources_loadBitmap(lua_State* L) {
         }
     }
 
-    Bitmap* bitmap = resources.loadBitmap(fullPath, transparencyColor);
+    Image* image = resources.loadImage(fullPath, transparencyColor);
 
-    if (!bitmap) {
-        return luaL_error(L, "Failed to load bitmap %s", fullPath.c_str());
+    if (!image) {
+        return luaL_error(L, "Failed to load image %s", fullPath.c_str());
     }
 
-    serial_log("lua: loaded bitmap %s, width: %d, height: %d", path, bitmap->width, bitmap->height);
+    serial_log("lua: loaded image %s, width: %d, height: %d", path, image->width, image->height);
 
-    // Append bitmap to bitmaps table in registry
-    lua_getfield(L, LUA_REGISTRYINDEX, "bitmaps");
-    lua_pushlightuserdata(L, bitmap);
+    // Append image to images table in registry
+    lua_getfield(L, LUA_REGISTRYINDEX, "images");
+    lua_pushlightuserdata(L, image);
     lua_setfield(L, -2, path);
     lua_pop(L, 1);
 
-    // Create and return table that contains bitmap width, height and pointer
+    // Create and return table that contains image width, height and pointer
     lua_newtable(L);
-    lua_pushinteger(L, bitmap->width);
+    lua_pushinteger(L, image->width);
     lua_setfield(L, -2, "width");
-    lua_pushinteger(L, bitmap->height);
+    lua_pushinteger(L, image->height);
     lua_setfield(L, -2, "height");
-    lua_pushlightuserdata(L, bitmap);
+    lua_pushlightuserdata(L, image);
     lua_setfield(L, -2, "pointer");
 
     return 1;
 }
 
-int lualilka_resources_rotateBitmap(lua_State* L) {
-    // Args are bitmap table and angle in degrees
-    // First argument is table that contains bitmap width, height and pointer. We need all of them.
+int lualilka_resources_rotateImage(lua_State* L) {
+    // Args are image table and angle in degrees
+    // First argument is table that contains image width, height and pointer. We need all of them.
     // Second argument is angle in degrees.
-    // Third argument is blank color for pixels that are not covered by the bitmap after rotation.
+    // Third argument is blank color for pixels that are not covered by the image after rotation.
     lua_getfield(L, 1, "pointer");
     // Check if value is a valid pointer
     if (!lua_islightuserdata(L, -1)) {
-        return luaL_error(L, "Invalid bitmap");
+        return luaL_error(L, "Invalid image");
     }
-    Bitmap* bitmap = (Bitmap*)lua_touserdata(L, -1);
+    Image* image = (Image*)lua_touserdata(L, -1);
     lua_pop(L, 1);
 
     int16_t angle = luaL_checkinteger(L, 2);
     int32_t blankColor = luaL_checkinteger(L, 3);
 
-    // Instantiate a new bitmap
-    lilka::Bitmap* rotatedBitmap = new lilka::Bitmap(bitmap->width, bitmap->height, bitmap->transparentColor);
-    // Rotate the bitmap
-    bitmap->rotate(angle, rotatedBitmap, blankColor);
+    // Instantiate a new image
+    lilka::Image* rotatedImage = new lilka::Image(image->width, image->height, image->transparentColor);
+    // Rotate the image
+    image->rotate(angle, rotatedImage, blankColor);
 
-    // Append rotatedBitmap to bitmaps table in registry
-    lua_getfield(L, LUA_REGISTRYINDEX, "bitmaps");
-    lua_pushlightuserdata(L, rotatedBitmap);
-    lua_setfield(L, -2, (String("rotatedBitmap-") + random(100000)).c_str());
+    // Append rotatedImage to images table in registry
+    lua_getfield(L, LUA_REGISTRYINDEX, "images");
+    lua_pushlightuserdata(L, rotatedImage);
+    lua_setfield(L, -2, (String("rotatedImage-") + random(100000)).c_str());
     lua_pop(L, 1);
 
-    // Create and return table that contains bitmap width, height and pointer
+    // Create and return table that contains image width, height and pointer
     lua_newtable(L);
-    lua_pushinteger(L, rotatedBitmap->width);
+    lua_pushinteger(L, rotatedImage->width);
     lua_setfield(L, -2, "width");
-    lua_pushinteger(L, rotatedBitmap->height);
+    lua_pushinteger(L, rotatedImage->height);
     lua_setfield(L, -2, "height");
-    lua_pushlightuserdata(L, rotatedBitmap);
+    lua_pushlightuserdata(L, rotatedImage);
     lua_setfield(L, -2, "pointer");
 
     return 1;
@@ -118,8 +118,8 @@ int lualilka_resources_writeFile(lua_State* L) {
 }
 
 static const luaL_Reg lualilka_resources[] = {
-    {"load_bitmap", lualilka_resources_loadBitmap},
-    {"rotate_bitmap", lualilka_resources_rotateBitmap},
+    {"load_image", lualilka_resources_loadImage},
+    {"rotate_image", lualilka_resources_rotateImage},
     {"read_file", lualilka_resources_readFile},
     {"write_file", lualilka_resources_writeFile},
     {NULL, NULL},

@@ -62,7 +62,7 @@
     local ball_x = display.width / 2
     local ball_y = display.height / 2
 
-    local ball = resources.load_bitmap("ball.bmp", display.color565(255, 255, 255))
+    local ball = resources.load_image("ball.bmp", display.color565(255, 255, 255))
 
     function lilka._update()
         local ball_speed_x = 0
@@ -91,7 +91,7 @@
 
         -- Малюємо графіку:
         display.fill_screen(display.color565(0, 0, 0))
-        display.draw_bitmap(ball, ball_x, ball_y)
+        display.draw_image(ball, ball_x, ball_y)
 
         -- Оновлюємо екран:
         display.render()

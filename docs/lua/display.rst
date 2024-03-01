@@ -14,8 +14,8 @@
     local color = display.color565(255, 0, 0)
     display.draw_line(0, 0, 100, 100, color)
 
-    local face = resources.load_bitmap("face.bmp", display.color565(0, 0, 0))
-    display.draw_bitmap(face, 50, 80)
+    local face = resources.load_image("face.bmp", display.color565(0, 0, 0))
+    display.draw_image(face, 50, 80)
 
     display.set_buffered(true)
     display.fill_rect(0, 0, 100, 100, color)

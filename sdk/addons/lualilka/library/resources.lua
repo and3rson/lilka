@@ -14,17 +14,10 @@ resources = {}
 ---@param transparent_color? integer колір, який буде використаний для прозорості (5-6-5). Якщо цей параметр не вказаний, зображення буде виводитись без прозорості
 ---@return table
 ---@usage
---- local face = resources.load_bitmap("face.bmp", display.color565(0, 0, 0))
+--- local face = resources.load_image("face.bmp", display.color565(0, 0, 0))
 --- print(face.width, face.height) -- Виведе розміри зображення
---- display.draw_bitmap(face, 50, 80) -- Виведе зображення на екран у позицію (50, 80)
-function resources.load_bitmap(filename, transparent_color) end
-
----Повертає зображення на певну кількість градусів.
----
----@param bitmap table ідентифікатор зображення
----@param angle integer кут (в градусах)
----@param blank_color integer колір для пікселів, які залишаться незаповненими
-function resources.rotate_bitmap(bitmap, angle, blank_color) end
+--- display.draw_image(face, 50, 80) -- Виведе зображення на екран у позицію (50, 80)
+function resources.load_image(filename, transparent_color) end
 
 ---Читає вміст файлу і повертає його як текст.
 ---@param filename string шлях до файлу (відносно місця знаходження скрипта, що виконується)

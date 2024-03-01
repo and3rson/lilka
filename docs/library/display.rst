@@ -8,3 +8,6 @@
 
 .. doxygenclass:: lilka::Canvas
     :members:
+
+.. doxygenclass:: lilka::Image
+    :members:

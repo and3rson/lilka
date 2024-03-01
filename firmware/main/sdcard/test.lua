@@ -1,6 +1,6 @@
 print("Printing stuff to console, yay!")
 
-local face = resources.load_bitmap("face.bmp", display.color565(0, 0, 0))
+local face = resources.load_image("face.bmp", display.color565(0, 0, 0))
 
 print('Face size: ' .. face.width .. 'x' .. face.height)
 
@@ -11,7 +11,7 @@ for i = 10, 1, -1 do
 
     local x = math.random(240 - 64)
     local y = math.random(280 - 64)
-    display.draw_bitmap(face, x, y)
+    display.draw_image(face, x, y)
 
     display.render()
 
@@ -32,7 +32,7 @@ while not key.a.just_pressed do
 
     local x = math.random(240 - 64)
     local y = math.random(280 - 64)
-    display.draw_bitmap(face, x, y)
+    display.draw_image(face, x, y)
 
     key = controller.get_state()
 end

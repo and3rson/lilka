@@ -17,13 +17,13 @@ Player = {
     width = 32, -- Розмір спрайту - 32x32
     height = 32,
     sprites = {
-        stand = { resources.load_bitmap(ROOT .. "boy_stand.bmp") },
+        stand = { resources.load_image(ROOT .. "boy_stand.bmp") },
         run = {
-            resources.load_bitmap(ROOT .. "boy_run_1.bmp", BLACK),
-            resources.load_bitmap(ROOT .. "boy_run_2.bmp", BLACK),
-            resources.load_bitmap(ROOT .. "boy_run_3.bmp", BLACK),
+            resources.load_image(ROOT .. "boy_run_1.bmp", BLACK),
+            resources.load_image(ROOT .. "boy_run_2.bmp", BLACK),
+            resources.load_image(ROOT .. "boy_run_3.bmp", BLACK),
         },
-        jump = { resources.load_bitmap(ROOT .. "boy_jump.bmp", BLACK) },
+        jump = { resources.load_image(ROOT .. "boy_jump.bmp", BLACK) },
     },
     state = PlayerState.RUN,
 }
@@ -40,17 +40,17 @@ function Player:update(delta)
 end
 
 function Player:draw()
-    local bitmap
+    local image
     if self.state == PlayerState.STAND then
-        bitmap = self.sprites.stand[1]
+        image = self.sprites.stand[1]
     elseif self.state == PlayerState.RUN then
         -- Перемикаємо спрайти бігу кожні 0.25 секунди
-        bitmap = self.sprites.run[math.floor(util.time() * 4) % #self.sprites.run + 1]
+        image = self.sprites.run[math.floor(util.time() * 4) % #self.sprites.run + 1]
     elseif self.state == PlayerState.JUMP then
-        bitmap = self.sprites.jump[1]
+        image = self.sprites.jump[1]
     end
     -- Малюємо гравця на екрані так, щоб середина нижнього краю спрайту була в координатах (x, y)
-    display.draw_bitmap(bitmap, self.x - self.width / 2, self.y - self.height)
+    display.draw_image(image, self.x - self.width / 2, self.y - self.height)
 end
 
 local player = Player:new({ x = 128, y = 128 })

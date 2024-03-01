@@ -20,6 +20,7 @@ namespace lilka {
 #define FONT_10x20 u8g2_font_10x20_t_cyrillic
 
 class Canvas;
+class Image;
 
 /// Клас для роботи з дисплеєм.
 ///
@@ -157,27 +158,48 @@ public:
     /// Намалювати заповнену дугу.
     /// @see drawArc
     void fillArc(int16_t x, int16_t y, int16_t r1, int16_t r2, int16_t start, int16_t end, uint16_t color);
+#endif
 
     /// Намалювати зображення.
+    /// @param image Вказівник на зображення (об'єкт класу `lilka::Image`).
     /// @param x Координата X лівого верхнього кута зображення.
     /// @param y Координата Y лівого верхнього кута зображення.
-    /// @param bitmap Вказівник на зображення.
+    ///
+    /// Приклад використання:
+    ///
+    /// @code
+    /// lilka::Image *image = lilka::resources.loadImage("image.bmp");
+    /// if (!image) {
+    ///     Serial.println("Failed to load image");
+    ///     return;
+    /// }
+    /// lilka::display.drawImage(image, 32, 64);
+    /// // Звільнюємо пам'ять
+    /// delete image;
+    /// @endcode
+    void drawImage(Image *image, int16_t x, int16_t y);
+
+#ifdef DOXYGEN
+    /// Намалювати зображення з масиву 16-бітних точок.
+    /// @param x Координата X лівого верхнього кута зображення.
+    /// @param y Координата Y лівого верхнього кута зображення.
+    /// @param bitmap Масив 16-бітних кольорів.
     /// @param w Ширина зображення.
     /// @param h Висота зображення.
     ///
     /// Приклад використання:
     /// @code
-    /// lilka::Bitmap *bitmap = lilka::resources.loadBitmap("image.bmp");
-    /// lilka::display.drawBitmap(0, 0, bitmap->pixels, bitmap->width, bitmap->height);
+    /// lilka::Image *image = lilka::resources.loadImage("image.bmp");
+    /// lilka::display.drawBitmap(0, 0, image->pixels, image->width, image->height);
     /// @endcode
     void draw16bitRGBBitmap(int16_t x, int16_t y, uint16_t *bitmap, int16_t w, int16_t h);
     /// @see draw16bitRGBBitmap
     void draw16bitRGBBitmap(int16_t x, int16_t y, const uint16_t bitmap[], int16_t w, int16_t h);
 
-    /// Намалювати зображення з прозорістю.
+    /// Намалювати зображення з масиву 16-бітних точок і вказати колір, який буде вважатися прозорим.
     /// @param x Координата X лівого верхнього кута зображення.
     /// @param y Координата Y лівого верхнього кута зображення.
-    /// @param bitmap Вказівник на зображення.
+    /// @param bitmap Масив 16-бітних кольорів.
     /// @param transparent_color Колір, який буде вважатися прозорим.
     /// @param w Ширина зображення.
     /// @param h Висота зображення.
@@ -185,9 +207,9 @@ public:
     /// Приклад використання:
     /// @code
     /// // Завантажити зображення з файлу "image.bmp", використовуючи білий колір як прозорий.
-    /// lilka::Bitmap *bitmap = lilka::resources.loadBitmap("image.bmp", lilka::display.color565(255, 255, 255));
+    /// lilka::Image *image = lilka::resources.loadImage("image.bmp", lilka::display.color565(255, 255, 255));
     /// lilka::display.draw16bitRGBBitmapWithTranColor(
-    ///     0, 0, bitmap->pixels, bitmap->transparentColor, bitmap->width, bitmap->height
+    ///     0, 0, image->pixels, image->transparentColor, image->width, image->height
     /// );
     /// @endcode
     void draw16bitRGBBitmapWithTranColor(
@@ -244,9 +266,52 @@ public:
 class Canvas : public Arduino_Canvas {
 public:
     Canvas();
+    /// Намалювати зображення.
+    /// @see Display::drawImage
+    void drawImage(Image *image, int16_t x, int16_t y);
     void draw16bitRGBBitmapWithTranColor(
         int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
     );
+};
+
+/// Зображення
+///
+/// Містить розміри, прозорий колір та пікселі зображення (в 16-бітному форматі, 5-6-5).
+/// Пікселі зберігаються в рядку зліва направо, зверху вниз.
+///
+/// @note Основна відмінність Image від поняття "bitmap" погялає в тому, що Image містить масив пікселів, розміри зображення і прозорий колір, в той час як "bitmap" - це просто масив пікселів.
+class Image {
+public:
+    Image(uint32_t width, uint32_t height, int32_t transparentColor = -1);
+    ~Image();
+    /// Повертає зображення, яке отримане обертанням поточного зображення на заданий кут (в градусах), і записує його в `dest`.
+    ///
+    /// @param angle Кут обертання в градусах.
+    /// @param dest Вказівник на Image, в яке буде записано обернуте зображення.
+    /// @param blankColor 16-бітний колір (5-6-5), який буде використаний для заповнення пікселів, які виходять за межі зображення.
+    /// @warning `dest` повинен бути ініціалізований заздалегідь.
+    ///
+    /// Приклад:
+    ///
+    /// @code
+    /// lilka::Image *image = lilka::resources.loadImage("image.bmp");
+    /// if (!image) {
+    ///    Serial.println("Failed to load image");
+    ///    return;
+    /// }
+    /// lilka::Image *rotatedImage = new lilka::Image(image->width, image->height);
+    /// // Повертаємо на 30 градусів, заповнюючи пікселі, які виходять за межі зображення, білим кольором:
+    /// image->rotate(30, rotatedImage, lilka::display.color565(255, 255, 255));
+    /// // Звільнюємо пам'ять
+    /// delete image;
+    /// delete rotatedImage;
+    /// @endcode
+    void rotate(int16_t angle, Image *dest, int32_t blankColor);
+    uint32_t width;
+    uint32_t height;
+    /// 16-бітний колір (5-6-5), який буде прозорим. За замовчуванням -1 (прозорість відсутня).
+    int32_t transparentColor;
+    uint16_t *pixels;
 };
 
 /// Екземпляр класу `Display`, який можна використовувати для роботи з дисплеєм.

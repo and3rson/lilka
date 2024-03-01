@@ -235,29 +235,29 @@ int lualilka_display_fillArc(lua_State* L) {
     return 0;
 }
 
-int lualilka_display_drawBitmap(lua_State* L) {
-    // Args are bitmap table, X & Y
-    // First argument is table that contains bitmap width, height and pointer. We only need the pointer.
+int lualilka_display_drawImage(lua_State* L) {
+    // Args are image table, X & Y
+    // First argument is table that contains image width, height and pointer. We only need the pointer.
     lua_getfield(L, 1, "pointer");
     // Check if value is a valid pointer
 
     // TODO: Check if crap ain't broken since the user may pass anything here and this often causes core panic
     if (!lua_islightuserdata(L, -1)) {
-        return luaL_error(L, "Invalid bitmap");
+        return luaL_error(L, "Invalid image");
     }
 
-    Bitmap* bitmap = (Bitmap*)lua_touserdata(L, -1);
+    Image* image = (Image*)lua_touserdata(L, -1);
     lua_pop(L, 1);
 
     int16_t x = luaL_checkinteger(L, 2);
     int16_t y = luaL_checkinteger(L, 3);
 
-    if (bitmap->transparentColor >= 0) {
+    if (image->transparentColor >= 0) {
         getDrawable(L)->draw16bitRGBBitmapWithTranColor(
-            x, y, bitmap->pixels, bitmap->transparentColor, bitmap->width, bitmap->height
+            x, y, image->pixels, image->transparentColor, image->width, image->height
         );
     } else {
-        getDrawable(L)->draw16bitRGBBitmap(x, y, bitmap->pixels, bitmap->width, bitmap->height);
+        getDrawable(L)->draw16bitRGBBitmap(x, y, image->pixels, image->width, image->height);
     }
 
     return 0;
@@ -300,7 +300,7 @@ static const luaL_Reg lualilka_display[] = {
     {"fill_ellipse", lualila_display_fillEllipse},
     {"draw_arc", lualilka_display_drawArc},
     {"fill_arc", lualilka_display_fillArc},
-    {"draw_bitmap", lualilka_display_drawBitmap},
+    {"draw_image", lualilka_display_drawImage},
     {"render", lualilka_display_render},
     {NULL, NULL},
 };

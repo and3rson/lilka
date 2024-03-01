@@ -1,9 +1,9 @@
 #include "display.h"
 
 #include "splash.h"
-
 #include "spi.h"
 #include "serial.h"
+#include "fmath.h"
 
 namespace lilka {
 
@@ -66,6 +66,14 @@ void Display::begin() {
     serial_log("display ok");
 }
 
+void Display::drawImage(Image *image, int16_t x, int16_t y) {
+    if (image->transparentColor == -1) {
+        draw16bitRGBBitmap(x, y, image->pixels, image->width, image->height);
+    } else {
+        draw16bitRGBBitmapWithTranColor(x, y, image->pixels, image->transparentColor, image->width, image->height);
+    }
+}
+
 // Чомусь в Arduino_GFX немає варіанту цього методу для const uint16_t[] - є лише для uint16_t.
 void Display::draw16bitRGBBitmapWithTranColor(
     int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
@@ -83,11 +91,48 @@ Canvas::Canvas() : Arduino_Canvas(LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, NUL
     setUTF8Print(true);
 }
 
+void Canvas::drawImage(Image *image, int16_t x, int16_t y) {
+    if (image->transparentColor == -1) {
+        draw16bitRGBBitmap(x, y, image->pixels, image->width, image->height);
+    } else {
+        draw16bitRGBBitmapWithTranColor(x, y, image->pixels, image->transparentColor, image->width, image->height);
+    }
+}
+
 void Canvas::draw16bitRGBBitmapWithTranColor(
     int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
 ) {
     // Цей cast безпечний, оскільки Arduino_GFX.draw16bitRGBBitmapWithTranColor не змінює bitmap.
-    Arduino_Canvas::draw16bitRGBBitmapWithTranColor(x, y, const_cast<uint16_t * const>(bitmap), transparent_color, w, h);
+    Arduino_Canvas::draw16bitRGBBitmapWithTranColor(x, y, const_cast<uint16_t *const>(bitmap), transparent_color, w, h);
+}
+
+Image::Image(uint32_t width, uint32_t height, int32_t transparentColor)
+    : width(width), height(height), transparentColor(transparentColor) {
+    pixels = new uint16_t[width * height];
+}
+
+Image::~Image() {
+    delete[] pixels;
+}
+
+void Image::rotate(int16_t angle, Image *dest, int32_t blankColor) {
+    // Rotate the image
+    int cx = width / 2;
+    int cy = height / 2;
+
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int dx = x - cx;
+            int dy = y - cy;
+            int x2 = cx + dx * fCos360(angle) - dy * fSin360(angle);
+            int y2 = cy + dx * fSin360(angle) + dy * fCos360(angle);
+            if (x2 >= 0 && x2 < width && y2 >= 0 && y2 < height) {
+                dest->pixels[x + y * width] = pixels[x2 + y2 * width];
+            } else {
+                dest->pixels[x + y * width] = blankColor;
+            }
+        }
+    }
 }
 
 Display display;

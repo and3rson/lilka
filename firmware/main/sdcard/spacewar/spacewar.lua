@@ -9,10 +9,10 @@ ROOT = 'spacewar/'
 ANGLE_COUNT = 60
 ANGLE_STEP = 360 / ANGLE_COUNT
 
-ship_sprites = { resources.load_bitmap(ROOT .. "ship.bmp", MAGENTA) }
+SHIP_SPRITES = { resources.load_image(ROOT .. "ship.bmp", MAGENTA) }
 for i = 2, ANGLE_COUNT do
     local angle = i - 1
-    ship_sprites[i] = resources.rotate_bitmap(ship_sprites[1], angle * ANGLE_STEP, MAGENTA)
+    SHIP_SPRITES[i] = display.rotate_image(SHIP_SPRITES[1], angle * ANGLE_STEP, MAGENTA)
 end
 
 Ship = {
@@ -20,7 +20,7 @@ Ship = {
     y = display.height / 2,
     width = 32, -- Розмір спрайту - 32x32
     height = 32,
-    sprites = ship_sprites,
+    sprites = SHIP_SPRITES,
     rotation = 0, -- Поворот корабля в градусах
     speed_x = 0,
     speed_y = 0,
@@ -70,13 +70,13 @@ function Ship:draw()
     -- Координати верхнього лівого кута спрайту
     local cx = math.floor(self.x - self.width / 2)
     local cy = math.floor(self.y - self.height / 2)
-    display.draw_bitmap(self.sprites[rotation_index], cx, cy)
+    display.draw_image(self.sprites[rotation_index], cx, cy)
     -- Якщо ми біля краю екрану, малюємо корабель ще раз на протилежному боці
     if self.x < self.width / 2 or self.x > display.width - self.width / 2 then
-        display.draw_bitmap(self.sprites[rotation_index], cx + display.width, cy)
+        display.draw_image(self.sprites[rotation_index], cx + display.width, cy)
     end
     if self.y < self.height / 2 or self.y > display.height - self.height / 2 then
-        display.draw_bitmap(self.sprites[rotation_index], cx, cy + display.height)
+        display.draw_image(self.sprites[rotation_index], cx, cy + display.height)
     end
 end
 
