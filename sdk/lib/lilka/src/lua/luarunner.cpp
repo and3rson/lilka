@@ -40,7 +40,6 @@ bool callInit(lua_State* L) {
         lua_pop(L, 2);
         longjmp(stopjmp, retCode);
     }
-    lua_pop(L, 1);
     return true;
 }
 
@@ -58,7 +57,6 @@ bool callUpdate(lua_State* L, uint32_t delta) {
         lua_pop(L, 2);
         longjmp(stopjmp, retCode);
     }
-    lua_pop(L, 1);
     return true;
 }
 
@@ -75,7 +73,6 @@ bool callDraw(lua_State* L) {
         lua_pop(L, 2);
         longjmp(stopjmp, retCode);
     }
-    lua_pop(L, 1);
     return true;
 }
 
@@ -99,7 +96,10 @@ int execute(lua_State* L) {
         if (!pushLilka(L)) {
             // No lilka table - we're done
             lua_pop(L, 1);
+            serial_log("lua: lilka table");
             longjmp(stopjmp, 32);
+        } else {
+            serial_log("lua: lilka table found");
         }
 
         // Check if lilka.init function exists and call it
@@ -115,6 +115,9 @@ int execute(lua_State* L) {
                 // No update or draw function - we're done
                 lua_pop(L, 1);
                 longjmp(stopjmp, 32);
+                serial_log("lua: no update or draw function");
+            } else {
+                serial_log("lua: update and/or draw");
             }
 
             display.renderCanvas(*canvas);
