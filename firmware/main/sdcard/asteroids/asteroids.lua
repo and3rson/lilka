@@ -235,7 +235,7 @@ display.render()
 
 local next_asteroid_spawn_time = 0
 
-function lilka._update(delta)
+function lilka.update(delta)
     ship:update(delta)
     for _, bullet in ipairs(bullets) do
         bullet:update(delta)
@@ -329,7 +329,9 @@ function lilka._update(delta)
             util.exit()
         end
     end
+end
 
+function lilka.draw()
     display.fill_screen(BLACK)
     ship:draw()
     for _, bullet in ipairs(bullets) do
@@ -338,5 +340,4 @@ function lilka._update(delta)
     for _, asteroid in ipairs(asteroids) do
         asteroid:draw()
     end
-    display.render()
 end

@@ -6,6 +6,7 @@ Lua API
 .. toctree::
     :maxdepth: 5
 
+    lilka
     display
     controller
     resources

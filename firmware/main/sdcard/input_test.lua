@@ -17,9 +17,17 @@ BLACK = display.color565(0, 0, 0)
 GRAY = display.color565(128, 128, 128)
 GREEN = display.color565(0, 255, 0)
 
-function lilka._update()
+local state
+
+function lilka.update()
     state = controller.get_state()
 
+    if state.up.pressed and state.down.pressed and state.left.pressed and state.right.pressed and state.start.pressed then
+        util.exit()
+    end
+end
+
+function lilka.draw()
     display.fill_screen(BLACK)
     for k, v in pairs(COORDS) do
         fill_cells(v[1], v[2], v[3], v[4], state[k].pressed and GREEN or GRAY)
@@ -28,11 +36,6 @@ function lilka._update()
     display.print("Натисніть всі стрілки");
     display.set_cursor(16, display.height - 16);
     display.print("і START для виходу");
-    display.render()
-
-    if state.up.pressed and state.down.pressed and state.left.pressed and state.right.pressed and state.start.pressed then
-        util.exit()
-    end
 end
 
 function fill_cells(x, y, w, h, color)

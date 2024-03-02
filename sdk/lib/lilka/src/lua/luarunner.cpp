@@ -18,6 +18,67 @@ namespace lilka {
 
 jmp_buf stopjmp;
 
+bool pushLilka(lua_State* L) {
+    lua_getglobal(L, "lilka");
+    if (!lua_istable(L, -1)) {
+        lua_pop(L, 1);
+        return false;
+    }
+    return true;
+}
+
+bool callInit(lua_State* L) {
+    lua_getfield(L, -1, "init");
+    if (!lua_isfunction(L, -1)) {
+        lua_pop(L, 1);
+        return false;
+    }
+    int retCode = lua_pcall(L, 0, 0, 0);
+    if (retCode) {
+        const char* err = lua_tostring(L, -1);
+        lilka::ui_alert("Lua", String("Помилка в init: ") + err);
+        lua_pop(L, 2);
+        longjmp(stopjmp, retCode);
+    }
+    lua_pop(L, 1);
+    return true;
+}
+
+bool callUpdate(lua_State* L, uint32_t delta) {
+    lua_getfield(L, -1, "update");
+    if (!lua_isfunction(L, -1)) {
+        lua_pop(L, 1);
+        return false;
+    }
+    lua_pushnumber(L, delta / 1000.0);
+    int retCode = lua_pcall(L, 1, 0, 0);
+    if (retCode) {
+        const char* err = lua_tostring(L, -1);
+        lilka::ui_alert("Lua", String("Помилка в update: ") + err);
+        lua_pop(L, 2);
+        longjmp(stopjmp, retCode);
+    }
+    lua_pop(L, 1);
+    return true;
+}
+
+bool callDraw(lua_State* L) {
+    lua_getfield(L, -1, "draw");
+    if (!lua_isfunction(L, -1)) {
+        lua_pop(L, 1);
+        return false;
+    }
+    int retCode = lua_pcall(L, 0, 0, 0);
+    if (retCode) {
+        const char* err = lua_tostring(L, -1);
+        lilka::ui_alert("Lua", String("Помилка в draw: ") + err);
+        lua_pop(L, 2);
+        longjmp(stopjmp, retCode);
+    }
+    lua_pop(L, 1);
+    return true;
+}
+
 int execute(lua_State* L) {
     // Calls Lua code that's on top of the stack (previously loaded with luaL_loadfile or luaL_loadstring)
 
@@ -30,36 +91,35 @@ int execute(lua_State* L) {
             longjmp(stopjmp, retCode);
         }
 
-        // Check if lilka._update function exists and call it
+        // Get canvas from registry
+        lua_getfield(L, LUA_REGISTRYINDEX, "canvas");
+        Canvas* canvas = (Canvas*)lua_touserdata(L, -1);
+        lua_pop(L, 1);
+
+        if (!pushLilka(L)) {
+            // No lilka table - we're done
+            lua_pop(L, 1);
+            longjmp(stopjmp, 32);
+        }
+
+        // Check if lilka.init function exists and call it
+        callInit(L);
+
+        // Check if lilka.update function exists and call it
         const uint32_t perfectDelta = 1000 / 30;
         uint32_t delta = perfectDelta; // Delta for first frame is always 1/30
         while (true) {
             uint32_t now = millis();
-            // Check for lilka._update function
-            lua_getglobal(L, "lilka");
-            // If no lilka table, we're done
-            if (!lua_istable(L, -1)) {
-                // TODO: pop?
-                serial_log("lua: no lilka table");
-                longjmp(stopjmp, 32);
-            }
-            lua_getfield(L, -1, "_update");
-            if (lua_isfunction(L, -1)) {
-                // Call _update function, passing delta as argument
-                lua_pushnumber(L, delta / 1000.0);
-                retCode = lua_pcall(L, 1, 0, 0);
-                if (retCode) {
-                    // const char* err = lua_tostring(L, -1);
-                    // lilka::ui_alert("Lua", String("Помилка в _update: ") + err);
-                    longjmp(stopjmp, retCode);
-                }
-            } else {
-                // No _update function - we're done
-                // serial_log("lua: no _update function in lilka table");
+
+            if (!callUpdate(L, delta) || !callDraw(L)) {
+                // No update or draw function - we're done
+                lua_pop(L, 1);
                 longjmp(stopjmp, 32);
             }
 
-            // Calculate time spent in _update
+            display.renderCanvas(*canvas);
+
+            // Calculate time spent in update
             uint32_t elapsed = millis() - now;
             // If we're too fast, delay to keep 30 FPS
             if (elapsed < perfectDelta) {

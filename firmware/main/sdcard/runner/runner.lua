@@ -58,8 +58,10 @@ local player = Player:new({ x = 128, y = 128 })
 display.fill_screen(BLACK)
 display.render()
 
-function lilka._update(delta)
+function lilka.update(delta)
     player:update(delta)
+end
+
+function lilka.draw()
     player:draw()
-    display.render()
 end
