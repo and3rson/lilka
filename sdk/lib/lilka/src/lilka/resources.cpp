@@ -24,6 +24,7 @@ Image* Resources::loadImage(String filename, int32_t transparentColor) {
     fread(fileinfo, 1, 40, file);
     // Get number of bits per pixel (offset from start of file: 0x1C)
     int bitsPerPixel = fileinfo[14] + (fileinfo[15] << 8);
+    uint8_t bytesPerPixel = bitsPerPixel / 8;
     uint32_t width = fileinfo[4] + (fileinfo[5] << 8) + (fileinfo[6] << 16) + (fileinfo[7] << 24);
     uint32_t height = fileinfo[8] + (fileinfo[9] << 8) + (fileinfo[10] << 16) + (fileinfo[11] << 24);
     // int bitsPerPixel = fileinfo[14] + (fileinfo[15] << 8);
@@ -31,29 +32,25 @@ Image* Resources::loadImage(String filename, int32_t transparentColor) {
 
     if (width > 1024 || height > 1024) {
         // Are you trying to load a 1 megapixel image? Are you insane? :)
-        // serial_err("Image too large: %s (%d x %d)\n", filename.c_str(), width, height);
+        serial_err("Image too large: %s (%d x %d)\n", filename.c_str(), width, height);
         fclose(file);
         return 0;
     }
 
     Image* image = new Image(width, height, transparentColor);
     fseek(file, dataOffset, SEEK_SET);
+    uint8_t row[width * bytesPerPixel];
     for (int y = height - 1; y >= 0; y--) {
+        // Read row data
+        fread(row, 1, width * bytesPerPixel, file);
         for (int x = 0; x < width; x++) {
-            uint32_t color;
-            if (bitsPerPixel == 24) {
-                fread(&color, 1, 3, file);
-            } else if (bitsPerPixel == 32) {
-                fread(&color, 1, 4, file);
-            } else {
-                // TODO
-                serial_err("Unsupported bits per pixel: %d\n", bitsPerPixel);
-                fclose(file);
-                delete image;
-                return 0;
-            }
-
-            image->pixels[x + y * width] = display.color565((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF);
+            uint8_t* pixel = &row[x * bytesPerPixel];
+            uint8_t r = pixel[2];
+            uint8_t g = pixel[1];
+            uint8_t b = pixel[0];
+            display.color565();
+            uint16_t color = (r >> 3) | ((g >> 2) << 5) | ((b >> 3) << 11);
+            image->pixels[y * width + x] = color;
         }
     }
     fclose(file);

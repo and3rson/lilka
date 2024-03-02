@@ -1,4 +1,17 @@
--- Character sprites by https://laredgames.itch.io/coins-free
+--[[
+
+       mm                                                      mm mm                          mm
+      ####                                                                                    ##
+      ####     m#####m  ######   m####m   ##m###m    m####m    ####      ####### ##   m##     ##
+     ##  ##   ##          ##    ##mmmm##  ##    ##  ##    ##     ##      ##   ## ##  ####     ##
+     ######   ##          ##    ##        ##    ##  ##    ##     ##      ##   ## ##m#  ##
+    m##  ##m   ##mmmm#    ##     ##mmmm#  ###mm##    ##mm##   mmm##mmm  m##mmm## ###   ##     mm
+                                          ##                            ##     #
+                                          ##
+    Автор: Андрій "and3rson" Дунай
+    Шрифти, використані в графіці: https://ukrfonts.com/info/index.php?v=20&id=5730
+
+--]]
 
 WHITE = display.color565(255, 255, 255)
 BLACK = display.color565(0, 0, 0)
@@ -8,6 +21,9 @@ MAGENTA = display.color565(255, 0, 255)
 -- ROOT = 'asteroids/'
 ROOT = ''
 
+-------------------------------------------------------------------------------
+-- Загальні константи
+-------------------------------------------------------------------------------
 
 ANGLE_COUNT = 60
 ANGLE_STEP = 360 / ANGLE_COUNT
@@ -16,6 +32,10 @@ display.fill_screen(BLACK)
 display.set_cursor(8, display.height / 2 - 8)
 display.print("Завантаження...")
 display.render()
+
+-------------------------------------------------------------------------------
+-- Завантаження ресурсів
+-------------------------------------------------------------------------------
 
 SHIP_SPRITES = { resources.load_image(ROOT .. "ship.bmp", MAGENTA) }
 SHIP_FORWARD_SPRITES = { resources.load_image(ROOT .. "ship_forward.bmp", MAGENTA) }
@@ -45,6 +65,14 @@ end
 PRESS_START = resources.load_image(ROOT .. "press_start.bmp")
 YOU_ARE_DEAD = resources.load_image(ROOT .. "game_over.bmp")
 
+-------------------------------------------------------------------------------
+-- Ігрові класи
+-------------------------------------------------------------------------------
+
+--
+-- Корабель, яким керує гравець
+--
+
 Ship = {
     x = display.width / 2,
     y = display.height / 2,
@@ -64,7 +92,6 @@ Ship = {
     dead = false,
     -- accel_y = 0,
 }
-
 function Ship:new(o)
     o = o or {}
     setmetatable(o, self)
@@ -142,6 +169,10 @@ function Ship:draw()
     end
 end
 
+--
+-- Куля, якою стріляє корабель
+--
+
 Bullet = {
     x = 0,
     y = 0,
@@ -187,6 +218,10 @@ end
 function Bullet:draw()
     display.fill_circle(self.x, self.y, self.radius, WHITE)
 end
+
+--
+-- Астероїд, який рухається по екрану
+--
 
 Asteroid = {
     x = 0,
@@ -272,30 +307,44 @@ function Asteroid:draw()
     end
 end
 
---- @type table | nil
+-------------------------------------------------------------------------------
+-- Змінні, які зберігають стан гри та всіх ігрових об'єктів.
+-------------------------------------------------------------------------------
+
+--- @type table
 local ship = nil -- Ship:new()
 local bullets = {}
 local asteroids = {}
 
+-- Час, коли наступний астероїд з'явиться на екрані
 local next_asteroid_spawn_time = 0
 
-GAME_STATE = {
-    HELLO = 0,
-    IN_GAME = 1,
-    GAME_OVER = 2,
+-- Перелік станів гри
+STATES = {
+    HELLO = 0,     -- Початковий екран
+    IN_GAME = 1,   -- Гра
+    GAME_OVER = 2, -- Кінець гри
 }
+local game_state = STATES.HELLO
 
-local game_state = GAME_STATE.HELLO
+-------------------------------------------------------------------------------
+-- Головні цикли гри
+-------------------------------------------------------------------------------
 
+--
+-- Цикл обробки введення та оновлення стану гри
+--
 function lilka.update(delta)
-    if game_state == GAME_STATE.HELLO then
+    if game_state == STATES.HELLO then
+        -- Якщо гравець натиснув кнопку "Старт", то починаємо гру
         if controller.get_state().start.just_pressed then
-            game_state = GAME_STATE.IN_GAME
+            game_state = STATES.IN_GAME
             ship = Ship:new()
             bullets = {}
             asteroids = {}
         end
     else
+        -- Оновлюємо стан корабля, куль та астероїдів
         ship:update(delta)
         for _, bullet in ipairs(bullets) do
             bullet:update(delta)
@@ -303,22 +352,25 @@ function lilka.update(delta)
         for _, asteroid in ipairs(asteroids) do
             asteroid:update(delta)
         end
-        -- Remove dead bullets
+        -- Видаляємо мертві кулі
         for i = #bullets, 1, -1 do
             if bullets[i].dead then
                 table.remove(bullets, i)
             end
         end
-        -- Remove dead asteroids
+        -- Видаляємо мертві астероїди
         for i = #asteroids, 1, -1 do
             if asteroids[i].dead and util.time() - asteroids[i].killed_at > 1 then
                 table.remove(asteroids, i)
             end
         end
 
+        -- Отримуємо стан контролера та обробляємо введення
         local state = controller.get_state()
 
+        -- Керуємо кораблем, якщо він не мертвий
         if not ship.dead then
+            -- Рух вперед та назад
             if state.up.pressed then
                 ship:set_forward_acceleration(100)
             elseif state.down.pressed then
@@ -327,6 +379,7 @@ function lilka.update(delta)
                 ship:set_forward_acceleration(0)
             end
 
+            -- Поворот корабля
             if state.left.pressed then
                 ship:set_angular_speed(180)
             elseif state.right.pressed then
@@ -335,6 +388,7 @@ function lilka.update(delta)
                 ship:set_angular_speed(0)
             end
 
+            -- Стрільба
             if state.a.just_pressed then
                 local dir_x = math.cos(math.rad(-ship.rotation))
                 local dir_y = math.sin(math.rad(-ship.rotation))
@@ -344,15 +398,17 @@ function lilka.update(delta)
                 table.insert(bullets, bullet)
             end
 
+            -- Вихід з гри
             if state.start.just_pressed then
                 util.exit()
             end
         end
 
+        -- Перевіряємо, чи потрібно додати новий астероїд
         -- Якщо минув визначений час і якщо на екрані менше 8 астероїдів, то додаємо новий
         if next_asteroid_spawn_time < util.time() and #asteroids < 8 then
             local x, y
-            -- Spawn asteroid outside of screen bounds
+            -- Вибираємо випадкову точку за межами екрану
             if math.random() < 0.5 then
                 -- Лівий або правий край екрану
                 x = math.random() > 0.5 and -100 or display.width + 100
@@ -362,45 +418,58 @@ function lilka.update(delta)
                 x = math.random(0, display.width)
                 y = math.random() > 0.5 and -100 or display.height + 100
             end
-            -- Set direction towards the random point on the screen
+            -- Вибираємо випадкову точку в межах екрану, куди буде рухатися астероїд
             local target_x = math.random(0, display.width)
             local target_y = math.random(0, display.height)
 
+            -- Обчислюємо вектор швидкості астероїда
             local dir_x = target_x - x
             local dir_y = target_y - y
             dir_x, dir_y = math.norm(dir_x, dir_y)
 
+            -- Додаємо астероїд
             table.insert(asteroids, Asteroid:new(x, y, dir_x * 50, dir_y * 50))
             next_asteroid_spawn_time = util.time() + math.random(1, 3)
         end
 
-        -- Check for collisions
+        -- Перевіряємо колізії: чи корабель зіштовхнувся з астероїдом або чи куля влучила в астероїд
         for _, asteroid in ipairs(asteroids) do
+            -- Пропускаємо мертві астероїди
             if not asteroid.dead then
+                -- Перевіряємо кулі
                 for _, bullet in ipairs(bullets) do
                     if math.dist(asteroid.x, asteroid.y, bullet.x, bullet.y) < asteroid.sprite.width / 2 then
+                        -- Якщо куля влучила в астероїд, то вони обидвоє вмирають
                         asteroid:kill()
                         bullet:kill()
                     end
                 end
                 if math.dist(asteroid.x, asteroid.y, ship.x, ship.y) < (asteroid.sprite.width / 3 + ship.width / 2) then
+                    -- Коли корабель зіштовхується з астероїдом. Якщо корабель не мертвий, то вони обидвоє вмирають
+                    -- Якщо гравець не мертвий, то він вмирає і гра переходить в стан GAME_OVER
                     if not ship.dead then
+                        asteroid:kill()
                         ship:kill()
-                        game_state = GAME_STATE.GAME_OVER
+                        game_state = STATES.GAME_OVER
                     end
                 end
             end
         end
-        if game_state == GAME_STATE.GAME_OVER then
+        if game_state == STATES.GAME_OVER then
+            -- Якщо гравець мертвий, то він може натиснути кнопку "Старт", щоб почати гру знову
             if state.start.just_pressed then
-                game_state = GAME_STATE.HELLO
+                game_state = STATES.HELLO
             end
         end
     end
 end
 
+--
+-- Цикл малювання гри
+--
 function lilka.draw()
-    if game_state == GAME_STATE.HELLO then
+    if game_state == STATES.HELLO then
+        -- Виводимо початковий екран
         local banner = BANNER[math.random(1, 4)]
         display.fill_screen(BLACK)
         display.draw_image(
@@ -414,6 +483,7 @@ function lilka.draw()
             display.height - PRESS_START.height - 32
         )
     else
+        -- Малюємо корабель, кулі та астероїди
         display.fill_screen(BLACK)
         ship:draw()
         for _, bullet in ipairs(bullets) do
@@ -422,7 +492,8 @@ function lilka.draw()
         for _, asteroid in ipairs(asteroids) do
             asteroid:draw()
         end
-        if game_state == GAME_STATE.GAME_OVER then
+        if game_state == STATES.GAME_OVER then
+            -- Якщо гравець мертвий, то виводимо повідомлення про кінець гри
             display.draw_image(
                 YOU_ARE_DEAD,
                 display.width / 2 - YOU_ARE_DEAD.width / 2,
