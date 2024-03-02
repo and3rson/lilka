@@ -48,7 +48,6 @@ Image* Resources::loadImage(String filename, int32_t transparentColor) {
             uint8_t r = pixel[2];
             uint8_t g = pixel[1];
             uint8_t b = pixel[0];
-            display.color565();
             uint16_t color = (r >> 3) | ((g >> 2) << 5) | ((b >> 3) << 11);
             image->pixels[y * width + x] = color;
         }
