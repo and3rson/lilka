@@ -56,7 +56,7 @@ int lualilka_resources_rotateImage(lua_State* L) {
     Image* image = (Image*)lua_touserdata(L, -1);
     lua_pop(L, 1);
 
-    int16_t angle = luaL_checkinteger(L, 2);
+    int16_t angle = luaL_checknumber(L, 2);
     int32_t blankColor = luaL_checkinteger(L, 3);
 
     // Instantiate a new image

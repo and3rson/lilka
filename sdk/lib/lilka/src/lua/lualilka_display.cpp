@@ -33,17 +33,17 @@ int lualilka_display_setBuffered(lua_State* L) {
 }
 
 int lualilka_display_color565(lua_State* L) {
-    int r = luaL_checkinteger(L, 1);
-    int g = luaL_checkinteger(L, 2);
-    int b = luaL_checkinteger(L, 3);
+    int r = luaL_checknumber(L, 1);
+    int g = luaL_checknumber(L, 2);
+    int b = luaL_checknumber(L, 3);
     uint16_t color = display.color565(r, g, b);
     lua_pushinteger(L, color);
     return 1;
 }
 
 int lualilka_display_setCursor(lua_State* L) {
-    int x = luaL_checkinteger(L, 1);
-    int y = luaL_checkinteger(L, 2);
+    int x = luaL_checknumber(L, 1);
+    int y = luaL_checknumber(L, 2);
     getDrawable(L)->setCursor(x, y);
     return 0;
 }
@@ -70,7 +70,7 @@ int lualilka_display_setFont(lua_State* L) {
 }
 
 int lualilka_display_setTextSize(lua_State* L) {
-    int size = luaL_checkinteger(L, 1);
+    int size = luaL_checknumber(L, 1);
     getDrawable(L)->setTextSize(size);
     return 0;
 }
@@ -112,124 +112,124 @@ int lualilka_display_fillScreen(lua_State* L) {
 }
 
 int lualilka_display_drawPixel(lua_State* L) {
-    int x = luaL_checkinteger(L, 1);
-    int y = luaL_checkinteger(L, 2);
+    int x = luaL_checknumber(L, 1);
+    int y = luaL_checknumber(L, 2);
     uint16_t color = luaL_checkinteger(L, 3);
     getDrawable(L)->drawPixel(x, y, color);
     return 0;
 }
 
 int lualilka_display_drawLine(lua_State* L) {
-    int x0 = luaL_checkinteger(L, 1);
-    int y0 = luaL_checkinteger(L, 2);
-    int x1 = luaL_checkinteger(L, 3);
-    int y1 = luaL_checkinteger(L, 4);
+    int x0 = luaL_checknumber(L, 1);
+    int y0 = luaL_checknumber(L, 2);
+    int x1 = luaL_checknumber(L, 3);
+    int y1 = luaL_checknumber(L, 4);
     uint16_t color = luaL_checkinteger(L, 5);
     getDrawable(L)->drawLine(x0, y0, x1, y1, color);
     return 0;
 }
 
 int lualilka_display_drawRect(lua_State* L) {
-    int x = luaL_checkinteger(L, 1);
-    int y = luaL_checkinteger(L, 2);
-    int w = luaL_checkinteger(L, 3);
-    int h = luaL_checkinteger(L, 4);
+    int x = luaL_checknumber(L, 1);
+    int y = luaL_checknumber(L, 2);
+    int w = luaL_checknumber(L, 3);
+    int h = luaL_checknumber(L, 4);
     uint16_t color = luaL_checkinteger(L, 5);
     getDrawable(L)->drawRect(x, y, w, h, color);
     return 0;
 }
 
 int lualilka_display_fillRect(lua_State* L) {
-    int x = luaL_checkinteger(L, 1);
-    int y = luaL_checkinteger(L, 2);
-    int w = luaL_checkinteger(L, 3);
-    int h = luaL_checkinteger(L, 4);
+    int x = luaL_checknumber(L, 1);
+    int y = luaL_checknumber(L, 2);
+    int w = luaL_checknumber(L, 3);
+    int h = luaL_checknumber(L, 4);
     uint16_t color = luaL_checkinteger(L, 5);
     getDrawable(L)->fillRect(x, y, w, h, color);
     return 0;
 }
 
 int lualilka_display_drawCircle(lua_State* L) {
-    int x = luaL_checkinteger(L, 1);
-    int y = luaL_checkinteger(L, 2);
-    int r = luaL_checkinteger(L, 3);
+    int x = luaL_checknumber(L, 1);
+    int y = luaL_checknumber(L, 2);
+    int r = luaL_checknumber(L, 3);
     uint16_t color = luaL_checkinteger(L, 4);
     getDrawable(L)->drawCircle(x, y, r, color);
     return 0;
 }
 
 int lualilka_display_fillCircle(lua_State* L) {
-    int x = luaL_checkinteger(L, 1);
-    int y = luaL_checkinteger(L, 2);
-    int r = luaL_checkinteger(L, 3);
+    int x = luaL_checknumber(L, 1);
+    int y = luaL_checknumber(L, 2);
+    int r = luaL_checknumber(L, 3);
     uint16_t color = luaL_checkinteger(L, 4);
     getDrawable(L)->fillCircle(x, y, r, color);
     return 0;
 }
 
 int lualilka_display_drawTriangle(lua_State* L) {
-    int x0 = luaL_checkinteger(L, 1);
-    int y0 = luaL_checkinteger(L, 2);
-    int x1 = luaL_checkinteger(L, 3);
-    int y1 = luaL_checkinteger(L, 4);
-    int x2 = luaL_checkinteger(L, 5);
-    int y2 = luaL_checkinteger(L, 6);
+    int x0 = luaL_checknumber(L, 1);
+    int y0 = luaL_checknumber(L, 2);
+    int x1 = luaL_checknumber(L, 3);
+    int y1 = luaL_checknumber(L, 4);
+    int x2 = luaL_checknumber(L, 5);
+    int y2 = luaL_checknumber(L, 6);
     uint16_t color = luaL_checkinteger(L, 7);
     getDrawable(L)->drawTriangle(x0, y0, x1, y1, x2, y2, color);
     return 0;
 }
 
 int lualilka_display_fillTriangle(lua_State* L) {
-    int x0 = luaL_checkinteger(L, 1);
-    int y0 = luaL_checkinteger(L, 2);
-    int x1 = luaL_checkinteger(L, 3);
-    int y1 = luaL_checkinteger(L, 4);
-    int x2 = luaL_checkinteger(L, 5);
-    int y2 = luaL_checkinteger(L, 6);
+    int x0 = luaL_checknumber(L, 1);
+    int y0 = luaL_checknumber(L, 2);
+    int x1 = luaL_checknumber(L, 3);
+    int y1 = luaL_checknumber(L, 4);
+    int x2 = luaL_checknumber(L, 5);
+    int y2 = luaL_checknumber(L, 6);
     uint16_t color = luaL_checkinteger(L, 7);
     getDrawable(L)->fillTriangle(x0, y0, x1, y1, x2, y2, color);
     return 0;
 }
 
 int lualila_display_drawEllipse(lua_State* L) {
-    int x = luaL_checkinteger(L, 1);
-    int y = luaL_checkinteger(L, 2);
-    int rx = luaL_checkinteger(L, 3);
-    int ry = luaL_checkinteger(L, 4);
+    int x = luaL_checknumber(L, 1);
+    int y = luaL_checknumber(L, 2);
+    int rx = luaL_checknumber(L, 3);
+    int ry = luaL_checknumber(L, 4);
     uint16_t color = luaL_checkinteger(L, 5);
     getDrawable(L)->drawEllipse(x, y, rx, ry, color);
     return 0;
 }
 
 int lualila_display_fillEllipse(lua_State* L) {
-    int x = luaL_checkinteger(L, 1);
-    int y = luaL_checkinteger(L, 2);
-    int rx = luaL_checkinteger(L, 3);
-    int ry = luaL_checkinteger(L, 4);
+    int x = luaL_checknumber(L, 1);
+    int y = luaL_checknumber(L, 2);
+    int rx = luaL_checknumber(L, 3);
+    int ry = luaL_checknumber(L, 4);
     uint16_t color = luaL_checkinteger(L, 5);
     getDrawable(L)->fillEllipse(x, y, rx, ry, color);
     return 0;
 }
 
 int lualilka_display_drawArc(lua_State* L) {
-    int x = luaL_checkinteger(L, 1);
-    int y = luaL_checkinteger(L, 2);
-    int r1 = luaL_checkinteger(L, 3);
-    int r2 = luaL_checkinteger(L, 4);
-    int startAngle = luaL_checkinteger(L, 5);
-    int endAngle = luaL_checkinteger(L, 6);
+    int x = luaL_checknumber(L, 1);
+    int y = luaL_checknumber(L, 2);
+    int r1 = luaL_checknumber(L, 3);
+    int r2 = luaL_checknumber(L, 4);
+    int startAngle = luaL_checknumber(L, 5);
+    int endAngle = luaL_checknumber(L, 6);
     uint16_t color = luaL_checkinteger(L, 7);
     getDrawable(L)->drawArc(x, y, r1, r2, startAngle, endAngle, color);
     return 0;
 }
 
 int lualilka_display_fillArc(lua_State* L) {
-    int x = luaL_checkinteger(L, 1);
-    int y = luaL_checkinteger(L, 2);
-    int r1 = luaL_checkinteger(L, 3);
-    int r2 = luaL_checkinteger(L, 4);
-    int startAngle = luaL_checkinteger(L, 5);
-    int endAngle = luaL_checkinteger(L, 6);
+    int x = luaL_checknumber(L, 1);
+    int y = luaL_checknumber(L, 2);
+    int r1 = luaL_checknumber(L, 3);
+    int r2 = luaL_checknumber(L, 4);
+    int startAngle = luaL_checknumber(L, 5);
+    int endAngle = luaL_checknumber(L, 6);
     uint16_t color = luaL_checkinteger(L, 7);
     getDrawable(L)->fillArc(x, y, r1, r2, startAngle, endAngle, color);
     return 0;
@@ -249,8 +249,8 @@ int lualilka_display_drawImage(lua_State* L) {
     Image* image = (Image*)lua_touserdata(L, -1);
     lua_pop(L, 1);
 
-    int16_t x = luaL_checkinteger(L, 2);
-    int16_t y = luaL_checkinteger(L, 3);
+    int16_t x = luaL_checknumber(L, 2);
+    int16_t y = luaL_checknumber(L, 3);
 
     if (image->transparentColor >= 0) {
         getDrawable(L)->draw16bitRGBBitmapWithTranColor(

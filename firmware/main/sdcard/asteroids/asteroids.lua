@@ -110,13 +110,13 @@ function Ship:draw()
         -- Малюємо коло, яке збільшується та зменшується впродовж 1 секунди
         if time_since_death < 1 then
             local radius = math.sin(time_since_death * 2 * math.pi) * 32
-            display.fill_circle(math.floor(self.x), math.floor(self.y), math.floor(radius), WHITE)
+            display.fill_circle(self.x, self.y, radius, WHITE)
         end
     else
         local rotation_index = math.floor(self.rotation / ANGLE_STEP) + 1
         -- Координати верхнього лівого кута спрайту
-        local cx = math.floor(self.x - self.width / 2)
-        local cy = math.floor(self.y - self.height / 2)
+        local cx = self.x - self.width / 2
+        local cy = self.y - self.height / 2
 
         local sprite_set
         if self.accel_forward > 0 then
@@ -185,7 +185,7 @@ function Bullet:kill()
 end
 
 function Bullet:draw()
-    display.fill_circle(math.floor(self.x), math.floor(self.y), self.radius, WHITE)
+    display.fill_circle(self.x, self.y, self.radius, WHITE)
 end
 
 Asteroid = {
@@ -251,11 +251,11 @@ function Asteroid:draw()
         -- Малюємо коло, яке збільшується та зменшується впродовж 1 секунди
         if time_since_death < 1 then
             local radius = math.sin(time_since_death * 2 * math.pi) * self.sprite.width / 2
-            display.fill_circle(math.floor(self.x), math.floor(self.y), math.floor(radius), WHITE)
+            display.fill_circle(self.x, self.y, radius, WHITE)
         end
     else
-        local cx = math.floor(self.x - self.sprite.width / 2)
-        local cy = math.floor(self.y - self.sprite.height / 2)
+        local cx = self.x - self.sprite.width / 2
+        local cy = self.y - self.sprite.height / 2
         display.draw_image(self.sprite, cx, cy)
         if not self.offscreen then
             if cx < 0 then
@@ -403,10 +403,16 @@ function lilka.draw()
     if game_state == GAME_STATE.HELLO then
         local banner = BANNER[math.random(1, 4)]
         display.fill_screen(BLACK)
-        display.draw_image(banner, math.floor(display.width / 2 - banner.width / 2),
-            math.floor(display.height / 2 - banner.height / 2))
-        display.draw_image(PRESS_START, math.floor(display.width / 2 - PRESS_START.width / 2),
-            math.floor(display.height - PRESS_START.height - 32))
+        display.draw_image(
+            banner,
+            display.width / 2 - banner.width / 2,
+            display.height / 2 - banner.height / 2
+        )
+        display.draw_image(
+            PRESS_START,
+            display.width / 2 - PRESS_START.width / 2,
+            display.height - PRESS_START.height - 32
+        )
     else
         display.fill_screen(BLACK)
         ship:draw()
@@ -417,10 +423,16 @@ function lilka.draw()
             asteroid:draw()
         end
         if game_state == GAME_STATE.GAME_OVER then
-            display.draw_image(YOU_ARE_DEAD, math.floor(display.width / 2 - YOU_ARE_DEAD.width / 2),
-                math.floor(display.height / 2 - YOU_ARE_DEAD.height / 2))
-            display.draw_image(PRESS_START, math.floor(display.width / 2 - PRESS_START.width / 2),
-                math.floor(display.height - PRESS_START.height - 32))
+            display.draw_image(
+                YOU_ARE_DEAD,
+                display.width / 2 - YOU_ARE_DEAD.width / 2,
+                display.height / 2 - YOU_ARE_DEAD.height / 2
+            )
+            display.draw_image(
+                PRESS_START,
+                display.width / 2 - PRESS_START.width / 2,
+                display.height - PRESS_START.height - 32
+            )
         end
     end
 end

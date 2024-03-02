@@ -43,5 +43,5 @@ function fill_cells(x, y, w, h, color)
     local cw = display.width / 14
     local ch = display.height / 12
 
-    display.fill_rect(math.floor(x * cw), math.floor(y * ch), math.floor(w * cw), math.floor(h * ch), color)
+    display.fill_rect(x * cw, y * ch, w * cw, h * ch, color)
 end
