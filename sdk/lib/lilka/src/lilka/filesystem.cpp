@@ -39,6 +39,12 @@ int Filesystem::readdir(String filenames[]) {
         file = _root.openNextFile();
     }
     _root.close();
+    // Sort filenames
+    qsort(filenames, count, sizeof(String), [](const void *a, const void *b) -> int {
+        const String *ea = (const String *)a;
+        const String *eb = (const String *)b;
+        return ea->compareTo(*eb);
+    });
     return count;
 }
 

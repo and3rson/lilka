@@ -11,22 +11,24 @@ namespace lilka {
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-int ui_menu(String title, String menu[], int menu_size, int cursor, const menu_icon_t *icons[]) {
+int ui_menu(
+    String title, String menu[], int menu_size, int cursor, const menu_icon_t *icons[], const uint16_t colors[]
+) {
     Canvas canvas;
     canvas.begin();
     controller.resetState();
-    int16_t cursorY = cursor * 24 + 96 - 20;
+    // int16_t cursorY = cursor * 24 + 96 - 20;
     int16_t scroll = 0;
     while (1) {
         if (cursor < scroll) {
             scroll = cursor;
-            cursorY = cursor * 24 + 96 - 20;
+            // cursorY = cursor * 24 + 96 - 20;
         } else if (cursor > scroll + MENU_HEIGHT - 1) {
             scroll = cursor - MENU_HEIGHT + 1;
-            cursorY = cursor * 24 + 96 - 20;
+            // cursorY = cursor * 24 + 96 - 20;
         }
 
-        uint8_t desiredCursorY = cursor * 24 + 96 - 20;
+        // uint8_t desiredCursorY = cursor * 24 + 96 - 20;
         canvas.fillScreen(canvas.color565(0, 0, 0));
         int8_t angleShift = sin(millis() / 1000.0) * 16;
         // Draw triangle in top-left
@@ -45,18 +47,18 @@ int ui_menu(String title, String menu[], int menu_size, int cursor, const menu_i
         canvas.setTextSize(1);
         canvas.setFont(FONT_10x20);
 
-        canvas.fillRect(0, cursorY - scroll * 24, LILKA_DISPLAY_WIDTH, 24, canvas.color565(255, 64, 0));
-        if (cursorY < desiredCursorY) {
-            cursorY += ceil((float)(desiredCursorY - cursorY) / 2);
-            if (cursorY > desiredCursorY) {
-                cursorY = desiredCursorY;
-            }
-        } else if (cursorY > desiredCursorY) {
-            cursorY -= floor((float)(cursorY - desiredCursorY) / 2);
-            if (cursorY < desiredCursorY) {
-                cursorY = desiredCursorY;
-            }
-        }
+        canvas.fillRect(0, (cursor * 24 + 96 - 20) - scroll * 24, LILKA_DISPLAY_WIDTH, 24, canvas.color565(255, 64, 0));
+        // if (cursorY < desiredCursorY) {
+        //     cursorY += ceil((float)(desiredCursorY - cursorY) / 2);
+        //     if (cursorY > desiredCursorY) {
+        //         cursorY = desiredCursorY;
+        //     }
+        // } else if (cursorY > desiredCursorY) {
+        //     cursorY -= floor((float)(cursorY - desiredCursorY) / 2);
+        //     if (cursorY < desiredCursorY) {
+        //         cursorY = desiredCursorY;
+        //     }
+        // }
 
         for (int i = scroll; i < MIN(scroll + MENU_HEIGHT, menu_size); i++) {
             // canvas.fillRect(0, 96 + i * 24 - 20, LILKA_DISPLAY_WIDTH, 24, i == cursor ? canvas.color565(255, 64, 0) :
@@ -66,11 +68,15 @@ int ui_menu(String title, String menu[], int menu_size, int cursor, const menu_i
             if (icons != NULL && icons[i] != NULL) {
                 const uint16_t *icon = *icons[i];
                 canvas.draw16bitRGBBitmapWithTranColor(
-                    0, 96 + i * 24 - 20, icon, canvas.color565(0, 0, 0), 24, 24
+                    0, 96 + screenI * 24 - 20, icon, canvas.color565(0, 0, 0), 24, 24
                 );
             }
             canvas.setCursor(32, 96 + screenI * 24);
-            canvas.setTextColor(canvas.color565(255, 255, 255));
+            if (colors != NULL && colors[i] != 0 && cursor != i) {
+                canvas.setTextColor(colors[i]);
+            } else {
+                canvas.setTextColor(canvas.color565(255, 255, 255));
+            }
             // gfx->print(i == cursor ? "> " : "  ");
             canvas.println(menu[i]);
         }

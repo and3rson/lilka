@@ -26,7 +26,9 @@ void SDCard::begin() {
     }
 
     if (cardType == CARD_SD || cardType == CARD_SDHC) {
-        serial_log("card type: %s, card size: %ld MB", cardType == CARD_SD ? "SD" : "SDHC", fs->totalBytes() / (1024 * 1024));
+        serial_log(
+            "card type: %s, card size: %ld MB", cardType == CARD_SD ? "SD" : "SDHC", fs->totalBytes() / (1024 * 1024)
+        );
     } else {
         serial_err("unknown SD card type: %d", cardType);
     }
@@ -73,6 +75,17 @@ int SDCard::listDir(String path, Entry entries[]) {
         i++;
     }
     root.close();
+    // Sort filenames, but keep directories first
+    qsort(entries, i, sizeof(Entry), [](const void *a, const void *b) -> int {
+        const Entry *ea = (const Entry *)a;
+        const Entry *eb = (const Entry *)b;
+        if (ea->type == ENT_DIRECTORY && eb->type != ENT_DIRECTORY) {
+            return -1;
+        } else if (ea->type != ENT_DIRECTORY && eb->type == ENT_DIRECTORY) {
+            return 1;
+        }
+        return ea->name.compareTo(eb->name);
+    });
     return i;
 }
 

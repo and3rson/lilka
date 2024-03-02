@@ -17,6 +17,7 @@ namespace lilka {
 /// @param menu_size Розмір масиву пунктів меню.
 /// @param cursor Початковий курсор. За замовчуванням встановлено в 0.
 /// @param icons Масив іконок для кожного пункту меню. Якщо значення елементу (або весь масив) буде рівним 0, то іконка не відображається.
+/// @param colors Масив кольорів для кожного пункту меню (в форматі RGB 5-6-5). Якщо значення елементу (або весь масив) буде рівним 0, то використовується стандартний колір.
 /// @return Індекс вибраного пункту меню.
 ///
 /// Приклад використання:
@@ -38,7 +39,10 @@ namespace lilka {
 /// }
 /// @endcode
 
-int ui_menu(String title, String menu[], int menu_size, int cursor = 0, const menu_icon_t *icons[] = 0);
+int ui_menu(
+    String title, String menu[], int menu_size, int cursor = 0, const menu_icon_t *icons[] = 0,
+    const uint16_t colors[] = 0
+);
 /// Відобразити сповіщення.
 ///
 /// Блокує виконання програми, доки користувач не натисне кнопку A.

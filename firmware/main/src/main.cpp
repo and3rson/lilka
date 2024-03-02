@@ -60,6 +60,20 @@ const menu_icon_t *get_file_icon(const String &filename) {
     }
 }
 
+const uint16_t get_file_color(const String &filename) {
+    if (filename.endsWith(".rom") || filename.endsWith(".nes")) {
+        return lilka::display.color565(255, 128, 128);
+    } else if (filename.endsWith(".bin")) {
+        return lilka::display.color565(128, 255, 128);
+    } else if (filename.endsWith(".lua")) {
+        return lilka::display.color565(128, 128, 255);
+    } else if (filename.endsWith(".js")) {
+        return lilka::display.color565(255, 200, 128);
+    } else {
+        return lilka::display.color565(200, 200, 200);
+    }
+}
+
 void select_file(String path) {
     if (path.endsWith(".rom") || path.endsWith(".nes")) {
         char *argv[1];
@@ -147,7 +161,8 @@ void sd_browser_menu(String path) {
         return;
     }
 
-    lilka::Entry entries[32];
+    lilka::Entry entries
+        [32]; // TODO - allocate dynamically (increasing to 64 causes task stack overflow which is limited by ARDUINO_LOOP_STACK_SIZE)
     int numEntries = lilka::sdcard.listDir(path, entries);
 
     if (numEntries == -1) {
@@ -157,16 +172,20 @@ void sd_browser_menu(String path) {
 
     String filenames[32];
     const menu_icon_t *icons[32];
+    uint16_t colors[32];
     for (int i = 0; i < numEntries; i++) {
         filenames[i] = entries[i].name;
         icons[i] = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(filenames[i]);
+        colors[i] = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? lilka::display.color565(255, 255, 200)
+                                                                       : get_file_color(filenames[i]);
     }
     filenames[numEntries++] = "<< Назад";
     icons[numEntries - 1] = 0;
+    colors[numEntries - 1] = 0;
 
     int cursor = 0;
     while (1) {
-        cursor = lilka::ui_menu(String("SD: ") + path, filenames, numEntries, cursor, icons);
+        cursor = lilka::ui_menu(String("SD: ") + path, filenames, numEntries, cursor, icons, colors);
         if (cursor == numEntries - 1) {
             return;
         }
@@ -184,7 +203,8 @@ void spiffs_browser_menu() {
         return;
     }
 
-    String filenames[32];
+    String filenames
+        [32]; // TODO - allocate dynamically (increasing to 64 causes task stack overflow which is limited by ARDUINO_LOOP_STACK_SIZE)
     int numEntries = lilka::filesystem.readdir(filenames);
 
     if (numEntries == -1) {
@@ -193,15 +213,18 @@ void spiffs_browser_menu() {
     }
 
     const menu_icon_t *icons[32];
+    uint16_t colors[32];
     for (int i = 0; i < numEntries; i++) {
         icons[i] = get_file_icon(filenames[i]);
+        colors[i] = get_file_color(filenames[i]);
     }
     filenames[numEntries++] = "<< Назад";
     icons[numEntries - 1] = 0;
+    colors[numEntries - 1] = 0;
 
     int cursor = 0;
     while (1) {
-        cursor = lilka::ui_menu(String("SPIFFS"), filenames, numEntries, cursor, icons);
+        cursor = lilka::ui_menu(String("SPIFFS"), filenames, numEntries, cursor, icons, colors);
         if (cursor == numEntries - 1) {
             return;
         }
@@ -425,7 +448,7 @@ void loop() {
         } else if (cursor == 4) {
             system_utils_menu();
         } else if (cursor == 5) {
-            lilka::ui_alert("Лілка Demo OS", "by Андерсон\n& friends");
+            lilka::ui_alert("Лілка Main OS", "by Андерсон\n& friends");
         }
     }
 }
