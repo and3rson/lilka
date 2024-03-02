@@ -24,6 +24,7 @@ build:
 
 sphinx:
   configuration: docs/conf.py
+  builder: dirhtml
 
 formats:
    - pdf

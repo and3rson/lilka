@@ -1,8 +1,9 @@
 KICAD_CLI = kicad-cli
+BUILDER = dirhtml
 
 .PHONY: all
 all: clean pdf doxygen
-	sphinx-build -M html . _build
+	sphinx-build -M $(BUILDER) . _build
 
 .PHONY: pdf
 pdf:
@@ -16,7 +17,7 @@ doxygen:
 .PHONY: autobuild
 autobuild: clean doxygen
 	@# Live-reload the documentation
-	sphinx-autobuild . _build/html --ignore '**/_doxygen/**'
+	sphinx-autobuild -b $(BUILDER) . _build/html --ignore '**/_doxygen/**'
 
 .PHONY: clean
 clean:
