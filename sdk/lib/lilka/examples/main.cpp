@@ -1,12 +1,3 @@
-# Lilka
-
-Бібліотека для роботи з компонентами [Лілки](https://docs.lilka.dev/).
-
-Офіційна документація доступна [за цим посиланням](https://docs.lilka.dev/uk/latest/library/index.html).
-
-# Приклад використання
-
-```cpp
 #include <lilka.h>
 
 void setup() {
@@ -39,4 +30,3 @@ void loop() {
         }
     }
 }
-```
