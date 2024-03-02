@@ -4,8 +4,10 @@ WHITE = display.color565(255, 255, 255)
 BLACK = display.color565(0, 0, 0)
 MAGENTA = display.color565(255, 0, 255)
 
--- TODO: Get rid of this
+-- TODO: Виколистовується, якщо потрібно запускати гру через режим "Live Lua"
 -- ROOT = 'asteroids/'
+ROOT = ''
+
 
 ANGLE_COUNT = 60
 ANGLE_STEP = 360 / ANGLE_COUNT
