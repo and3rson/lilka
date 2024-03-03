@@ -57,7 +57,7 @@ bool callUpdate(lua_State* L, uint32_t delta) {
         lua_pop(L, 1);
         return false;
     }
-    lua_pushnumber(L, delta / 1000.0);
+    lua_pushnumber(L, ((float)delta) / 1000.0);
     int retCode = lua_pcall(L, 1, 0, 0);
     lua_Debug dbg;
     if (retCode) {
@@ -128,6 +128,15 @@ int execute(lua_State* L) {
                 longjmp(stopjmp, 32);
                 serial_log("lua: no update or draw function");
             }
+
+            // Check if show_fps is true and render FPS
+            lua_getfield(L, -1, "show_fps");
+            if (lua_toboolean(L, -1)) {
+                canvas->setCursor(24, 24);
+                canvas->setTextColor(0xFFFF, 0);
+                canvas->print(String("FPS: ") + (1000 / (delta > 0 ? delta : 1)) + "  ");
+            }
+            lua_pop(L, 1);
 
             display.renderCanvas(*canvas);
 
@@ -202,6 +211,9 @@ lua_State* lua_setup(const char* dir) {
 
     // Set global "lilka" table for user stuff
     lua_newtable(L);
+    // Add show_fps attribute to lilka table that defaults to false
+    lua_pushboolean(L, false);
+    lua_setfield(L, -2, "show_fps");
     lua_setglobal(L, "lilka");
 
     return L;
