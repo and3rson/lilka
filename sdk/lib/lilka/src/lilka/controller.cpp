@@ -39,6 +39,7 @@ void Controller::inputTask(void *arg) {
             if (pressed != state->pressed) {
                 state->justPressed = pressed;
                 state->justReleased = !pressed;
+                state->pressed = pressed;
                 if (self->handlers[i] != NULL) {
                     self->handlers[i](state->pressed);
                 }
@@ -46,7 +47,6 @@ void Controller::inputTask(void *arg) {
                     self->globalHandler((Button)i, state->pressed);
                 }
             }
-            state->pressed = pressed;
             state->time = millis();
         }
         xSemaphoreGive(self->semaphore);
