@@ -7,7 +7,9 @@
     :members:
     :undoc-members:
 
-.. doxygenunion:: lilka::State
+.. doxygenstruct:: lilka::State
+    :members:
+    :undoc-members:
 
 .. doxygenclass:: lilka::Controller
     :members:

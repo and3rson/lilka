@@ -20,6 +20,7 @@ typedef enum {
     D,
     SELECT,
     START,
+    ANY,
     COUNT,
 } Button;
 
@@ -37,21 +38,23 @@ typedef struct {
 } ButtonState;
 
 /// Містить стани всіх кнопок, які були виміряні в певний момент часу.
-typedef union {
-    struct {
-        ButtonState up;
-        ButtonState down;
-        ButtonState left;
-        ButtonState right;
-        ButtonState a;
-        ButtonState b;
-        ButtonState c;
-        ButtonState d;
-        ButtonState select;
-        ButtonState start;
-    };
-    ButtonState buttons[Button::COUNT];
+typedef struct {
+    ButtonState up;
+    ButtonState down;
+    ButtonState left;
+    ButtonState right;
+    ButtonState a;
+    ButtonState b;
+    ButtonState c;
+    ButtonState d;
+    ButtonState select;
+    ButtonState start;
+    /// Спеціальний стан, який містить стани "будь-якої" кнопки.
+    ButtonState any;
 } State;
+
+// Так, так, тут колись був union... Але doxygen + breathe не люблять union, які містять анонімні структури. :(
+typedef ButtonState _StateButtons[Button::COUNT];
 
 /// Клас для роботи з контролером.
 ///
@@ -101,8 +104,8 @@ private:
     void _clearHandlers();
     State state;
     int8_t pins[Button::COUNT] = {
-        LILKA_GPIO_UP, LILKA_GPIO_DOWN, LILKA_GPIO_LEFT, LILKA_GPIO_RIGHT,  LILKA_GPIO_A,
-        LILKA_GPIO_B,  LILKA_GPIO_C,    LILKA_GPIO_D,    LILKA_GPIO_SELECT, LILKA_GPIO_START,
+        LILKA_GPIO_UP, LILKA_GPIO_DOWN, LILKA_GPIO_LEFT,   LILKA_GPIO_RIGHT, LILKA_GPIO_A, LILKA_GPIO_B,
+        LILKA_GPIO_C,  LILKA_GPIO_D,    LILKA_GPIO_SELECT, LILKA_GPIO_START, -1,
     };
     void (*handlers[Button::COUNT])(bool);
     void (*globalHandler)(Button, bool);

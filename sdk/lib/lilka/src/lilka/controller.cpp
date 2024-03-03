@@ -11,7 +11,9 @@ SemaphoreHandle_t Controller::semaphore = NULL;
 
 Controller::Controller() {
     for (int i = 0; i < Button::COUNT; i++) {
-        state.buttons[i] = (ButtonState){
+        _StateButtons *buttons = reinterpret_cast<_StateButtons *>(&this->state);
+
+        (*buttons)[i] = (ButtonState){
             .pressed = false,
             .justPressed = false,
             .justReleased = false,
@@ -28,7 +30,12 @@ void Controller::inputTask(void *arg) {
     while (1) {
         xSemaphoreTake(self->semaphore, portMAX_DELAY);
         for (int i = 0; i < Button::COUNT; i++) {
-            ButtonState *state = &self->state.buttons[i];
+            if (i == Button::ANY) {
+                // Skip "any" key since its state is computed from other keys
+                continue;
+            }
+            _StateButtons *buttons = reinterpret_cast<_StateButtons *>(&self->state);
+            ButtonState *state = buttons[i];
             if (self->pins[i] < 0) {
                 continue;
             }
@@ -40,15 +47,20 @@ void Controller::inputTask(void *arg) {
                 state->pressed = pressed;
                 state->justPressed = pressed;
                 state->justReleased = !pressed;
+                self->state.any.pressed = pressed;
+                self->state.any.justPressed = self->state.any.justPressed || pressed;
+                self->state.any.justReleased = self->state.any.justReleased || !pressed;
                 if (self->handlers[i] != NULL) {
                     self->handlers[i](pressed);
                 }
                 if (self->globalHandler != NULL) {
                     self->globalHandler((Button)i, pressed);
                 }
+                state->time = millis();
             }
-            state->time = millis();
         }
+        // Handle "any" key
+
         xSemaphoreGive(self->semaphore);
         // Sleep for 5ms
         vTaskDelay(5 / portTICK_PERIOD_MS);
@@ -100,8 +112,10 @@ State Controller::getState() {
 
 void Controller::_resetState() {
     for (int i = 0; i < Button::COUNT; i++) {
-        state.buttons[i].justPressed = false;
-        state.buttons[i].justReleased = false;
+        _StateButtons *buttons = reinterpret_cast<_StateButtons *>(&this->state);
+        ButtonState *state = buttons[i];
+        state->justPressed = false;
+        state->justReleased = false;
     }
 }
 
