@@ -45,10 +45,10 @@ Image* Resources::loadImage(String filename, int32_t transparentColor) {
         fread(row, 1, width * bytesPerPixel, file);
         for (int x = 0; x < width; x++) {
             uint8_t* pixel = &row[x * bytesPerPixel];
-            uint8_t r = pixel[2];
-            uint8_t g = pixel[1];
             uint8_t b = pixel[0];
-            uint16_t color = (r >> 3) | ((g >> 2) << 5) | ((b >> 3) << 11);
+            uint8_t g = pixel[1];
+            uint8_t r = pixel[2];
+            uint16_t color = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
             image->pixels[y * width + x] = color;
         }
     }

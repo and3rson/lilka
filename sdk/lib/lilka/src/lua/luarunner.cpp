@@ -19,6 +19,8 @@ namespace lilka {
 jmp_buf stopjmp;
 
 bool pushLilka(lua_State* L) {
+    // Pushes the global "lilka" table to the top of the stack.
+    // Returns false if the table doesn't exist.
     lua_getglobal(L, "lilka");
     if (!lua_istable(L, -1)) {
         lua_pop(L, 1);
@@ -28,6 +30,8 @@ bool pushLilka(lua_State* L) {
 }
 
 bool callInit(lua_State* L) {
+    // Calls the "init" function of the "lilka" table.
+    // Returns false if the function doesn't exist and pops "lilka" from the stack.
     lua_getfield(L, -1, "init");
     if (!lua_isfunction(L, -1)) {
         lua_pop(L, 1);
@@ -35,15 +39,19 @@ bool callInit(lua_State* L) {
     }
     int retCode = lua_pcall(L, 0, 0, 0);
     if (retCode) {
-        const char* err = lua_tostring(L, -1);
-        lilka::ui_alert("Lua", String("Помилка в init: ") + err);
-        lua_pop(L, 2);
+        // Stack now contains error message on top.
+        // We need to pop two deeper values and keep the error message on top.
+        lua_remove(L, -2);
+        lua_remove(L, -2);
+        // Stack now contains only the error message.
         longjmp(stopjmp, retCode);
     }
     return true;
 }
 
 bool callUpdate(lua_State* L, uint32_t delta) {
+    // Calls the "update" function of the "lilka" table with the given delta.
+    // Returns false if the function doesn't exist and pops "lilka" from the stack.
     lua_getfield(L, -1, "update");
     if (!lua_isfunction(L, -1)) {
         lua_pop(L, 1);
@@ -51,16 +59,21 @@ bool callUpdate(lua_State* L, uint32_t delta) {
     }
     lua_pushnumber(L, delta / 1000.0);
     int retCode = lua_pcall(L, 1, 0, 0);
+    lua_Debug dbg;
     if (retCode) {
-        const char* err = lua_tostring(L, -1);
-        lilka::ui_alert("Lua", String("Помилка в update: ") + err);
-        lua_pop(L, 2);
+        // Stack now contains error message on top.
+        // We need to pop two deeper values and keep the error message on top.
+        lua_remove(L, -2);
+        lua_remove(L, -2);
+        // Stack now contains only the error message.
         longjmp(stopjmp, retCode);
     }
     return true;
 }
 
 bool callDraw(lua_State* L) {
+    // Calls the "draw" function of the "lilka" table.
+    // Returns false if the function doesn't exist and pops "lilka" from the stack.
     lua_getfield(L, -1, "draw");
     if (!lua_isfunction(L, -1)) {
         lua_pop(L, 1);
@@ -68,9 +81,11 @@ bool callDraw(lua_State* L) {
     }
     int retCode = lua_pcall(L, 0, 0, 0);
     if (retCode) {
-        const char* err = lua_tostring(L, -1);
-        lilka::ui_alert("Lua", String("Помилка в draw: ") + err);
-        lua_pop(L, 2);
+        // Stack now contains error message on top.
+        // We need to pop two deeper values and keep the error message on top.
+        lua_remove(L, -2);
+        lua_remove(L, -2);
+        // Stack now contains only the error message.
         longjmp(stopjmp, retCode);
     }
     return true;
@@ -96,10 +111,7 @@ int execute(lua_State* L) {
         if (!pushLilka(L)) {
             // No lilka table - we're done
             lua_pop(L, 1);
-            serial_log("lua: lilka table");
             longjmp(stopjmp, 32);
-        } else {
-            serial_log("lua: lilka table found");
         }
 
         // Check if lilka.init function exists and call it
@@ -113,11 +125,8 @@ int execute(lua_State* L) {
 
             if (!callUpdate(L, delta) || !callDraw(L)) {
                 // No update or draw function - we're done
-                lua_pop(L, 1);
                 longjmp(stopjmp, 32);
                 serial_log("lua: no update or draw function");
-            } else {
-                serial_log("lua: update and/or draw");
             }
 
             display.renderCanvas(*canvas);
@@ -168,21 +177,14 @@ lua_State* lua_setup(const char* dir) {
     lua_setfield(L, -2, "cpath");
     lua_pop(L, 1);
 
-    lilka::serial_log("lua: init display");
+    lilka::serial_log("lua: register globals");
     lualilka_display_register(L);
-    lilka::serial_log("lua: init console");
     lualilka_console_register(L);
-    lilka::serial_log("lua: init controller");
     lualilka_controller_register(L);
-    lilka::serial_log("lua: init resources");
     lualilka_resources_register(L);
-    lilka::serial_log("lua: init math");
     lualilka_math_register(L);
-    lilka::serial_log("lua: init geometry");
     lualilka_geometry_register(L);
-    lilka::serial_log("lua: init gpio");
     lualilka_gpio_register(L);
-    lilka::serial_log("lua: init util");
     lualilka_util_register(L);
 
     lilka::serial_log("lua: init canvas");
@@ -191,7 +193,6 @@ lua_State* lua_setup(const char* dir) {
     canvas->setFont(FONT_10x20);
     canvas->begin();
     // Store canvas in registry with "canvas" key
-    lilka::serial_log("lua: store canvas in registry");
     lua_pushlightuserdata(L, canvas);
     lua_setfield(L, LUA_REGISTRYINDEX, "canvas");
     // Initialize table for image pointers

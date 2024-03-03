@@ -294,6 +294,9 @@ void live_lua() {
             lilka::serial_log("Line ends: LF only");
         }
 
+        // TODO: This is a temporary fix: https://github.com/espressif/arduino-esp32/issues/9221
+        lilka::sdcard.available();
+
         // Run the code
         int retCode = lilka::lua_runsource(code);
         if (retCode) {
@@ -321,6 +324,9 @@ void lua_repl() {
         lilka::ui_alert("Lua", String("Увага!\nКод завершення: ") + retCode);
         return;
     }
+
+    // TODO: This is a temporary fix: https://github.com/espressif/arduino-esp32/issues/9221
+    lilka::sdcard.available();
 
     bool quit = false;
     while (!quit) {

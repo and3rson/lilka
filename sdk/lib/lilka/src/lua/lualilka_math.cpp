@@ -418,8 +418,8 @@ int lualilka_math_rotate(lua_State* L) {
     float angle = luaL_checknumber(L, 3);
     float c = fCos360(angle);
     float s = fSin360(angle);
-    lua_pushnumber(L, x * c + y * s);
-    lua_pushnumber(L, -x * s + y * c);
+    lua_pushnumber(L, x * c - y * s);
+    lua_pushnumber(L, x * s + y * c);
     return 2;
 }
 
