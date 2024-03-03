@@ -407,6 +407,22 @@ int lualilka_math_dist(lua_State* L) {
     return 1;
 }
 
+int lualilka_math_rotate(lua_State* L) {
+    // Rotate vector (x, y) by angle (in degrees) around origin (Y-axis points down, clockwise)
+    int n = lua_gettop(L);
+    if (n != 3) {
+        return luaL_error(L, "Очікується 3 аргументи, отримано %d", n);
+    }
+    float x = luaL_checknumber(L, 1);
+    float y = luaL_checknumber(L, 2);
+    float angle = luaL_checknumber(L, 3);
+    float c = fCos360(angle);
+    float s = fSin360(angle);
+    lua_pushnumber(L, x * c + y * s);
+    lua_pushnumber(L, -x * s + y * c);
+    return 2;
+}
+
 static const luaL_Reg lualilka_math[] = {
     {"random", lualilka_math_random},
     {"clamp", lualilka_math_clamp},
@@ -436,6 +452,7 @@ static const luaL_Reg lualilka_math[] = {
     {"norm", lualilka_math_norm},
     {"len", lualilka_math_len},
     {"dist", lualilka_math_dist},
+    {"rotate", lualilka_math_rotate},
 
     {NULL, NULL},
 };

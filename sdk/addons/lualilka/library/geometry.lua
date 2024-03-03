@@ -4,17 +4,6 @@
 ---Геометричні функції
 geometry = {}
 
----Повертає відстань між точками (x1;y1) та (x2;y2).
----@param x1 number координата x першої точки
----@param y1 number координата y першої точки
----@param x2 number координата x другої точки
----@param y2 number координата y другої точки
----@return number
----@usage
---- print(math.dist(0, 0, 3, 4) -- Виведе 5
---- print(math.dist(0, 0, 1, 1) -- Виведе 1.4142135623731
-function geometry.dist(x1, y1, x2, y2) end
-
 ---Повертає true, якщо відрізки AB та CD перетинаються.
 ---@param ax number координата x першої точки відрізка AB
 ---@param ay number координата y першої точки відрізка AB

@@ -116,7 +116,7 @@ Image::~Image() {
 }
 
 void Image::rotate(int16_t angle, Image *dest, int32_t blankColor) {
-    // Rotate the image
+    // Rotate the image clockwise (Y-axis points down)
     int cx = width / 2;
     int cy = height / 2;
 
@@ -124,8 +124,8 @@ void Image::rotate(int16_t angle, Image *dest, int32_t blankColor) {
         for (int x = 0; x < width; x++) {
             int dx = x - cx;
             int dy = y - cy;
-            int x2 = cx + dx * fCos360(angle) - dy * fSin360(angle);
-            int y2 = cy + dx * fSin360(angle) + dy * fCos360(angle);
+            int x2 = cx + dx * fCos360(angle) + dy * fSin360(angle);
+            int y2 = cy - dx * fSin360(angle) + dy * fCos360(angle);
             if (x2 >= 0 && x2 < width && y2 >= 0 && y2 < height) {
                 dest->pixels[x + y * width] = pixels[x2 + y2 * width];
             } else {

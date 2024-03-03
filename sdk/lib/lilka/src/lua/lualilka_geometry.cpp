@@ -2,21 +2,6 @@
 
 namespace lilka {
 
-int lualilka_geometry_dist(lua_State* L) {
-    int n = lua_gettop(L);
-    if (n != 4) {
-        return luaL_error(L, "Очікується 4 аргументи, отримано %d", n);
-    }
-
-    float x1 = luaL_checknumber(L, 1);
-    float y1 = luaL_checknumber(L, 2);
-    float x2 = luaL_checknumber(L, 3);
-    float y2 = luaL_checknumber(L, 4);
-
-    lua_pushnumber(L, sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)));
-    return 1;
-}
-
 int lualilka_geometry_intersectLines(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 8) {
@@ -75,7 +60,6 @@ int lualilka_geometry_intersectAABB(lua_State* L) {
 }
 
 static const luaL_Reg lualilka_geometry[] = {
-    {"dist", lualilka_geometry_dist},
     {"intersect_lines", lualilka_geometry_intersectLines},
     {"intersect_aabb", lualilka_geometry_intersectAABB},
 

@@ -81,7 +81,7 @@ Ship = {
     sprites = SHIP_SPRITES,
     forward_sprites = SHIP_FORWARD_SPRITES,
     backward_sprites = SHIP_BACKWARD_SPRITES,
-    rotation = 90, -- Поворот корабля в градусах
+    rotation = 270, -- Кут обороту корабля в градусах за годинниковою стрілкою
     speed_x = 0,
     speed_y = 0,
     accel_forward = 0,
@@ -113,8 +113,7 @@ function Ship:kill()
 end
 
 function Ship:update(delta)
-    local dir_x = math.cos(math.rad(-self.rotation))
-    local dir_y = math.sin(math.rad(-self.rotation))
+    local dir_x, dir_y = math.rotate(1, 0, self.rotation)
 
     self.speed_x = self.speed_x + self.accel_forward * delta * dir_x
     self.speed_y = self.speed_y + self.accel_forward * delta * dir_y
@@ -381,17 +380,16 @@ function lilka.update(delta)
 
             -- Поворот корабля
             if state.left.pressed then
-                ship:set_angular_speed(180)
-            elseif state.right.pressed then
                 ship:set_angular_speed(-180)
+            elseif state.right.pressed then
+                ship:set_angular_speed(180)
             else
                 ship:set_angular_speed(0)
             end
 
             -- Стрільба
             if state.a.just_pressed then
-                local dir_x = math.cos(math.rad(-ship.rotation))
-                local dir_y = math.sin(math.rad(-ship.rotation))
+                local dir_x, dir_y = math.rotate(1, 0, ship.rotation)
                 local bullet = Bullet:new(ship.x + dir_x * ship.width / 2, ship.y + dir_y * ship.height / 2)
                 bullet.speed_x = ship.speed_x / 2 + display.width * dir_x
                 bullet.speed_y = ship.speed_y / 2 + display.width * dir_y
