@@ -37,14 +37,14 @@ void Controller::inputTask(void *arg) {
             }
             bool pressed = !digitalRead(self->pins[i]);
             if (pressed != state->pressed) {
+                state->pressed = pressed;
                 state->justPressed = pressed;
                 state->justReleased = !pressed;
-                state->pressed = pressed;
                 if (self->handlers[i] != NULL) {
-                    self->handlers[i](state->pressed);
+                    self->handlers[i](pressed);
                 }
                 if (self->globalHandler != NULL) {
-                    self->globalHandler((Button)i, state->pressed);
+                    self->globalHandler((Button)i, pressed);
                 }
             }
             state->time = millis();
