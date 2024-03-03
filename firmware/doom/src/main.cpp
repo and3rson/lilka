@@ -63,10 +63,35 @@ void setup() {
     int argc = 3;
     char arg[] = "doomgeneric";
     char arg2[] = "-iwad";
-    char arg3[] = "/sd/doom.wad";
-    char *argv[] = {arg, arg2, arg3};
+    char arg3[64];
+    bool found = false;
+    // Find the wad file
+    File root = SD.open("/sd");
+    File file = root.openNextFile();
+    while (file) {
+        if (!file) {
+            break;
+        }
+        if (file.isDirectory()) {
+            continue;
+        }
+        String name(file.name());
+        name.toLowerCase();
+        if (name.startsWith("doom") && name.endsWith(".wad")) {
+            strcpy(arg3, (String("/sd/") + file.name()).c_str());
+            break;
+        }
+        file.close();
+        file = root.openNextFile();
+    }
+    root.close();
+    if (!found) {
+        lilka::ui_alert("Doom", "Не знайдено .WAD-файлу на картці пам'яті");
+        esp_restart();
+    }
+    char *argv[3] = {arg, arg2, arg3};
 
-    DG_printf("Doomgeneric starting...");
+    DG_printf("Doomgeneric starting, wad file: %s\n", arg3);
 
     D_AllocBuffers();
     doomgeneric_Create(argc, argv);
@@ -76,7 +101,7 @@ void setup() {
     while (1) {
         doomgeneric_Tick();
     }
-    D_FreeBuffers();
+    D_FreeBuffers(); // TODO - never reached
 }
 
 extern "C" void DG_Init() {}

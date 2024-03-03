@@ -14,17 +14,17 @@
 1. Встановіть **Visual Studio Code** з офіційного сайту: https://code.visualstudio.com/
 
    .. image:: ./images/01_download_vscode_cropped.png
-       :width: 50%
+       :width: 80%
 
 2. Запустіть **Visual Studio Code** та встановіть плагін **PlatformIO IDE**.
 
    Для цього відкрийте вкладку **Extensions** (``Ctrl`` + ``Shift`` + ``X``), введіть "**PlatformIO**" в поле пошуку та встановіть плагін.
 
    .. image:: ./images/04_install_platformio_cropped.png
-       :width: 50%
+       :width: 80%
 
    .. .. image:: ./images/05_installed_platformio.png
-   ..     :width: 50%
+   ..     :width: 80%
 
 3. Тепер нам потрібно встановити **Git**.
 
@@ -35,14 +35,14 @@
    Для встановлення **Git** перейдіть на вкладку **Source Control** (``Ctrl`` + ``Shift`` + ``G``) та натисніть "**Download Git for Windows**".
 
    .. image:: ./images/06_download_git_for_win_cropped.png
-       :width: 50%
+       :width: 80%
 
    В процесі встановлення не змінюйте жодних параметрів, залиште все так, як є за замовчуванням, окрім кроку "**Choosing the default editor used by Git**".
 
    На цьому кроці виберіть "**Use Visual Studio Code as Git's default editor**".
 
    .. image:: ./images/07_use_vs_code_with_git_cropped.png
-       :width: 50%
+       :width: 80%
 
 4. Після встановлення **Git** перезапустіть **Visual Studio Code**.
 

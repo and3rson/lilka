@@ -5,9 +5,6 @@
     :maxdepth: 1
 
     assembly/index
-    environment
-    first_flash
-    main_firmware
-    lua
+    main_firmware/index
     development
     extension
