@@ -284,7 +284,7 @@ class Image {
 public:
     Image(uint32_t width, uint32_t height, int32_t transparentColor = -1);
     ~Image();
-    /// Повертає зображення, яке отримане обертанням поточного зображення на заданий кут (в градусах), і записує його в `dest`.
+    /// Обернути зображення на заданий кут (в градусах) і записати результат в `dest`.
     ///
     /// @param angle Кут обертання в градусах.
     /// @param dest Вказівник на Image, в яке буде записано обернуте зображення.
@@ -307,6 +307,10 @@ public:
     /// delete rotatedImage;
     /// @endcode
     void rotate(int16_t angle, Image *dest, int32_t blankColor);
+    /// Віддзеркалити зображення по горизонталі і записати результат в `dest`.
+    void flipX(Image *dest);
+    /// Віддзеркалити зображення по вертикалі і записати результат в `dest`.
+    void flipY(Image *dest);
     uint32_t width;
     uint32_t height;
     /// 16-бітний колір (5-6-5), який буде прозорим. За замовчуванням -1 (прозорість відсутня).

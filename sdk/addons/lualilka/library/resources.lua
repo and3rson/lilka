@@ -27,6 +27,16 @@ function resources.load_image(filename, transparent_color) end
 ---@param blank_color integer колір для пікселів, які залишаться незаповненими
 function resources.rotate_image(image, angle, blank_color) end
 
+---Відображає зображення горизонтально. Зручно використовувати для платформерів, де герой може рухатись вліво та вправо.
+---
+---@param image table ідентифікатор зображення
+function resources.flip_image_x(image) end
+
+---Відображає зображення вертикально.
+---
+---@param image table ідентифікатор зображення
+function resources.flip_image_y(image) end
+
 ---Читає вміст файлу і повертає його як текст.
 ---@param filename string шлях до файлу (відносно місця знаходження скрипта, що виконується)
 ---@return string

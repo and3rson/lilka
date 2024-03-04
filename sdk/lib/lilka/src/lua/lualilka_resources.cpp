@@ -82,6 +82,74 @@ int lualilka_resources_rotateImage(lua_State* L) {
     return 1;
 }
 
+int lualilka_resources_flipImageX(lua_State* L) {
+    // Arg is image table
+    // First argument is table that contains image width, height and pointer. We need all of them.
+    lua_getfield(L, 1, "pointer");
+    // Check if value is a valid pointer
+    if (!lua_islightuserdata(L, -1)) {
+        return luaL_error(L, "Невірне зображення");
+    }
+    Image* image = (Image*)lua_touserdata(L, -1);
+    lua_pop(L, 1);
+
+    // Instantiate a new image
+    lilka::Image* flippedImage = new lilka::Image(image->width, image->height, image->transparentColor);
+    // Rotate the image
+    image->flipX(flippedImage);
+
+    // Append rotatedImage to images table in registry
+    lua_getfield(L, LUA_REGISTRYINDEX, "images");
+    lua_pushlightuserdata(L, flippedImage);
+    lua_setfield(L, -2, (String("xFlippedImage-") + random(100000)).c_str());
+    lua_pop(L, 1);
+
+    // Create and return table that contains image width, height and pointer
+    lua_newtable(L);
+    lua_pushinteger(L, flippedImage->width);
+    lua_setfield(L, -2, "width");
+    lua_pushinteger(L, flippedImage->height);
+    lua_setfield(L, -2, "height");
+    lua_pushlightuserdata(L, flippedImage);
+    lua_setfield(L, -2, "pointer");
+
+    return 1;
+}
+
+int lualilka_resources_flipImageY(lua_State* L) {
+    // Arg is image table
+    // First argument is table that contains image width, height and pointer. We need all of them.
+    lua_getfield(L, 1, "pointer");
+    // Check if value is a valid pointer
+    if (!lua_islightuserdata(L, -1)) {
+        return luaL_error(L, "Невірне зображення");
+    }
+    Image* image = (Image*)lua_touserdata(L, -1);
+    lua_pop(L, 1);
+
+    // Instantiate a new image
+    lilka::Image* flippedImage = new lilka::Image(image->width, image->height, image->transparentColor);
+    // Rotate the image
+    image->flipY(flippedImage);
+
+    // Append rotatedImage to images table in registry
+    lua_getfield(L, LUA_REGISTRYINDEX, "images");
+    lua_pushlightuserdata(L, flippedImage);
+    lua_setfield(L, -2, (String("yFlippedImage-") + random(100000)).c_str());
+    lua_pop(L, 1);
+
+    // Create and return table that contains image width, height and pointer
+    lua_newtable(L);
+    lua_pushinteger(L, flippedImage->width);
+    lua_setfield(L, -2, "width");
+    lua_pushinteger(L, flippedImage->height);
+    lua_setfield(L, -2, "height");
+    lua_pushlightuserdata(L, flippedImage);
+    lua_setfield(L, -2, "pointer");
+
+    return 1;
+}
+
 int lualilka_resources_readFile(lua_State* L) {
     const char* path = luaL_checkstring(L, 1);
     // Get dir from registry
@@ -120,6 +188,8 @@ int lualilka_resources_writeFile(lua_State* L) {
 static const luaL_Reg lualilka_resources[] = {
     {"load_image", lualilka_resources_loadImage},
     {"rotate_image", lualilka_resources_rotateImage},
+    {"flip_image_x", lualilka_resources_flipImageX},
+    {"flip_image_y", lualilka_resources_flipImageY},
     {"read_file", lualilka_resources_readFile},
     {"write_file", lualilka_resources_writeFile},
     {NULL, NULL},

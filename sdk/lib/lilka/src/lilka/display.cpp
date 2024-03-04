@@ -135,6 +135,22 @@ void Image::rotate(int16_t angle, Image *dest, int32_t blankColor) {
     }
 }
 
+void Image::flipX(Image *dest) {
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            dest->pixels[x + y * width] = pixels[(width - 1 - x) + y * width];
+        }
+    }
+}
+
+void Image::flipY(Image *dest) {
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            dest->pixels[x + y * width] = pixels[x + (height - 1 - y) * width];
+        }
+    }
+}
+
 Display display;
 
 } // namespace lilka
