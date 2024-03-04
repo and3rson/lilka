@@ -9,6 +9,8 @@ namespace lilka {
 class Sys {
 public:
     int get_partition_labels(String labels[]);
+    uint64_t get_partition_address(const char *label);
+    uint64_t get_partition_size(const char *label);
     void print_partition_table();
 };
 

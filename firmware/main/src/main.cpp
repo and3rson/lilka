@@ -16,10 +16,12 @@ extern "C" {
 #include "icons/bin.h"
 #include "icons/lua.h"
 #include "icons/js.h"
+#include "icons/demos.h"
 #include "icons/sdcard.h"
 #include "icons/memory.h"
+#include "icons/dev.h"
 #include "icons/settings.h"
-#include "icons/demos.h"
+#include "icons/info.h"
 
 #include "demos/demos.h"
 
@@ -373,8 +375,7 @@ void lua_repl() {
 
 void system_utils_menu() {
     String menu[] = {
-        "Перезавантаження",  "Deep Sleep",       "Версія SDK", "Версія ESP-IDF",
-        "Інфо про пристрій", "Таблиця розділів", "<< Назад",
+        "Перезавантаження", "Версія ESP-IDF", "Інфо про пристрій", "Таблиця розділів", "<< Назад",
     };
     int cursor = 0;
     int count = sizeof(menu) / sizeof(menu[0]);
@@ -383,12 +384,8 @@ void system_utils_menu() {
         if (cursor == 0) {
             esp_restart();
         } else if (cursor == 1) {
-            esp_deep_sleep_start();
+            lilka::ui_alert("Версія ESP-IDF", "Версія: " + String(ESP.getSdkVersion()));
         } else if (cursor == 2) {
-            lilka::ui_alert("Версія SDK", "Версія: " + String(ESP.getSdkVersion()));
-        } else if (cursor == 3) {
-            lilka::ui_alert("Версія ESP-IDF", "Версія: " + String(esp_get_idf_version()));
-        } else if (cursor == 4) {
             char buf[256];
             sprintf(
                 buf,
@@ -402,10 +399,23 @@ void system_utils_menu() {
                 ESP.getCpuFreqMHz(), ESP.getChipCores()
             );
             lilka::ui_alert("Інфо про пристрій", buf);
-        } else if (cursor == 5) {
+        } else if (cursor == 3) {
             String labels[16];
             int labelCount = lilka::sys.get_partition_labels(labels);
-            lilka::ui_menu("Таблиця розділів", labels, labelCount);
+            labels[labelCount++] = "<< Назад";
+            int partitionCursor = 0;
+            while (1) {
+                partitionCursor = lilka::ui_menu("Таблиця розділів", labels, labelCount, partitionCursor);
+                if (partitionCursor == labelCount - 1) {
+                    break;
+                }
+                lilka::ui_alert(
+                    labels[partitionCursor],
+                    String("Адреса: 0x") +
+                        String(lilka::sys.get_partition_address(labels[partitionCursor].c_str()), HEX) + "\n" +
+                        "Розмір: 0x" + String(lilka::sys.get_partition_size(labels[partitionCursor].c_str()), HEX)
+                );
+            }
         } else if (cursor == count - 1) {
             return;
         }
@@ -437,12 +447,17 @@ void loop() {
         "Демо", "Браузер SD-карти", "Браузер SPIFFS", "Розробка", "Системні утиліти", "Про систему",
     };
     const menu_icon_t *icons[] = {
-        &demos, &sdcard, &memory, 0, &settings, 0,
+        &demos, &sdcard, &memory, &dev, &settings, &info,
+    };
+    const uint16_t colors[] = {
+        lilka::display.color565(255, 200, 200), lilka::display.color565(255, 255, 200),
+        lilka::display.color565(200, 255, 200), lilka::display.color565(255, 224, 128),
+        lilka::display.color565(255, 200, 224), lilka::display.color565(200, 224, 255),
     };
     int cursor = 0;
     int count = sizeof(menu) / sizeof(menu[0]);
     while (1) {
-        cursor = lilka::ui_menu("Головне меню", menu, count, cursor, icons);
+        cursor = lilka::ui_menu("Головне меню", menu, count, cursor, icons, colors);
         if (cursor == 0) {
             demos_menu();
         } else if (cursor == 1) {
