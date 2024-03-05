@@ -5,3 +5,15 @@
 .ccls-cache
 .cache
 compile_commands.json
+
+./**/.vs/
+./**/[Dd]ebug/
+./**/[Rr]elease/
+./**/.vscode/
+
+*.o
+*.obj
+*.DS_Store
+*.log
+*.user
+doom.bin
