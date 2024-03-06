@@ -2,6 +2,7 @@
 #include <esp_task_wdt.h>
 
 #include <Arduino_GFX_Library.h>
+#include <vector>
 
 #include "nes/hw_config.h"
 
@@ -24,10 +25,6 @@ extern "C" {
 #include "icons/info.h"
 
 #include "demos/demos.h"
-
-void setup() {
-    lilka::begin();
-}
 
 void demos_menu() {
     void (*demo_funcs[])() = {
@@ -438,34 +435,110 @@ void dev_menu() {
     }
 }
 
-void loop() {
-    String menu[] = {
-        "Демо", "Браузер SD-карти", "Браузер SPIFFS", "Розробка", "Системні утиліти", "Про систему",
-    };
-    const menu_icon_t *icons[] = {
-        &demos, &sdcard, &memory, &dev, &settings, &info,
-    };
-    const uint16_t colors[] = {
-        lilka::display.color565(255, 200, 200), lilka::display.color565(255, 255, 200),
-        lilka::display.color565(200, 255, 200), lilka::display.color565(255, 224, 128),
-        lilka::display.color565(255, 200, 224), lilka::display.color565(200, 224, 255),
-    };
-    int cursor = 0;
-    int count = sizeof(menu) / sizeof(menu[0]);
-    while (1) {
-        cursor = lilka::ui_menu("Головне меню", menu, count, cursor, icons, colors);
-        if (cursor == 0) {
-            demos_menu();
-        } else if (cursor == 1) {
-            sd_browser_menu("/");
-        } else if (cursor == 2) {
-            spiffs_browser_menu();
-        } else if (cursor == 3) {
-            dev_menu();
-        } else if (cursor == 4) {
-            system_utils_menu();
-        } else if (cursor == 5) {
-            lilka::ui_alert("Лілка Main OS", "by Андерсон\n& friends");
+// void setup() {
+//     lilka::begin();
+// }
+
+// void loop() {
+//     String menu[] = {
+//         "Демо", "Браузер SD-карти", "Браузер SPIFFS", "Розробка", "Системні утиліти", "Про систему",
+//     };
+//     const menu_icon_t *icons[] = {
+//         &demos, &sdcard, &memory, &dev, &settings, &info,
+//     };
+//     const uint16_t colors[] = {
+//         lilka::display.color565(255, 200, 200), lilka::display.color565(255, 255, 200),
+//         lilka::display.color565(200, 255, 200), lilka::display.color565(255, 224, 128),
+//         lilka::display.color565(255, 200, 224), lilka::display.color565(200, 224, 255),
+//     };
+//     int cursor = 0;
+//     int count = sizeof(menu) / sizeof(menu[0]);
+//     while (1) {
+//         cursor = lilka::ui_menu("Головне меню", menu, count, cursor, icons, colors);
+//         if (cursor == 0) {
+//             demos_menu();
+//         } else if (cursor == 1) {
+//             sd_browser_menu("/");
+//         } else if (cursor == 2) {
+//             spiffs_browser_menu();
+//         } else if (cursor == 3) {
+//             dev_menu();
+//         } else if (cursor == 4) {
+//             system_utils_menu();
+//         } else if (cursor == 5) {
+//             lilka::ui_alert("Лілка Main OS", "by Андерсон\n& friends");
+//         }
+//     }
+// }
+
+// Struct that contains app name, framebuffer, framebuffer semaphore
+class App {
+public:
+    App(const char *name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) : name(name), x(x), y(y), w(w), h(h) {
+        canvas = new Arduino_Canvas(w, h, NULL, x, y, 0); // TODO: Rotation
+        canvas->begin();
+        sem = xSemaphoreCreateBinary();
+        xSemaphoreGive(sem);
+        xTaskCreate([](void *app) { ((App *)app)->run(); }, name, 4096, this, 1, &taskHandle);
+    }
+    virtual ~App() {
+        delete canvas;
+        vSemaphoreDelete(sem);
+    }
+    virtual void run() = 0;
+    uint16_t x, y, w, h;
+    const char *name;
+    Arduino_Canvas *canvas;
+    SemaphoreHandle_t sem;
+    TaskHandle_t taskHandle;
+};
+
+class HUDApp : public App {
+public:
+    HUDApp() : App("HUD", 0, 0, LILKA_DISPLAY_WIDTH, 32) {}
+    void run() {
+        int counter = 0;
+        while (1) {
+            xSemaphoreTake(sem, portMAX_DELAY);
+            canvas->fillScreen(lilka::display.color565(0, 0, 64));
+            canvas->setTextColor(lilka::display.color565(255, 255, 255), lilka::display.color565(0, 0, 0));
+            canvas->setFont(FONT_10x20);
+            canvas->setCursor(0, 24);
+            canvas->print("This is HUD: " + String(counter++));
+            xSemaphoreGive(sem);
+            vTaskDelay(500 / portTICK_PERIOD_MS);
         }
+    }
+};
+
+class MenuApp : public App {
+public:
+    MenuApp() : App("Menu", 0, 32, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT - 32) {}
+    void run() {
+        while (1) {
+            canvas->fillScreen(lilka::display.color565(0, 64, 0));
+            uint16_t x1 = random(0, LILKA_DISPLAY_WIDTH);
+            uint16_t y1 = random(32, LILKA_DISPLAY_HEIGHT - 32);
+            uint16_t x2 = random(0, LILKA_DISPLAY_WIDTH);
+            uint16_t y2 = random(32, LILKA_DISPLAY_HEIGHT - 32);
+            canvas->drawLine(x1, y1, x2, y2, lilka::display.color565(255, 255, 255));
+            vTaskDelay(300 / portTICK_PERIOD_MS);
+        }
+    }
+};
+
+std::vector<App *> apps;
+
+void setup() {
+    lilka::begin();
+    apps.push_back(new HUDApp());
+    apps.push_back(new MenuApp());
+}
+
+void loop() {
+    for (App *app : apps) {
+        xSemaphoreTake(app->sem, portMAX_DELAY);
+        lilka::display.draw16bitRGBBitmap(app->x, app->y, app->canvas->getFramebuffer(), app->w, app->h);
+        xSemaphoreGive(app->sem);
     }
 }
