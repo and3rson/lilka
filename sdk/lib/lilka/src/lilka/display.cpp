@@ -4,6 +4,7 @@
 #include "spi.h"
 #include "serial.h"
 #include "fmath.h"
+#include "buzzer.h"
 
 namespace lilka {
 
@@ -53,6 +54,9 @@ void Display::begin() {
             }
             endWrite();
         }
+        // TODO: Should not be here. Треба кудись винести.
+        const Tone helloTune[] = {{NOTE_C4, 4}, {NOTE_E4, 4}, {NOTE_E5, -2}, {NOTE_C6, 4}, {NOTE_C5, 4}};
+        buzzer.playMelody(helloTune, 6, 200);
         delay(800);
         for (int i = 4; i >= 0; i--) {
             startWrite();

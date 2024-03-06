@@ -40,6 +40,7 @@ void Buzzer::stop() {
 }
 
 void Buzzer::playMelody(const Tone *melody, uint32_t length, uint32_t tempo) {
+    // TODO: Make this a FreeRTOS task
     for (uint32_t i = 0; i < length; i++) {
         Tone tone = melody[i];
         if (tone.size == 0) {
