@@ -1,9 +1,9 @@
 // This is a generated file, do not edit.
 // clang-format off
 #include <stdint.h>
-const uint16_t splash_width = 240;
-const uint16_t splash_height = 280;
-const uint16_t splash[] = {
+const uint16_t default_splash_width = 240;
+const uint16_t default_splash_height = 280;
+const uint16_t default_splash[] = {
     0x00eb,
     0x00eb,
     0x00eb,

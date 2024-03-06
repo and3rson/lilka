@@ -26,6 +26,8 @@ public:
     ///     return;
     /// }
     /// // Відобразити зображення на екрані
+    /// lilka::display.drawImage(image, 50, 100)
+    /// // Або:
     /// lilka::display.draw16bitRGBBitmapWithTranColor(50, 100, image->pixels, image->transparentColor, image->width, image->height);
     /// // Звільнити пам'ять
     /// delete image;
@@ -36,6 +38,7 @@ public:
     /// TODO: Update sdcard/filesystem stuff
     ///
     /// \param filename Шлях до файлу.
+    /// \param fileContent Змінна, в яку буде записано вміст файлу.
     /// \return 0, якщо читання успішне; -1, якщо файл не знайдено
     /// \warning Не використовуйте цей метод для читання великих файлів, оскільки весь вміст файлу зберігається в
     /// пам'яті. Для великих файлів використовуйте методи `sdcard` та `filesystem`.

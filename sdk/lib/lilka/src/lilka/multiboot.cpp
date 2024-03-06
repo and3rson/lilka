@@ -1,4 +1,4 @@
-#include "loader.h"
+#include "multiboot.h"
 #include "sdcard.h"
 #include "serial.h"
 #include "stdio.h"
@@ -11,11 +11,27 @@ namespace lilka {
 
 extern SDCard sdcard;
 
-void Loader::begin() {
+MultiBoot::MultiBoot() {
+    file = NULL;
+    bytesTotal = 0;
+    bytesWritten = 0;
+    ota_handle = 0;
+    ota_partition = NULL;
+    path = "";
+}
+
+void MultiBoot::begin() {
     const esp_partition_t *current_partition = esp_ota_get_running_partition();
-    serial_log("Current partition: %s, type: %d, subtype: %d, size: %d", current_partition->label, current_partition->type, current_partition->subtype, current_partition->size);
-    const esp_partition_t *ota_partition = esp_ota_get_next_update_partition(current_partition); // get ota1 (we're in ota0 now)
-    serial_log("OTA partition: %s, type: %d, subtype: %d, size: %d", ota_partition->label, ota_partition->type, ota_partition->subtype, ota_partition->size);
+    serial_log(
+        "Current partition: %s, type: %d, subtype: %d, size: %d", current_partition->label, current_partition->type,
+        current_partition->subtype, current_partition->size
+    );
+    const esp_partition_t *ota_partition =
+        esp_ota_get_next_update_partition(current_partition); // get ota1 (we're in ota0 now)
+    serial_log(
+        "OTA partition: %s, type: %d, subtype: %d, size: %d", ota_partition->label, ota_partition->type,
+        ota_partition->subtype, ota_partition->size
+    );
 
     // А тут я згаяв трохи часу. Нижче наведено спроби увімкнути автоматичний відкат прошивки з кінцевим рішенням.
 
@@ -69,14 +85,10 @@ void Loader::begin() {
     serial_log("OTA state: %d", ota_state);
 }
 
-LoaderHandle *Loader::createHandle(String path) {
-    return new LoaderHandle(path);
-}
-
-LoaderHandle::LoaderHandle(String path) : path(path) {}
-
-int LoaderHandle::start() {
+int MultiBoot::start(String path) {
     // Завантаження прошивки з microSD-картки.
+    this->path = path;
+
     if (!sdcard.available()) {
         serial_err("SD card not available");
         return -1;
@@ -98,9 +110,15 @@ int LoaderHandle::start() {
     fseek(file, 0, SEEK_SET);
 
     const esp_partition_t *current_partition = esp_ota_get_running_partition();
-    serial_log("Current partition: %s, type: %d, subtype: %d, size: %d", current_partition->label, current_partition->type, current_partition->subtype, current_partition->size);
+    serial_log(
+        "Current partition: %s, type: %d, subtype: %d, size: %d", current_partition->label, current_partition->type,
+        current_partition->subtype, current_partition->size
+    );
     ota_partition = esp_ota_get_next_update_partition(current_partition); // get ota1 (we're in ota0 now)
-    serial_log("OTA partition: %s, type: %d, subtype: %d, size: %d", ota_partition->label, ota_partition->type, ota_partition->subtype, ota_partition->size);
+    serial_log(
+        "OTA partition: %s, type: %d, subtype: %d, size: %d", ota_partition->label, ota_partition->type,
+        ota_partition->subtype, ota_partition->size
+    );
     if (ota_partition == NULL) {
         serial_err("Failed to get next OTA partition");
         return -3;
@@ -115,7 +133,7 @@ int LoaderHandle::start() {
     return 0;
 }
 
-int LoaderHandle::process() {
+int MultiBoot::process() {
     char buf[1024];
 
     // Записуємо 32 КБ.
@@ -141,15 +159,15 @@ int LoaderHandle::process() {
     return bytesWritten;
 }
 
-int LoaderHandle::getBytesTotal() {
+int MultiBoot::getBytesTotal() {
     return bytesTotal;
 }
 
-int LoaderHandle::getBytesWritten() {
+int MultiBoot::getBytesWritten() {
     return bytesWritten;
 }
 
-int LoaderHandle::finishAndReboot() {
+int MultiBoot::finishAndReboot() {
     serial_log("Written %d bytes", bytesWritten);
 
     esp_err_t err = esp_ota_end(ota_handle);
@@ -171,6 +189,6 @@ int LoaderHandle::finishAndReboot() {
     return 0; // unreachable
 }
 
-Loader loader;
+MultiBoot multiboot;
 
 } // namespace lilka

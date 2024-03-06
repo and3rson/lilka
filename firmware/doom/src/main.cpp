@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "lilka.h"
+#include "doom_splash.h"
 
 extern "C" {
 #include "doomkeys.h"
@@ -58,6 +59,7 @@ void buttonHandler(lilka::Button button, bool pressed) {
 }
 
 void setup() {
+    lilka::display.setSplash(doom_splash);
     lilka::begin();
 
     int argc = 3;
@@ -66,23 +68,24 @@ void setup() {
     char arg3[64];
     bool found = false;
     // Find the wad file
-    File root = SD.open("/sd");
-    File file = root.openNextFile();
-    while (file) {
-        if (!file) {
-            break;
-        }
+    File root = SD.open("/");
+    File file;
+    while (file = root.openNextFile()) {
         if (file.isDirectory()) {
+            file.close();
             continue;
         }
         String name(file.name());
         name.toLowerCase();
+        lilka::serial_log("Checking file: %s\n", name.c_str());
         if (name.startsWith("doom") && name.endsWith(".wad")) {
             strcpy(arg3, (String("/sd/") + file.name()).c_str());
+            lilka::serial_log("Found .WAD file: %s\n", arg3);
+            found = true;
+            file.close();
             break;
         }
         file.close();
-        file = root.openNextFile();
     }
     root.close();
     if (!found) {

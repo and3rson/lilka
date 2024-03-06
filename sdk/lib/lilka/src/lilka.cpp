@@ -6,7 +6,7 @@ namespace lilka {
 
 void begin() {
     serial_begin();
-    loader.begin();
+    multiboot.begin();
     spi_begin();
     buzzer.begin(); // Play notification sound
     display.begin(); // Must be initialized BEFORE SD card

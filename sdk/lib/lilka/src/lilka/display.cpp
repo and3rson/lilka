@@ -1,6 +1,6 @@
 #include "display.h"
 
-#include "splash.h"
+#include "default_splash.h"
 #include "spi.h"
 #include "serial.h"
 #include "fmath.h"
@@ -18,7 +18,8 @@ Arduino_ESP32SPI displayBus(
 Display::Display()
     : Arduino_ST7789(
           &displayBus, LILKA_DISPLAY_RST, LILKA_DISPLAY_ROTATION, true, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, 0, 20
-      ) {}
+      ),
+      splash(NULL) {}
 
 void Display::begin() {
     serial_log("initializing display");
@@ -29,41 +30,54 @@ void Display::begin() {
 #endif
     setFont(FONT_10x20);
     setUTF8Print(true);
-#ifndef LILKA_NO_SPLASH
-    uint16_t row[LILKA_DISPLAY_WIDTH];
-    for (int i = 0; i <= 4; i++) {
-        startWrite();
-        writeAddrWindow(0, 0, 240, 280);
-        for (int y = 0; y < LILKA_DISPLAY_HEIGHT; y++) {
-            for (int x = 0; x < LILKA_DISPLAY_WIDTH; x++) {
-                uint16_t color = splash[y * LILKA_DISPLAY_WIDTH + x];
-                uint16_t r = ((color >> 11) & 0x1F) << 3;
-                uint16_t g = ((color >> 5) & 0x3F) << 2;
-                uint16_t b = (color & 0x1F) << 3;
-                row[x] = color565(r * i / 4, g * i / 4, b * i / 4);
-            }
-            writePixels(row, LILKA_DISPLAY_WIDTH);
-        }
-        endWrite();
-    }
-    delay(800);
-    for (int i = 4; i >= 0; i--) {
-        startWrite();
-        writeAddrWindow(0, 0, 240, 280);
-        for (int y = 0; y < LILKA_DISPLAY_HEIGHT; y++) {
-            for (int x = 0; x < LILKA_DISPLAY_WIDTH; x++) {
-                uint16_t color = splash[y * LILKA_DISPLAY_WIDTH + x];
-                uint16_t r = ((color >> 11) & 0x1F) << 3;
-                uint16_t g = ((color >> 5) & 0x3F) << 2;
-                uint16_t b = (color & 0x1F) << 3;
-                row[x] = color565(r * i / 4, g * i / 4, b * i / 4);
-            }
-            writePixels(row, LILKA_DISPLAY_WIDTH);
-        }
-        endWrite();
+#ifdef LILKA_NO_SPLASH
+    if (splash != NULL) {
+#else
+    if (splash == NULL) {
+        splash = default_splash;
     }
 #endif
+        uint16_t row[LILKA_DISPLAY_WIDTH];
+        for (int i = 0; i <= 4; i++) {
+            startWrite();
+            writeAddrWindow(0, 0, 240, 280);
+            for (int y = 0; y < LILKA_DISPLAY_HEIGHT; y++) {
+                for (int x = 0; x < LILKA_DISPLAY_WIDTH; x++) {
+                    uint16_t color = splash[y * LILKA_DISPLAY_WIDTH + x];
+                    uint16_t r = ((color >> 11) & 0x1F) << 3;
+                    uint16_t g = ((color >> 5) & 0x3F) << 2;
+                    uint16_t b = (color & 0x1F) << 3;
+                    row[x] = color565(r * i / 4, g * i / 4, b * i / 4);
+                }
+                writePixels(row, LILKA_DISPLAY_WIDTH);
+            }
+            endWrite();
+        }
+        delay(800);
+        for (int i = 4; i >= 0; i--) {
+            startWrite();
+            writeAddrWindow(0, 0, 240, 280);
+            for (int y = 0; y < LILKA_DISPLAY_HEIGHT; y++) {
+                for (int x = 0; x < LILKA_DISPLAY_WIDTH; x++) {
+                    uint16_t color = splash[y * LILKA_DISPLAY_WIDTH + x];
+                    uint16_t r = ((color >> 11) & 0x1F) << 3;
+                    uint16_t g = ((color >> 5) & 0x3F) << 2;
+                    uint16_t b = (color & 0x1F) << 3;
+                    row[x] = color565(r * i / 4, g * i / 4, b * i / 4);
+                }
+                writePixels(row, LILKA_DISPLAY_WIDTH);
+            }
+            endWrite();
+        }
+#ifdef LILKA_NO_SPLASH
+    }
+#else
+#endif
     serial_log("display ok");
+}
+
+void Display::setSplash(const uint16_t *splash) {
+    this->splash = splash;
 }
 
 void Display::drawImage(Image *image, int16_t x, int16_t y) {

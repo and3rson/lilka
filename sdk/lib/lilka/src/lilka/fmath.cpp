@@ -1,5 +1,7 @@
 #include "fmath.h"
 
+namespace lilka {
+
 // Таблиці значень функції sin(x) для кутів від 0 до 359 градусів
 // Крок: 1 градус (360 поділок)
 float sin360[360] = {
@@ -86,3 +88,5 @@ float fCos32(int fract) {
     // The cosine function is the sine function with an offset of 90 degrees.
     return sin32[(fract + 8) % 32];
 }
+
+} // namespace lilka

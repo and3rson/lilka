@@ -101,7 +101,7 @@
     buzzer
     controller
     display
-    loader
+    multiboot
     resources
     spi
     ui

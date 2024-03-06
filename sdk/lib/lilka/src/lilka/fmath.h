@@ -1,6 +1,8 @@
 #ifndef LILKA_FMATH_H
 #define LILKA_FMATH_H
 
+namespace lilka {
+
 /// Швидке обчислення синуса.
 ///
 /// Ця функція працює значно швидше, ніж стандартна функція синуса, але лише для цілих значень кута.
@@ -32,5 +34,7 @@ float fSin32(int fract);
 /// \param fract Кут в градусах, поділений на 32.
 /// \return Значення косинуса кута.
 float fCos32(int fract);
+
+} // namespace lilka
 
 #endif // LILKA_FMATH_H
