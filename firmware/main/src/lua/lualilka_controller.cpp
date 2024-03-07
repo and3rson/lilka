@@ -1,10 +1,8 @@
 #include "lualilka_controller.h"
 
-namespace lilka {
-
 int lualilka_controller_getState(lua_State* L) {
-    State state = controller.getState();
-    _StateButtons &buttons = *reinterpret_cast<_StateButtons *>(&state);
+    lilka::State state = lilka::controller.getState();
+    lilka::_StateButtons &buttons = *reinterpret_cast<lilka::_StateButtons *>(&state);
     lua_createtable(L, 0, 10);
     // Push up, down, left, right, a, b, c, d, select, start to the table
     const char* keys[] = {"up", "down", "left", "right", "a", "b", "c", "d", "select", "start"};
@@ -44,5 +42,3 @@ int lualilka_controller_register(lua_State* L) {
     lua_setglobal(L, "controller");
     return 0;
 }
-
-} // namespace lilka

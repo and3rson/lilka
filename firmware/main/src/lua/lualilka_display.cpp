@@ -1,24 +1,28 @@
 #include "lualilka_display.h"
 
-namespace lilka {
-
 Arduino_GFX* getDrawable(lua_State* L) {
-    // Check if display is buffered.
-    // If buffered, return canvas pointer from registry.
-    // If not buffered, return pointer to actual display.
-    lua_getfield(L, LUA_REGISTRYINDEX, "isBuffered");
-    bool isBuffered = lua_toboolean(L, -1);
-    lua_pop(L, 1);
+    // // Check if display is buffered.
+    // // If buffered, return canvas pointer from registry.
+    // // If not buffered, return pointer to actual display.
+    // lua_getfield(L, LUA_REGISTRYINDEX, "isBuffered");
+    // bool isBuffered = lua_toboolean(L, -1);
+    // lua_pop(L, 1);
+    //
+    // if (isBuffered) {
+    //     // Return canvas pointer from registry
+    //     lua_getfield(L, LUA_REGISTRYINDEX, "canvas");
+    //     Canvas* canvas = (Canvas*)lua_touserdata(L, -1);
+    //     lua_pop(L, 1);
+    //     return canvas;
+    // } else {
+    //     return &display;
+    // }
 
-    if (isBuffered) {
-        // Return canvas pointer from registry
-        lua_getfield(L, LUA_REGISTRYINDEX, "canvas");
-        Canvas* canvas = (Canvas*)lua_touserdata(L, -1);
-        lua_pop(L, 1);
-        return canvas;
-    } else {
-        return &display;
-    }
+    // TODO: Buffering is ignored for now (maybe forever, will update docs)
+    lua_getfield(L, LUA_REGISTRYINDEX, "canvas");
+    lilka::Canvas* canvas = (lilka::Canvas*)lua_touserdata(L, -1);
+    lua_pop(L, 1);
+    return canvas;
 }
 
 int lualilka_display_setBuffered(lua_State* L) {
@@ -36,7 +40,7 @@ int lualilka_display_color565(lua_State* L) {
     int r = luaL_checknumber(L, 1);
     int g = luaL_checknumber(L, 2);
     int b = luaL_checknumber(L, 3);
-    uint16_t color = display.color565(r, g, b);
+    uint16_t color = lilka::display.color565(r, g, b);
     lua_pushinteger(L, color);
     return 1;
 }
@@ -246,7 +250,7 @@ int lualilka_display_drawImage(lua_State* L) {
         return luaL_error(L, "Некоректне зображення");
     }
 
-    Image* image = (Image*)lua_touserdata(L, -1);
+    lilka::Image* image = (lilka::Image*)lua_touserdata(L, -1);
     lua_pop(L, 1);
 
     int16_t x = luaL_checknumber(L, 2);
@@ -273,9 +277,9 @@ int lualilka_display_render(lua_State* L) {
         return luaL_error(L, "Буферизація вимкнена, використовуйте display.render() тільки з буферизацією");
     }
     lua_getfield(L, LUA_REGISTRYINDEX, "canvas");
-    Canvas* canvas = (Canvas*)lua_touserdata(L, -1);
+    lilka::Canvas* canvas = (lilka::Canvas*)lua_touserdata(L, -1);
     lua_pop(L, 1);
-    display.renderCanvas(canvas);
+    lilka::display.renderCanvas(canvas);
     return 0;
 }
 
@@ -333,5 +337,3 @@ int lualilka_display_register(lua_State* L) {
     lua_setglobal(L, "display");
     return 0;
 }
-
-} // namespace lilka

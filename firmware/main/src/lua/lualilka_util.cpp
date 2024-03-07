@@ -2,8 +2,6 @@
 
 #include "lualilka_util.h"
 
-namespace lilka {
-
 extern jmp_buf stopjmp;
 
 int lualilka_util_time(lua_State* L) {
@@ -41,5 +39,3 @@ int lualilka_util_register(lua_State* L) {
     lua_setglobal(L, "util");
     return 0;
 }
-
-} // namespace lilka

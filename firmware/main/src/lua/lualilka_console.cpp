@@ -1,7 +1,5 @@
 #include "lualilka_console.h"
 
-namespace lilka {
-
 int lualilka_console_print(lua_State* L) {
     int n = lua_gettop(L);
     for (int i = 1; i <= n; i++) {
@@ -38,5 +36,3 @@ int lualilka_console_register(lua_State* L) {
     lua_setglobal(L, "console");
     return 0;
 }
-
-} // namespace lilka

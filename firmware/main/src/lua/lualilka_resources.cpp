@@ -1,7 +1,5 @@
 #include "lualilka_resources.h"
 
-namespace lilka {
-
 int lualilka_resources_loadImage(lua_State* L) {
     const char* path = luaL_checkstring(L, 1);
     // Get dir from registry
@@ -17,13 +15,13 @@ int lualilka_resources_loadImage(lua_State* L) {
         }
     }
 
-    Image* image = resources.loadImage(fullPath, transparencyColor);
+    lilka::Image* image = lilka::resources.loadImage(fullPath, transparencyColor);
 
     if (!image) {
         return luaL_error(L, "Не вдалося завантажити зображення %s", fullPath.c_str());
     }
 
-    serial_log("lua: loaded image %s, width: %d, height: %d", path, image->width, image->height);
+    lilka::serial_log("lua: loaded image %s, width: %d, height: %d", path, image->width, image->height);
 
     // Append image to images table in registry
     lua_getfield(L, LUA_REGISTRYINDEX, "images");
@@ -53,7 +51,7 @@ int lualilka_resources_rotateImage(lua_State* L) {
     if (!lua_islightuserdata(L, -1)) {
         return luaL_error(L, "Невірне зображення");
     }
-    Image* image = (Image*)lua_touserdata(L, -1);
+    lilka::Image* image = (lilka::Image*)lua_touserdata(L, -1);
     lua_pop(L, 1);
 
     int16_t angle = luaL_checknumber(L, 2);
@@ -90,7 +88,7 @@ int lualilka_resources_flipImageX(lua_State* L) {
     if (!lua_islightuserdata(L, -1)) {
         return luaL_error(L, "Невірне зображення");
     }
-    Image* image = (Image*)lua_touserdata(L, -1);
+    lilka::Image* image = (lilka::Image*)lua_touserdata(L, -1);
     lua_pop(L, 1);
 
     // Instantiate a new image
@@ -124,7 +122,7 @@ int lualilka_resources_flipImageY(lua_State* L) {
     if (!lua_islightuserdata(L, -1)) {
         return luaL_error(L, "Невірне зображення");
     }
-    Image* image = (Image*)lua_touserdata(L, -1);
+    lilka::Image* image = (lilka::Image*)lua_touserdata(L, -1);
     lua_pop(L, 1);
 
     // Instantiate a new image
@@ -159,7 +157,7 @@ int lualilka_resources_readFile(lua_State* L) {
     String fullPath = String(dir) + "/" + path;
 
     String fileContent;
-    int result = resources.readFile(fullPath, fileContent);
+    int result = lilka::resources.readFile(fullPath, fileContent);
     if (result) {
         return luaL_error(L, "Не вдалося прочитати файл %s", fullPath.c_str());
     }
@@ -177,7 +175,7 @@ int lualilka_resources_writeFile(lua_State* L) {
     lua_pop(L, 1);
     String fullPath = String(dir) + "/" + path;
 
-    int result = resources.writeFile(fullPath, content);
+    int result = lilka::resources.writeFile(fullPath, content);
     if (result) {
         return luaL_error(L, "Не вдалося записати файл %s", fullPath.c_str());
     }
@@ -206,5 +204,3 @@ int lualilka_resources_register(lua_State* L) {
     lua_setglobal(L, "resources");
     return 0;
 }
-
-} // namespace lilka

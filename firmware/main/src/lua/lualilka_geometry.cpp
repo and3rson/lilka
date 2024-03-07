@@ -1,7 +1,5 @@
 #include "lualilka_geometry.h"
 
-namespace lilka {
-
 int lualilka_geometry_intersectLines(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 8) {
@@ -72,5 +70,3 @@ int lualilka_geometry_register(lua_State* L) {
     lua_setglobal(L, "geometry");
     return 0;
 }
-
-} // namespace lilka

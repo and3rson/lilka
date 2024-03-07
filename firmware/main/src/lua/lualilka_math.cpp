@@ -1,7 +1,5 @@
 #include "lualilka_math.h"
 
-namespace lilka {
-
 int lualilka_math_random(lua_State* L) {
     // If no args - return random float from 0 to 1
     // If 1 arg - return random value from 0 to arg
@@ -416,8 +414,8 @@ int lualilka_math_rotate(lua_State* L) {
     float x = luaL_checknumber(L, 1);
     float y = luaL_checknumber(L, 2);
     float angle = luaL_checknumber(L, 3);
-    float c = fCos360(angle);
-    float s = fSin360(angle);
+    float c = lilka::fCos360(angle);
+    float s = lilka::fSin360(angle);
     lua_pushnumber(L, x * c - y * s);
     lua_pushnumber(L, x * s + y * c);
     return 2;
@@ -477,5 +475,3 @@ int lualilka_math_register(lua_State* L) {
     lua_setglobal(L, "math");
     return 0;
 }
-
-} // namespace lilka

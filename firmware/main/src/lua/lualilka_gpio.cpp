@@ -1,7 +1,5 @@
 #include "lualilka_gpio.h"
 
-namespace lilka {
-
 static int lualilka_gpio_setMode(lua_State *L) {
     int pin = luaL_checkinteger(L, 1);
     int mode = luaL_checkinteger(L, 2);
@@ -54,5 +52,3 @@ int lualilka_gpio_register(lua_State *L) {
     lua_setglobal(L, "gpio");
     return 0;
 }
-
-} // namespace lilka
