@@ -8,7 +8,6 @@ void demo_disc(lilka::Canvas *canvas) {
     int16_t radius = 16;
     uint64_t prevRenderTime = millis();
     while (1) {
-        canvas->acquireMutex();
         canvas->fillScreen(canvas->color565(0, 0, 0));
         x += xDir;
         y += yDir;
@@ -28,17 +27,14 @@ void demo_disc(lilka::Canvas *canvas) {
             yDir = yDirNew;
         }
         canvas->drawCircle(x, y, radius, 0xFFFF);
-        canvas->releaseMutex();
         if (lilka::controller.getState().a.justPressed) {
             return;
         }
 
         // Calculate FPS
-        canvas->acquireMutex();
         canvas->setCursor(16, 32);
         canvas->println("FPS: " + String(1000 / (millis() - prevRenderTime)));
         prevRenderTime = millis();
-        canvas->releaseMutex();
         vTaskDelay(0);
     }
 }

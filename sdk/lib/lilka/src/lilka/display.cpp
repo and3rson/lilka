@@ -107,51 +107,18 @@ void Display::draw16bitRGBBitmapWithTranColor(
 }
 
 void Display::renderCanvas(Canvas *canvas) {
-    draw16bitRGBBitmap(canvas->x(), canvas->y(), canvas->getFramebuffer(), canvas->width(), canvas->height());
+    draw16bitRGBBitmap(0, 0, canvas->getFramebuffer(), canvas->width(), canvas->height());
 }
 
-Canvas::Canvas() : Arduino_Canvas(LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, NULL), dirty(false) {
+Canvas::Canvas() : Arduino_Canvas(LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, NULL) {
     setFont(u8g2_font_10x20_t_cyrillic);
     setUTF8Print(true);
-    mutex = xSemaphoreCreateBinary();
-    xSemaphoreGive(mutex);
 }
 
 Canvas::Canvas(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
-    : Arduino_Canvas(width, height, NULL, x, y, 0), dirty(false) { // TODO: Rotation
+    : Arduino_Canvas(width, height, NULL, x, y, 0) { // TODO: Rotation
     setFont(u8g2_font_10x20_t_cyrillic);
     setUTF8Print(true);
-    mutex = xSemaphoreCreateBinary();
-    xSemaphoreGive(mutex);
-}
-
-Canvas::~Canvas() {
-    vSemaphoreDelete(mutex);
-}
-
-int16_t Canvas::x() {
-    return _output_x;
-}
-
-int16_t Canvas::y() {
-    return _output_y;
-}
-
-void Canvas::acquireMutex() {
-    xSemaphoreTake(mutex, portMAX_DELAY);
-}
-
-void Canvas::releaseMutex() {
-    dirty = true;
-    xSemaphoreGive(mutex);
-}
-
-bool Canvas::isDirty() {
-    return dirty;
-}
-
-void Canvas::markClean() {
-    dirty = false;
 }
 
 void Canvas::drawImage(Image *image, int16_t x, int16_t y) {
@@ -167,6 +134,15 @@ void Canvas::draw16bitRGBBitmapWithTranColor(
 ) {
     // Цей cast безпечний, оскільки Arduino_GFX.draw16bitRGBBitmapWithTranColor не змінює bitmap.
     Arduino_Canvas::draw16bitRGBBitmapWithTranColor(x, y, const_cast<uint16_t *const>(bitmap), transparent_color, w, h);
+    // Arduino_Canvas::draw16bitRGBBitmapWithTranColor(x, y, (uint16_t *)(bitmap), transparent_color, w, h);
+}
+
+int16_t Canvas::x() {
+    return _output_x;
+}
+
+int16_t Canvas::y() {
+    return _output_y;
 }
 
 Image::Image(uint32_t width, uint32_t height, int32_t transparentColor)

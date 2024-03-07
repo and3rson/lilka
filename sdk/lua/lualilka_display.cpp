@@ -275,7 +275,7 @@ int lualilka_display_render(lua_State* L) {
     lua_getfield(L, LUA_REGISTRYINDEX, "canvas");
     Canvas* canvas = (Canvas*)lua_touserdata(L, -1);
     lua_pop(L, 1);
-    display.renderCanvas(*canvas);
+    display.renderCanvas(canvas);
     return 0;
 }
 

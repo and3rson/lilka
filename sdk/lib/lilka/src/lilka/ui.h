@@ -2,6 +2,7 @@
 #define LILKA_UI_H
 
 #include <Arduino.h>
+#include <vector>
 #include "Arduino_GFX.h"
 #include "display.h"
 
@@ -41,10 +42,10 @@ namespace lilka {
 /// }
 /// @endcode
 
-int ui_menu(
-    Canvas *canvas, String title, String menu[], int menu_size, int cursor = 0, const menu_icon_t *icons[] = 0,
-    const uint16_t colors[] = 0
-);
+// int ui_menu(
+//     Canvas *canvas, String title, String menu[], int menu_size, int cursor = 0, const menu_icon_t *icons[] = 0,
+//     const uint16_t colors[] = 0
+// );
 /// Відобразити сповіщення.
 ///
 /// Блокує виконання програми, доки користувач не натисне кнопку A.
@@ -65,7 +66,43 @@ int ui_menu(
 ///     lilka::ui_alert("Увага", "Повітряна тривога в москві, загроза балістичних ракет!");
 /// }
 /// @endcode
-void ui_alert(Canvas *canvas, String title, String message);
+// void ui_alert(Canvas *canvas, String title, String message);
+
+typedef struct {
+    String title;
+    const menu_icon_t *icon;
+    uint16_t color;
+} MenuItem;
+
+class Menu {
+public:
+    Menu(String title);
+    void addItem(String title, const menu_icon_t *icon = 0, uint16_t color = 0);
+    void setCursor(int16_t cursor);
+    void update();
+    void draw(Arduino_GFX *canvas);
+    int16_t getSelectedIndex();
+
+private:
+    int16_t cursor;
+    int16_t scroll;
+    String title;
+    std::vector<MenuItem> items;
+    int16_t selectedIndex;
+};
+
+class Alert {
+public:
+    Alert(String title, String message);
+    void update();
+    void draw(Arduino_GFX*canvas);
+    bool isDone();
+
+private:
+    String title;
+    String message;
+    bool done;
+};
 
 } // namespace lilka
 

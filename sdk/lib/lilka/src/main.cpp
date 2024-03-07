@@ -9,8 +9,10 @@ void __attribute__((weak)) setup() {
 
 void __attribute__((weak)) loop() {
     // TODO: FreeRTOS experiment
-    lilka::Canvas canvas;
-    canvas.begin();
-    lilka::ui_alert(&canvas, "Лілка", "Ця програма не має жодного коду.");
-    lilka::display.renderCanvas(canvas);
+    lilka::Alert alert("Лілка", "Ця програма не має жодного коду.");
+    while (!alert.isDone()) {
+        alert.update();
+        alert.draw(&lilka::display);
+        delay(100);
+    }
 }

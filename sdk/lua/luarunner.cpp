@@ -138,7 +138,7 @@ int execute(lua_State* L) {
             }
             lua_pop(L, 1);
 
-            display.renderCanvas(*canvas);
+            display.renderCanvas(canvas);
 
             // Calculate time spent in update
             uint32_t elapsed = millis() - now;
