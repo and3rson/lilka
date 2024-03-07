@@ -1,40 +1,40 @@
 #include <lilka.h>
 
-void demo_user_spi() {
+void demo_user_spi(lilka::Canvas *canvas) {
 #ifdef SPI2_NUM
-    lilka::display.fillScreen(lilka::display.color565(0, 0, 0));
-    lilka::display.setTextBound(4, 0, LILKA_DISPLAY_WIDTH - 8, LILKA_DISPLAY_HEIGHT);
-    lilka::display.setCursor(4, 48);
+    canvas->fillScreen(canvas->color565(0, 0, 0));
+    canvas->setTextBound(4, 0, LILKA_DISPLAY_WIDTH - 8, LILKA_DISPLAY_HEIGHT);
+    canvas->setCursor(4, 48);
 
-    lilka::display.println("SPI2 begin");
+    canvas->println("SPI2 begin");
     lilka::SPI2.begin(45, 48, 47);
 
     delay(500);
 
-    lilka::display.println("beginTransaction");
-    lilka::display.println("  SPI mode: 0");
+    canvas->println("beginTransaction");
+    canvas->println("  SPI mode: 0");
     lilka::SPI2.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0));
-    lilka::display.println("  write: 0xAA");
+    canvas->println("  write: 0xAA");
     lilka::SPI2.write(0xAA);
-    lilka::display.println("endTransaction");
+    canvas->println("endTransaction");
     lilka::SPI2.endTransaction();
 
     delay(10);
 
-    lilka::display.println("beginTransaction");
-    lilka::display.println("  SPI mode: 3");
+    canvas->println("beginTransaction");
+    canvas->println("  SPI mode: 3");
     lilka::SPI2.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE3));
-    lilka::display.println("  SPI mode: 0xAA");
+    canvas->println("  SPI mode: 0xAA");
     lilka::SPI2.write(0xAA);
-    lilka::display.println("endTransaction");
+    canvas->println("endTransaction");
     lilka::SPI2.endTransaction();
 
     delay(500);
 
-    lilka::display.println("SPI2 end");
+    canvas->println("SPI2 end");
     lilka::SPI2.end();
 
-    lilka::display.println("Press A to exit");
+    canvas->println("Press A to exit");
     while (!lilka::controller.getState().a.justPressed) {
         delay(10);
     }

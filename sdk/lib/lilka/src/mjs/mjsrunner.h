@@ -2,11 +2,12 @@
 #define LILY_MJSRUNNER_H
 
 #include <Arduino.h>
+#include "lilka/display.h"
 #include "mjs.h"
 
 namespace lilka {
 
-int mjs_run(String path);
+int mjs_run(Canvas *canvas, String path);
 
 } // namespace lilka
 

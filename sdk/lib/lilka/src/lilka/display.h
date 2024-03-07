@@ -276,12 +276,23 @@ private:
 class Canvas : public Arduino_Canvas {
 public:
     Canvas();
+    Canvas(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+    ~Canvas(); // TODO: Warning: is not virtual in Arduino_Canvas
     /// Намалювати зображення.
     /// @see Display::drawImage
     void drawImage(Image *image, int16_t x, int16_t y);
     void draw16bitRGBBitmapWithTranColor(
         int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
     );
+    void acquireMutex();
+    void releaseMutex();
+
+    bool isDirty();
+    void markClean();
+
+private:
+    xSemaphoreHandle mutex;
+    bool dirty;
 };
 
 /// Зображення

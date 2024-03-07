@@ -1,15 +1,18 @@
 #include <lilka.h>
 
-void demo_lines() {
+void demo_lines(lilka::Canvas *canvas) {
     while (1) {
-        int x1 = random(0, lilka::display.width());
-        int y1 = random(0, lilka::display.height());
-        int x2 = random(0, lilka::display.width());
-        int y2 = random(0, lilka::display.height());
+        canvas->acquireMutex();
+        int x1 = random(0, canvas->width());
+        int y1 = random(0, canvas->height());
+        int x2 = random(0, canvas->width());
+        int y2 = random(0, canvas->height());
         uint16_t color = random(0, 0xFFFF);
-        lilka::display.drawLine(x1, y1, x2, y2, color);
+        canvas->drawLine(x1, y1, x2, y2, color);
+        canvas->releaseMutex();
         if (lilka::controller.getState().a.justPressed) {
             return;
         }
+        vTaskDelay(0);
     }
 }

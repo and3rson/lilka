@@ -10,7 +10,7 @@ void *mjslilka_ffi_resolver(void *handle, const char *name) {
     return NULL;
 }
 
-int mjs_run(String path) {
+int mjs_run(Canvas *canvas, String path) {
 #ifndef LILKA_NO_MJS
     struct mjs *mjs = mjs_create();
 
@@ -20,12 +20,13 @@ int mjs_run(String path) {
     mjs_err_t err = mjs_exec_file(mjs, path.c_str(), &res);
     if (err != MJS_OK) {
         printf("Error: %s\n", mjs_strerror(mjs, err));
-        ui_alert("Помилка", mjs_strerror(mjs, err));
+        // TODO: FreeRTOS experiment
+        ui_alert(canvas, "Помилка", mjs_strerror(mjs, err));
         return 1;
     }
     return 0;
 #else
-    lilka::ui_alert("Помилка", "MJS не підтримується");
+    lilka::ui_alert(canvas, "Помилка", "MJS не підтримується");
 #endif
 }
 

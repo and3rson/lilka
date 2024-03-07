@@ -2,6 +2,8 @@
 #define LILKA_UI_H
 
 #include <Arduino.h>
+#include "Arduino_GFX.h"
+#include "display.h"
 
 typedef uint16_t const menu_icon_t[576]; // 24x24px icon
 
@@ -40,7 +42,7 @@ namespace lilka {
 /// @endcode
 
 int ui_menu(
-    String title, String menu[], int menu_size, int cursor = 0, const menu_icon_t *icons[] = 0,
+    Canvas *canvas, String title, String menu[], int menu_size, int cursor = 0, const menu_icon_t *icons[] = 0,
     const uint16_t colors[] = 0
 );
 /// Відобразити сповіщення.
@@ -63,7 +65,7 @@ int ui_menu(
 ///     lilka::ui_alert("Увага", "Повітряна тривога в москві, загроза балістичних ракет!");
 /// }
 /// @endcode
-void ui_alert(String title, String message);
+void ui_alert(Canvas *canvas, String title, String message);
 
 } // namespace lilka
 

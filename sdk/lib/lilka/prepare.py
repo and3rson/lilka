@@ -15,7 +15,7 @@ from itertools import chain
 
 Import("env")
 
-keep = ["Arduino_ESP32SPI", "Arduino_ST7789"]
+keep = ["Arduino_ESP32SPI", "Arduino_ST7789", "Arduino_HWSPI"]
 
 try:
     lib_dir = Path(os.path.join(env.get("PROJECT_LIBDEPS_DIR"), env.get("PIOENV")))

@@ -238,7 +238,7 @@ void lua_teardown(lua_State* L) {
     lua_close(L);
 }
 
-int lua_runfile(String path) {
+int lua_runfile(Canvas *canvas, String path) {
 #ifndef LILKA_NO_LUA
     // Get dir name from path (without the trailing slash)
     String dir = path.substring(0, path.lastIndexOf('/'));
@@ -260,7 +260,7 @@ int lua_runfile(String path) {
 
     if (retCode) {
         const char* err = lua_tostring(L, -1);
-        lilka::ui_alert("Lua", String("Помилка: ") + err);
+        lilka::ui_alert(canvas, "Lua", String("Помилка: ") + err);
     }
 
     // Check if state table exists and save it to file if so
@@ -278,12 +278,12 @@ int lua_runfile(String path) {
 
     return retCode;
 #else
-    ui_alert("Помилка", "Lua не підтримується");
+    ui_alert(canvas, "Помилка", "Lua не підтримується");
     return -1;
 #endif
 }
 
-int lua_runsource(String source) {
+int lua_runsource(Canvas* canvas, String source) {
 #ifndef LILKA_NO_LUA
     lua_State* L = lua_setup("/sd"); // TODO: hard-coded
 
@@ -293,14 +293,14 @@ int lua_runsource(String source) {
 
     if (retCode) {
         const char* err = lua_tostring(L, -1);
-        lilka::ui_alert("Lua", String("Помилка: ") + err);
+        lilka::ui_alert(canvas, "Lua", String("Помилка: ") + err);
     }
 
     lua_teardown(L);
 
     return retCode;
 #else
-    ui_alert("Помилка", "Lua не підтримується");
+    ui_alert(canvas, "Помилка", "Lua не підтримується");
     return -1;
 #endif
 }
@@ -314,7 +314,7 @@ int lua_repl_start() {
     lilka::serial_log("lua: start REPL");
     return 0;
 #else
-    ui_alert("Помилка", "Lua не підтримується");
+    ui_alert(canvas, "Помилка", "Lua не підтримується");
     return -1;
 #endif
 }
@@ -332,7 +332,7 @@ int lua_repl_input(String input) {
 
     return retCode;
 #else
-    ui_alert("Помилка", "Lua не підтримується");
+    ui_alert(canvas, "Помилка", "Lua не підтримується");
     return -1;
 #endif
 }
@@ -343,7 +343,7 @@ int lua_repl_stop() {
     lua_teardown(Lrepl);
     return 0;
 #else
-    ui_alert("Помилка", "Lua не підтримується");
+    ui_alert(canvas, "Помилка", "Lua не підтримується");
     return -1;
 #endif
 }

@@ -19,7 +19,9 @@ const bool shapesData[7][4][4] = {
 };
 
 const uint16_t colors[7] = {
-    lilka::display.color565(255, 0, 0), lilka::display.color565(0, 255, 0), lilka::display.color565(0, 0, 255), lilka::display.color565(255, 255, 0), lilka::display.color565(255, 0, 255), lilka::display.color565(0, 255, 255), lilka::display.color565(200, 200, 200),
+    lilka::display.color565(255, 0, 0),     lilka::display.color565(0, 255, 0),   lilka::display.color565(0, 0, 255),
+    lilka::display.color565(255, 255, 0),   lilka::display.color565(255, 0, 255), lilka::display.color565(0, 255, 255),
+    lilka::display.color565(200, 200, 200),
 };
 const uint8_t colorCount = sizeof(colors) / sizeof(colors[0]);
 
@@ -29,7 +31,7 @@ public:
     int shapeData[4][4];
     uint16_t color;
 
-    Shape(Arduino_Canvas *canvas) : canvas(canvas) {}
+    Shape(lilka::Canvas *canvas) : canvas(canvas) {}
 
     void reset() {
         // Генерує нову фігуру. Нові фігури відображаються в вікні попереднього перегляду
@@ -54,10 +56,19 @@ public:
         for (int yy = 0; yy < 4; yy++) {
             for (int xx = 0; xx < 4; xx++) {
                 if (this->shapeData[yy][xx]) {
-                    canvas->fillRect(X_OFFSET + (this->x + xx) * BLOCK_SIZE, (this->y + yy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, color);
-                    canvas->fillRect(X_OFFSET + (this->x + xx) * BLOCK_SIZE + 2, (this->y + yy) * BLOCK_SIZE + 2, BLOCK_SIZE - 4, BLOCK_SIZE - 4, lilka::display.color565(0, 0, 0));
+                    canvas->fillRect(
+                        X_OFFSET + (this->x + xx) * BLOCK_SIZE, (this->y + yy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE,
+                        color
+                    );
+                    canvas->fillRect(
+                        X_OFFSET + (this->x + xx) * BLOCK_SIZE + 2, (this->y + yy) * BLOCK_SIZE + 2, BLOCK_SIZE - 4,
+                        BLOCK_SIZE - 4, lilka::display.color565(0, 0, 0)
+                    );
                 } else if (drawEmptyBlocks) {
-                    canvas->fillRect(X_OFFSET + (this->x + xx) * BLOCK_SIZE, (this->y + yy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, lilka::display.color565(0, 0, 0));
+                    canvas->fillRect(
+                        X_OFFSET + (this->x + xx) * BLOCK_SIZE, (this->y + yy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE,
+                        lilka::display.color565(0, 0, 0)
+                    );
                 }
             }
         }
@@ -91,12 +102,12 @@ public:
     }
 
 private:
-    Arduino_Canvas *canvas;
+    lilka::Canvas *canvas;
 };
 
 class Field {
 public:
-    Field(Arduino_Canvas *canvas) : canvas(canvas) {
+    Field(lilka::Canvas *canvas) : canvas(canvas) {
         for (int y = 0; y < FIELD_ROWS; y++) {
             for (int x = 0; x < FIELD_COLS; x++) {
                 this->blocks[y][x] = 0;
@@ -147,7 +158,8 @@ public:
         for (int yy = 0; yy < 4; yy++) {
             for (int xx = 0; xx < 4; xx++) {
                 if (shape->shapeData[yy][xx]) {
-                    if (shape->x + xx + dx < 0 || shape->x + xx + dx >= FIELD_COLS || shape->y + yy + dy >= FIELD_ROWS || this->blocks[shape->y + yy + dy][shape->x + xx + dx]) {
+                    if (shape->x + xx + dx < 0 || shape->x + xx + dx >= FIELD_COLS ||
+                        shape->y + yy + dy >= FIELD_ROWS || this->blocks[shape->y + yy + dy][shape->x + xx + dx]) {
                         return true;
                     }
                 }
@@ -158,23 +170,20 @@ public:
 
 private:
     uint16_t blocks[FIELD_ROWS][FIELD_COLS]; // Black color means no block
-    Arduino_Canvas *canvas;
+    lilka::Canvas *canvas;
 };
 
-void demo_letris() {
-    // Створюємо Canvas для буферизації малюнку
-    lilka::Canvas canvas;
-    canvas.begin();
+void demo_letris(lilka::Canvas *canvas) {
     // Створюємо поле та фігуру
-    Field field(&canvas);
-    Shape shape(&canvas);
-    Shape nextShape(&canvas);
+    Field field(canvas);
+    Shape shape(canvas);
+    Shape nextShape(canvas);
     nextShape.reset();
 
     // Вітання
     while (!lilka::controller.getState().a.justPressed) {
         float time = millis() / 1000.0;
-        canvas.fillScreen(canvas.color565(0, 0, 0));
+        canvas->fillScreen(canvas->color565(0, 0, 0));
         float yShifts[letris_splash_width];
         for (uint16_t x = 0; x < letris_splash_width; x++) {
             yShifts[x] = cos(time + ((float)x) / 32.0) * 8;
@@ -182,14 +191,16 @@ void demo_letris() {
         for (uint16_t y = 0; y < letris_splash_height; y++) {
             int16_t xShift = sin(time * 4 + y / 8.0) * 4;
             for (uint16_t x = 0; x < letris_splash_width; x++) {
-                canvas.drawPixel(x + xShift, LILKA_DISPLAY_HEIGHT / 2 - letris_splash_height / 2 + y + yShifts[x], letris_splash[y * letris_splash_width + x]);
+                canvas->drawPixel(
+                    x + xShift, (float)canvas->height() / 2 - (float)letris_splash_height / 2 + y + yShifts[x],
+                    letris_splash[y * letris_splash_width + x]
+                );
             }
         }
-        lilka::display.renderCanvas(canvas);
     }
 
     // Очищаємо екран
-    canvas.fillScreen(canvas.color565(32, 32, 32));
+    canvas->fillScreen(canvas->color565(32, 32, 32));
 
     // Головний цикл гри
     while (1) {
@@ -240,7 +251,7 @@ void demo_letris() {
                 shape.draw();
                 nextShape.draw(true);
                 // Відображаємо зміни на екрані
-                lilka::display.renderCanvas(canvas);
+                // lilka::display.renderCanvas(canvas);
             }
 
             // Перевіряємо, чи може фігура рухатися вниз
@@ -257,5 +268,6 @@ void demo_letris() {
     }
 
     // Гра закінчилася. Виводимо повідомлення на екран
-    lilka::ui_alert("Game over", "Гру завершено!\nТи намагався. :)");
+    // TODO: FreeRTOS experiment
+    lilka::ui_alert(canvas, "Game over", "Гру завершено!\nТи намагався. :)");
 }

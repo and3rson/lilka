@@ -1,14 +1,14 @@
 #include <lilka.h>
 #include <WiFi.h>
 
-void demo_scan_wifi() {
-    lilka::display.fillScreen(lilka::display.color565(0, 0, 0));
-    lilka::display.setCursor(4, 150);
+void demo_scan_wifi(lilka::Canvas *canvas) {
+    canvas->fillScreen(canvas->color565(0, 0, 0));
+    canvas->setCursor(4, 150);
 
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
 
-    lilka::display.println("Скануємо мережі WiFi...");
+    canvas->println("Скануємо мережі WiFi...");
 
     int16_t count = WiFi.scanNetworks(false);
     // while (count == WIFI_SCAN_RUNNING) {
@@ -21,7 +21,8 @@ void demo_scan_wifi() {
         networks[i] = WiFi.SSID(i);
     }
 
-    lilka::ui_menu("Мережі", networks, count, 0);
+    // TODO: FreeRTOS experiment
+    lilka::ui_menu(canvas, "Мережі", networks, count, 0);
 
     // while (!lilka::controller.getState().a.justPressed) {
     //     delay(10);
