@@ -24,43 +24,6 @@ extern "C" {
 
 #include "demos/demos.h"
 
-// void setup() {
-//     lilka::begin();
-// }
-
-// void loop() {
-//     String menu[] = {
-//         "Демо", "Браузер SD-карти", "Браузер SPIFFS", "Розробка", "Системні утиліти", "Про систему",
-//     };
-//     const menu_icon_t *icons[] = {
-//         &demos, &sdcard, &memory, &dev, &settings, &info,
-//     };
-//     const uint16_t colors[] = {
-//         lilka::display.color565(255, 200, 200), lilka::display.color565(255, 255, 200),
-//         lilka::display.color565(200, 255, 200), lilka::display.color565(255, 224, 128),
-//         lilka::display.color565(255, 200, 224), lilka::display.color565(200, 224, 255),
-//     };
-//     int cursor = 0;
-//     int count = sizeof(menu) / sizeof(menu[0]);
-//     while (1) {
-//         cursor = lilka::ui_menu("Головне меню", menu, count, cursor, icons, colors);
-//         if (cursor == 0) {
-//             demos_menu();
-//         } else if (cursor == 1) {
-//             sd_browser_menu("/");
-//         } else if (cursor == 2) {
-//             spiffs_browser_menu();
-//         } else if (cursor == 3) {
-//             dev_menu();
-//         } else if (cursor == 4) {
-//             system_utils_menu();
-//         } else if (cursor == 5) {
-//             lilka::ui_alert("Лілка Main OS", "by Андерсон\n& friends");
-//         }
-//     }
-// }
-
-// Struct that contains app name, framebuffer, framebuffer semaphore
 class App {
 public:
     App(const char *name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) : name(name), x(x), y(y), w(w), h(h) {
@@ -376,9 +339,6 @@ public:
                 code += line;
             }
 
-            // Serial.println("Code received:");
-            // Serial.println(code);
-
             // Those darn line ends...
             // If code contains \r and \n - replace them with \n
             // If code contains only \r - replace it with \n
@@ -554,13 +514,10 @@ void loop() {
     for (App *app : apps) {
         if (app->canvas->isDirty()) {
             app->canvas->acquireMutex();
-            lilka::display.draw16bitRGBBitmap(app->x, app->y, app->canvas->getFramebuffer(), app->w, app->h);
+            lilka::display.renderCanvas(app->canvas);
             app->canvas->releaseMutex();
             app->canvas->markClean();
         }
-        vTaskDelay(0);
-        // vTaskDelay(100 / portTICK_PERIOD_MS);
-        // lilka::display.drawLine(0, 0, 100, 100, lilka::display.color565(255, 255, 255));
-        // lilka::display.drawPixel(0, 0, lilka::display.color565(random(255), random(255), random(255)));
+        taskYIELD();
     }
 }

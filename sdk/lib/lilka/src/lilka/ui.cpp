@@ -116,7 +116,7 @@ int ui_menu(
             return cursor;
         }
 
-        vTaskDelay(0);
+        taskYIELD();
     }
 }
 
@@ -148,7 +148,7 @@ void ui_alert(Canvas *canvas, String title, String message) {
     canvas->println(message);
     canvas->releaseMutex();
     while (!controller.getState().a.justPressed) {
-        delay(10);
+        taskYIELD();
     }
 }
 

@@ -228,7 +228,7 @@ public:
         int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
     );
     /// Відобразити буфер на екрані (див. `lilka::Canvas`).
-    void renderCanvas(Canvas &canvas);
+    void renderCanvas(Canvas *canvas);
 
 private:
     const uint16_t *splash;
@@ -265,7 +265,7 @@ private:
 ///         canvas.setCursor(32, 0);
 ///         canvas.setTextColor(lilka::display.color565(0, 0, 0)); // Білий текст
 ///         canvas.print("Привіт, Лілка!");
-///         lilka::display.renderCanvas(canvas); // Відобразити буфер на екрані - жодного мерехтіння!
+///         lilka::display.renderCanvas(&canvas); // Відобразити буфер на екрані - жодного мерехтіння!
 ///         y++;
 ///         if (y > 200) {
 ///             y = 100;
@@ -284,6 +284,8 @@ public:
     void draw16bitRGBBitmapWithTranColor(
         int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
     );
+    int16_t x();
+    int16_t y();
     void acquireMutex();
     void releaseMutex();
 
