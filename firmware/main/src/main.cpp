@@ -36,7 +36,6 @@ public:
     void run() {
         int counter = 0;
         while (1) {
-            acquireCanvas();
             canvas->fillScreen(lilka::display.color565(0, 0, 0));
             canvas->setTextColor(lilka::display.color565(255, 255, 255), lilka::display.color565(0, 0, 0));
             canvas->setFont(FONT_10x20);
@@ -46,7 +45,7 @@ public:
             canvas->draw16bitRGBBitmapWithTranColor(136 + 24, 0, battery, 0, 48, 24);
             // canvas->draw16bitRGBBitmapWithTranColor(160, 0, wifi, 24, 24, 0);
             // canvas->draw16bitRGBBitmapWithTranColor(160 + 24, 0, battery, 24, 24, 0);
-            releaseCanvas();
+            queueDraw();
             vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
     }
@@ -66,9 +65,8 @@ public:
 
         while (1) {
             menu.update();
-            acquireCanvas();
             menu.draw(canvas);
-            releaseCanvas();
+            queueDraw();
             int16_t index = menu.getSelectedIndex();
             if (index != -1) {
                 if (index == 0) {
@@ -83,9 +81,8 @@ public:
                     system_utils_menu();
                 } else if (index == 5) {
                     lilka::Alert alert("Лілка Main OS", "by Андерсон\n& friends");
-                    acquireCanvas();
                     alert.draw(canvas);
-                    releaseCanvas();
+                    queueDraw();
                     while (1) {
                         alert.update();
                         if (alert.isDone()) {
@@ -117,9 +114,8 @@ public:
         }
         while (1) {
             menu.update();
-            acquireCanvas();
             menu.draw(canvas);
-            releaseCanvas();
+            queueDraw();
             int16_t index = menu.getSelectedIndex();
             if (index == count - 1) {
                 break;

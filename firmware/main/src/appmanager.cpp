@@ -16,6 +16,8 @@ AppManager::~AppManager() {
     // TODO: Should never be destroyed
 }
 
+/// Set the panel app.
+/// Panel app is drawn separately from the other apps on the top of the screen.
 void AppManager::setPanel(App *app) {
     xSemaphoreTake(mutex, portMAX_DELAY);
     panel = app;
@@ -23,6 +25,7 @@ void AppManager::setPanel(App *app) {
     xSemaphoreGive(mutex);
 }
 
+/// Spawn a new app and pause the current one.
 void AppManager::addApp(App *app) {
     // If there's an app already running, pause it
     xSemaphoreTake(mutex, portMAX_DELAY);
@@ -34,25 +37,32 @@ void AppManager::addApp(App *app) {
     app->start();
     xSemaphoreGive(mutex);
     if (topApp != NULL) {
-        vTaskSuspend(topApp->taskHandle);
+        // This method may be called from an app itself, that's why we postpone the suspension till the end of this method
+        topApp->suspend();
     }
 }
 
+/// Perform one iteration of the main loop.
+/// Redraws the panel and the top app if necessary.
+/// If the top app has finished, it is removed from the list and the next app is resumed.
 void AppManager::loop() {
     xSemaphoreTake(mutex, portMAX_DELAY);
+
+    // Draw panel
     if (panel->needsRedraw()) {
         Serial.println("Redrawing panel");
-        panel->acquireCanvas();
+        panel->acquireBackCanvas();
         lilka::display.draw16bitRGBBitmap(
-            panel->canvas->x(), panel->canvas->y(), panel->canvas->getFramebuffer(), panel->canvas->width(),
-            panel->canvas->height()
+            panel->backCanvas->x(), panel->backCanvas->y(), panel->backCanvas->getFramebuffer(),
+            panel->backCanvas->width(), panel->backCanvas->height()
         );
-        panel->releaseCanvas();
+        panel->releaseBackCanvas();
         panel->markClean();
     }
+
+    // Check if top app has finished
     App *topApp = apps.back();
-    eTaskState state = eTaskGetState(topApp->taskHandle);
-    if (state == eDeleted) {
+    if (topApp->getState() == eDeleted) {
         // Remove app from list
         apps.pop_back();
         delete topApp;
@@ -64,44 +74,19 @@ void AppManager::loop() {
             }
         }
         topApp = apps.back();
-        vTaskResume(topApp->taskHandle);
+        topApp->resume();
     }
+
+    // Draw top app
     if (topApp->needsRedraw()) {
         Serial.println("Redrawing " + String(topApp->getName()));
-        topApp->acquireCanvas();
+        topApp->acquireBackCanvas();
         lilka::display.draw16bitRGBBitmap(
-            topApp->canvas->x(), topApp->canvas->y(), topApp->canvas->getFramebuffer(), topApp->canvas->width(),
-            topApp->canvas->height()
+            topApp->backCanvas->x(), topApp->backCanvas->y(), topApp->backCanvas->getFramebuffer(),
+            topApp->backCanvas->width(), topApp->backCanvas->height()
         );
-        topApp->releaseCanvas();
+        topApp->releaseBackCanvas();
         topApp->markClean();
     }
     xSemaphoreGive(mutex);
-    // for (auto app : apps) {
-    //     eTaskState state = eTaskGetState(app->taskHandle);
-    //     if (state == eDeleted) {
-    //         // Remove app from list
-    //         apps.pop_back();
-    //         delete app;
-    //         // Resume top app
-    //         if (apps.size() == 0) {
-    //             // No apps left - panic!
-    //             lilka::serial_err("No apps left! Panic!");
-    //             while (1) {
-    //             }
-    //         }
-    //         App *topApp = apps.back();
-    //         vTaskResume(topApp->taskHandle);
-    //     } else {
-    //         if (app->needsRedraw()) {
-    //             app->acquireCanvas();
-    //             lilka::display.draw16bitRGBBitmap(
-    //                 app->canvas->x(), app->canvas->y(), app->canvas->getFramebuffer(), app->canvas->width(),
-    //                 app->canvas->height()
-    //             );
-    //             app->releaseCanvas();
-    //             app->markClean();
-    //         }
-    //     }
-    // }
 }
