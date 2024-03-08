@@ -70,7 +70,7 @@ void setup() {
     // Find the wad file
     File root = SD.open("/");
     File file;
-    while (file = root.openNextFile()) {
+    while ((file = root.openNextFile())) {
         if (file.isDirectory()) {
             file.close();
             continue;
@@ -89,7 +89,11 @@ void setup() {
     }
     root.close();
     if (!found) {
-        lilka::ui_alert("Doom", "Не знайдено .WAD-файлу на картці пам'яті");
+        lilka::Alert alert("Doom", "Не знайдено .WAD-файлу на картці пам'яті");
+        alert.draw(&lilka::display);
+        while (!alert.isDone()) {
+            alert.update();
+        }
         esp_restart();
     }
     char *argv[3] = {arg, arg2, arg3};
