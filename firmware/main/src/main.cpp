@@ -32,5 +32,4 @@ void setup() {
 
 void loop() {
     appManager->loop();
-    taskYIELD();
 }

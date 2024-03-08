@@ -95,4 +95,6 @@ void AppManager::loop() {
     }
 
     xSemaphoreGive(mutex);
+
+    taskYIELD();
 }

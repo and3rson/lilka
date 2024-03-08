@@ -23,8 +23,6 @@ Controller::Controller() {
     _clearHandlers();
 }
 
-// example function that uses xSemaphoreTake and xSemaphoreGive
-
 void Controller::inputTask(void *arg) {
     Controller *self = (Controller *)arg;
     while (1) {
@@ -138,12 +136,10 @@ void Controller::clearHandlers() {
 }
 
 void Controller::_clearHandlers() {
-    // xSemaphoreTake(semaphore, portMAX_DELAY);
     for (int i = 0; i < Button::COUNT; i++) {
         handlers[i] = NULL;
     }
     globalHandler = NULL;
-    // xSemaphoreGive(semaphore);
 }
 
 Controller controller;

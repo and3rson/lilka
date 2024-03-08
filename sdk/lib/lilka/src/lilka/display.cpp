@@ -1,6 +1,3 @@
-#include <FreeRTOS.h>
-#include <semphr.h>
-
 #include "display.h"
 
 #include "default_splash.h"
