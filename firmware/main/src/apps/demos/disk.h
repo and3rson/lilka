@@ -5,5 +5,7 @@
 class DiskApp : public App {
 public:
     DiskApp();
+
+private:
     void run();
 };

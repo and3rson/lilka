@@ -5,5 +5,7 @@
 class EpilepsyApp : public App {
 public:
     EpilepsyApp();
+
+private:
     void run();
 };

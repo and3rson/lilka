@@ -65,6 +65,14 @@ void App::queueDraw() {
     taskYIELD();
 }
 
+void App::setFlags(AppFlags flags) {
+    this->flags = flags;
+}
+
+AppFlags App::getFlags() {
+    return flags;
+}
+
 bool App::needsRedraw() {
     return dirty;
 }

@@ -90,7 +90,10 @@ bool callDraw(lua_State* L) {
     return true;
 }
 
-AbstractLuaRunnerApp::AbstractLuaRunnerApp(const char* appName) : App(appName) {}
+AbstractLuaRunnerApp::AbstractLuaRunnerApp(const char* appName)
+    : App(appName, 0, 0, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT) {
+    setFlags(AppFlags::APP_FLAG_FULLSCREEN);
+}
 
 void AbstractLuaRunnerApp::luaSetup(const char* dir) {
     lilka::serial_log("lua: script dir: %s", dir);

@@ -5,5 +5,7 @@
 class BallApp : public App {
 public:
     BallApp();
+
+private:
     void run();
 };

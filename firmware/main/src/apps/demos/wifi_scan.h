@@ -5,5 +5,7 @@
 class WifiScanApp : public App {
 public:
     WifiScanApp();
+
+private:
     void run();
 };

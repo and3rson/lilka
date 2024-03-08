@@ -22,6 +22,8 @@ public:
 
 private:
     AppManager();
+    App *removeTopApp();
+
     App *panel;
     std::vector<App *> apps;
     static AppManager *instance;

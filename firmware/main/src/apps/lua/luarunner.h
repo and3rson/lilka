@@ -4,10 +4,11 @@
 #include <lua.hpp>
 #include "app.h"
 
+// Abstract Lua runner app. Sets up Lua VM and provides a method to run Lua code.
+// Does not implement the run method.
 class AbstractLuaRunnerApp : public App {
 public:
     AbstractLuaRunnerApp(const char *name);
-    virtual void run() = 0;
 
 protected:
     void luaSetup(const char *dir);
@@ -16,21 +17,23 @@ protected:
     lua_State *L;
 };
 
+// Lua runner app that runs a file.
 class LuaFileRunnerApp : public AbstractLuaRunnerApp {
 public:
     LuaFileRunnerApp(String path);
-    void run();
 
 private:
+    void run();
     String path;
 };
 
+// Lua runner app that runs a string.
 class LuaSourceRunnerApp : public AbstractLuaRunnerApp {
 public:
     LuaSourceRunnerApp(String source);
-    void run();
 
 private:
+    void run();
     String source;
 };
 

@@ -42,50 +42,50 @@ void AppManager::addApp(App *app) {
     }
 }
 
+/// Remove the top app and resume the previous one.
+/// Returns new top app.
+App *AppManager::removeTopApp() {
+    App *topApp = apps.back();
+    apps.pop_back();
+    delete topApp;
+    if (apps.size() > 0) {
+        topApp = apps.back();
+        topApp->resume();
+    }
+    return topApp;
+}
+
 /// Perform one iteration of the main loop.
 /// Redraws the panel and the top app if necessary.
 /// If the top app has finished, it is removed from the list and the next app is resumed.
 void AppManager::loop() {
     xSemaphoreTake(mutex, portMAX_DELAY);
 
-    // Draw panel
-    panel->acquireBackCanvas();
-    if (panel->needsRedraw()) {
-        lilka::display.draw16bitRGBBitmap(
-            panel->backCanvas->x(), panel->backCanvas->y(), panel->backCanvas->getFramebuffer(),
-            panel->backCanvas->width(), panel->backCanvas->height()
-        );
-        panel->markClean();
-    }
-    panel->releaseBackCanvas();
-
     // Check if top app has finished
     App *topApp = apps.back();
     if (topApp->getState() == eDeleted) {
-        // Remove app from list
-        apps.pop_back();
-        delete topApp;
-        // Resume top app
-        if (apps.size() == 0) {
-            // No apps left - panic!
-            lilka::serial_err("No apps left! Panic!");
-            while (1) {
-            }
-        }
-        topApp = apps.back();
-        topApp->resume();
+        // Switch to the next app in stack
+        topApp = removeTopApp();
     }
 
-    // Draw top app
-    topApp->acquireBackCanvas();
-    if (topApp->needsRedraw()) {
-        lilka::display.draw16bitRGBBitmap(
-            topApp->backCanvas->x(), topApp->backCanvas->y(), topApp->backCanvas->getFramebuffer(),
-            topApp->backCanvas->width(), topApp->backCanvas->height()
-        );
-        topApp->markClean();
+    // Draw panel and top app
+    for (App *app : {panel, topApp}) {
+        if (app == panel) {
+            // Check if topApp is fullscreen. If it is, don't draw the panel
+            if (topApp->getFlags() & AppFlags::APP_FLAG_FULLSCREEN) {
+                continue;
+            }
+        }
+        app->acquireBackCanvas();
+        if (app->needsRedraw()) {
+            lilka::display.draw16bitRGBBitmap(
+                app->backCanvas->x(), app->backCanvas->y(), app->backCanvas->getFramebuffer(), app->backCanvas->width(),
+                app->backCanvas->height()
+            );
+            app->markClean();
+        }
+        app->releaseBackCanvas();
     }
-    topApp->releaseBackCanvas();
 
     xSemaphoreGive(mutex);
 }
