@@ -2,8 +2,8 @@
 
 #include "app.h"
 
-class HUDApp : public App {
+class EpilepsyApp : public App {
 public:
-    HUDApp();
+    EpilepsyApp();
     void run();
 };

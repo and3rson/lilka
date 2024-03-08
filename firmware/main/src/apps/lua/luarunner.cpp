@@ -4,6 +4,7 @@
 #include "clib/u8g2.h"
 #include <lilka.h>
 
+#include "luarunner.h"
 #include "lualilka_display.h"
 #include "lualilka_console.h"
 #include "lualilka_controller.h"
@@ -13,8 +14,6 @@
 #include "lualilka_gpio.h"
 #include "lualilka_util.h"
 #include "lualilka_state.h"
-
-namespace lilka {
 
 jmp_buf stopjmp;
 
@@ -91,80 +90,12 @@ bool callDraw(lua_State* L) {
     return true;
 }
 
-int execute(lua_State* L) {
-    // Calls Lua code that's on top of the stack (previously loaded with luaL_loadfile or luaL_loadstring)
+AbstractLuaRunnerApp::AbstractLuaRunnerApp(const char* appName) : App(appName) {}
 
-    int jmpCode = setjmp(stopjmp);
-
-    if (jmpCode == 0) {
-        // Run script
-        int retCode = lua_pcall(L, 0, LUA_MULTRET, 0);
-        if (retCode) {
-            longjmp(stopjmp, retCode);
-        }
-
-        // Get canvas from registry
-        lua_getfield(L, LUA_REGISTRYINDEX, "canvas");
-        Canvas* canvas = (Canvas*)lua_touserdata(L, -1);
-        lua_pop(L, 1);
-
-        if (!pushLilka(L)) {
-            // No lilka table - we're done
-            lua_pop(L, 1);
-            longjmp(stopjmp, 32);
-        }
-
-        // Check if lilka.init function exists and call it
-        callInit(L);
-
-        // Check if lilka.update function exists and call it
-        const uint32_t perfectDelta = 1000 / 30;
-        uint32_t delta = perfectDelta; // Delta for first frame is always 1/30
-        while (true) {
-            uint32_t now = millis();
-
-            if (!callUpdate(L, delta) || !callDraw(L)) {
-                // No update or draw function - we're done
-                longjmp(stopjmp, 32);
-                serial_log("lua: no update or draw function");
-            }
-
-            // Check if show_fps is true and render FPS
-            lua_getfield(L, -1, "show_fps");
-            if (lua_toboolean(L, -1)) {
-                canvas->setCursor(24, 24);
-                canvas->setTextColor(0xFFFF, 0);
-                canvas->print(String("FPS: ") + (1000 / (delta > 0 ? delta : 1)) + "  ");
-            }
-            lua_pop(L, 1);
-
-            display.renderCanvas(canvas);
-
-            // Calculate time spent in update
-            uint32_t elapsed = millis() - now;
-            // If we're too fast, delay to keep 30 FPS
-            if (elapsed < perfectDelta) {
-                delay(perfectDelta - elapsed);
-                delta = perfectDelta;
-            } else {
-                // If we're too slow, don't delay and set delta to elapsed time
-                delta = elapsed;
-            }
-        }
-    }
-
-    int retCode = jmpCode;
-    if (retCode == 32) {
-        // Normal exit through longjmp
-        return 0;
-    }
-    return retCode;
-}
-
-lua_State* lua_setup(const char* dir) {
+void AbstractLuaRunnerApp::luaSetup(const char* dir) {
     lilka::serial_log("lua: script dir: %s", dir);
 
-    lua_State* L = luaL_newstate();
+    L = luaL_newstate();
 
     lilka::serial_log("lua: init libs");
     luaL_openlibs(L);
@@ -196,14 +127,14 @@ lua_State* lua_setup(const char* dir) {
     lualilka_gpio_register(L);
     lualilka_util_register(L);
 
-    lilka::serial_log("lua: init canvas");
-    lilka::Canvas* canvas = new lilka::Canvas();
-    lilka::display.setFont(FONT_10x20);
-    canvas->setFont(FONT_10x20);
-    canvas->begin();
+    // lilka::serial_log("lua: init canvas");
+    // lilka::Canvas* canvas = new lilka::Canvas();
+    // lilka::display.setFont(FONT_10x20);
+    // canvas->setFont(FONT_10x20);
+    // canvas->begin();
     // Store canvas in registry with "canvas" key
-    lua_pushlightuserdata(L, canvas);
-    lua_setfield(L, LUA_REGISTRYINDEX, "canvas");
+    lua_pushlightuserdata(L, this);
+    lua_setfield(L, LUA_REGISTRYINDEX, "app");
     // Initialize table for image pointers
     lilka::serial_log("lua: init memory for images");
     lua_newtable(L);
@@ -215,11 +146,9 @@ lua_State* lua_setup(const char* dir) {
     lua_pushboolean(L, false);
     lua_setfield(L, -2, "show_fps");
     lua_setglobal(L, "lilka");
-
-    return L;
 }
 
-void lua_teardown(lua_State* L) {
+void AbstractLuaRunnerApp::luaTeardown() {
     lilka::serial_log("lua: cleanup");
 
     // Free images from registry
@@ -232,18 +161,92 @@ void lua_teardown(lua_State* L) {
     }
 
     // Free canvas from registry
-    lilka::Canvas* canvas = (lilka::Canvas*)lua_touserdata(L, lua_getfield(L, LUA_REGISTRYINDEX, "canvas"));
-    delete canvas;
+    // lilka::Canvas* canvas = (lilka::Canvas*)lua_touserdata(L, lua_getfield(L, LUA_REGISTRYINDEX, "canvas"));
+    // delete canvas;
 
     lua_close(L);
 }
 
-int lua_runfile(Canvas *canvas, String path) {
+int AbstractLuaRunnerApp::execute() {
+    // Calls Lua code that's on top of the stack (previously loaded with luaL_loadfile or luaL_loadstring)
+
+    int jmpCode = setjmp(stopjmp);
+
+    if (jmpCode == 0) {
+        // Run script
+        int retCode = lua_pcall(L, 0, LUA_MULTRET, 0);
+        if (retCode) {
+            longjmp(stopjmp, retCode);
+        }
+
+        // Get canvas from registry
+        // lua_getfield(L, LUA_REGISTRYINDEX, "canvas");
+        // lilka::Canvas* canvas = (lilka::Canvas*)lua_touserdata(L, -1);
+        // lua_pop(L, 1);
+
+        if (!pushLilka(L)) {
+            // No lilka table - we're done
+            lua_pop(L, 1);
+            longjmp(stopjmp, 32);
+        }
+
+        // Check if lilka.init function exists and call it
+        callInit(L);
+
+        // Check if lilka.update function exists and call it
+        const uint32_t perfectDelta = 1000 / 30;
+        uint32_t delta = perfectDelta; // Delta for first frame is always 1/30
+        while (true) {
+            uint32_t now = millis();
+
+            if (!callUpdate(L, delta) || !callDraw(L)) {
+                // No update or draw function - we're done
+                longjmp(stopjmp, 32);
+                lilka::serial_log("lua: no update or draw function");
+            }
+
+            // Check if show_fps is true and render FPS
+            lua_getfield(L, -1, "show_fps");
+            if (lua_toboolean(L, -1)) {
+                canvas->setCursor(24, 24);
+                canvas->setTextColor(0xFFFF, 0);
+                canvas->print(String("FPS: ") + (1000 / (delta > 0 ? delta : 1)) + "  ");
+            }
+            lua_pop(L, 1);
+            queueDraw();
+
+            // display.renderCanvas(canvas);
+
+            // Calculate time spent in update
+            uint32_t elapsed = millis() - now;
+            // If we're too fast, delay to keep 30 FPS
+            if (elapsed < perfectDelta) {
+                vTaskDelay((perfectDelta - elapsed) / portTICK_PERIOD_MS);
+                // delay(perfectDelta - elapsed);
+                delta = perfectDelta;
+            } else {
+                // If we're too slow, don't delay and set delta to elapsed time
+                delta = elapsed;
+            }
+        }
+    }
+
+    int retCode = jmpCode;
+    if (retCode == 32) {
+        // Normal exit through longjmp
+        return 0;
+    }
+    return retCode;
+}
+
+LuaFileRunnerApp::LuaFileRunnerApp(String path) : AbstractLuaRunnerApp("Lua file run"), path(path) {}
+
+void LuaFileRunnerApp::run() {
 #ifndef LILKA_NO_LUA
     // Get dir name from path (without the trailing slash)
     String dir = path.substring(0, path.lastIndexOf('/'));
 
-    lua_State* L = lua_setup(dir.c_str());
+    luaSetup(dir.c_str());
 
     // Load state from file (file name is "path" with .lua replaced with .state)
     String statePath = path.substring(0, path.lastIndexOf('.')) + ".state";
@@ -256,11 +259,17 @@ int lua_runfile(Canvas *canvas, String path) {
 
     lilka::serial_log("lua: run file");
 
-    int retCode = luaL_loadfile(L, path.c_str()) || execute(L);
+    int retCode = luaL_loadfile(L, path.c_str()) || execute();
 
     if (retCode) {
         const char* err = lua_tostring(L, -1);
-        lilka::ui_alert(canvas, "Lua", String("Помилка: ") + err);
+        // lilka::ui_alert(canvas, "Lua", String("Помилка: ") + err);
+        lilka::Alert alert("Lua", String("Помилка: ") + err);
+        while (!alert.isDone()) {
+            alert.update();
+            alert.draw(canvas);
+            queueDraw();
+        }
     }
 
     // Check if state table exists and save it to file if so
@@ -274,78 +283,76 @@ int lua_runfile(Canvas *canvas, String path) {
         lilka::serial_log("lua: no state to save");
     }
 
-    lua_teardown(L);
+    luaTeardown();
 
-    return retCode;
-#else
-    ui_alert(canvas, "Помилка", "Lua не підтримується");
-    return -1;
+    // return retCode;
 #endif
 }
 
-int lua_runsource(Canvas* canvas, String source) {
+LuaSourceRunnerApp::LuaSourceRunnerApp(String source) : AbstractLuaRunnerApp("Lua source run"), source(source) {}
+
+void LuaSourceRunnerApp::run() {
 #ifndef LILKA_NO_LUA
-    lua_State* L = lua_setup("/sd"); // TODO: hard-coded
+    luaSetup("/sd"); // TODO: hard-coded
 
     lilka::serial_log("lua: run source");
 
-    int retCode = luaL_loadstring(L, source.c_str()) || execute(L);
+    int retCode = luaL_loadstring(L, source.c_str()) || execute();
 
     if (retCode) {
         const char* err = lua_tostring(L, -1);
-        lilka::ui_alert(canvas, "Lua", String("Помилка: ") + err);
+        // lilka::ui_alert(canvas, "Lua", String("Помилка: ") + err);
+        lilka::Alert alert("Lua", String("Помилка: ") + err);
+        while (!alert.isDone()) {
+            alert.update();
+            alert.draw(canvas);
+            queueDraw();
+        }
     }
 
-    lua_teardown(L);
-
-    return retCode;
-#else
-    ui_alert(canvas, "Помилка", "Lua не підтримується");
-    return -1;
+    luaTeardown();
 #endif
 }
 
-lua_State* Lrepl;
-
-int lua_repl_start() {
-#ifndef LILKA_NO_LUA
-    Lrepl = lua_setup("/sd"); // TODO: hard-coded
-
-    lilka::serial_log("lua: start REPL");
-    return 0;
-#else
-    ui_alert(canvas, "Помилка", "Lua не підтримується");
-    return -1;
-#endif
-}
-
-int lua_repl_input(String input) {
-#ifndef LILKA_NO_LUA
-    // lilka::serial_log("lua: input: %s", input.c_str());
-
-    int retCode = luaL_loadstring(Lrepl, input.c_str()) || execute(Lrepl);
-
-    if (retCode) {
-        const char* err = lua_tostring(Lrepl, -1);
-        serial_log("lua: error: %s", err);
-    }
-
-    return retCode;
-#else
-    ui_alert(canvas, "Помилка", "Lua не підтримується");
-    return -1;
-#endif
-}
-
-int lua_repl_stop() {
-#ifndef LILKA_NO_LUA
-    lilka::serial_log("lua: stop REPL");
-    lua_teardown(Lrepl);
-    return 0;
-#else
-    ui_alert(canvas, "Помилка", "Lua не підтримується");
-    return -1;
-#endif
-}
-
-} // namespace lilka
+// lua_State* Lrepl;
+//
+// int lua_repl_start() {
+// #ifndef LILKA_NO_LUA
+//     Lrepl = lua_setup("/sd"); // TODO: hard-coded
+//
+//     lilka::serial_log("lua: start REPL");
+//     return 0;
+// #else
+//     ui_alert(canvas, "Помилка", "Lua не підтримується");
+//     return -1;
+// #endif
+// }
+//
+// int lua_repl_input(String input) {
+// #ifndef LILKA_NO_LUA
+//     // lilka::serial_log("lua: input: %s", input.c_str());
+//
+//     int retCode = luaL_loadstring(Lrepl, input.c_str()) || execute(Lrepl);
+//
+//     if (retCode) {
+//         const char* err = lua_tostring(Lrepl, -1);
+//         serial_log("lua: error: %s", err);
+//     }
+//
+//     return retCode;
+// #else
+//     ui_alert(canvas, "Помилка", "Lua не підтримується");
+//     return -1;
+// #endif
+// }
+//
+// int lua_repl_stop() {
+// #ifndef LILKA_NO_LUA
+//     lilka::serial_log("lua: stop REPL");
+//     lua_teardown(Lrepl);
+//     return 0;
+// #else
+//     ui_alert(canvas, "Помилка", "Lua не підтримується");
+//     return -1;
+// #endif
+// }

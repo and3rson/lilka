@@ -1,16 +1,18 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#include <lilka.h>
+#include "scan_i2c.h"
 
-void demo_scan_i2c(lilka::Canvas *canvas) {
+ScanI2CApp::ScanI2CApp() : App("I2C Scanner") {}
+
+void ScanI2CApp::run() {
     Wire.begin(9, 10, 100000);
 
     canvas->fillScreen(canvas->color565(0, 0, 0));
     canvas->setTextBound(4, 0, LILKA_DISPLAY_WIDTH - 8, LILKA_DISPLAY_HEIGHT);
     canvas->setCursor(4, 48);
-
     canvas->println("Starting I2C scan...");
+    queueDraw();
 
     uint8_t found = 0;
     for (uint16_t address = 1; address <= 127; address++) {
@@ -30,10 +32,11 @@ void demo_scan_i2c(lilka::Canvas *canvas) {
 
     canvas->println("I2C scan done.");
     canvas->printf("Found %d devices.", found);
+    queueDraw();
 
     Wire.end();
 
     while (!lilka::controller.getState().a.justPressed) {
-        delay(10);
+        taskYIELD();
     }
 }

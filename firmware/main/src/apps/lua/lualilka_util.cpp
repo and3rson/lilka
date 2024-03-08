@@ -12,7 +12,8 @@ int lualilka_util_time(lua_State* L) {
 
 int lualilka_util_sleep(lua_State* L) {
     float s = luaL_checknumber(L, 1);
-    delayMicroseconds(s * 1000000);
+    // delayMicroseconds(s * 1000000);
+    vTaskDelay(s * 1000 / portTICK_PERIOD_MS);
     return 0;
 }
 

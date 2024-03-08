@@ -218,6 +218,7 @@ void Menu::draw(Arduino_GFX *canvas) {
         canvas->color565(255, 255, 0)
     );
     canvas->setCursor(32, 48);
+    canvas->setTextBound(0, 0, canvas->width(), canvas->height());
     canvas->setTextColor(canvas->color565(255, 255, 255));
     canvas->setFont(FONT_6x13);
     canvas->setTextSize(2);
@@ -293,8 +294,6 @@ void Alert::draw(Arduino_GFX *canvas) {
     int right = canvas->width() / 8 * 7;
     int width = right - left;
     int xMargin = 4;
-
-    controller.resetState();
 
     canvas->fillRect(left, top, width, mid - top, canvas->color565(32, 32, 128));
     canvas->setFont(FONT_6x13);

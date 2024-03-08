@@ -1,6 +1,8 @@
-#include <lilka.h>
+#include "epilepsy.h"
 
-void demo_epilepsy(lilka::Canvas *canvas) {
+EpilepsyApp::EpilepsyApp() : App("Epilepsy") {}
+
+void EpilepsyApp::run() {
     while (1) {
         float time = millis() / 1000.0;
         float size = sin(time * PI * 1.5) * LILKA_DISPLAY_WIDTH;
@@ -20,6 +22,7 @@ void demo_epilepsy(lilka::Canvas *canvas) {
         };
         canvas->fillTriangle(points[0][0], points[0][1], points[1][0], points[1][1], points[2][0], points[2][1], color);
         canvas->fillTriangle(points[0][0], points[0][1], points[2][0], points[2][1], points[3][0], points[3][1], color);
+        queueDraw();
 
         if (lilka::controller.getState().a.justPressed) {
             return;

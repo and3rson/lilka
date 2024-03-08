@@ -1,6 +1,8 @@
-#include <lilka.h>
+#include "ball.h"
 
-void demo_ball(lilka::Canvas *canvas) {
+BallApp::BallApp() : App("Ball") {}
+
+void BallApp::run() {
     float x = (float)canvas->width() / 2;
     float y = (float)canvas->height() / 4;
     float xVelo = 320, yVelo = 0;
@@ -9,8 +11,6 @@ void demo_ball(lilka::Canvas *canvas) {
     uint64_t prevRenderTime = millis();
     while (1) {
         float delta = (millis() - prevRenderTime) / 1000.0;
-
-        canvas->fillScreen(canvas->color565(0, 0, 0));
 
         yVelo += gravity * delta;
         x += xVelo * delta;
@@ -26,7 +26,6 @@ void demo_ball(lilka::Canvas *canvas) {
             y = y < radius ? radius : canvas->height() - radius;
         }
 
-        canvas->fillCircle(x, y, radius, canvas->color565(255, 200, 0));
         lilka::State state = lilka::controller.getState();
         if (state.a.justPressed) {
             return;
@@ -40,9 +39,13 @@ void demo_ball(lilka::Canvas *canvas) {
             xVelo = 500;
         }
 
+        canvas->fillScreen(canvas->color565(0, 0, 0));
+        canvas->fillCircle(x, y, radius, canvas->color565(255, 200, 0));
         // Calculate FPS
         canvas->setCursor(16, 32);
         canvas->println("FPS: " + String(1000 / (millis() - prevRenderTime)));
+
         prevRenderTime = millis();
+        queueDraw();
     }
 }

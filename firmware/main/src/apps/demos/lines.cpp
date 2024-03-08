@@ -16,7 +16,7 @@ void DemoLines::run() {
         canvas->drawLine(x1, y1, x2, y2, color);
         queueDraw();
         if (lilka::controller.getState().a.justPressed) {
-            vTaskDelete(NULL);
+            stop();
             return;
         }
         vTaskDelay(30 / portTICK_PERIOD_MS);

@@ -1,10 +1,10 @@
-#include "hud.h"
+#include "statusbar.h"
 #include "icons/battery.h"
 #include "icons/wifi.h"
 
-HUDApp::HUDApp() : App("HUD", 0, 0, LILKA_DISPLAY_WIDTH, 24) {}
+StatusBarApp::StatusBarApp() : App("StatusBar", 0, 0, LILKA_DISPLAY_WIDTH, 24) {}
 
-void HUDApp::run() {
+void StatusBarApp::run() {
     int counter = 0;
     while (1) {
         canvas->fillScreen(lilka::display.color565(0, 0, 0));

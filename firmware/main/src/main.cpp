@@ -15,14 +15,14 @@
 #include "appmanager.h"
 #include "app.h"
 
-#include "apps/hud.h"
+#include "apps/statusbar.h"
 #include "apps/launcher.h"
 
 AppManager *appManager = AppManager::getInstance();
 
 void setup() {
     lilka::begin();
-    appManager->setPanel(new HUDApp());
+    appManager->setPanel(new StatusBarApp());
     appManager->addApp(new LauncherApp());
 }
 

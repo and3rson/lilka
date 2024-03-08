@@ -7,7 +7,6 @@ namespace lilka {
 
 void begin() {
     serial_begin();
-    delay(1000);
     multiboot.begin();
     spi_begin();
     buzzer.begin(); // Play notification sound

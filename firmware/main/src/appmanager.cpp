@@ -49,16 +49,15 @@ void AppManager::loop() {
     xSemaphoreTake(mutex, portMAX_DELAY);
 
     // Draw panel
+    panel->acquireBackCanvas();
     if (panel->needsRedraw()) {
-        Serial.println("Redrawing panel");
-        panel->acquireBackCanvas();
         lilka::display.draw16bitRGBBitmap(
             panel->backCanvas->x(), panel->backCanvas->y(), panel->backCanvas->getFramebuffer(),
             panel->backCanvas->width(), panel->backCanvas->height()
         );
-        panel->releaseBackCanvas();
         panel->markClean();
     }
+    panel->releaseBackCanvas();
 
     // Check if top app has finished
     App *topApp = apps.back();
@@ -78,15 +77,15 @@ void AppManager::loop() {
     }
 
     // Draw top app
+    topApp->acquireBackCanvas();
     if (topApp->needsRedraw()) {
-        Serial.println("Redrawing " + String(topApp->getName()));
-        topApp->acquireBackCanvas();
         lilka::display.draw16bitRGBBitmap(
             topApp->backCanvas->x(), topApp->backCanvas->y(), topApp->backCanvas->getFramebuffer(),
             topApp->backCanvas->width(), topApp->backCanvas->height()
         );
-        topApp->releaseBackCanvas();
         topApp->markClean();
     }
+    topApp->releaseBackCanvas();
+
     xSemaphoreGive(mutex);
 }

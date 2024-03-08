@@ -1,6 +1,8 @@
-#include <lilka.h>
+#include "disk.h"
 
-void demo_disc(lilka::Canvas *canvas) {
+DiskApp::DiskApp() : App("Disk") {}
+
+void DiskApp::run() {
     float x = random(16, canvas->width() - 16);
     float y = random(16, canvas->height() - 16);
     float xDir = 3;
@@ -8,7 +10,6 @@ void demo_disc(lilka::Canvas *canvas) {
     int16_t radius = 16;
     uint64_t prevRenderTime = millis();
     while (1) {
-        canvas->fillScreen(canvas->color565(0, 0, 0));
         x += xDir;
         y += yDir;
         bool hit = false;
@@ -26,15 +27,15 @@ void demo_disc(lilka::Canvas *canvas) {
             xDir = xDirNew;
             yDir = yDirNew;
         }
-        canvas->drawCircle(x, y, radius, 0xFFFF);
         if (lilka::controller.getState().a.justPressed) {
             return;
         }
 
-        // Calculate FPS
+        canvas->fillScreen(canvas->color565(0, 0, 0));
+        canvas->drawCircle(x, y, radius, 0xFFFF);
         canvas->setCursor(16, 32);
         canvas->println("FPS: " + String(1000 / (millis() - prevRenderTime)));
         prevRenderTime = millis();
-        vTaskDelay(0);
+        queueDraw();
     }
 }

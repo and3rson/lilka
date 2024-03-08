@@ -1,5 +1,4 @@
-#include <lilka.h>
-
+#include "letris.h"
 #include "letris_splash.h"
 
 #define BLOCK_SIZE 10
@@ -173,7 +172,9 @@ private:
     lilka::Canvas *canvas;
 };
 
-void demo_letris(lilka::Canvas *canvas) {
+LetrisApp::LetrisApp() : App("Letris") {}
+
+void LetrisApp::run() {
     // Створюємо поле та фігуру
     Field field(canvas);
     Shape shape(canvas);
@@ -239,7 +240,7 @@ void demo_letris(lilka::Canvas *canvas) {
                     fastDrop = true;
                     nextMove = 0;
                 }
-                // Чи може фігура рухатися в горизонтально?
+                // Чи може фігура рухатися горизонтально?
                 if (field.willCollide(&shape, dx, 0)) {
                     // Ні, фігура зіткнеться зі стіною. Змінюємо напрямок руху на 0
                     dx = 0;
@@ -250,6 +251,7 @@ void demo_letris(lilka::Canvas *canvas) {
                 field.draw();
                 shape.draw();
                 nextShape.draw(true);
+                queueDraw();
                 // Відображаємо зміни на екрані
                 // lilka::display.renderCanvas(canvas);
             }
@@ -269,5 +271,15 @@ void demo_letris(lilka::Canvas *canvas) {
 
     // Гра закінчилася. Виводимо повідомлення на екран
     // TODO: FreeRTOS experiment
-    lilka::ui_alert(canvas, "Game over", "Гру завершено!\nТи намагався. :)");
+    // lilka::ui_alert(canvas, "Game over", "Гру завершено!\nТи намагався. :)");
+    lilka::Alert alert("Game over", "Гру завершено!\nТи намагався. :)");
+    alert.draw(canvas);
+    queueDraw();
+    while (1) {
+        alert.update();
+        if (alert.isDone()) {
+            break;
+        }
+        taskYIELD();
+    }
 }

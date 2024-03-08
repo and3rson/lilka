@@ -13,6 +13,7 @@ public:
     void suspend();
     void resume();
     void stop();
+    static void _run(void *data);
     virtual void run() = 0;
     void queueDraw();
     bool needsRedraw();
@@ -24,10 +25,8 @@ public:
 
     eTaskState getState();
 
-    lilka::Canvas *backCanvas;
-
-protected:
     lilka::Canvas *canvas;
+    lilka::Canvas *backCanvas;
 
 private:
     const char *name;
