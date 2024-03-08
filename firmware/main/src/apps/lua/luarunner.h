@@ -37,15 +37,10 @@ private:
     void execSource(String source);
 };
 
-// class LuaReplApp : public AbstractLuaRunnerApp {
-//     LuaReplApp();
-//     void run();
-//     // input(String input);
-//     // stop();
-// };
+class LuaReplApp : public AbstractLuaRunnerApp {
+public:
+    LuaReplApp();
 
-// int lua_runfile(lilka::Canvas *canvas, String path);
-// int lua_runsource(lilka::Canvas *canvas, String source);
-// int lua_repl_start();
-// int lua_repl_input(String input);
-// int lua_repl_stop();
+private:
+    void run();
+};

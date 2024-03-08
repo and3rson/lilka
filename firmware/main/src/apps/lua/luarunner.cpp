@@ -197,8 +197,9 @@ int AbstractLuaRunnerApp::execute() {
 
         // Check if lilka.init function exists and call it
         canvas->fillScreen(0);
-        callInit(L);
-        queueDraw();
+        if (callInit(L)) {
+            queueDraw();
+        }
 
         // Check if lilka.update function exists and call it
         const uint32_t perfectDelta = 1000 / 30;
@@ -406,6 +407,70 @@ void LuaLiveRunnerApp::execSource(String source) {
         }
     }
 
+    luaTeardown();
+#endif
+}
+
+LuaReplApp::LuaReplApp() : AbstractLuaRunnerApp("Lua REPL") {}
+
+void LuaReplApp::run() {
+#ifndef LILKA_NO_LUA
+    luaSetup("/sd"); // TODO: hard-coded
+
+    canvas->setFont(FONT_10x20);
+    canvas->setCursor(8, 48);
+    canvas->fillScreen(canvas->color565(0, 0, 0));
+    canvas->setTextBound(8, 0, LILKA_DISPLAY_WIDTH - 16, LILKA_DISPLAY_HEIGHT);
+    canvas->print("Lua REPL\n\n");
+    canvas->print("Під'єднайтесь до\nЛілки через серійний\nтермінал та починайте\nвводити команди!");
+    queueDraw();
+
+    lilka::serial_log("lua: start REPL");
+
+    // TODO: This is a temporary fix: https://github.com/espressif/arduino-esp32/issues/9221
+    lilka::sdcard.available();
+
+    bool quit = false;
+    while (!quit) {
+        String input;
+        bool eol = false;
+        while (!eol) {
+            if (lilka::controller.getState().a.justPressed) {
+                quit = true;
+                break;
+            }
+            if (Serial.available()) {
+                char c = Serial.read();
+                // If backspace
+                if (c == 8) {
+                    if (input.length() > 0) {
+                        input.remove(input.length() - 1);
+                        Serial.write(c);
+                        Serial.write(' ');
+                        Serial.write(c);
+                    }
+                } else {
+                    input += c;
+                    Serial.write(c);
+                    if (c == 13) {
+                        Serial.write(10);
+                    }
+                }
+            }
+            if (input.endsWith("\n") || input.endsWith("\r")) {
+                eol = true;
+            }
+        }
+
+        int retCode = luaL_loadstring(L, input.c_str()) || execute();
+
+        if (retCode) {
+            const char* err = lua_tostring(L, -1);
+            lilka::serial_log("lua: error: %s", err);
+        }
+    }
+
+    lilka::serial_log("lua: stop REPL");
     luaTeardown();
 #endif
 }

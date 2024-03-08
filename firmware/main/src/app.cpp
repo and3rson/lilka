@@ -5,8 +5,10 @@ App::App(const char *name) : App(name, 0, 24, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY
 App::App(const char *name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) : name(name), x(x), y(y), w(w), h(h) {
     canvas = new lilka::Canvas(x, y, w, h);
     canvas->begin();
+    canvas->fillScreen(0);
     backCanvas = new lilka::Canvas(x, y, w, h);
     backCanvas->begin();
+    backCanvas->fillScreen(0);
     backCanvasMutex = xSemaphoreCreateMutex();
     dirty = false;
 }
@@ -55,12 +57,6 @@ void App::queueDraw() {
     canvas = backCanvas;
     backCanvas = temp;
     dirty = true;
-    // uint64_t now = micros();
-    // Too slow...
-    // memcpy(
-    //     canvas->getFramebuffer(), backCanvas->getFramebuffer(), canvas->width() * canvas->height() * 2
-    // ); // TODO: Hard-coded 2 bytes per pixel
-    // Serial.println("Copy took " + String(micros() - now) + "us");
     xSemaphoreGive(backCanvasMutex);
     taskYIELD();
 }

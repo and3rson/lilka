@@ -9,6 +9,7 @@
                                           ##                            ##     #
                                           ##
     Автор: Андрій "and3rson" Дунай
+    Ідея: Asteroids (1979) від Atari
     Шрифти, використані в графіці: https://ukrfonts.com/info/index.php?v=20&id=5730
 
 --]]
