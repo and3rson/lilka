@@ -58,7 +58,7 @@ void Display::begin() {
             endWrite();
         }
         // TODO: Should not be here. Треба кудись винести.
-        const Tone helloTune[] = {{NOTE_C4, 4}, {NOTE_E4, 4}, {NOTE_E5, -2}, {NOTE_C6, 4}, {NOTE_C5, 4}};
+        const Tone helloTune[] = {{NOTE_C4, 8}, {NOTE_E4, 8}, {NOTE_E5, -4}, {NOTE_C6, 8}, {NOTE_C5, 8}};
         buzzer.playMelody(helloTune, 6, 200);
         delay(800);
         for (int i = 4; i >= 0; i--) {
@@ -112,6 +112,11 @@ Canvas::Canvas() : Arduino_Canvas(LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, NUL
     setUTF8Print(true);
 }
 
+Canvas::Canvas(uint16_t width, uint16_t height) : Arduino_Canvas(width, height, NULL) {
+    setFont(u8g2_font_10x20_t_cyrillic);
+    setUTF8Print(true);
+}
+
 Canvas::Canvas(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
     : Arduino_Canvas(width, height, NULL, x, y, 0) { // TODO: Rotation
     setFont(u8g2_font_10x20_t_cyrillic);
@@ -132,6 +137,10 @@ void Canvas::draw16bitRGBBitmapWithTranColor(
     // Цей cast безпечний, оскільки Arduino_GFX.draw16bitRGBBitmapWithTranColor не змінює bitmap.
     Arduino_Canvas::draw16bitRGBBitmapWithTranColor(x, y, const_cast<uint16_t *const>(bitmap), transparent_color, w, h);
     // Arduino_Canvas::draw16bitRGBBitmapWithTranColor(x, y, (uint16_t *)(bitmap), transparent_color, w, h);
+}
+
+void Canvas::drawCanvas(Canvas *canvas) {
+    draw16bitRGBBitmap(0, 0, canvas->getFramebuffer(), canvas->width(), canvas->height());
 }
 
 int16_t Canvas::x() {

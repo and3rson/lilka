@@ -6,12 +6,17 @@
 ScanI2CApp::ScanI2CApp() : App("I2C Scanner") {}
 
 void ScanI2CApp::run() {
+    lilka::Canvas buffer(canvas->width(), canvas->height());
+    buffer.begin();
+    buffer.fillScreen(0);
+
     Wire.begin(9, 10, 100000);
 
-    canvas->fillScreen(canvas->color565(0, 0, 0));
-    canvas->setTextBound(4, 0, LILKA_DISPLAY_WIDTH - 8, LILKA_DISPLAY_HEIGHT);
-    canvas->setCursor(4, 48);
-    canvas->println("Starting I2C scan...");
+    buffer.fillScreen(canvas->color565(0, 0, 0));
+    buffer.setTextBound(4, 0, LILKA_DISPLAY_WIDTH - 8, LILKA_DISPLAY_HEIGHT);
+    buffer.setCursor(4, 48);
+    buffer.println("Starting I2C scan...");
+    canvas->drawCanvas(&buffer);
     queueDraw();
 
     uint8_t found = 0;
@@ -19,19 +24,24 @@ void ScanI2CApp::run() {
         // Wire.requestFrom(addr, 0, true);
         Wire.beginTransmission(address);
         if (Wire.endTransmission() == 0) {
-            canvas->printf("%02X", address);
+            buffer.printf("%02X", address);
             // lilka::display
             found++;
         } else {
-            canvas->print(".");
+            buffer.print(".");
         }
         if (address % 16 == 0 || address == 127) {
-            canvas->println();
+            buffer.println();
+        }
+        if (address % 32 == 0 || address == 127) {
+            canvas->drawCanvas(&buffer);
+            queueDraw();
         }
     }
 
-    canvas->println("I2C scan done.");
-    canvas->printf("Found %d devices.", found);
+    buffer.println("I2C scan done.");
+    buffer.printf("Found %d devices.", found);
+    canvas->drawCanvas(&buffer);
     queueDraw();
 
     Wire.end();

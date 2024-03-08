@@ -18,4 +18,5 @@ ServiceManager *ServiceManager::getInstance() {
 
 void ServiceManager::addService(Service *service) {
     services.push_back(service);
+    service->start();
 }

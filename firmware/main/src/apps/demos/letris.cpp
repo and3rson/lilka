@@ -3,7 +3,7 @@
 
 #define BLOCK_SIZE 10
 #define FIELD_COLS 10
-#define FIELD_ROWS 28
+#define FIELD_ROWS 25
 
 #define X_OFFSET LILKA_DISPLAY_WIDTH / 2 - FIELD_COLS *BLOCK_SIZE / 2
 
@@ -30,7 +30,7 @@ public:
     int shapeData[4][4];
     uint16_t color;
 
-    Shape(lilka::Canvas *canvas) : canvas(canvas) {}
+    Shape() {}
 
     void reset() {
         // Генерує нову фігуру. Нові фігури відображаються в вікні попереднього перегляду
@@ -51,7 +51,7 @@ public:
         y = 0;
     }
 
-    void draw(bool drawEmptyBlocks = false) {
+    void draw(lilka::Canvas *canvas, bool drawEmptyBlocks = false) {
         for (int yy = 0; yy < 4; yy++) {
             for (int xx = 0; xx < 4; xx++) {
                 if (this->shapeData[yy][xx]) {
@@ -99,21 +99,18 @@ public:
             }
         }
     }
-
-private:
-    lilka::Canvas *canvas;
 };
 
 class Field {
 public:
-    Field(lilka::Canvas *canvas) : canvas(canvas) {
+    Field() {
         for (int y = 0; y < FIELD_ROWS; y++) {
             for (int x = 0; x < FIELD_COLS; x++) {
                 this->blocks[y][x] = 0;
             }
         }
     }
-    void draw() {
+    void draw(lilka::Canvas *canvas) {
         // Малює поле
         for (int y = 0; y < FIELD_ROWS; y++) {
             for (int x = 0; x < FIELD_COLS; x++) {
@@ -169,16 +166,15 @@ public:
 
 private:
     uint16_t blocks[FIELD_ROWS][FIELD_COLS]; // Black color means no block
-    lilka::Canvas *canvas;
 };
 
 LetrisApp::LetrisApp() : App("Letris") {}
 
 void LetrisApp::run() {
     // Створюємо поле та фігуру
-    Field field(canvas);
-    Shape shape(canvas);
-    Shape nextShape(canvas);
+    Field field;
+    Shape shape;
+    Shape nextShape;
     nextShape.reset();
 
     // Вітання
@@ -198,10 +194,15 @@ void LetrisApp::run() {
                 );
             }
         }
+        queueDraw();
     }
 
     // Очищаємо екран
     canvas->fillScreen(canvas->color565(32, 32, 32));
+    queueDraw();
+    // Ми робимо це двічі, щоб очистити обидва буфери (основний та задній)
+    canvas->fillScreen(canvas->color565(32, 32, 32));
+    queueDraw();
 
     // Головний цикл гри
     while (1) {
@@ -248,9 +249,9 @@ void LetrisApp::run() {
                 // Рухаємо фігуру горизонтально
                 shape.move(dx, 0);
                 // Малюємо поле та фігуру
-                field.draw();
-                shape.draw();
-                nextShape.draw(true);
+                field.draw(canvas);
+                shape.draw(canvas);
+                nextShape.draw(canvas, true);
                 queueDraw();
                 // Відображаємо зміни на екрані
                 // lilka::display.renderCanvas(canvas);

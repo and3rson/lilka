@@ -5,14 +5,20 @@
 WifiScanApp::WifiScanApp() : App("WiFi Scanner") {}
 
 void WifiScanApp::run() {
-    canvas->fillScreen(canvas->color565(0, 0, 0));
-    canvas->setCursor(4, 150);
+    lilka::Canvas buffer(canvas->width(), canvas->height());
+    buffer.begin();
+    buffer.fillScreen(0);
+
+    buffer.fillScreen(buffer.color565(0, 0, 0));
+    buffer.setCursor(4, 150);
+    canvas->drawCanvas(&buffer);
     queueDraw();
 
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
 
-    canvas->println("Скануємо мережі WiFi...");
+    buffer.println("Скануємо мережі WiFi...");
+    canvas->drawCanvas(&buffer);
     queueDraw();
 
     int16_t count = WiFi.scanNetworks(false);

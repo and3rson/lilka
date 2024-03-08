@@ -86,5 +86,6 @@ int NetworkService::getSignalStrength() {
 }
 
 void NetworkService::connect() {
+    state = NETWORK_STATE_CONNECTING;
     WiFi.begin(ssid.c_str(), password.c_str());
 }

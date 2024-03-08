@@ -276,6 +276,7 @@ private:
 class Canvas : public Arduino_Canvas {
 public:
     Canvas();
+    Canvas(uint16_t w, uint16_t h);
     Canvas(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
     /// Намалювати зображення.
     /// @see Display::drawImage
@@ -283,6 +284,7 @@ public:
     void draw16bitRGBBitmapWithTranColor(
         int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
     );
+    void drawCanvas(Canvas *canvas);
     int16_t x();
     int16_t y();
 };

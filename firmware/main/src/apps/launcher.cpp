@@ -8,6 +8,7 @@
 #include "demos/letris.h"
 #include "demos/user_spi.h"
 #include "demos/scan_i2c.h"
+#include "demos/wifi_scan.h"
 #include "lua/luarunner.h"
 
 #include "icons/demos.h"
@@ -62,13 +63,12 @@ void LauncherApp::run() {
 
 void LauncherApp::appsMenu() {
     String titles[] = {
-        // "Лінії", "Шайба", "М'ячик", "Епілепсія", "Летріс", "Тест SPI", "I2C-сканер", "<< Назад",
-        "Лінії", "Шайба", "М'ячик", "Епілепсія", "Летріс", "Тест SPI", "I2C-сканер", "<< Назад",
+        "Лінії", "Шайба", "М'ячик", "Епілепсія", "Летріс", "Тест SPI", "I2C-сканер", "WiFi-сканер", "<< Назад",
     };
     // vector of functions
     APP_CLASS_LIST classes = {
         APP_CLASS(DemoLines), APP_CLASS(DiskApp),    APP_CLASS(BallApp),    APP_CLASS(EpilepsyApp),
-        APP_CLASS(LetrisApp), APP_CLASS(UserSPIApp), APP_CLASS(ScanI2CApp),
+        APP_CLASS(LetrisApp), APP_CLASS(UserSPIApp), APP_CLASS(ScanI2CApp), APP_CLASS(WifiScanApp),
     };
     int count = sizeof(titles) / sizeof(titles[0]);
     lilka::Menu menu("Демо");
