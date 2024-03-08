@@ -19,13 +19,3 @@ ServiceManager *ServiceManager::getInstance() {
 void ServiceManager::addService(Service *service) {
     services.push_back(service);
 }
-
-template <typename T>
-T *ServiceManager::getService() {
-    for (Service *service : services) {
-        if (dynamic_cast<T *>(service) != NULL) {
-            return dynamic_cast<T *>(service);
-        }
-    }
-    return NULL;
-}

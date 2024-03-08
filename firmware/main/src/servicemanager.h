@@ -8,7 +8,15 @@ public:
     void addService(Service *service);
 
     template <typename T>
-    T *getService();
+    T *getService() {
+        for (Service *service : services) {
+            T *t = static_cast<T *>(service);
+            if (t != nullptr) {
+                return t;
+            }
+        }
+        return nullptr;
+    }
 
     static ServiceManager *getInstance();
 

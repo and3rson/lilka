@@ -28,7 +28,7 @@ LauncherApp::LauncherApp() : App("Menu") {}
 
 void LauncherApp::run() {
     lilka::Menu menu("Головне меню");
-    menu.addItem("Демо", &demos, lilka::display.color565(255, 200, 200));
+    menu.addItem("Додатки", &demos, lilka::display.color565(255, 200, 200));
     menu.addItem("Браузер SD-карти", &sdcard, lilka::display.color565(255, 255, 200));
     menu.addItem("Браузер SPIFFS", &memory, lilka::display.color565(200, 255, 200));
     menu.addItem("Розробка", &dev, lilka::display.color565(255, 224, 128));
@@ -42,7 +42,7 @@ void LauncherApp::run() {
         int16_t index = menu.getSelectedIndex();
         if (index != -1) {
             if (index == 0) {
-                demosMenu();
+                appsMenu();
             } else if (index == 1) {
                 sdBrowserMenu("/");
             } else if (index == 2) {
@@ -60,26 +60,20 @@ void LauncherApp::run() {
     }
 }
 
-void LauncherApp::demosMenu() {
-    // void (*demo_funcs[])(lilka::Canvas *) = {
-    //     demo_lines, demo_disc, demo_ball, demo_epilepsy, demo_letris, demo_user_spi, demo_scan_i2c, 0,
-    // };
-
-    String demos[] = {
+void LauncherApp::appsMenu() {
+    String titles[] = {
         // "Лінії", "Шайба", "М'ячик", "Епілепсія", "Летріс", "Тест SPI", "I2C-сканер", "<< Назад",
         "Лінії", "Шайба", "М'ячик", "Епілепсія", "Летріс", "Тест SPI", "I2C-сканер", "<< Назад",
     };
     // vector of functions
-    std::vector<std::function<App *()>> demo_funcs = {
-        []() { return new DemoLines(); },   []() { return new DiskApp(); },   []() { return new BallApp(); },
-        []() { return new EpilepsyApp(); }, []() { return new LetrisApp(); }, []() { return new UserSPIApp(); },
-        []() { return new ScanI2CApp(); },
+    APP_CLASS_LIST classes = {
+        APP_CLASS(DemoLines), APP_CLASS(DiskApp),    APP_CLASS(BallApp),    APP_CLASS(EpilepsyApp),
+        APP_CLASS(LetrisApp), APP_CLASS(UserSPIApp), APP_CLASS(ScanI2CApp),
     };
-    int count = sizeof(demos) / sizeof(demos[0]);
+    int count = sizeof(titles) / sizeof(titles[0]);
     lilka::Menu menu("Демо");
     for (int i = 0; i < count; i++) {
-        // menu.addItem(demos[i], &demos[i], lilka::display.color565(255, 200, 200));
-        menu.addItem(demos[i]);
+        menu.addItem(titles[i]);
     }
     while (1) {
         menu.update();
@@ -90,11 +84,8 @@ void LauncherApp::demosMenu() {
             if (index == count - 1) {
                 break;
             }
-            AppManager::getInstance()->addApp(demo_funcs[index]());
+            AppManager::getInstance()->addApp(classes[index]());
         }
-        // if (index != -1) {
-        //     demo_funcs[index](canvas);
-        // }
         taskYIELD();
     }
 }
@@ -169,10 +160,6 @@ void LauncherApp::sdBrowserMenu(String path) {
             if (index == numEntries - 1) {
                 return;
             }
-            // cursor = lilka::ui_menu(canvas, String("SD: ") + path, filenames, numEntries, cursor, icons, colors);
-            // if (cursor == numEntries - 1) {
-            //     return;
-            // }
             if (entries[index].type == lilka::EntryType::ENT_DIRECTORY) {
                 sdBrowserMenu(path + entries[index].name + "/");
             } else {
@@ -272,16 +259,8 @@ void LauncherApp::selectFile(String path) {
         }
     } else if (path.endsWith(".lua")) {
         AppManager::getInstance()->addApp(new LuaFileRunnerApp(path));
-        // int retCode = lilka::lua_runfile(canvas, path);
-        // if (retCode) {
-        //     lilka::ui_alert(canvas, "Lua", String("Увага!\nКод завершення: ") + retCode);
-        // }
     } else if (path.endsWith(".js")) {
         alert("Помилка", "mJS тимчасово\nне підтримується");
-        // int retCode = lilka::mjs_run(canvas, path);
-        // if (retCode) {
-        //     lilka::ui_alert(canvas, "Lua", String("Увага!\nКод завершення: ") + retCode);
-        // }
     } else {
         // Get file size
         FILE *file = fopen(path.c_str(), "r");
@@ -292,7 +271,6 @@ void LauncherApp::selectFile(String path) {
         fseek(file, 0, SEEK_END);
         long size = ftell(file);
         fclose(file);
-        // lilka::ui_alert(canvas, path, String("Розмір:\n") + size + " байт");
         alert(path, String("Розмір:\n") + size + " байт");
     }
 }
