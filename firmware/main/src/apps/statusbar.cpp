@@ -1,6 +1,7 @@
 #include "statusbar.h"
 #include "icons/battery.h"
 #include "icons/wifi_offline.h"
+#include "icons/wifi_connecting.h"
 #include "icons/wifi_0.h"
 #include "icons/wifi_1.h"
 #include "icons/wifi_2.h"
@@ -23,6 +24,8 @@ void StatusBarApp::run() {
         canvas->print("Time: " + String(counter++));
         if (networkService->getNetworkState() == NETWORK_STATE_OFFLINE) {
             canvas->draw16bitRGBBitmapWithTranColor(136, 0, wifi_offline, 0, 24, 24);
+        } else if (networkService->getNetworkState() == NETWORK_STATE_CONNECTING) {
+            canvas->draw16bitRGBBitmapWithTranColor(136, 0, wifi_connecting, 0, 24, 24);
         } else {
             canvas->draw16bitRGBBitmapWithTranColor(136, 0, icons[networkService->getSignalStrength()], 0, 24, 24);
         }
