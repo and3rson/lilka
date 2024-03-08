@@ -13,12 +13,7 @@ public:
     void addApp(App *app);
     void loop();
 
-    static AppManager *getInstance() {
-        if (instance == NULL) {
-            instance = new AppManager();
-        }
-        return instance;
-    }
+    static AppManager *getInstance();
 
 private:
     AppManager();

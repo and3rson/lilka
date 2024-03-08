@@ -3,17 +3,20 @@
 AppManager *AppManager::instance = NULL;
 
 AppManager::AppManager() {
-    if (instance != NULL) {
-        lilka::serial_err("AppManager instance already exists! Bad things will happen!");
-        return;
-    }
-    instance = this;
     panel = NULL;
     mutex = xSemaphoreCreateMutex();
 }
 
 AppManager::~AppManager() {
     // TODO: Should never be destroyed
+}
+
+AppManager *AppManager::getInstance() {
+    // TODO: Not thread-safe, but is first called in static context before any tasks are created
+    if (instance == NULL) {
+        instance = new AppManager();
+    }
+    return instance;
 }
 
 /// Set the panel app.
