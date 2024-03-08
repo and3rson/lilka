@@ -28,13 +28,13 @@ private:
 };
 
 // Lua runner app that runs a string.
-class LuaSourceRunnerApp : public AbstractLuaRunnerApp {
+class LuaLiveRunnerApp : public AbstractLuaRunnerApp {
 public:
-    LuaSourceRunnerApp(String source);
+    LuaLiveRunnerApp();
 
 private:
     void run();
-    String source;
+    void execSource(String source);
 };
 
 // class LuaReplApp : public AbstractLuaRunnerApp {

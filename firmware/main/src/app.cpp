@@ -81,6 +81,10 @@ void App::markClean() {
     dirty = false;
 }
 
+void App::forceRedraw() {
+    dirty = true;
+}
+
 const char *App::getName() {
     return name;
 }

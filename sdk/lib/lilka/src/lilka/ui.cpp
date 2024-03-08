@@ -177,14 +177,6 @@ void Menu::setCursor(int16_t cursor) {
 }
 
 void Menu::update() {
-    if (cursor < scroll) {
-        scroll = cursor;
-        // cursorY = cursor * 24 + 96 - 20;
-    } else if (cursor > scroll + MENU_HEIGHT - 1) {
-        scroll = cursor - MENU_HEIGHT + 1;
-        // cursorY = cursor * 24 + 96 - 20;
-    }
-
     State state = controller.getState();
 
     if (state.up.justPressed) {
@@ -203,6 +195,14 @@ void Menu::update() {
     } else if (state.a.justPressed) {
         // Execute selected function
         this->selectedIndex = cursor;
+    }
+
+    if (cursor < scroll) {
+        scroll = cursor;
+        // cursorY = cursor * 24 + 96 - 20;
+    } else if (cursor > scroll + MENU_HEIGHT - 1) {
+        scroll = cursor - MENU_HEIGHT + 1;
+        // cursorY = cursor * 24 + 96 - 20;
     }
 }
 
@@ -295,6 +295,8 @@ void Alert::draw(Arduino_GFX *canvas) {
     int width = right - left;
     int xMargin = 4;
 
+    canvas->setTextColor(canvas->color565(255, 255, 255));
+
     canvas->fillRect(left, top, width, mid - top, canvas->color565(32, 32, 128));
     canvas->setFont(FONT_6x13);
     canvas->setTextSize(2);
@@ -316,6 +318,73 @@ bool Alert::isDone() {
         return true;
     }
     return false;
+}
+
+ProgressDialog::ProgressDialog(String title, String message) {
+    this->title = title;
+    this->message = message;
+    this->progress = 0;
+}
+
+void ProgressDialog::setProgress(int16_t progress) {
+    this->progress = progress;
+}
+
+void ProgressDialog::setMessage(String message) {
+    this->message = message;
+}
+
+void ProgressDialog::draw(Arduino_GFX *canvas) {
+    int top = canvas->height() / 8;
+    int mid = canvas->height() / 8 * 2;
+    int bottom = canvas->height() / 8 * 7;
+
+    int left = canvas->width() / 8;
+    int right = canvas->width() / 8 * 7;
+    int width = right - left;
+    int xMargin = 4;
+
+    canvas->setTextColor(canvas->color565(255, 255, 255));
+
+    canvas->fillRect(left, top, width, mid - top, canvas->color565(32, 32, 128));
+    canvas->setFont(FONT_6x13);
+    canvas->setTextSize(2);
+    canvas->setTextBound(left + xMargin, top, width - xMargin * 2, mid - top);
+    canvas->setCursor(left + xMargin, top + 13 * 2);
+    canvas->println(title);
+
+    canvas->fillRect(left, mid, width, bottom - mid, canvas->color565(32, 96, 96));
+    canvas->setFont(FONT_9x15);
+    canvas->setTextSize(1);
+    canvas->setTextBound(left + xMargin, top, width - xMargin * 2, bottom - mid);
+    canvas->setCursor(left + xMargin, mid + 20);
+    canvas->println(message);
+
+    char buf[8];
+    int16_t x, y;
+    uint16_t w, h;
+
+    sprintf(buf, "%d%%", progress);
+    canvas->getTextBounds(buf, 0, 0, &x, &y, &w, &h);
+    // canvas->fillRect(x, y, w, h, canvas->color565(0, 0, 0));
+    // canvas->println(buf);
+
+    int barMargin = 8;
+    int barHeight = 8;
+
+    int center = (left + right) / 2;
+
+    canvas->fillRect(
+        left + barMargin, bottom - barMargin - barHeight, width - barMargin * 2, barHeight,
+        canvas->color565(128, 64, 64)
+    );
+    canvas->fillRect(
+        left + barMargin, bottom - barMargin - barHeight, (width - barMargin * 2) * progress / 100, barHeight,
+        canvas->color565(255, 128, 0)
+    );
+    canvas->setCursor(center - w / 2, bottom - barMargin - barHeight - barMargin);
+    canvas->setTextBound(0, 0, canvas->width(), canvas->height());
+    canvas->print(buf);
 }
 
 } // namespace lilka

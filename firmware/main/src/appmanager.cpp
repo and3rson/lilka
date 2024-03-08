@@ -52,6 +52,10 @@ App *AppManager::removeTopApp() {
         topApp = apps.back();
         topApp->resume();
     }
+    // Mark top app as "dirty" to redraw it
+    topApp->forceRedraw();
+    // Mark panel as "dirty" to redraw it
+    panel->forceRedraw();
     return topApp;
 }
 

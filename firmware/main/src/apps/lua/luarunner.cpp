@@ -177,10 +177,12 @@ int AbstractLuaRunnerApp::execute() {
 
     if (jmpCode == 0) {
         // Run script
+        canvas->fillScreen(0);
         int retCode = lua_pcall(L, 0, LUA_MULTRET, 0);
         if (retCode) {
             longjmp(stopjmp, retCode);
         }
+        queueDraw();
 
         // Get canvas from registry
         // lua_getfield(L, LUA_REGISTRYINDEX, "canvas");
@@ -194,7 +196,9 @@ int AbstractLuaRunnerApp::execute() {
         }
 
         // Check if lilka.init function exists and call it
+        canvas->fillScreen(0);
         callInit(L);
+        queueDraw();
 
         // Check if lilka.update function exists and call it
         const uint32_t perfectDelta = 1000 / 30;
@@ -268,10 +272,10 @@ void LuaFileRunnerApp::run() {
         const char* err = lua_tostring(L, -1);
         // lilka::ui_alert(canvas, "Lua", String("Помилка: ") + err);
         lilka::Alert alert("Lua", String("Помилка: ") + err);
+        alert.draw(canvas);
+        queueDraw();
         while (!alert.isDone()) {
             alert.update();
-            alert.draw(canvas);
-            queueDraw();
         }
     }
 
@@ -292,9 +296,98 @@ void LuaFileRunnerApp::run() {
 #endif
 }
 
-LuaSourceRunnerApp::LuaSourceRunnerApp(String source) : AbstractLuaRunnerApp("Lua source run"), source(source) {}
+LuaLiveRunnerApp::LuaLiveRunnerApp() : AbstractLuaRunnerApp("Lua source run") {}
 
-void LuaSourceRunnerApp::run() {
+void LuaLiveRunnerApp::run() {
+#ifndef LILKA_NO_LUA
+    // Drain the serial buffer
+    Serial.setTimeout(10);
+    while (Serial.available()) {
+        Serial.read();
+    }
+
+    while (1) {
+        if (lilka::controller.getState().a.justPressed) {
+            return;
+        }
+        canvas->setFont(FONT_10x20);
+        canvas->setCursor(8, 48);
+        canvas->fillScreen(canvas->color565(0, 0, 0));
+        canvas->setTextBound(8, 0, LILKA_DISPLAY_WIDTH - 16, LILKA_DISPLAY_HEIGHT);
+        canvas->print("Очікування коду\nз UART...\n\n");
+        canvas->print("Натисніть [A]\n");
+        canvas->print("для виходу.");
+        queueDraw();
+
+        // Read serial data
+        Serial.setTimeout(100);
+        String code;
+        while (!Serial.available()) {
+            if (lilka::controller.getState().a.justPressed) {
+                return;
+            }
+        }
+        while (1) {
+            // Read lines from serial.
+            // It nothing is read for 0.5 seconds, stop reading.
+            if (lilka::controller.getState().a.justPressed) {
+                return;
+            }
+            String line = Serial.readString();
+            canvas->setCursor(8, 180);
+            // if (line.length() == 0) {
+            //     canvas->fillScreen(canvas->color565(0, 128, 0));
+            //     canvas->print("Запуск...");
+            //     break;
+            // } else {
+            //     canvas->fillScreen(canvas->color565(128, 128, 0));
+            //     canvas->print(String("Зчитано: ") + code.length() + " Б");
+            // }
+            if (line.length() == 0) {
+                canvas->fillScreen(canvas->color565(0, 128, 0));
+                canvas->print("Запуск...");
+                queueDraw();
+                break;
+            } else {
+                canvas->fillScreen(canvas->color565(128, 128, 0));
+                canvas->print("Завантаження...");
+                queueDraw();
+            }
+            code += line;
+        }
+
+        // Those darn line ends...
+        // If code contains \r and \n - replace them with \n
+        // If code contains only \r - replace it with \n
+        // If code contains only \n - leave it as is
+        if (code.indexOf('\r') != -1) {
+            if (code.indexOf('\n') != -1) {
+                lilka::serial_log("Line ends: CR and LF");
+                code.replace("\r", "");
+            } else {
+                lilka::serial_log("Line ends: CR only");
+                code.replace("\r", "\n");
+            }
+        } else {
+            lilka::serial_log("Line ends: LF only");
+        }
+
+        // TODO: This is a temporary fix: https://github.com/espressif/arduino-esp32/issues/9221
+        lilka::sdcard.available();
+
+        execSource(code);
+
+        // Run the code
+        // int retCode = lilka::lua_runsource(canvas, code);
+        // if (retCode) {
+        //     lilka::ui_alert(canvas, "Lua", String("Увага!\nКод завершення: ") + retCode);
+        // }
+    }
+
+#endif
+}
+
+void LuaLiveRunnerApp::execSource(String source) {
 #ifndef LILKA_NO_LUA
     luaSetup("/sd"); // TODO: hard-coded
 
@@ -306,10 +399,10 @@ void LuaSourceRunnerApp::run() {
         const char* err = lua_tostring(L, -1);
         // lilka::ui_alert(canvas, "Lua", String("Помилка: ") + err);
         lilka::Alert alert("Lua", String("Помилка: ") + err);
+        alert.draw(canvas);
+        queueDraw();
         while (!alert.isDone()) {
             alert.update();
-            alert.draw(canvas);
-            queueDraw();
         }
     }
 

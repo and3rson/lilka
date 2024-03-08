@@ -95,13 +95,26 @@ class Alert {
 public:
     Alert(String title, String message);
     void update();
-    void draw(Arduino_GFX*canvas);
+    void draw(Arduino_GFX *canvas);
     bool isDone();
 
 private:
     String title;
     String message;
     bool done;
+};
+
+class ProgressDialog {
+public:
+    ProgressDialog(String title, String message);
+    void setProgress(int16_t progress);
+    void setMessage(String message);
+    void draw(Arduino_GFX *canvas);
+
+private:
+    String title;
+    String message;
+    int16_t progress;
 };
 
 } // namespace lilka

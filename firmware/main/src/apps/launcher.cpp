@@ -45,24 +45,15 @@ void LauncherApp::run() {
                 demosMenu();
             } else if (index == 1) {
                 sdBrowserMenu("/");
-                // sd_browser_menu("/");
             } else if (index == 2) {
-                // spiffs_browser_menu();
+                spiffsBrowserMenu();
             } else if (index == 3) {
                 // dev_menu();
+                devMenu();
             } else if (index == 4) {
-                // system_utils_menu();
+                systemUtilsMenu();
             } else if (index == 5) {
-                lilka::Alert alert("Лілка Main OS", "by Андерсон\n& friends");
-                alert.draw(canvas);
-                queueDraw();
-                while (1) {
-                    alert.update();
-                    if (alert.isDone()) {
-                        break;
-                    }
-                    taskYIELD();
-                }
+                alert("Лілка Main OS", "by Андерсон\n& friends");
             }
         }
         taskYIELD();
@@ -138,16 +129,7 @@ const uint16_t get_file_color(const String &filename) {
 
 void LauncherApp::sdBrowserMenu(String path) {
     if (!lilka::sdcard.available()) {
-        lilka::Alert alert("Помилка", "SD-карта не знайдена");
-        alert.draw(canvas);
-        queueDraw();
-        while (1) {
-            alert.update();
-            if (alert.isDone()) {
-                break;
-            }
-            taskYIELD();
-        }
+        alert("Помилка", "SD-карта не знайдена");
     }
 
     lilka::Entry entries
@@ -156,16 +138,7 @@ void LauncherApp::sdBrowserMenu(String path) {
 
     if (numEntries == -1) {
         // lilka::ui_alert(canvas, "Помилка", "Не вдалося прочитати директорію");
-        lilka::Alert alert("Помилка", "Не вдалося прочитати директорію");
-        alert.draw(canvas);
-        queueDraw();
-        while (1) {
-            alert.update();
-            if (alert.isDone()) {
-                break;
-            }
-            taskYIELD();
-        }
+        alert("Помилка", "Не вдалося прочитати директорію");
         return;
     }
 
@@ -210,8 +183,52 @@ void LauncherApp::sdBrowserMenu(String path) {
     }
 }
 
+void LauncherApp::spiffsBrowserMenu() {
+    if (!lilka::filesystem.available()) {
+        alert("Помилка", "SPIFFS не підтримується");
+        return;
+    }
+
+    String filenames
+        [32]; // TODO - allocate dynamically (increasing to 64 causes task stack overflow which is limited by ARDUINO_LOOP_STACK_SIZE)
+    int numEntries = lilka::filesystem.readdir(filenames);
+
+    if (numEntries == -1) {
+        alert("Помилка", "Не вдалося прочитати корінь SPIFFS");
+        return;
+    }
+    const menu_icon_t *icons[32];
+    uint16_t colors[32];
+    for (int i = 0; i < numEntries; i++) {
+        icons[i] = get_file_icon(filenames[i]);
+        colors[i] = get_file_color(filenames[i]);
+    }
+    filenames[numEntries++] = "<< Назад";
+    icons[numEntries - 1] = 0;
+    colors[numEntries - 1] = 0;
+
+    int cursor = 0;
+    lilka::Menu menu("SPIFFS");
+    for (int i = 0; i < numEntries; i++) {
+        menu.addItem(filenames[i], icons[i], colors[i]);
+    }
+    while (1) {
+        menu.update();
+        menu.draw(canvas);
+        queueDraw();
+        int16_t index = menu.getSelectedIndex();
+        if (index != -1) {
+            if (index == numEntries - 1) {
+                return;
+            }
+            selectFile(lilka::filesystem.abspath(filenames[index]));
+        }
+    }
+}
+
 void LauncherApp::selectFile(String path) {
     if (path.endsWith(".rom") || path.endsWith(".nes")) {
+        alert("Помилка", "NES тимчасово\nне підтримується");
         return;
         // char *argv[1];
         // char fullFilename[256];
@@ -223,45 +240,36 @@ void LauncherApp::selectFile(String path) {
         // nofrendo_main(1, argv);
         // Serial.println("NoFrendo end!\n");
     } else if (path.endsWith(".bin")) {
-        return;
-        // int error;
-        // error = lilka::multiboot.start(path);
-        // if (error) {
-        //     lilka::ui_alert(canvas, "Помилка", String("Етап: 1\nКод: ") + error);
-        //     return;
-        // }
-        // lilka::display.fillScreen(lilka::display.color565(0, 0, 0));
-        // lilka::display.setTextColor(lilka::display.color565(255, 255, 255), lilka::display.color565(0, 0, 0));
-        // lilka::display.setFont(u8g2_font_10x20_t_cyrillic);
-        // lilka::display.setTextBound(16, 0, LILKA_DISPLAY_WIDTH - 16, LILKA_DISPLAY_HEIGHT);
-        // while ((error = lilka::multiboot.process()) != 0) {
-        //     float progress = (float)lilka::multiboot.getBytesWritten() / lilka::multiboot.getBytesTotal();
-        //     lilka::display.setCursor(16, LILKA_DISPLAY_HEIGHT / 2 - 10);
-        //     lilka::display.printf("Завантаження (%d%%)\n", (int)(progress * 100));
-        //     lilka::display.println(path);
-        //     String buf = String(lilka::multiboot.getBytesWritten()) + " / " + lilka::multiboot.getBytesTotal();
-        //     int16_t x, y;
-        //     uint16_t w, h;
-        //     lilka::display.getTextBounds(buf, lilka::display.getCursorX(), lilka::display.getCursorY(), &x, &y, &w, &h);
-        //     lilka::display.fillRect(x, y, w, h, lilka::display.color565(0, 0, 0));
-        //     lilka::display.println(buf);
-        //     lilka::display.fillRect(
-        //         16, LILKA_DISPLAY_HEIGHT / 2 + 40, LILKA_DISPLAY_WIDTH - 32, 5, lilka::display.color565(64, 64, 64)
-        //     );
-        //     lilka::display.fillRect(
-        //         16, LILKA_DISPLAY_HEIGHT / 2 + 40, (LILKA_DISPLAY_WIDTH - 32) * progress, 5,
-        //         lilka::display.color565(255, 128, 0)
-        //     );
-        // }
-        // if (error) {
-        //     lilka::ui_alert(canvas, "Помилка", String("Етап: 2\nКод: ") + error);
-        //     return;
-        // }
-        // error = lilka::multiboot.finishAndReboot();
-        // if (error) {
-        //     lilka::ui_alert(canvas, "Помилка", String("Етап: 3\nКод: ") + error);
-        //     return;
-        // }
+        int error;
+        error = lilka::multiboot.start(path);
+        if (error) {
+            alert("Помилка", String("Етап: 1\nКод: ") + error);
+            return;
+        }
+        lilka::ProgressDialog dialog(
+            "Завантаження", path + "\nРозмір: " + String(lilka::multiboot.getBytesTotal()) + " Б"
+        );
+        dialog.draw(canvas);
+        queueDraw();
+        while ((error = lilka::multiboot.process()) != 0) {
+            int progress = lilka::multiboot.getBytesWritten() * 100 / lilka::multiboot.getBytesTotal();
+            dialog.setProgress(progress);
+            dialog.draw(canvas);
+            queueDraw();
+            if (lilka::controller.getState().a.justPressed) {
+                lilka::multiboot.cancel();
+                return;
+            }
+        }
+        if (error) {
+            alert("Помилка", String("Етап: 2\nКод: ") + error);
+            return;
+        }
+        error = lilka::multiboot.finishAndReboot();
+        if (error) {
+            alert("Помилка", String("Етап: 3\nКод: ") + error);
+            return;
+        }
     } else if (path.endsWith(".lua")) {
         AppManager::getInstance()->addApp(new LuaFileRunnerApp(path));
         // int retCode = lilka::lua_runfile(canvas, path);
@@ -269,7 +277,7 @@ void LauncherApp::selectFile(String path) {
         //     lilka::ui_alert(canvas, "Lua", String("Увага!\nКод завершення: ") + retCode);
         // }
     } else if (path.endsWith(".js")) {
-        return;
+        alert("Помилка", "mJS тимчасово\nне підтримується");
         // int retCode = lilka::mjs_run(canvas, path);
         // if (retCode) {
         //     lilka::ui_alert(canvas, "Lua", String("Увага!\nКод завершення: ") + retCode);
@@ -278,32 +286,126 @@ void LauncherApp::selectFile(String path) {
         // Get file size
         FILE *file = fopen(path.c_str(), "r");
         if (!file) {
-            lilka::Alert alert("Помилка", "Не вдалося відкрити файл");
-            alert.draw(canvas);
-            queueDraw();
-            while (1) {
-                alert.update();
-                if (alert.isDone()) {
-                    break;
-                }
-                taskYIELD();
-            }
+            alert("Помилка", "Не вдалося відкрити файл");
             return;
         }
         fseek(file, 0, SEEK_END);
         long size = ftell(file);
         fclose(file);
         // lilka::ui_alert(canvas, path, String("Розмір:\n") + size + " байт");
-        lilka::Alert alert(path, String("Розмір:\n") + size + " байт");
-        alert.draw(canvas);
+        alert(path, String("Розмір:\n") + size + " байт");
+    }
+}
+
+void LauncherApp::devMenu() {
+    String titles[] = {
+        "Live Lua",
+        "Lua REPL",
+        "<< Назад",
+    };
+    int cursor = 0;
+    int count = sizeof(titles) / sizeof(titles[0]);
+    lilka::Menu menu("Розробка");
+    for (int i = 0; i < count; i++) {
+        menu.addItem(titles[i]);
+    }
+    while (1) {
+        menu.update();
+        menu.draw(canvas);
         queueDraw();
-        while (1) {
-            alert.update();
-            if (alert.isDone()) {
-                break;
+        int16_t index = menu.getSelectedIndex();
+        if (index != -1) {
+            if (index == count - 1) {
+                return;
             }
-            taskYIELD();
+            if (index == 0) {
+                AppManager::getInstance()->addApp(new LuaLiveRunnerApp());
+            } else if (index == 1) {
+                // AppManager::getInstance()->addApp(new LuaReplApp());
+            }
         }
+    }
+}
+
+void LauncherApp::systemUtilsMenu() {
+    String titles[] = {
+        "Перезавантаження", "Версія ESP-IDF", "Інфо про пристрій", "Таблиця розділів", "<< Назад",
+    };
+    int cursor = 0;
+    int count = sizeof(titles) / sizeof(titles[0]);
+    lilka::Menu menu("Системні утиліти");
+    for (int i = 0; i < count; i++) {
+        menu.addItem(titles[i]);
+    }
+    while (1) {
+        menu.update();
+        menu.draw(canvas);
+        queueDraw();
+        int16_t index = menu.getSelectedIndex();
+        if (index != -1) {
+            if (index == count - 1) {
+                return;
+            }
+            if (index == 0) {
+                esp_restart();
+            } else if (index == 1) {
+                alert("Версія ESP-IDF", "Версія: " + String(ESP.getSdkVersion()));
+            } else if (index == 2) {
+                char buf[256];
+                sprintf(
+                    buf,
+                    "Модель: %s\n"
+                    "Ревізія: %d\n"
+                    "Версія SDK: %s\n"
+                    "Версія ESP-IDF: %s\n"
+                    "Частота: %d МГц\n"
+                    "Кількість ядер: %d\n",
+                    ESP.getChipModel(), ESP.getChipRevision(), ESP.getSdkVersion(), esp_get_idf_version(),
+                    ESP.getCpuFreqMHz(), ESP.getChipCores()
+                );
+                alert("Інфо про пристрій", buf);
+            } else if (index == 3) {
+                String labels[16];
+                int labelCount = lilka::sys.get_partition_labels(labels);
+                labels[labelCount++] = "<< Назад";
+                int partitionCursor = 0;
+                lilka::Menu partitionMenu("Таблиця розділів");
+                for (int i = 0; i < labelCount; i++) {
+                    partitionMenu.addItem(labels[i]);
+                }
+                while (1) {
+                    partitionMenu.update();
+                    partitionMenu.draw(canvas);
+                    queueDraw();
+                    int16_t partitionIndex = partitionMenu.getSelectedIndex();
+                    if (partitionIndex != -1) {
+                        if (partitionIndex == labelCount - 1) {
+                            break;
+                        }
+                        alert(
+                            labels[partitionIndex],
+                            String("Адреса: 0x") +
+                                String(lilka::sys.get_partition_address(labels[partitionIndex].c_str()), HEX) + "\n" +
+                                "Розмір: 0x" +
+                                String(lilka::sys.get_partition_size(labels[partitionIndex].c_str()), HEX)
+                        );
+                    }
+                }
+            }
+        }
+    }
+}
+
+void LauncherApp::alert(String title, String message) {
+    lilka::Alert alert(title, message);
+    alert.draw(canvas);
+    queueDraw();
+    while (1) {
+        alert.update();
+        if (alert.isDone()) {
+            break;
+        }
+        taskYIELD();
     }
 }
 

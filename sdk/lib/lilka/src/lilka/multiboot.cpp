@@ -134,11 +134,11 @@ int MultiBoot::start(String path) {
 }
 
 int MultiBoot::process() {
-    char buf[1024];
+    char buf[4096];
 
-    // Записуємо 32 КБ.
+    // Записуємо 16 КБ.
 
-    for (int i = 0; i < 32; i++) {
+    for (int i = 0; i < 4; i++) {
         // Read 1024 bytes
         int len = fread(buf, 1, sizeof(buf), file);
         if (len == 0) {
@@ -157,6 +157,16 @@ int MultiBoot::process() {
 
     serial_log("Written %d bytes", bytesWritten);
     return bytesWritten;
+}
+
+void MultiBoot::cancel() {
+    if (file != NULL) {
+        fclose(file);
+    }
+    if (ota_handle) {
+        esp_ota_abort(ota_handle);
+        ota_handle = 0;
+    }
 }
 
 int MultiBoot::getBytesTotal() {
