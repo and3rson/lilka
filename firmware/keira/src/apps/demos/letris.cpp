@@ -32,7 +32,7 @@ public:
     int shapeData[4][4];
     uint16_t color;
 
-    Shape() {
+    Shape() : x(0), y(0), shapeData(), color(0) {
     }
 
     void reset() {
@@ -243,7 +243,7 @@ void LetrisApp::run() {
             while (millis() < nextMove) {
                 // Обробляємо ввід
                 lilka::State state = lilka::controller.getState();
-                int8_t dx = 0, dy = 0;
+                int8_t dx = 0;
                 if (state.left.justPressed) {
                     // Користувач натиснув вліво
                     dx = -1;

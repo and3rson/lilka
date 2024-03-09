@@ -31,8 +31,11 @@ todo:
 		-o -iname *.rst \
 		| xargs grep --color=always -n -H -E "TODO|FIXME|XXX" \
 
-.PHONY: lint
-lint:
+.PHONY: check
+check: clang-format cppcheck
+
+.PHONY: clang-format
+clang-format:
 	# Find all files, but exclude .pio and .ccls-cache directories
 	# Preserve colors in output
 	find \
@@ -48,6 +51,17 @@ lint:
 		-o -iname *.hpp \
 		-o -iname *.h \
 		| xargs clang-format --dry-run --Werror
+
+.PHONY: cppcheck
+cppcheck:
+	cppcheck . -i.ccls-cache -ipio -imjs -idoomgeneric -ibak --enable=performance,style \
+		--suppress=cstyleCast \
+		--suppress=constVariablePointer \
+		--suppress=constParameterPointer \
+		--suppress=noExplicitConstructor \
+		--suppress=noCopyConstructor \
+		--suppress=noOperatorEq \
+		--error-exitcode=1
 
 .PHONY: fix
 fix:

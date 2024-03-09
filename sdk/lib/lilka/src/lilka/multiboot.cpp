@@ -11,17 +11,12 @@ namespace lilka {
 
 extern SDCard sdcard;
 
-MultiBoot::MultiBoot() {
-    file = NULL;
-    bytesTotal = 0;
-    bytesWritten = 0;
-    ota_handle = 0;
-    ota_partition = NULL;
-    path = "";
+MultiBoot::MultiBoot() :
+    ota_handle(0), current_partition(NULL), ota_partition(NULL), path(""), bytesTotal(0), bytesWritten(0), file(NULL) {
 }
 
 void MultiBoot::begin() {
-    const esp_partition_t* current_partition = esp_ota_get_running_partition();
+    current_partition = esp_ota_get_running_partition();
     serial_log(
         "Current partition: %s, type: %d, subtype: %d, size: %d",
         current_partition->label,
@@ -29,8 +24,7 @@ void MultiBoot::begin() {
         current_partition->subtype,
         current_partition->size
     );
-    const esp_partition_t* ota_partition =
-        esp_ota_get_next_update_partition(current_partition); // get ota1 (we're in ota0 now)
+    ota_partition = esp_ota_get_next_update_partition(current_partition); // get ota1 (we're in ota0 now)
     serial_log(
         "OTA partition: %s, type: %d, subtype: %d, size: %d",
         ota_partition->label,
@@ -115,7 +109,11 @@ int MultiBoot::start(String path) {
     bytesTotal = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    const esp_partition_t* current_partition = esp_ota_get_running_partition();
+    current_partition = esp_ota_get_running_partition();
+    if (current_partition == NULL) {
+        serial_err("Failed to get current partition");
+        return -3;
+    }
     serial_log(
         "Current partition: %s, type: %d, subtype: %d, size: %d",
         current_partition->label,
@@ -124,6 +122,10 @@ int MultiBoot::start(String path) {
         current_partition->size
     );
     ota_partition = esp_ota_get_next_update_partition(current_partition); // get ota1 (we're in ota0 now)
+    if (ota_partition == NULL) {
+        serial_err("Failed to get next OTA partition");
+        return -3;
+    }
     serial_log(
         "OTA partition: %s, type: %d, subtype: %d, size: %d",
         ota_partition->label,
@@ -131,10 +133,6 @@ int MultiBoot::start(String path) {
         ota_partition->subtype,
         ota_partition->size
     );
-    if (ota_partition == NULL) {
-        serial_err("Failed to get next OTA partition");
-        return -3;
-    }
 
     esp_err_t err = esp_ota_begin(ota_partition, bytesTotal, &ota_handle);
     if (err != ESP_OK) {

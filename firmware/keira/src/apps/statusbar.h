@@ -7,5 +7,5 @@ public:
     StatusBarApp();
 
 private:
-    void run();
+    void run() override;
 };

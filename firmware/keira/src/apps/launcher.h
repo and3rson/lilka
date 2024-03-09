@@ -10,7 +10,7 @@ public:
     LauncherApp();
 
 private:
-    void run();
+    void run() override;
     void appsMenu();
     void sdBrowserMenu(String path);
     void spiffsBrowserMenu();

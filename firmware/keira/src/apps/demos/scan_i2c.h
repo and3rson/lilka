@@ -7,5 +7,5 @@ public:
     ScanI2CApp();
 
 private:
-    void run();
+    void run() override;
 };

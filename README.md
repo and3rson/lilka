@@ -4,7 +4,7 @@
 [![Documentation Status](https://readthedocs.org/projects/lilka/badge/?version=latest)](https://docs.lilka.dev)
 [![PlatformIO Registry](https://badges.registry.platformio.org/packages/and3rson/library/Lilka.svg)](https://registry.platformio.org/libraries/and3rson/Lilka)
 [![firmware](https://github.com/and3rson/lilka/actions/workflows/firmware.yml/badge.svg)](https://github.com/and3rson/lilka/actions/workflows/firmware.yml)
-[![code style](https://github.com/and3rson/lilka/actions/workflows/code_style.yml/badge.svg)](https://github.com/and3rson/lilka/actions/workflows/code_style.yml)
+[![code quality](https://github.com/and3rson/lilka/actions/workflows/code-quality.yml/badge.svg)](https://github.com/and3rson/lilka/actions/workflows/code-quality.yml)
 [![Discord](https://img.shields.io/discord/1202315568846213172?label=Discord)][discord]
 
 DIY-консоль, яку можна зібрати з дешевих готових модулів.

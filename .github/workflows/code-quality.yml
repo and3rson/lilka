@@ -1,0 +1,28 @@
+name: code-quality
+
+on: [push]
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+    container: ubuntu:24.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run clang-format
+        run: |
+          apt update -y
+          apt install -y make clang-format
+          make clang-format
+
+  cppcheck:
+    runs-on: ubuntu-latest
+    container: ubuntu:24.04
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run cppcheck
+        run: |
+          apt update -y
+          apt install -y make cppcheck
+          make cppcheck

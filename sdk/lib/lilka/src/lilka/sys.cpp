@@ -36,10 +36,9 @@ uint64_t Sys::get_partition_size(const char* label) {
 }
 
 void Sys::print_partition_table() {
-    const esp_partition_t* partition;
     esp_partition_iterator_t iterator = esp_partition_find(ESP_PARTITION_TYPE_ANY, ESP_PARTITION_SUBTYPE_ANY, NULL);
     while (iterator != NULL) {
-        partition = esp_partition_get(iterator);
+        const esp_partition_t* partition = esp_partition_get(iterator);
         printf(
             "Partition label=%10s type=%02X subtype=%02X address=0x%08X size=0x%08X\n",
             partition->label,

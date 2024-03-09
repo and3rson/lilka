@@ -19,7 +19,7 @@
 #include "icons/settings.h"
 #include "icons/info.h"
 
-#include "icons/file.h"
+#include "icons/normalfile.h"
 #include "icons/folder.h"
 #include "icons/nes.h"
 #include "icons/bin.h"
@@ -116,7 +116,7 @@ const menu_icon_t* get_file_icon(const String& filename) {
     } else if (filename.endsWith(".js")) {
         return &js;
     } else {
-        return &file;
+        return &normalfile;
     }
 }
 
@@ -210,7 +210,6 @@ void LauncherApp::spiffsBrowserMenu() {
     icons[numEntries - 1] = 0;
     colors[numEntries - 1] = 0;
 
-    int cursor = 0;
     lilka::Menu menu("SPIFFS");
     for (int i = 0; i < numEntries; i++) {
         menu.addItem(filenames[i], icons[i], colors[i]);
@@ -244,7 +243,7 @@ void LauncherApp::selectFile(String path) {
         );
         dialog.draw(canvas);
         queueDraw();
-        while ((error = lilka::multiboot.process()) != 0) {
+        while ((error = lilka::multiboot.process()) > 0) {
             int progress = lilka::multiboot.getBytesWritten() * 100 / lilka::multiboot.getBytesTotal();
             dialog.setProgress(progress);
             dialog.draw(canvas);
@@ -254,7 +253,7 @@ void LauncherApp::selectFile(String path) {
                 return;
             }
         }
-        if (error) {
+        if (error < 0) {
             alert("Помилка", String("Етап: 2\nКод: ") + error);
             return;
         }
@@ -287,7 +286,6 @@ void LauncherApp::devMenu() {
         "Lua REPL",
         "<< Назад",
     };
-    int cursor = 0;
     int count = sizeof(titles) / sizeof(titles[0]);
     lilka::Menu menu("Розробка");
     for (int i = 0; i < count; i++) {
@@ -319,7 +317,6 @@ void LauncherApp::systemUtilsMenu() {
         "Таблиця розділів",
         "<< Назад",
     };
-    int cursor = 0;
     int count = sizeof(titles) / sizeof(titles[0]);
     lilka::Menu menu("Системні утиліти");
     for (int i = 0; i < count; i++) {
@@ -360,7 +357,6 @@ void LauncherApp::systemUtilsMenu() {
                 String labels[16];
                 int labelCount = lilka::sys.get_partition_labels(labels);
                 labels[labelCount++] = "<< Назад";
-                int partitionCursor = 0;
                 lilka::Menu partitionMenu("Таблиця розділів");
                 for (int i = 0; i < labelCount; i++) {
                     partitionMenu.addItem(labels[i]);

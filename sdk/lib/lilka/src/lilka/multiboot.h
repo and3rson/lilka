@@ -67,6 +67,7 @@ private:
     String path;
     FILE* file;
     esp_ota_handle_t ota_handle;
+    const esp_partition_t* current_partition;
     const esp_partition_t* ota_partition;
     int bytesWritten;
     int bytesTotal;

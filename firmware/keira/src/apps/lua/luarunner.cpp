@@ -210,8 +210,8 @@ int AbstractLuaRunnerApp::execute() {
 
             if (!callUpdate(L, delta) || !callDraw(L)) {
                 // No update or draw function - we're done
-                longjmp(stopjmp, 32);
                 lilka::serial_log("lua: no update or draw function");
+                longjmp(stopjmp, 32);
             }
 
             // Check if show_fps is true and render FPS

@@ -7,5 +7,5 @@ public:
     LetrisApp();
 
 private:
-    void run();
+    void run() override;
 };

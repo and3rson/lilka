@@ -1,8 +1,6 @@
 #include "service.h"
 
-Service::Service(const char* name) {
-    this->name = name;
-    taskHandle = NULL;
+Service::Service(const char* name) : name(name), taskHandle(NULL) {
 }
 
 Service::~Service() {

@@ -17,7 +17,7 @@ public:
     int getSignalStrength();
 
 private:
-    void run();
+    void run() override;
     void connect();
     NetworkState state;
 

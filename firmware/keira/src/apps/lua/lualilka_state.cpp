@@ -13,9 +13,9 @@ int lualilka_state_load(lua_State* L, const char* path) {
     // Read state table
     char key[256];
     char type[32];
-    while (fscanf(file, "%s", key) != EOF) {
+    while (fscanf(file, "%255s", key) != EOF) {
         // Read value type
-        fscanf(file, "%s", type);
+        fscanf(file, "%31s", type);
         if (strcmp(type, "number") == 0) {
             // Read number
             double value;
@@ -27,7 +27,7 @@ int lualilka_state_load(lua_State* L, const char* path) {
         } else if (strcmp(type, "string") == 0) {
             // Read string
             char value[256];
-            fscanf(file, "%s", value);
+            fscanf(file, "%255s", value);
             lilka::serial_log("lua: state: load string %s = %s", key, value);
             lua_pushstring(L, value);
             lua_setfield(L, -2, key);

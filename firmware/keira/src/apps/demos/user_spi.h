@@ -7,5 +7,5 @@ public:
     UserSPIApp();
 
 private:
-    void run();
+    void run() override;
 };

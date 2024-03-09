@@ -9,7 +9,7 @@ namespace lilka {
 
 SemaphoreHandle_t Controller::semaphore = NULL;
 
-Controller::Controller() {
+Controller::Controller() : state{} {
     for (int i = 0; i < Button::COUNT; i++) {
         _StateButtons& buttons = *reinterpret_cast<_StateButtons*>(&state);
 
@@ -111,9 +111,9 @@ State Controller::getState() {
 void Controller::_resetState() {
     for (int i = 0; i < Button::COUNT; i++) {
         _StateButtons& buttons = *reinterpret_cast<_StateButtons*>(&state);
-        ButtonState* state = &buttons[i];
-        state->justPressed = false;
-        state->justReleased = false;
+        ButtonState* buttonState = &buttons[i];
+        buttonState->justPressed = false;
+        buttonState->justReleased = false;
     }
 }
 

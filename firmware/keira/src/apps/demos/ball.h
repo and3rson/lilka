@@ -7,5 +7,5 @@ public:
     BallApp();
 
 private:
-    void run();
+    void run() override;
 };

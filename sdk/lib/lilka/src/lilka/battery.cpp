@@ -9,7 +9,7 @@ namespace lilka {
 
 #define fmap(x, in_min, in_max, out_min, out_max) (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
-Battery::Battery() {
+Battery::Battery() : emptyVoltage(LILKA_DEFAULT_EMPTY_VOLTAGE), fullVoltage(LILKA_DEFAULT_FULL_VOLTAGE) {
 }
 
 void Battery::begin() {
@@ -21,8 +21,6 @@ void Battery::begin() {
     LILKA_BATTERY_ADC_FUNC(config_channel_atten)(LILKA_BATTERY_ADC_CHANNEL, ADC_ATTEN_DB_11); // 0..3100mV
     // adcX_config_width(adc_width_t width)
     LILKA_BATTERY_ADC_FUNC(config_width)(ADC_WIDTH_BIT_12);
-    setEmptyVoltage(LILKA_DEFAULT_EMPTY_VOLTAGE);
-    setFullVoltage(LILKA_DEFAULT_FULL_VOLTAGE);
 #endif
 }
 

@@ -7,5 +7,5 @@ public:
     EpilepsyApp();
 
 private:
-    void run();
+    void run() override;
 };

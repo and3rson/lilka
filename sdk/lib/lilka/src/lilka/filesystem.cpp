@@ -6,7 +6,7 @@
 
 namespace lilka {
 
-Filesystem::Filesystem() {
+Filesystem::Filesystem() : _available(false), _filesystem(NULL) {
 }
 
 void Filesystem::begin() {

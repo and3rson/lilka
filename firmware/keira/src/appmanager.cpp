@@ -3,9 +3,7 @@
 
 AppManager* AppManager::instance = NULL;
 
-AppManager::AppManager() {
-    panel = NULL;
-    mutex = xSemaphoreCreateMutex();
+AppManager::AppManager() : mutex(xSemaphoreCreateMutex()), panel(NULL) {
 }
 
 AppManager::~AppManager() {
@@ -52,13 +50,18 @@ App* AppManager::removeTopApp() {
     App* topApp = apps.back();
     apps.pop_back();
     delete topApp;
-    if (apps.size() > 0) {
+    if (apps.size() == 0) {
+        // Panic! No apps left
+        lilka::serial_err("appmanager: no apps left! Panic!");
+        while (1) {
+        }
+    } else {
         topApp = apps.back();
         topApp->resume();
+        topApp->forceRedraw();
+        panel->forceRedraw();
+        return topApp;
     }
-    topApp->forceRedraw();
-    panel->forceRedraw();
-    return topApp;
 }
 
 /// Perform one iteration of the main loop.
