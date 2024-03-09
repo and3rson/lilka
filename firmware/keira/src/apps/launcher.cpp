@@ -55,7 +55,7 @@ void LauncherApp::run() {
             } else if (index == 4) {
                 systemUtilsMenu();
             } else if (index == 5) {
-                alert("Хешбраун OS", "by Андерсон\n& friends");
+                alert("Keira OS", "by Андерсон\n& friends");
             }
         }
         taskYIELD();
