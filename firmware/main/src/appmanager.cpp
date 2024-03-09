@@ -29,7 +29,7 @@ void AppManager::setPanel(App *app) {
 }
 
 /// Spawn a new app and pause the current one.
-void AppManager::addApp(App *app) {
+void AppManager::runApp(App *app) {
     // If there's an app already running, pause it
     xSemaphoreTake(mutex, portMAX_DELAY);
     App *topApp = NULL;
@@ -55,9 +55,7 @@ App *AppManager::removeTopApp() {
         topApp = apps.back();
         topApp->resume();
     }
-    // Mark top app as "dirty" to redraw it
     topApp->forceRedraw();
-    // Mark panel as "dirty" to redraw it
     panel->forceRedraw();
     return topApp;
 }

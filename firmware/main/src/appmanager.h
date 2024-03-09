@@ -10,7 +10,7 @@ class AppManager {
 public:
     ~AppManager();
     void setPanel(App *app);
-    void addApp(App *app);
+    void runApp(App *app);
     void loop();
 
     static AppManager *getInstance();

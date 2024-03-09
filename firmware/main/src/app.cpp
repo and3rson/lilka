@@ -10,7 +10,7 @@ App::App(const char *name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) : nam
     backCanvas->begin();
     backCanvas->fillScreen(0);
     backCanvasMutex = xSemaphoreCreateMutex();
-    dirty = false;
+    isDrawQueued = false;
 }
 
 void App::start() {
@@ -56,7 +56,7 @@ void App::queueDraw() {
     lilka::Canvas *temp = canvas;
     canvas = backCanvas;
     backCanvas = temp;
-    dirty = true;
+    isDrawQueued = true;
     xSemaphoreGive(backCanvasMutex);
     taskYIELD();
 }
@@ -70,15 +70,15 @@ AppFlags App::getFlags() {
 }
 
 bool App::needsRedraw() {
-    return dirty;
+    return isDrawQueued;
 }
 
 void App::markClean() {
-    dirty = false;
+    isDrawQueued = false;
 }
 
 void App::forceRedraw() {
-    dirty = true;
+    isDrawQueued = true;
 }
 
 const char *App::getName() {

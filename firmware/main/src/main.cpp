@@ -1,15 +1,3 @@
-// #include <esp_wifi.h>
-//
-// #include "nes/hw_config.h"
-//
-// extern "C" {
-// #include <nofrendo.h>
-// }
-//
-//
-// // #include "demos/demos.h"
-// #include "demos/lines.h"
-
 #include <lilka.h>
 
 #include "servicemanager.h"
@@ -27,7 +15,7 @@ void setup() {
     lilka::begin();
     serviceManager->addService(new NetworkService());
     appManager->setPanel(new StatusBarApp());
-    appManager->addApp(new LauncherApp());
+    appManager->runApp(new LauncherApp());
 }
 
 void loop() {

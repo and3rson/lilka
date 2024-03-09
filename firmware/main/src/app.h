@@ -47,7 +47,7 @@ private:
     const char *name;
     uint16_t x, y, w, h;
     SemaphoreHandle_t backCanvasMutex;
-    bool dirty; // TODO: a better name would be smth like "needsRedraw" or "isFresh"
+    bool isDrawQueued;
     AppFlags flags;
     TaskHandle_t taskHandle;
 };

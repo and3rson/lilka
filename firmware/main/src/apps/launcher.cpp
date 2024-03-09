@@ -1,6 +1,7 @@
 #include "launcher.h"
 #include "appmanager.h"
 
+#include "apps/nes/nesapp.h"
 #include "demos/lines.h"
 #include "demos/disk.h"
 #include "demos/ball.h"
@@ -84,7 +85,7 @@ void LauncherApp::appsMenu() {
             if (index == count - 1) {
                 break;
             }
-            AppManager::getInstance()->addApp(classes[index]());
+            AppManager::getInstance()->runApp(classes[index]());
         }
         taskYIELD();
     }
@@ -215,17 +216,7 @@ void LauncherApp::spiffsBrowserMenu() {
 
 void LauncherApp::selectFile(String path) {
     if (path.endsWith(".rom") || path.endsWith(".nes")) {
-        alert("Помилка", "NES тимчасово\nне підтримується");
-        return;
-        // char *argv[1];
-        // char fullFilename[256];
-        // strcpy(fullFilename, path.c_str());
-        // argv[0] = fullFilename;
-        //
-        // Serial.print("NoFrendo start! Filename: ");
-        // Serial.println(argv[0]);
-        // nofrendo_main(1, argv);
-        // Serial.println("NoFrendo end!\n");
+        AppManager::getInstance()->runApp(new NesApp(path));
     } else if (path.endsWith(".bin")) {
         int error;
         error = lilka::multiboot.start(path);
@@ -258,7 +249,7 @@ void LauncherApp::selectFile(String path) {
             return;
         }
     } else if (path.endsWith(".lua")) {
-        AppManager::getInstance()->addApp(new LuaFileRunnerApp(path));
+        AppManager::getInstance()->runApp(new LuaFileRunnerApp(path));
     } else if (path.endsWith(".js")) {
         alert("Помилка", "mJS тимчасово\nне підтримується");
     } else {
@@ -297,9 +288,9 @@ void LauncherApp::devMenu() {
                 return;
             }
             if (index == 0) {
-                AppManager::getInstance()->addApp(new LuaLiveRunnerApp());
+                AppManager::getInstance()->runApp(new LuaLiveRunnerApp());
             } else if (index == 1) {
-                AppManager::getInstance()->addApp(new LuaReplApp());
+                AppManager::getInstance()->runApp(new LuaReplApp());
             }
         }
     }
