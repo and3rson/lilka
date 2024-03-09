@@ -33,7 +33,8 @@ static const struct luaL_Reg lualilka_gpio[] = {
     {"write", lualilka_gpio_write},
     {"read", lualilka_gpio_read},
     {"analog_read", lualilka_gpio_analogRead},
-    {NULL, NULL}};
+    {NULL, NULL},
+};
 
 int lualilka_gpio_register(lua_State *L) {
     luaL_newlib(L, lualilka_gpio);
