@@ -11,7 +11,7 @@ void EpilepsyApp::run() {
 
     while (1) {
         float time = millis() / 1000.0;
-        float size = sin(time * PI * 1.5) * LILKA_DISPLAY_WIDTH;
+        float size = sin(time * PI * 1.5) * canvas->width();
         float angle = time * 4;
 
         // Draw a square with a side of size `size` and a rotation of `angle`

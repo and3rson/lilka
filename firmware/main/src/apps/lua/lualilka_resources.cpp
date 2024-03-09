@@ -193,11 +193,6 @@ static const luaL_Reg lualilka_resources[] = {
     {NULL, NULL},
 };
 
-// int luaopen_lilka_resources(lua_State* L) {
-//     luaL_newlib(L, lualilka_resources);
-//     return 1;
-// }
-
 int lualilka_resources_register(lua_State* L) {
     // Create global "resources" table that contains all resources functions
     luaL_newlib(L, lualilka_resources);

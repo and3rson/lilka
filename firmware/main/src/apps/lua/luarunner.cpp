@@ -91,7 +91,7 @@ bool callDraw(lua_State* L) {
 }
 
 AbstractLuaRunnerApp::AbstractLuaRunnerApp(const char* appName)
-    : App(appName, 0, 0, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT) {
+    : App(appName, 0, 0, lilka::display.width(), lilka::display.height()), L(NULL) {
     setFlags(AppFlags::APP_FLAG_FULLSCREEN);
 }
 
@@ -120,6 +120,10 @@ void AbstractLuaRunnerApp::luaSetup(const char* dir) {
     lua_setfield(L, -2, "cpath");
     lua_pop(L, 1);
 
+    // Store app in registry with "app" key
+    lua_pushlightuserdata(L, this);
+    lua_setfield(L, LUA_REGISTRYINDEX, "app");
+
     lilka::serial_log("lua: register globals");
     lualilka_display_register(L);
     lualilka_console_register(L);
@@ -135,9 +139,6 @@ void AbstractLuaRunnerApp::luaSetup(const char* dir) {
     // lilka::display.setFont(FONT_10x20);
     // canvas->setFont(FONT_10x20);
     // canvas->begin();
-    // Store canvas in registry with "canvas" key
-    lua_pushlightuserdata(L, this);
-    lua_setfield(L, LUA_REGISTRYINDEX, "app");
     // Initialize table for image pointers
     lilka::serial_log("lua: init memory for images");
     lua_newtable(L);
@@ -314,7 +315,7 @@ void LuaLiveRunnerApp::run() {
         canvas->setFont(FONT_10x20);
         canvas->setCursor(8, 48);
         canvas->fillScreen(canvas->color565(0, 0, 0));
-        canvas->setTextBound(8, 0, LILKA_DISPLAY_WIDTH - 16, LILKA_DISPLAY_HEIGHT);
+        canvas->setTextBound(8, 0, canvas->width() - 16, canvas->height());
         canvas->print("Очікування коду\nз UART...\n\n");
         canvas->print("Натисніть [A]\n");
         canvas->print("для виходу.");
@@ -420,7 +421,7 @@ void LuaReplApp::run() {
     canvas->setFont(FONT_10x20);
     canvas->setCursor(8, 48);
     canvas->fillScreen(canvas->color565(0, 0, 0));
-    canvas->setTextBound(8, 0, LILKA_DISPLAY_WIDTH - 16, LILKA_DISPLAY_HEIGHT);
+    canvas->setTextBound(8, 0, canvas->width() - 16, canvas->height());
     canvas->print("Lua REPL\n\n");
     canvas->print("Під'єднайтесь до\nЛілки через серійний\nтермінал та починайте\nвводити команди!");
     queueDraw();
@@ -474,46 +475,3 @@ void LuaReplApp::run() {
     luaTeardown();
 #endif
 }
-
-// lua_State* Lrepl;
-//
-// int lua_repl_start() {
-// #ifndef LILKA_NO_LUA
-//     Lrepl = lua_setup("/sd"); // TODO: hard-coded
-//
-//     lilka::serial_log("lua: start REPL");
-//     return 0;
-// #else
-//     ui_alert(canvas, "Помилка", "Lua не підтримується");
-//     return -1;
-// #endif
-// }
-//
-// int lua_repl_input(String input) {
-// #ifndef LILKA_NO_LUA
-//     // lilka::serial_log("lua: input: %s", input.c_str());
-//
-//     int retCode = luaL_loadstring(Lrepl, input.c_str()) || execute(Lrepl);
-//
-//     if (retCode) {
-//         const char* err = lua_tostring(Lrepl, -1);
-//         serial_log("lua: error: %s", err);
-//     }
-//
-//     return retCode;
-// #else
-//     ui_alert(canvas, "Помилка", "Lua не підтримується");
-//     return -1;
-// #endif
-// }
-//
-// int lua_repl_stop() {
-// #ifndef LILKA_NO_LUA
-//     lilka::serial_log("lua: stop REPL");
-//     lua_teardown(Lrepl);
-//     return 0;
-// #else
-//     ui_alert(canvas, "Помилка", "Lua не підтримується");
-//     return -1;
-// #endif
-// }

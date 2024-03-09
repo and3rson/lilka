@@ -13,7 +13,7 @@ void ScanI2CApp::run() {
     Wire.begin(9, 10, 100000);
 
     buffer.fillScreen(canvas->color565(0, 0, 0));
-    buffer.setTextBound(4, 0, LILKA_DISPLAY_WIDTH - 8, LILKA_DISPLAY_HEIGHT);
+    buffer.setTextBound(4, 0, canvas->width() - 8, canvas->height());
     buffer.setCursor(4, 48);
     buffer.println("Starting I2C scan...");
     canvas->drawCanvas(&buffer);

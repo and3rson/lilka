@@ -25,11 +25,6 @@ static const luaL_Reg lualilka_console[] = {
     {NULL, NULL},
 };
 
-// int luaopen_lilka_console(lua_State* L) {
-//     luaL_newlib(L, lualilka_console);
-//     return 1;
-// }
-
 int lualilka_console_register(lua_State* L) {
     // Create global "console" table that contains all console functions
     luaL_newlib(L, lualilka_console);

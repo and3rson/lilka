@@ -314,27 +314,18 @@ static const luaL_Reg lualilka_display[] = {
     {NULL, NULL},
 };
 
-// int luaopen_lilka_display(lua_State* L) {
-//     // Set isBuffered to true by default in registry
-//     lua_pushboolean(L, true);
-//     lua_setfield(L, LUA_REGISTRYINDEX, "isBuffered");
-//
-//     luaL_newlib(L, lualilka_display);
-//     // Add display width & height as library properties
-//     lua_pushinteger(L, LILKA_DISPLAY_WIDTH);
-//     lua_setfield(L, -2, "width");
-//     lua_pushinteger(L, LILKA_DISPLAY_HEIGHT);
-//     lua_setfield(L, -2, "height");
-//     return 1;
-// }
-
 int lualilka_display_register(lua_State* L) {
     // Create global "display" table that contains all display functions
     luaL_newlib(L, lualilka_display);
     // Add display width & height as library properties
-    lua_pushinteger(L, LILKA_DISPLAY_WIDTH);
+
+    lua_getfield(L, LUA_REGISTRYINDEX, "app");
+    App* app = (App*)lua_touserdata(L, -1);
+    lua_pop(L, 1);
+
+    lua_pushinteger(L, app->canvas->width());
     lua_setfield(L, -2, "width");
-    lua_pushinteger(L, LILKA_DISPLAY_HEIGHT);
+    lua_pushinteger(L, app->canvas->height());
     lua_setfield(L, -2, "height");
     // Set isBuffered to true by default in registry
     lua_pushboolean(L, true);

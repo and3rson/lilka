@@ -455,11 +455,6 @@ static const luaL_Reg lualilka_math[] = {
     {NULL, NULL},
 };
 
-// int luaopen_lilka_math(lua_State* L) {
-//     luaL_newlib(L, lualilka_math);
-//     return 1;
-// }
-
 int lualilka_math_register(lua_State* L) {
     // Create global "math" table that contains all math functions
     luaL_newlib(L, lualilka_math);

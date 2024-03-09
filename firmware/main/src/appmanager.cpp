@@ -1,4 +1,5 @@
 #include "appmanager.h"
+#include <lilka/default_splash.h>
 
 AppManager *AppManager::instance = NULL;
 

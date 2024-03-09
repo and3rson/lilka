@@ -21,7 +21,9 @@ Arduino_HWSPI displayBus(
 
 Display::Display()
     : Arduino_ST7789(
-          &displayBus, LILKA_DISPLAY_RST, LILKA_DISPLAY_ROTATION, true, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, 0, 20
+          // &displayBus, LILKA_DISPLAY_RST, LILKA_DISPLAY_ROTATION, true, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, 0, 20
+          &displayBus, LILKA_DISPLAY_RST, LILKA_DISPLAY_ROTATION, true, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, 0,
+          20, 0, 20
       ),
       splash(NULL) {}
 
@@ -41,38 +43,39 @@ void Display::begin() {
         splash = default_splash;
     }
 #endif
-        uint16_t row[LILKA_DISPLAY_WIDTH];
+        uint16_t row[default_splash_width];
         for (int i = 0; i <= 4; i++) {
             startWrite();
-            writeAddrWindow(0, 0, 240, 280);
-            for (int y = 0; y < LILKA_DISPLAY_HEIGHT; y++) {
-                for (int x = 0; x < LILKA_DISPLAY_WIDTH; x++) {
-                    uint16_t color = splash[y * LILKA_DISPLAY_WIDTH + x];
+            writeAddrWindow(0, 0, default_splash_width, default_splash_height);
+            for (int y = 0; y < default_splash_height; y++) {
+                for (int x = 0; x < default_splash_width; x++) {
+                    uint16_t color = splash[y * default_splash_width + x];
                     uint16_t r = ((color >> 11) & 0x1F) << 3;
                     uint16_t g = ((color >> 5) & 0x3F) << 2;
                     uint16_t b = (color & 0x1F) << 3;
                     row[x] = color565(r * i / 4, g * i / 4, b * i / 4);
                 }
-                writePixels(row, LILKA_DISPLAY_WIDTH);
+                writePixels(row, default_splash_width);
             }
             endWrite();
         }
         // TODO: Should not be here. Треба кудись винести.
-        const Tone helloTune[] = {{NOTE_C4, 8}, {NOTE_E4, 8}, {NOTE_E5, -4}, {NOTE_C6, 8}, {NOTE_C5, 8}};
-        buzzer.playMelody(helloTune, 6, 200);
+        // const Tone helloTune[] = {{NOTE_C4, 8}, {NOTE_E4, 8}, {NOTE_E5, -4}, {NOTE_C6, 8}, {NOTE_C5, 8}};
+        const Tone helloTune[] = {{NOTE_C3, 8}, {NOTE_C4, 8}, {NOTE_C5, 8}, {NOTE_C7, 4}, {0, 8}, {NOTE_C6, 4}};
+        buzzer.playMelody(helloTune, sizeof(helloTune) / sizeof(Tone), 160);
         delay(800);
         for (int i = 4; i >= 0; i--) {
             startWrite();
-            writeAddrWindow(0, 0, 240, 280);
-            for (int y = 0; y < LILKA_DISPLAY_HEIGHT; y++) {
-                for (int x = 0; x < LILKA_DISPLAY_WIDTH; x++) {
-                    uint16_t color = splash[y * LILKA_DISPLAY_WIDTH + x];
+            writeAddrWindow(0, 0, default_splash_width, default_splash_height);
+            for (int y = 0; y < default_splash_height; y++) {
+                for (int x = 0; x < default_splash_width; x++) {
+                    uint16_t color = splash[y * default_splash_width + x];
                     uint16_t r = ((color >> 11) & 0x1F) << 3;
                     uint16_t g = ((color >> 5) & 0x3F) << 2;
                     uint16_t b = (color & 0x1F) << 3;
                     row[x] = color565(r * i / 4, g * i / 4, b * i / 4);
                 }
-                writePixels(row, LILKA_DISPLAY_WIDTH);
+                writePixels(row, default_splash_width);
             }
             endWrite();
         }
@@ -110,17 +113,20 @@ void Display::renderCanvas(Canvas *canvas) {
 Canvas::Canvas() : Arduino_Canvas(LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, NULL) {
     setFont(u8g2_font_10x20_t_cyrillic);
     setUTF8Print(true);
+    begin();
 }
 
 Canvas::Canvas(uint16_t width, uint16_t height) : Arduino_Canvas(width, height, NULL) {
     setFont(u8g2_font_10x20_t_cyrillic);
     setUTF8Print(true);
+    begin();
 }
 
 Canvas::Canvas(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
     : Arduino_Canvas(width, height, NULL, x, y, 0) { // TODO: Rotation
     setFont(u8g2_font_10x20_t_cyrillic);
     setUTF8Print(true);
+    begin();
 }
 
 void Canvas::drawImage(Image *image, int16_t x, int16_t y) {

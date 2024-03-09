@@ -22,16 +22,21 @@ extern "C" {
 // No need to add `extern "C"` to functions below, because it's already declared in `osd.h`
 
 void *mem_alloc(int size, bool prefer_fast_memory) {
-    if (prefer_fast_memory) {
-        return heap_caps_malloc(size, MALLOC_CAP_8BIT);
-    } else {
-        return heap_caps_malloc_prefer(size, MALLOC_CAP_SPIRAM, MALLOC_CAP_DEFAULT);
-    }
+    return malloc(size);
+    // if (prefer_fast_memory) {
+    //     return heap_caps_malloc(size, MALLOC_CAP_8BIT);
+    // } else {
+    //     return heap_caps_malloc_prefer(size, MALLOC_CAP_SPIRAM, MALLOC_CAP_DEFAULT);
+    // }
 }
 
+// const int eventIndices[10] = {
+//     event_joypad1_up,    event_joypad1_down, event_joypad1_left, event_joypad1_right, event_joypad1_select,
+//     event_joypad1_start, event_joypad1_a,    event_joypad1_b,    event_state_save,    event_state_load,
+// };
 const int eventIndices[10] = {
-    event_joypad1_up,    event_joypad1_down, event_joypad1_left, event_joypad1_right, event_joypad1_select,
-    event_joypad1_start, event_joypad1_a,    event_joypad1_b,    event_state_save,    event_state_load,
+    event_joypad1_up, event_joypad1_down, event_joypad1_left, event_joypad1_right, event_joypad1_select,
+    event_quit,       event_eject,        event_joypad1_b,    event_state_save,    event_state_load,
 };
 
 const lilka::Button buttonIndices[10] = {

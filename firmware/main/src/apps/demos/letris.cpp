@@ -5,8 +5,6 @@
 #define FIELD_COLS 10
 #define FIELD_ROWS 25
 
-#define X_OFFSET LILKA_DISPLAY_WIDTH / 2 - FIELD_COLS *BLOCK_SIZE / 2
-
 const bool shapesData[7][4][4] = {
     {{0, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 0, 0}}, // I
     {{0, 0, 0, 0}, {0, 1, 1, 0}, {0, 1, 1, 0}, {0, 0, 0, 0}}, // O
@@ -52,20 +50,21 @@ public:
     }
 
     void draw(lilka::Canvas *canvas, bool drawEmptyBlocks = false) {
+        int16_t xOffset = canvas->width() / 2 - FIELD_COLS * BLOCK_SIZE / 2;
         for (int yy = 0; yy < 4; yy++) {
             for (int xx = 0; xx < 4; xx++) {
                 if (this->shapeData[yy][xx]) {
                     canvas->fillRect(
-                        X_OFFSET + (this->x + xx) * BLOCK_SIZE, (this->y + yy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE,
+                        xOffset + (this->x + xx) * BLOCK_SIZE, (this->y + yy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE,
                         color
                     );
                     canvas->fillRect(
-                        X_OFFSET + (this->x + xx) * BLOCK_SIZE + 2, (this->y + yy) * BLOCK_SIZE + 2, BLOCK_SIZE - 4,
+                        xOffset + (this->x + xx) * BLOCK_SIZE + 2, (this->y + yy) * BLOCK_SIZE + 2, BLOCK_SIZE - 4,
                         BLOCK_SIZE - 4, lilka::display.color565(0, 0, 0)
                     );
                 } else if (drawEmptyBlocks) {
                     canvas->fillRect(
-                        X_OFFSET + (this->x + xx) * BLOCK_SIZE, (this->y + yy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE,
+                        xOffset + (this->x + xx) * BLOCK_SIZE, (this->y + yy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE,
                         lilka::display.color565(0, 0, 0)
                     );
                 }
@@ -112,9 +111,10 @@ public:
     }
     void draw(lilka::Canvas *canvas) {
         // Малює поле
+        int16_t xOffset = canvas->width() / 2 - FIELD_COLS * BLOCK_SIZE / 2;
         for (int y = 0; y < FIELD_ROWS; y++) {
             for (int x = 0; x < FIELD_COLS; x++) {
-                canvas->fillRect(X_OFFSET + x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, this->blocks[y][x]);
+                canvas->fillRect(xOffset + x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE, this->blocks[y][x]);
             }
         }
     }

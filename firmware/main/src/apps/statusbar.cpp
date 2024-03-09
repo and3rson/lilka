@@ -9,7 +9,7 @@
 #include "servicemanager.h"
 #include "services/network.h"
 
-StatusBarApp::StatusBarApp() : App("StatusBar", 0, 0, LILKA_DISPLAY_WIDTH, 24) {}
+StatusBarApp::StatusBarApp() : App("StatusBar", 0, 0, lilka::display.width(), 24) {}
 
 const uint16_t *icons[] = {wifi_offline, wifi_0, wifi_1, wifi_2, wifi_3};
 
