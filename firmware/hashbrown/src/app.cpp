@@ -11,7 +11,11 @@ App::App(const char *name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) : nam
     backCanvas->fillScreen(0);
     backCanvasMutex = xSemaphoreCreateMutex();
     isDrawQueued = false;
-    Serial.println("Created app " + String(name) + " at " + String(x) + ", " + String(y) + " with size " + String(w) + "x" + String(h));
+    flags = AppFlags::APP_FLAG_NONE;
+    Serial.println(
+        "Created app " + String(name) + " at " + String(x) + ", " + String(y) + " with size " + String(w) + "x" +
+        String(h)
+    );
 }
 
 void App::start() {
