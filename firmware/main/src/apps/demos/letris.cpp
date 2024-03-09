@@ -3,7 +3,7 @@
 
 #define BLOCK_SIZE 10
 #define FIELD_COLS 10
-#define FIELD_ROWS 25
+#define FIELD_ROWS 21
 
 const bool shapesData[7][4][4] = {
     {{0, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 0, 0}, {0, 1, 0, 0}}, // I
@@ -178,6 +178,7 @@ void LetrisApp::run() {
     nextShape.reset();
 
     // Вітання
+    int16_t xMargin = (canvas->width() - letris_splash_width) / 2;
     while (!lilka::controller.getState().a.justPressed) {
         float time = millis() / 1000.0;
         canvas->fillScreen(canvas->color565(0, 0, 0));
@@ -189,7 +190,8 @@ void LetrisApp::run() {
             int16_t xShift = sin(time * 4 + y / 8.0) * 4;
             for (uint16_t x = 0; x < letris_splash_width; x++) {
                 canvas->drawPixel(
-                    x + xShift, (float)canvas->height() / 2 - (float)letris_splash_height / 2 + y + yShifts[x],
+                    xMargin + x + xShift,
+                    (float)canvas->height() / 2 - (float)letris_splash_height / 2 + y + yShifts[x],
                     letris_splash[y * letris_splash_width + x]
                 );
             }

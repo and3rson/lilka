@@ -7,7 +7,7 @@
 
 namespace lilka {
 
-#define MENU_HEIGHT 7
+#define MENU_HEIGHT 5
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
