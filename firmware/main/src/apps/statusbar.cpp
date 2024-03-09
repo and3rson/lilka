@@ -22,12 +22,14 @@ void StatusBarApp::run() {
         canvas->setFont(FONT_9x15);
         canvas->setCursor(32, 18);
         canvas->print("Time: " + String(counter++));
-        if (networkService->getNetworkState() == NETWORK_STATE_OFFLINE) {
-            canvas->draw16bitRGBBitmapWithTranColor(144, 0, wifi_offline, 0, 24, 24);
-        } else if (networkService->getNetworkState() == NETWORK_STATE_CONNECTING) {
-            canvas->draw16bitRGBBitmapWithTranColor(144, 0, wifi_connecting, 0, 24, 24);
-        } else {
-            canvas->draw16bitRGBBitmapWithTranColor(144, 0, icons[networkService->getSignalStrength()], 0, 24, 24);
+        if (networkService != NULL) {
+            if (networkService->getNetworkState() == NETWORK_STATE_OFFLINE) {
+                canvas->draw16bitRGBBitmapWithTranColor(144, 0, wifi_offline, 0, 24, 24);
+            } else if (networkService->getNetworkState() == NETWORK_STATE_CONNECTING) {
+                canvas->draw16bitRGBBitmapWithTranColor(144, 0, wifi_connecting, 0, 24, 24);
+            } else {
+                canvas->draw16bitRGBBitmapWithTranColor(144, 0, icons[networkService->getSignalStrength()], 0, 24, 24);
+            }
         }
         canvas->draw16bitRGBBitmapWithTranColor(144 + 8 + 24, 0, battery, 0, 32, 24);
         // canvas->draw16bitRGBBitmapWithTranColor(160, 0, wifi, 24, 24, 0);

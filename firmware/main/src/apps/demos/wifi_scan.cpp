@@ -14,8 +14,10 @@ void WifiScanApp::run() {
     canvas->drawCanvas(&buffer);
     queueDraw();
 
-    WiFi.mode(WIFI_STA);
-    WiFi.disconnect();
+    if (WiFi.getMode() != WIFI_STA) {
+        WiFi.mode(WIFI_STA);
+    }
+    // WiFi.disconnect();
 
     buffer.println("Скануємо мережі WiFi...");
     canvas->drawCanvas(&buffer);
