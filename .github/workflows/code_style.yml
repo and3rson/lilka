@@ -11,6 +11,6 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run linters
         run: |
-          sudo apt update -y
-          sudo apt install -y make clang-format
+          apt update -y
+          apt install -y make clang-format
           make lint
