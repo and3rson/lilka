@@ -14,9 +14,9 @@
 
     about/index
     hardware/index
+    assembly/index
     manual/index
     library/index
-    lua/index
     faq
     glossary
 

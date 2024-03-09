@@ -4,7 +4,6 @@
 .. toctree::
     :maxdepth: 1
 
-    assembly/index
-    main_firmware/index
+    hashbrown/index
     development
     extension
