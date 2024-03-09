@@ -55,7 +55,7 @@ void LauncherApp::run() {
             } else if (index == 4) {
                 systemUtilsMenu();
             } else if (index == 5) {
-                alert("Лілка Main OS", "by Андерсон\n& friends");
+                alert("Хешбраун OS", "by Андерсон\n& friends");
             }
         }
         taskYIELD();
