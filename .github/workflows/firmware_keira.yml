@@ -1,9 +1,9 @@
-name: firmware/keira
+name: firmware
 
 on: [push]
 
 jobs:
-  build-main-firmware:
+  keira:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,7 +25,7 @@ jobs:
         working-directory: ./firmware/keira
         run: pio run -e v2
 
-  build-doom-firmware:
+  doom:
     runs-on: ubuntu-latest
 
     steps:
@@ -44,5 +44,5 @@ jobs:
         run: pip install --upgrade platformio
 
       - name: Build PlatformIO Project
-        working-directory: ./firmware/main
+        working-directory: ./firmware/doom
         run: pio run -e v2
