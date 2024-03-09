@@ -10,77 +10,74 @@ typedef uint16_t const menu_icon_t[576]; // 24x24px icon
 
 namespace lilka {
 
-/// Відобразити меню.
-///
-/// Блокує виконання програми, доки користувач не обере пункт меню та не натисне кнопку A.
-/// Повертає індекс вибраного пункту меню.
-///
-/// @param title Заголовок меню.
-/// @param menu Масив пунктів меню.
-/// @param menu_size Розмір масиву пунктів меню.
-/// @param cursor Початковий курсор. За замовчуванням встановлено в 0.
-/// @param icons Масив іконок для кожного пункту меню. Якщо значення елементу (або весь масив) буде рівним 0, то іконка не відображається.
-/// @param colors Масив кольорів для кожного пункту меню (в форматі RGB 5-6-5). Якщо значення елементу (або весь масив) буде рівним 0, то використовується стандартний колір.
-/// @return Індекс вибраного пункту меню.
-///
-/// Приклад використання:
-///
-/// @code
-/// #include <lilka.h>
-///
-/// void setup() {
-///     lilka::begin();
-/// }
-///
-/// void loop() {
-///     String items[] = {"Смерть русні", "Ядерка на червону площу", "Повернення Криму"};
-///     int selected = lilka::ui_menu("Оберіть щось", items, 3);
-///     lilka::ui_alert(
-///         "Гарний вибір!",
-///         "Ви обрали " + menu[selected] + "\nДавайте оберемо ще щось!"
-///     );
-/// }
-/// @endcode
-
-// int ui_menu(
-//     Canvas *canvas, String title, String menu[], int menu_size, int cursor = 0, const menu_icon_t *icons[] = 0,
-//     const uint16_t colors[] = 0
-// );
-/// Відобразити сповіщення.
-///
-/// Блокує виконання програми, доки користувач не натисне кнопку A.
-///
-/// @param title Заголовок підтвердження.
-/// @param message Повідомлення підтвердження.
-///
-/// Приклад використання:
-///
-/// @code
-/// #include <lilka.h>
-///
-/// void setup() {
-///     lilka::begin();
-/// }
-///
-/// void loop() {
-///     lilka::ui_alert("Увага", "Повітряна тривога в москві, загроза балістичних ракет!");
-/// }
-/// @endcode
-// void ui_alert(Canvas *canvas, String title, String message);
-
 typedef struct {
     String title;
     const menu_icon_t *icon;
     uint16_t color;
 } MenuItem;
 
+/// Клас для відображення меню.
+///
+/// Дозволяє відобразити меню з пунктами, які можна вибирати за допомогою стрілок вгору/вниз та підтвердити вибір кнопкою A.
+///
+/// Приклад використання:
+///
+/// @code
+/// #include <lilka.h>
+///
+/// void setup() {
+///     lilka::begin();
+/// }
+///
+/// void loop() {
+///     lilka::Menu dreams("Оберіть щось");
+///     dreams.addItem("Смерть русні");
+///     dreams.addItem("Ядерка на червону площу");
+///     dreams.addItem("Повернення Криму");
+///     int index = -1;
+///     while (index == -1) {
+///         dreams.update();
+///         dreams.draw(&lilka::display);
+///         index = dreams.getSelectedIndex();
+///     }
+///     Serial.println("Ви обрали пункт номер " + String(index));
+/// }
+/// @endcode
 class Menu {
 public:
+    /// Конструктор класу.
+    ///
+    /// @param title Заголовок меню.
     Menu(String title);
+    /// Додати пункт до меню.
+    /// @param title Заголовок пункту.
+    /// @param icon Іконка пункту (масив з ``uint16_t`` розміром 576 елементів, який представляє 24x24px зображення). За замовчуванням ``0`` (відсутня іконка).
+    /// @param color Колір пункту. За замовчуванням ``0`` (стандартний колір).
     void addItem(String title, const menu_icon_t *icon = 0, uint16_t color = 0);
+    /// Встановити курсор на пункт меню.
+    /// @param cursor Індекс пункту меню.
     void setCursor(int16_t cursor);
+    /// Оновити стан меню.
+    ///
+    /// Цю функцію потрібно викликати, щоб меню опрацювало вхідні дані від користувача та оновило свій стан.
     void update();
+    /// Намалювати меню на Display або Canvas.
+    ///
+    /// @param canvas Вказівник на Display або Canvas, на якому потрібно намалювати меню.
+    ///
+    /// Приклад використання:
+    /// @code
+    /// // ...
+    /// menu.draw(&lilka::display); // намалювати меню на Display
+    /// menu.draw(&canvas); // намалювати меню на Canvas
+    /// // ...
+    /// @endcode
     void draw(Arduino_GFX *canvas);
+    /// Отримати індекс обраного пункту меню.
+    ///
+    /// Якщо жоден пункт не обрано, повертається ``-1``.
+    ///
+    /// Також ця функція очищує обраний пункт, тому щойно вона поверне індекс обраного пункту, вона почне повертати ``-1`` до тих пір, поки не буде обрано новий пункт.
     int16_t getSelectedIndex();
 
 private:
@@ -91,11 +88,54 @@ private:
     int16_t selectedIndex;
 };
 
+/// Клас для відображення сповіщення.
+///
+/// Дозволяє відобразити сповіщення, яке користувач може закрити кнопкою A.
+///
+/// Приклад використання:
+///
+/// @code
+/// #include <lilka.h>
+///
+/// void setup() {
+///     lilka::begin();
+/// }
+///
+/// void loop() {
+///     lilka::Alert warning("Увага", "Повітряна тривога в москві, загроза балістичних ракет!");
+///     warning.draw(&lilka::display);
+///     while (!warning.isDone()) {
+///         warning.update();
+///     }
+/// }
+/// @endcode
 class Alert {
 public:
+    /// Конструктор класу.
+    ///
+    /// @param title Заголовок сповіщення.
+    /// @param message Повідомлення сповіщення.
     Alert(String title, String message);
+    /// Оновити стан сповіщення.
+    ///
+    /// Цю функцію потрібно викликати, щоб сповіщення опрацювало вхідні дані від користувача та оновило свій стан.
     void update();
+    /// Намалювати сповіщення на Display або Canvas.
+    ///
+    /// @param canvas Вказівник на Display або Canvas, на якому потрібно намалювати сповіщення.
+    ///
+    /// Приклад використання:
+    ///
+    /// @code
+    /// // ...
+    /// alert.draw(&lilka::display); // намалювати сповіщення на Display
+    /// alert.draw(&canvas); // намалювати сповіщення на Canvas
+    /// // ...
+    /// @endcode
     void draw(Arduino_GFX *canvas);
+    /// Перевірити, чи користувач закрив сповіщення.
+    ///
+    /// Якщо сповіщення закрито (користувач натиснув кнопку "A"), повертається ``true``, інакше ``false``.
     bool isDone();
 
 private:
@@ -104,11 +144,55 @@ private:
     bool done;
 };
 
+/// Клас для відображення індикатора виконання.
+///
+/// Дозволяє відобразити індикатор виконання, який можна оновлювати та змінювати його повідомлення.
+///
+/// Приклад використання:
+///
+/// @code
+/// #include <lilka.h>
+///
+/// void setup() {
+///     lilka::begin();
+/// }
+///
+/// void loop() {
+///     lilka::ProgressDialog progress("Почекайте", "Завантаження даних...");
+///     for (int i = 0; i <= 100; i++) {
+///         progress.setProgress(i);
+///         progress.draw(&lilka::display);
+///         delay(100);
+///     }
+///     progress.setMessage("Дані завантажено!");
+///     delay(1000);
+/// }
+/// @endcode
 class ProgressDialog {
 public:
+    /// Конструктор класу.
+    ///
+    /// @param title Заголовок індикатора виконання.
+    /// @param message Повідомлення індикатора виконання.
     ProgressDialog(String title, String message);
+    /// Встановити прогрес виконання.
+    ///
+    /// @param progress Прогрес виконання від 0 до 100.
     void setProgress(int16_t progress);
+    /// Встановити повідомлення.
+    /// @param message Повідомлення.
     void setMessage(String message);
+    /// Намалювати індикатор виконання на Display або Canvas.
+    /// @param canvas Вказівник на Display або Canvas, на якому потрібно намалювати індикатор виконання.
+    ///
+    /// Приклад використання:
+    ///
+    /// @code
+    /// // ...
+    /// progress.draw(&lilka::display); // намалювати індикатор виконання на Display
+    /// progress.draw(&canvas); // намалювати індикатор виконання на Canvas
+    /// // ...
+    /// @endcode
     void draw(Arduino_GFX *canvas);
 
 private:

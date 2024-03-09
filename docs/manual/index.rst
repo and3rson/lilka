@@ -4,6 +4,7 @@
 .. toctree::
     :maxdepth: 1
 
-    hashbrown/index
+    environment
+    keira/index
     development
     extension
