@@ -1,6 +1,13 @@
 ``UI``: Інтерфейс користувача
 =============================
 
-.. doxygenfunction:: lilka::ui_menu
+Цей модуль містить класи, які відповідають за відображення простих елементів інтерфейсу користувача: меню, сповіщення тощо.
 
-.. doxygenfunction:: lilka::ui_alert
+.. doxygenclass:: lilka::Menu
+    :members:
+
+.. doxygenclass:: lilka::Alert
+    :members:
+
+.. doxygenclass:: lilka::ProgressDialog
+    :members:

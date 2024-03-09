@@ -10,8 +10,8 @@ namespace lilka {
 
 /// Завантажувач прошивок з microSD-картки.
 ///
-/// Дозволяє прочитати файл прошивки з microSD-картки в OTA-розділ та запустити його один зар,
-/// не замінюючи основну прошивку.
+/// Дозволяє прочитати файл прошивки з microSD-картки в OTA-розділ та запустити його один раз,
+/// не замінюючи поточну прошивку.
 ///
 /// Нова прошивка зберігається в OTA-розділі та запускається при перезавантаженні,
 /// але активною залишається основна прошивка (app rollback).
@@ -30,9 +30,9 @@ namespace lilka {
 ///
 ///     Serial.println("Завантаження прошивки 'firmware.bin' з microSD-картки...");
 ///
-///     lilka::multiboot->start("/sd/firmware.bin"); // Почати завантаження
+///     lilka::multiboot.start("/sd/firmware.bin"); // Почати завантаження
 ///     while (lilka::multiboot.process() != 0) { // Обробити завантаження
-///         Serial.printf("Завантажено %d/%d байтів\n", lilka::multiboot.getBytesWritten(), lilka::multiboot.getBytesTotal());
+///         Serial.println("Завантажено " + String(lilka::multiboot.getBytesWritten()) + "/" + String(lilka::multiboot.getBytesTotal()) + " байтів");
 ///     }
 ///     lilka::multiboot.finishAndReboot(); // Завершити завантаження та перезавантажити пристрій
 /// }
@@ -51,6 +51,8 @@ public:
     /// Щоразу він опрацьовує частину файлу та записує її в OTA-розділ.
     /// \return 0, якщо завантаження завершилося успішно, <0 - у разі помилки, >0 - означає кількість байтів, які було оброблено.
     int process();
+    /// Перервати завантаження.
+    void cancel();
     /// Отримати кількість байтів, які було записано в OTA-розділ.
     /// \return Кількість байтів
     int getBytesWritten();
@@ -63,9 +65,9 @@ public:
 
 private:
     String path;
-    FILE *file;
+    FILE* file;
     esp_ota_handle_t ota_handle;
-    const esp_partition_t *ota_partition;
+    const esp_partition_t* ota_partition;
     int bytesWritten;
     int bytesTotal;
 };

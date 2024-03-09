@@ -32,7 +32,7 @@ public:
     /// // Звільнити пам'ять
     /// delete image;
     /// \endcode
-    Image *loadImage(String filename, int32_t transparentColor = -1);
+    Image* loadImage(String filename, int32_t transparentColor = -1);
     /// Прочитати вміст файлу.
     ///
     /// TODO: Update sdcard/filesystem stuff
@@ -42,7 +42,7 @@ public:
     /// \return 0, якщо читання успішне; -1, якщо файл не знайдено
     /// \warning Не використовуйте цей метод для читання великих файлів, оскільки весь вміст файлу зберігається в
     /// пам'яті. Для великих файлів використовуйте методи `sdcard` та `filesystem`.
-    int readFile(String filename, String &fileContent);
+    int readFile(String filename, String& fileContent);
     /// Записати вміст файлу.
     /// \param filename Шлях до файлу.
     /// \param fileContent Вміст файлу.

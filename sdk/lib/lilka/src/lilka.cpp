@@ -1,4 +1,5 @@
 #include <esp_wifi.h>
+#include <esp_task_wdt.h>
 
 #include "lilka.h"
 
@@ -16,6 +17,18 @@ void begin() {
     battery.begin();
     // TODO: I2S
     esp_wifi_deinit();
+    // TODO: Delete Task Watchdog Timer - we'll be running long tasks
+    // TODO: Maybe keep it?
+    TaskHandle_t idle_0 = xTaskGetIdleTaskHandleForCPU(0);
+    if (idle_0 != NULL) {
+        esp_task_wdt_delete(idle_0);
+    }
+#if LILKA_VERSION > 1
+    TaskHandle_t idle_1 = xTaskGetIdleTaskHandleForCPU(1);
+    if (idle_1 != NULL) {
+        esp_task_wdt_delete(idle_1);
+    }
+#endif
 }
 
 } // namespace lilka

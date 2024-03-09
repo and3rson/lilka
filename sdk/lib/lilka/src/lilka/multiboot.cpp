@@ -21,16 +21,22 @@ MultiBoot::MultiBoot() {
 }
 
 void MultiBoot::begin() {
-    const esp_partition_t *current_partition = esp_ota_get_running_partition();
+    const esp_partition_t* current_partition = esp_ota_get_running_partition();
     serial_log(
-        "Current partition: %s, type: %d, subtype: %d, size: %d", current_partition->label, current_partition->type,
-        current_partition->subtype, current_partition->size
+        "Current partition: %s, type: %d, subtype: %d, size: %d",
+        current_partition->label,
+        current_partition->type,
+        current_partition->subtype,
+        current_partition->size
     );
-    const esp_partition_t *ota_partition =
+    const esp_partition_t* ota_partition =
         esp_ota_get_next_update_partition(current_partition); // get ota1 (we're in ota0 now)
     serial_log(
-        "OTA partition: %s, type: %d, subtype: %d, size: %d", ota_partition->label, ota_partition->type,
-        ota_partition->subtype, ota_partition->size
+        "OTA partition: %s, type: %d, subtype: %d, size: %d",
+        ota_partition->label,
+        ota_partition->type,
+        ota_partition->subtype,
+        ota_partition->size
     );
 
     // А тут я згаяв трохи часу. Нижче наведено спроби увімкнути автоматичний відкат прошивки з кінцевим рішенням.
@@ -109,15 +115,21 @@ int MultiBoot::start(String path) {
     bytesTotal = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    const esp_partition_t *current_partition = esp_ota_get_running_partition();
+    const esp_partition_t* current_partition = esp_ota_get_running_partition();
     serial_log(
-        "Current partition: %s, type: %d, subtype: %d, size: %d", current_partition->label, current_partition->type,
-        current_partition->subtype, current_partition->size
+        "Current partition: %s, type: %d, subtype: %d, size: %d",
+        current_partition->label,
+        current_partition->type,
+        current_partition->subtype,
+        current_partition->size
     );
     ota_partition = esp_ota_get_next_update_partition(current_partition); // get ota1 (we're in ota0 now)
     serial_log(
-        "OTA partition: %s, type: %d, subtype: %d, size: %d", ota_partition->label, ota_partition->type,
-        ota_partition->subtype, ota_partition->size
+        "OTA partition: %s, type: %d, subtype: %d, size: %d",
+        ota_partition->label,
+        ota_partition->type,
+        ota_partition->subtype,
+        ota_partition->size
     );
     if (ota_partition == NULL) {
         serial_err("Failed to get next OTA partition");
@@ -134,11 +146,11 @@ int MultiBoot::start(String path) {
 }
 
 int MultiBoot::process() {
-    char buf[1024];
+    char buf[4096];
 
-    // Записуємо 32 КБ.
+    // Записуємо 16 КБ.
 
-    for (int i = 0; i < 32; i++) {
+    for (int i = 0; i < 4; i++) {
         // Read 1024 bytes
         int len = fread(buf, 1, sizeof(buf), file);
         if (len == 0) {
@@ -157,6 +169,16 @@ int MultiBoot::process() {
 
     serial_log("Written %d bytes", bytesWritten);
     return bytesWritten;
+}
+
+void MultiBoot::cancel() {
+    if (file != NULL) {
+        fclose(file);
+    }
+    if (ota_handle) {
+        esp_ota_abort(ota_handle);
+        ota_handle = 0;
+    }
 }
 
 int MultiBoot::getBytesTotal() {

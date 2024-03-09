@@ -4,7 +4,7 @@
 .. toctree::
     :maxdepth: 1
 
-    assembly/index
-    main_firmware/index
+    environment
+    keira/index
     development
     extension

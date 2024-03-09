@@ -9,7 +9,7 @@ extern "C" {
 #include "d_alloc.h"
 }
 
-extern void doomgeneric_Create(int argc, char **argv);
+extern void doomgeneric_Create(int argc, char** argv);
 extern void doomgeneric_Tick();
 
 typedef struct {
@@ -23,7 +23,7 @@ uint16_t keyqueueWrite = 0;
 uint64_t lastRender = 0;
 
 void buttonHandler(lilka::Button button, bool pressed) {
-    doomkey_t *key = &keyqueue[keyqueueWrite];
+    doomkey_t* key = &keyqueue[keyqueueWrite];
     switch (button) {
         case lilka::Button::UP:
             key->key = KEY_UPARROW;
@@ -70,7 +70,7 @@ void setup() {
     // Find the wad file
     File root = SD.open("/");
     File file;
-    while (file = root.openNextFile()) {
+    while ((file = root.openNextFile())) {
         if (file.isDirectory()) {
             file.close();
             continue;
@@ -89,10 +89,14 @@ void setup() {
     }
     root.close();
     if (!found) {
-        lilka::ui_alert("Doom", "Не знайдено .WAD-файлу на картці пам'яті");
+        lilka::Alert alert("Doom", "Не знайдено .WAD-файлу на картці пам'яті");
+        alert.draw(&lilka::display);
+        while (!alert.isDone()) {
+            alert.update();
+        }
         esp_restart();
     }
-    char *argv[3] = {arg, arg2, arg3};
+    char* argv[3] = {arg, arg2, arg3};
 
     DG_printf("Doomgeneric starting, wad file: %s\n", arg3);
 
@@ -107,7 +111,8 @@ void setup() {
     D_FreeBuffers(); // TODO - never reached
 }
 
-extern "C" void DG_Init() {}
+extern "C" void DG_Init() {
+}
 
 extern "C" void DG_DrawFrame() {
     // Calculate FPS
@@ -115,8 +120,7 @@ extern "C" void DG_DrawFrame() {
     uint64_t delta = now - lastRender;
     lastRender = now;
     lilka::display.startWrite();
-    lilka::display.writeAddrWindow(0, 65, 240, 150);
-    uint16_t row[240];
+    // lilka::display.writeAddrWindow(0, 65, 240, 150);
     // Цей код - застарілий. Я адаптував Doom Generic для роботи з 240x150 за замовчуванням.
     // Convert 640x400 to 240x150
     // for (int y = 0; y < 150; y++) {
@@ -143,18 +147,33 @@ extern "C" void DG_DrawFrame() {
     //     lilka::display.writePixels(row, 240);
     // }
     // Convert 320x200 to 240x150
-    for (int y = 0; y < 150; y++) {
-        for (int x = 0; x < 240; x++) {
-            // Map 240x150 to 320x200
-            int yy = y * 4 / 3;
-            int xx = x * 4 / 3;
+    // for (int y = 0; y < 150; y++) {
+    //     for (int x = 0; x < 240; x++) {
+    //         // Map 240x150 to 320x200
+    //         int yy = y * 4 / 3;
+    //         int xx = x * 4 / 3;
+    //         uint32_t pixel = DG_ScreenBuffer[yy * 320 + xx];
+    //         uint8_t r = (pixel >> 16) & 0xff;
+    //         uint8_t g = (pixel >> 8) & 0xff;
+    //         uint8_t b = pixel & 0xff;
+    //         row[x] = lilka::display.color565(r, g, b);
+    //     }
+    //     lilka::display.writePixels(row, 240);
+    // }
+    // Convert 320x200 to 280x175 by skipping every 8th pixel
+    lilka::display.writeAddrWindow(0, 20, 280, 175);
+    uint16_t row[280];
+    for (int y = 0; y < 175; y++) {
+        for (int x = 0; x < 280; x++) {
+            int yy = y * 8 / 7;
+            int xx = x * 8 / 7;
             uint32_t pixel = DG_ScreenBuffer[yy * 320 + xx];
             uint8_t r = (pixel >> 16) & 0xff;
             uint8_t g = (pixel >> 8) & 0xff;
             uint8_t b = pixel & 0xff;
             row[x] = lilka::display.color565(r, g, b);
         }
-        lilka::display.writePixels(row, 240);
+        lilka::display.writePixels(row, 280);
     }
     lilka::display.endWrite();
     lilka::display.setTextBound(0, 0, 240, 280);
@@ -166,7 +185,7 @@ extern "C" void DG_DrawFrame() {
     lilka::display.print(" ");
 }
 
-extern "C" void DG_SetWindowTitle(const char *title) {
+extern "C" void DG_SetWindowTitle(const char* title) {
     Serial.print("DG: window title: ");
     Serial.println(title);
 }
@@ -179,9 +198,9 @@ extern "C" uint32_t DG_GetTicksMs() {
     return millis();
 }
 
-extern "C" int DG_GetKey(int *pressed, unsigned char *doomKey) {
+extern "C" int DG_GetKey(int* pressed, unsigned char* doomKey) {
     if (keyqueueRead != keyqueueWrite) {
-        doomkey_t *key = &keyqueue[keyqueueRead];
+        doomkey_t* key = &keyqueue[keyqueueRead];
         printf("Got key: %d, pressed: %d\n", key->key, key->pressed);
         *pressed = key->pressed;
         *doomKey = key->key;
@@ -193,7 +212,7 @@ extern "C" int DG_GetKey(int *pressed, unsigned char *doomKey) {
 
 bool hadNewLine = true;
 
-extern "C" void DG_printf(const char *format, ...) {
+extern "C" void DG_printf(const char* format, ...) {
     // Save string to buffer
     char buffer[256];
     va_list args;
@@ -217,4 +236,5 @@ extern "C" void DG_printf(const char *format, ...) {
     }
 }
 
-void loop() {}
+void loop() {
+}

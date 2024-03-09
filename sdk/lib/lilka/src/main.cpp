@@ -8,5 +8,11 @@ void __attribute__((weak)) setup() {
 }
 
 void __attribute__((weak)) loop() {
-    lilka::ui_alert("Лілка", "Ця програма не має жодного коду.");
+    // TODO: FreeRTOS experiment
+    lilka::Alert alert("Лілка", "Ця прошивка не має\nжодного коду.");
+    alert.draw(&lilka::display);
+    while (!alert.isDone()) {
+        alert.update();
+        delay(100);
+    }
 }

@@ -23,7 +23,7 @@ public:
     SDCard();
     void begin();
     bool available();
-    SDFS *fs;
+    SDFS* fs;
 
     int listDir(String path, Entry entries[]);
     String abspath(String path);

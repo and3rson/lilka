@@ -15,7 +15,7 @@ public:
     String abspath(String filename);
 
 private:
-    FS *_filesystem;
+    FS* _filesystem;
     bool _available;
 };
 

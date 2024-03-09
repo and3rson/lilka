@@ -14,8 +14,8 @@
 #include "lilka/sys.h"
 #include "lilka/resources.h"
 #include "lilka/fmath.h"
-#include "lua/luarunner.h"
-#include "mjs/mjsrunner.h"
+// #include "lua/luarunner.h"
+// #include "mjs/mjsrunner.h"
 
 namespace lilka {
 /// Ініціалізація Лілки
@@ -24,6 +24,6 @@ namespace lilka {
 ///
 /// Рекомендується викликати цю функцію один раз на початку програми в вашій функції ``setup()``.
 void begin();
-}
+} // namespace lilka
 
 #endif // LILKA_H

@@ -9,7 +9,8 @@ namespace lilka {
 
 #define fmap(x, in_min, in_max, out_min, out_max) (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
-Battery::Battery() {}
+Battery::Battery() {
+}
 
 void Battery::begin() {
 #if LILKA_VERSION < 2
