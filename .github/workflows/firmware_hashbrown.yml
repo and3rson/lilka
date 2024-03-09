@@ -1,4 +1,4 @@
-name: firmware/main
+name: firmware/hashbrown
 
 on: [push]
 
@@ -13,7 +13,7 @@ jobs:
           path: |
             ~/.cache/pip
             ~/.platformio/.cache
-            ./firmware/main/.pio
+            ./firmware/hashbrown/.pio
           key: ${{ runner.os }}-pio
       - uses: actions/setup-python@v4
         with:
@@ -22,5 +22,5 @@ jobs:
         run: pip install --upgrade platformio
 
       - name: Build PlatformIO Project
-        working-directory: ./firmware/main
+        working-directory: ./firmware/hashbrown
         run: pio run -e v2
