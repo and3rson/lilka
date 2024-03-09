@@ -2,7 +2,7 @@
 
 int lualilka_controller_getState(lua_State* L) {
     lilka::State state = lilka::controller.getState();
-    lilka::_StateButtons &buttons = *reinterpret_cast<lilka::_StateButtons *>(&state);
+    lilka::_StateButtons& buttons = *reinterpret_cast<lilka::_StateButtons*>(&state);
     lua_createtable(L, 0, 10);
     // Push up, down, left, right, a, b, c, d, select, start to the table
     const char* keys[] = {"up", "down", "left", "right", "a", "b", "c", "d", "select", "start"};

@@ -24,6 +24,6 @@ namespace lilka {
 ///
 /// Рекомендується викликати цю функцію один раз на початку програми в вашій функції ``setup()``.
 void begin();
-}
+} // namespace lilka
 
 #endif // LILKA_H
