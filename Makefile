@@ -58,6 +58,7 @@ cppcheck:
 		--suppress=cstyleCast \
 		--suppress=constVariablePointer \
 		--suppress=constParameterPointer \
+		--suppress=constVariableReference \
 		--suppress=noExplicitConstructor \
 		--suppress=noCopyConstructor \
 		--suppress=noOperatorEq \
