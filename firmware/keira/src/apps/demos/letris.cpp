@@ -16,8 +16,12 @@ const bool shapesData[7][4][4] = {
 };
 
 const uint16_t colors[7] = {
-    lilka::display.color565(255, 0, 0),     lilka::display.color565(0, 255, 0),   lilka::display.color565(0, 0, 255),
-    lilka::display.color565(255, 255, 0),   lilka::display.color565(255, 0, 255), lilka::display.color565(0, 255, 255),
+    lilka::display.color565(255, 0, 0),
+    lilka::display.color565(0, 255, 0),
+    lilka::display.color565(0, 0, 255),
+    lilka::display.color565(255, 255, 0),
+    lilka::display.color565(255, 0, 255),
+    lilka::display.color565(0, 255, 255),
     lilka::display.color565(200, 200, 200),
 };
 const uint8_t colorCount = sizeof(colors) / sizeof(colors[0]);
@@ -28,7 +32,8 @@ public:
     int shapeData[4][4];
     uint16_t color;
 
-    Shape() {}
+    Shape() {
+    }
 
     void reset() {
         // Генерує нову фігуру. Нові фігури відображаються в вікні попереднього перегляду
@@ -49,22 +54,31 @@ public:
         y = 0;
     }
 
-    void draw(lilka::Canvas *canvas, bool drawEmptyBlocks = false) {
+    void draw(lilka::Canvas* canvas, bool drawEmptyBlocks = false) {
         int16_t xOffset = canvas->width() / 2 - FIELD_COLS * BLOCK_SIZE / 2;
         for (int yy = 0; yy < 4; yy++) {
             for (int xx = 0; xx < 4; xx++) {
                 if (this->shapeData[yy][xx]) {
                     canvas->fillRect(
-                        xOffset + (this->x + xx) * BLOCK_SIZE, (this->y + yy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE,
+                        xOffset + (this->x + xx) * BLOCK_SIZE,
+                        (this->y + yy) * BLOCK_SIZE,
+                        BLOCK_SIZE,
+                        BLOCK_SIZE,
                         color
                     );
                     canvas->fillRect(
-                        xOffset + (this->x + xx) * BLOCK_SIZE + 2, (this->y + yy) * BLOCK_SIZE + 2, BLOCK_SIZE - 4,
-                        BLOCK_SIZE - 4, lilka::display.color565(0, 0, 0)
+                        xOffset + (this->x + xx) * BLOCK_SIZE + 2,
+                        (this->y + yy) * BLOCK_SIZE + 2,
+                        BLOCK_SIZE - 4,
+                        BLOCK_SIZE - 4,
+                        lilka::display.color565(0, 0, 0)
                     );
                 } else if (drawEmptyBlocks) {
                     canvas->fillRect(
-                        xOffset + (this->x + xx) * BLOCK_SIZE, (this->y + yy) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE,
+                        xOffset + (this->x + xx) * BLOCK_SIZE,
+                        (this->y + yy) * BLOCK_SIZE,
+                        BLOCK_SIZE,
+                        BLOCK_SIZE,
                         lilka::display.color565(0, 0, 0)
                     );
                 }
@@ -109,7 +123,7 @@ public:
             }
         }
     }
-    void draw(lilka::Canvas *canvas) {
+    void draw(lilka::Canvas* canvas) {
         // Малює поле
         int16_t xOffset = canvas->width() / 2 - FIELD_COLS * BLOCK_SIZE / 2;
         for (int y = 0; y < FIELD_ROWS; y++) {
@@ -118,7 +132,7 @@ public:
             }
         }
     }
-    void addShape(Shape *shape) {
+    void addShape(Shape* shape) {
         // Додає фігуру як частину поля
         for (int yy = 0; yy < 4; yy++) {
             for (int xx = 0; xx < 4; xx++) {
@@ -149,7 +163,7 @@ public:
             }
         }
     }
-    bool willCollide(Shape *shape, int dx, int dy) {
+    bool willCollide(Shape* shape, int dx, int dy) {
         // Повертає true, якщо фігура зіткнеться з іншими блоками, якщо зміститься на (dx, dy)
         for (int yy = 0; yy < 4; yy++) {
             for (int xx = 0; xx < 4; xx++) {
@@ -168,7 +182,8 @@ private:
     uint16_t blocks[FIELD_ROWS][FIELD_COLS]; // Black color means no block
 };
 
-LetrisApp::LetrisApp() : App("Letris") {}
+LetrisApp::LetrisApp() : App("Letris") {
+}
 
 void LetrisApp::run() {
     // Створюємо поле та фігуру

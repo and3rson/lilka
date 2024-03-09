@@ -1,12 +1,12 @@
 #include "driver.h"
 
-NesApp *Driver::app;
+NesApp* Driver::app;
 int16_t Driver::w, Driver::h, Driver::frame_x, Driver::frame_y, Driver::frame_x_offset, Driver::frame_width,
     Driver::frame_height, Driver::frame_line_pixels;
 int64_t Driver::last_render = 0;
 int64_t Driver::last_frame_duration = 0;
 
-void Driver::setNesApp(NesApp *app) {
+void Driver::setNesApp(NesApp* app) {
     Driver::app = app;
 }
 
@@ -44,13 +44,14 @@ int Driver::init(int width, int height) {
     return 0;
 }
 
-void Driver::shutdown() {}
+void Driver::shutdown() {
+}
 
 int Driver::setMode(int width, int height) {
     return 0;
 }
 
-void Driver::setPalette(rgb_t *pal) {
+void Driver::setPalette(rgb_t* pal) {
     uint16 c;
 
     int i;
@@ -66,23 +67,23 @@ void Driver::clear(uint8 color) {
     app->canvas->fillScreen(0);
 }
 
-bitmap_t *Driver::lockWrite() {
-    bitmap = bmp_createhw((uint8 *)fb, NES_SCREEN_WIDTH, NES_SCREEN_HEIGHT, NES_SCREEN_WIDTH * 2);
+bitmap_t* Driver::lockWrite() {
+    bitmap = bmp_createhw((uint8*)fb, NES_SCREEN_WIDTH, NES_SCREEN_HEIGHT, NES_SCREEN_WIDTH * 2);
     return bitmap;
 }
 
-void Driver::freeFrite(int numDirties, rect_t *dirtyRects) {
+void Driver::freeFrite(int numDirties, rect_t* dirtyRects) {
     bmp_destroy(&bitmap);
 }
 
-void Driver::customBlit(bitmap_t *bmp, int numDirties, rect_t *dirtyRects) {
+void Driver::customBlit(bitmap_t* bmp, int numDirties, rect_t* dirtyRects) {
     last_frame_duration = micros() - last_render;
     last_render = micros();
 
-    lilka::Canvas *canvas = app->canvas;
+    lilka::Canvas* canvas = app->canvas;
 
     for (int y = 0; y < frame_height; y++) {
-        uint8_t *line = bmp->line[y];
+        uint8_t* line = bmp->line[y];
         for (int x = 0; x < frame_width; x++) {
             uint8_t index = line[x];
             uint16_t color = nesPalette[index];
@@ -108,7 +109,7 @@ void Driver::customBlit(bitmap_t *bmp, int numDirties, rect_t *dirtyRects) {
 }
 
 char Driver::fb[1];
-bitmap_t *Driver::bitmap;
+bitmap_t* Driver::bitmap;
 uint16 Driver::nesPalette[256];
 viddriver_t Driver::driver = {
     "Lilka", /* name */

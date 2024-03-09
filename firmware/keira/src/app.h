@@ -13,20 +13,20 @@ class App {
     friend class AppManager;
 
 public:
-    App(const char *name);
-    App(const char *name, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+    App(const char* name);
+    App(const char* name, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
     virtual ~App();
     void start();
     void suspend();
     void resume();
     void stop();
-    static void _run(void *data);
+    static void _run(void* data);
     void queueDraw();
-    const char *getName();
+    const char* getName();
 
     eTaskState getState();
 
-    lilka::Canvas *canvas;
+    lilka::Canvas* canvas;
 
 protected:
     void setFlags(AppFlags flags);
@@ -39,12 +39,12 @@ protected:
     void acquireBackCanvas();
     void releaseBackCanvas();
 
-    lilka::Canvas *backCanvas;
+    lilka::Canvas* backCanvas;
 
 private:
     virtual void run() = 0;
 
-    const char *name;
+    const char* name;
     uint16_t x, y, w, h;
     SemaphoreHandle_t backCanvasMutex;
     bool isDrawQueued;

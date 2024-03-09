@@ -74,7 +74,7 @@ public:
     /// Зупинити відтворення.
     void stop();
     /// Відтворити мелодію.
-    void playMelody(const Tone *melody, uint32_t length, uint32_t tempo = 120);
+    void playMelody(const Tone* melody, uint32_t length, uint32_t tempo = 120);
     /// Відтворити мелодію з DOOM - E1M1, At Doom's Gate (Bobby Prince).
     void playDoom();
 };

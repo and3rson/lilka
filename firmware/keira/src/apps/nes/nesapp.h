@@ -8,5 +8,5 @@ public:
 private:
     void run();
 
-    char *argv[1];
+    char* argv[1];
 };

@@ -4,14 +4,14 @@
 
 class Service {
 public:
-    Service(const char *name);
+    Service(const char* name);
     virtual ~Service();
     void start();
-    static void _run(void *arg);
+    static void _run(void* arg);
 
 private:
     virtual void run() = 0;
 
-    const char *name;
+    const char* name;
     xTaskHandle taskHandle;
 };

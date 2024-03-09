@@ -9,7 +9,7 @@ void serial_begin() {
     Serial.setTxTimeoutMs(0);
 }
 
-void serial_log(const char *format, ...) {
+void serial_log(const char* format, ...) {
     // TODO: printf cannot be called from an ISR
     char buffer[1024];
     va_list args;
@@ -20,7 +20,7 @@ void serial_log(const char *format, ...) {
     // Serial.println(buffer);
     printf("lilka: %s\n", buffer);
 }
-void serial_err(const char *format, ...) {
+void serial_err(const char* format, ...) {
     // TODO: printf cannot be called from an ISR
     char buffer[1024];
     va_list args;

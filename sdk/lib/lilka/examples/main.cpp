@@ -9,7 +9,7 @@ void loop() {
     // Заповнити екран чорним кольором
     lilka::display.fillScreen(lilka::display.color565(0, 255, 0));
 
-    lilka::Image *image = lilka::resources.loadImage("/sd/hello.bmp", lilka::display.color565(255, 0, 255));
+    lilka::Image* image = lilka::resources.loadImage("/sd/hello.bmp", lilka::display.color565(255, 0, 255));
     lilka::display.drawImage(image, 32, 64);
     delay(1000);
 

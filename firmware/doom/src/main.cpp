@@ -9,7 +9,7 @@ extern "C" {
 #include "d_alloc.h"
 }
 
-extern void doomgeneric_Create(int argc, char **argv);
+extern void doomgeneric_Create(int argc, char** argv);
 extern void doomgeneric_Tick();
 
 typedef struct {
@@ -23,7 +23,7 @@ uint16_t keyqueueWrite = 0;
 uint64_t lastRender = 0;
 
 void buttonHandler(lilka::Button button, bool pressed) {
-    doomkey_t *key = &keyqueue[keyqueueWrite];
+    doomkey_t* key = &keyqueue[keyqueueWrite];
     switch (button) {
         case lilka::Button::UP:
             key->key = KEY_UPARROW;
@@ -96,7 +96,7 @@ void setup() {
         }
         esp_restart();
     }
-    char *argv[3] = {arg, arg2, arg3};
+    char* argv[3] = {arg, arg2, arg3};
 
     DG_printf("Doomgeneric starting, wad file: %s\n", arg3);
 
@@ -111,7 +111,8 @@ void setup() {
     D_FreeBuffers(); // TODO - never reached
 }
 
-extern "C" void DG_Init() {}
+extern "C" void DG_Init() {
+}
 
 extern "C" void DG_DrawFrame() {
     // Calculate FPS
@@ -184,7 +185,7 @@ extern "C" void DG_DrawFrame() {
     lilka::display.print(" ");
 }
 
-extern "C" void DG_SetWindowTitle(const char *title) {
+extern "C" void DG_SetWindowTitle(const char* title) {
     Serial.print("DG: window title: ");
     Serial.println(title);
 }
@@ -197,9 +198,9 @@ extern "C" uint32_t DG_GetTicksMs() {
     return millis();
 }
 
-extern "C" int DG_GetKey(int *pressed, unsigned char *doomKey) {
+extern "C" int DG_GetKey(int* pressed, unsigned char* doomKey) {
     if (keyqueueRead != keyqueueWrite) {
-        doomkey_t *key = &keyqueue[keyqueueRead];
+        doomkey_t* key = &keyqueue[keyqueueRead];
         printf("Got key: %d, pressed: %d\n", key->key, key->pressed);
         *pressed = key->pressed;
         *doomKey = key->key;
@@ -211,7 +212,7 @@ extern "C" int DG_GetKey(int *pressed, unsigned char *doomKey) {
 
 bool hadNewLine = true;
 
-extern "C" void DG_printf(const char *format, ...) {
+extern "C" void DG_printf(const char* format, ...) {
     // Save string to buffer
     char buffer[256];
     va_list args;
@@ -235,4 +236,5 @@ extern "C" void DG_printf(const char *format, ...) {
     }
 }
 
-void loop() {}
+void loop() {
+}

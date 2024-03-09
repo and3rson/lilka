@@ -1,6 +1,7 @@
 #include "epilepsy.h"
 
-EpilepsyApp::EpilepsyApp() : App("Epilepsy") {}
+EpilepsyApp::EpilepsyApp() : App("Epilepsy") {
+}
 
 void EpilepsyApp::run() {
     lilka::Canvas buffer(canvas->width(), canvas->height());

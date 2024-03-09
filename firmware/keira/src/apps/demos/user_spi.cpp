@@ -1,6 +1,7 @@
 #include "user_spi.h"
 
-UserSPIApp::UserSPIApp() : App("SPI") {}
+UserSPIApp::UserSPIApp() : App("SPI") {
+}
 
 void UserSPIApp::run() {
 #ifdef SPI2_NUM

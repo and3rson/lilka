@@ -21,16 +21,22 @@ MultiBoot::MultiBoot() {
 }
 
 void MultiBoot::begin() {
-    const esp_partition_t *current_partition = esp_ota_get_running_partition();
+    const esp_partition_t* current_partition = esp_ota_get_running_partition();
     serial_log(
-        "Current partition: %s, type: %d, subtype: %d, size: %d", current_partition->label, current_partition->type,
-        current_partition->subtype, current_partition->size
+        "Current partition: %s, type: %d, subtype: %d, size: %d",
+        current_partition->label,
+        current_partition->type,
+        current_partition->subtype,
+        current_partition->size
     );
-    const esp_partition_t *ota_partition =
+    const esp_partition_t* ota_partition =
         esp_ota_get_next_update_partition(current_partition); // get ota1 (we're in ota0 now)
     serial_log(
-        "OTA partition: %s, type: %d, subtype: %d, size: %d", ota_partition->label, ota_partition->type,
-        ota_partition->subtype, ota_partition->size
+        "OTA partition: %s, type: %d, subtype: %d, size: %d",
+        ota_partition->label,
+        ota_partition->type,
+        ota_partition->subtype,
+        ota_partition->size
     );
 
     // А тут я згаяв трохи часу. Нижче наведено спроби увімкнути автоматичний відкат прошивки з кінцевим рішенням.
@@ -109,15 +115,21 @@ int MultiBoot::start(String path) {
     bytesTotal = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    const esp_partition_t *current_partition = esp_ota_get_running_partition();
+    const esp_partition_t* current_partition = esp_ota_get_running_partition();
     serial_log(
-        "Current partition: %s, type: %d, subtype: %d, size: %d", current_partition->label, current_partition->type,
-        current_partition->subtype, current_partition->size
+        "Current partition: %s, type: %d, subtype: %d, size: %d",
+        current_partition->label,
+        current_partition->type,
+        current_partition->subtype,
+        current_partition->size
     );
     ota_partition = esp_ota_get_next_update_partition(current_partition); // get ota1 (we're in ota0 now)
     serial_log(
-        "OTA partition: %s, type: %d, subtype: %d, size: %d", ota_partition->label, ota_partition->type,
-        ota_partition->subtype, ota_partition->size
+        "OTA partition: %s, type: %d, subtype: %d, size: %d",
+        ota_partition->label,
+        ota_partition->type,
+        ota_partition->subtype,
+        ota_partition->size
     );
     if (ota_partition == NULL) {
         serial_err("Failed to get next OTA partition");

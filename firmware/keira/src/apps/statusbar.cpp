@@ -9,13 +9,14 @@
 #include "servicemanager.h"
 #include "services/network.h"
 
-StatusBarApp::StatusBarApp() : App("StatusBar", 0, 0, lilka::display.width(), 24) {}
+StatusBarApp::StatusBarApp() : App("StatusBar", 0, 0, lilka::display.width(), 24) {
+}
 
-const uint16_t *icons[] = {wifi_offline, wifi_0, wifi_1, wifi_2, wifi_3};
+const uint16_t* icons[] = {wifi_offline, wifi_0, wifi_1, wifi_2, wifi_3};
 
 void StatusBarApp::run() {
     int counter = 0;
-    NetworkService *networkService = ServiceManager::getInstance()->getService<NetworkService>();
+    NetworkService* networkService = ServiceManager::getInstance()->getService<NetworkService>();
     while (1) {
         canvas->fillScreen(lilka::display.color565(0, 0, 0));
         canvas->setTextColor(lilka::display.color565(255, 255, 255), lilka::display.color565(0, 0, 0));

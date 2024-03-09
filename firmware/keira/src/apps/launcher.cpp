@@ -26,7 +26,8 @@
 #include "icons/lua.h"
 #include "icons/js.h"
 
-LauncherApp::LauncherApp() : App("Menu") {}
+LauncherApp::LauncherApp() : App("Menu") {
+}
 
 void LauncherApp::run() {
     lilka::Menu menu("Головне меню");
@@ -64,12 +65,26 @@ void LauncherApp::run() {
 
 void LauncherApp::appsMenu() {
     String titles[] = {
-        "Лінії", "Шайба", "М'ячик", "Епілепсія", "Летріс", "Тест SPI", "I2C-сканер", "WiFi-сканер", "<< Назад",
+        "Лінії",
+        "Шайба",
+        "М'ячик",
+        "Епілепсія",
+        "Летріс",
+        "Тест SPI",
+        "I2C-сканер",
+        "WiFi-сканер",
+        "<< Назад",
     };
     // vector of functions
     APP_CLASS_LIST classes = {
-        APP_CLASS(DemoLines), APP_CLASS(DiskApp),    APP_CLASS(BallApp),    APP_CLASS(EpilepsyApp),
-        APP_CLASS(LetrisApp), APP_CLASS(UserSPIApp), APP_CLASS(ScanI2CApp), APP_CLASS(WifiScanApp),
+        APP_CLASS(DemoLines),
+        APP_CLASS(DiskApp),
+        APP_CLASS(BallApp),
+        APP_CLASS(EpilepsyApp),
+        APP_CLASS(LetrisApp),
+        APP_CLASS(UserSPIApp),
+        APP_CLASS(ScanI2CApp),
+        APP_CLASS(WifiScanApp),
     };
     int count = sizeof(titles) / sizeof(titles[0]);
     lilka::Menu menu("Демо");
@@ -91,7 +106,7 @@ void LauncherApp::appsMenu() {
     }
 }
 
-const menu_icon_t *get_file_icon(const String &filename) {
+const menu_icon_t* get_file_icon(const String& filename) {
     if (filename.endsWith(".rom") || filename.endsWith(".nes")) {
         return &nes;
     } else if (filename.endsWith(".bin")) {
@@ -105,7 +120,7 @@ const menu_icon_t *get_file_icon(const String &filename) {
     }
 }
 
-const uint16_t get_file_color(const String &filename) {
+const uint16_t get_file_color(const String& filename) {
     if (filename.endsWith(".rom") || filename.endsWith(".nes")) {
         return lilka::display.color565(255, 128, 128);
     } else if (filename.endsWith(".bin")) {
@@ -135,7 +150,7 @@ void LauncherApp::sdBrowserMenu(String path) {
     }
 
     String filenames[32];
-    const menu_icon_t *icons[32];
+    const menu_icon_t* icons[32];
     uint16_t colors[32];
     for (int i = 0; i < numEntries; i++) {
         filenames[i] = entries[i].name;
@@ -185,7 +200,7 @@ void LauncherApp::spiffsBrowserMenu() {
         alert("Помилка", "Не вдалося прочитати корінь SPIFFS");
         return;
     }
-    const menu_icon_t *icons[32];
+    const menu_icon_t* icons[32];
     uint16_t colors[32];
     for (int i = 0; i < numEntries; i++) {
         icons[i] = get_file_icon(filenames[i]);
@@ -254,7 +269,7 @@ void LauncherApp::selectFile(String path) {
         alert("Помилка", "mJS тимчасово\nне підтримується");
     } else {
         // Get file size
-        FILE *file = fopen(path.c_str(), "r");
+        FILE* file = fopen(path.c_str(), "r");
         if (!file) {
             alert("Помилка", "Не вдалося відкрити файл");
             return;
@@ -298,7 +313,11 @@ void LauncherApp::devMenu() {
 
 void LauncherApp::systemUtilsMenu() {
     String titles[] = {
-        "Перезавантаження", "Версія ESP-IDF", "Інфо про пристрій", "Таблиця розділів", "<< Назад",
+        "Перезавантаження",
+        "Версія ESP-IDF",
+        "Інфо про пристрій",
+        "Таблиця розділів",
+        "<< Назад",
     };
     int cursor = 0;
     int count = sizeof(titles) / sizeof(titles[0]);
@@ -329,8 +348,12 @@ void LauncherApp::systemUtilsMenu() {
                     "Версія ESP-IDF: %s\n"
                     "Частота: %d МГц\n"
                     "Кількість ядер: %d\n",
-                    ESP.getChipModel(), ESP.getChipRevision(), ESP.getSdkVersion(), esp_get_idf_version(),
-                    ESP.getCpuFreqMHz(), ESP.getChipCores()
+                    ESP.getChipModel(),
+                    ESP.getChipRevision(),
+                    ESP.getSdkVersion(),
+                    esp_get_idf_version(),
+                    ESP.getCpuFreqMHz(),
+                    ESP.getChipCores()
                 );
                 alert("Інфо про пристрій", buf);
             } else if (index == 3) {

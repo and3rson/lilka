@@ -12,7 +12,7 @@ namespace lilka {
 
 typedef struct {
     String title;
-    const menu_icon_t *icon;
+    const menu_icon_t* icon;
     uint16_t color;
 } MenuItem;
 
@@ -53,7 +53,7 @@ public:
     /// @param title Заголовок пункту.
     /// @param icon Іконка пункту (масив з ``uint16_t`` розміром 576 елементів, який представляє 24x24px зображення). За замовчуванням ``0`` (відсутня іконка).
     /// @param color Колір пункту. За замовчуванням ``0`` (стандартний колір).
-    void addItem(String title, const menu_icon_t *icon = 0, uint16_t color = 0);
+    void addItem(String title, const menu_icon_t* icon = 0, uint16_t color = 0);
     /// Встановити курсор на пункт меню.
     /// @param cursor Індекс пункту меню.
     void setCursor(int16_t cursor);
@@ -72,7 +72,7 @@ public:
     /// menu.draw(&canvas); // намалювати меню на Canvas
     /// // ...
     /// @endcode
-    void draw(Arduino_GFX *canvas);
+    void draw(Arduino_GFX* canvas);
     /// Отримати індекс обраного пункту меню.
     ///
     /// Якщо жоден пункт не обрано, повертається ``-1``.
@@ -132,7 +132,7 @@ public:
     /// alert.draw(&canvas); // намалювати сповіщення на Canvas
     /// // ...
     /// @endcode
-    void draw(Arduino_GFX *canvas);
+    void draw(Arduino_GFX* canvas);
     /// Перевірити, чи користувач закрив сповіщення.
     ///
     /// Якщо сповіщення закрито (користувач натиснув кнопку "A"), повертається ``true``, інакше ``false``.
@@ -193,7 +193,7 @@ public:
     /// progress.draw(&canvas); // намалювати індикатор виконання на Canvas
     /// // ...
     /// @endcode
-    void draw(Arduino_GFX *canvas);
+    void draw(Arduino_GFX* canvas);
 
 private:
     String title;

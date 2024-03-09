@@ -6,7 +6,8 @@
 
 namespace lilka {
 
-Filesystem::Filesystem() {}
+Filesystem::Filesystem() {
+}
 
 void Filesystem::begin() {
     serial_log("initializing SPIFFS");
@@ -40,9 +41,9 @@ int Filesystem::readdir(String filenames[]) {
     }
     _root.close();
     // Sort filenames
-    qsort(filenames, count, sizeof(String), [](const void *a, const void *b) -> int {
-        const String *ea = (const String *)a;
-        const String *eb = (const String *)b;
+    qsort(filenames, count, sizeof(String), [](const void* a, const void* b) -> int {
+        const String* ea = (const String*)a;
+        const String* eb = (const String*)b;
         return ea->compareTo(*eb);
     });
     return count;

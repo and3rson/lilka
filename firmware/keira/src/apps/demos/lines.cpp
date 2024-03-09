@@ -2,7 +2,8 @@
 
 #include "lines.h"
 
-DemoLines::DemoLines() : App("Лінії") {}
+DemoLines::DemoLines() : App("Лінії") {
+}
 
 void DemoLines::run() {
     lilka::Canvas buffer(canvas->width(), canvas->height());

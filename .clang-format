@@ -4,23 +4,29 @@ AccessModifierOffset: -4
 AlignAfterOpenBracket: BlockIndent
 # IndentAccessModifiers: 'true'
 # AlignConsecutiveAssignments: 'true'
-# AlignConsecutiveDeclarations: 'true'
+AlignConsecutiveDeclarations:
+  Enabled: false
+AlignConsecutiveMacros:
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: false
 AlignOperands: 'true'
 AllowAllParametersOfDeclarationOnNextLine: 'false'
 AllowShortCaseLabelsOnASingleLine: 'false'
-AllowShortFunctionsOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: None
 AllowShortLoopsOnASingleLine: 'false'
+AllowShortIfStatementsOnASingleLine: AllIfsAndElse
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: 'false'
-BinPackArguments: 'true'
-BinPackParameters: 'true'
+BinPackArguments: 'false'
+# BinPackParameters: 'false'
 ColumnLimit: '120'
 IndentCaseLabels: 'true'
 IndentPPDirectives: AfterHash
 IndentWidth: '4'
 MaxEmptyLinesToKeep: '1'
-PointerAlignment: Right
+PointerAlignment: Left
 SortIncludes: 'false'
 SpaceBeforeAssignmentOperators: 'true'
 SpaceBeforeParens: ControlStatements
@@ -33,5 +39,9 @@ ShortNamespaceLines: 0
 BreakArrays: 'true'
 ContinuationIndentWidth: 4
 ReflowComments: false
+DerivePointerAlignment: false
+# AllowShortBlocksOnASingleLine: Never
+# InsertTrailingCommas: Wrapped
+BreakConstructorInitializers: AfterColon
 
 ...

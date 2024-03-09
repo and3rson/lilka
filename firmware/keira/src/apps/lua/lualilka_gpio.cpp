@@ -1,27 +1,27 @@
 #include "lualilka_gpio.h"
 
-static int lualilka_gpio_setMode(lua_State *L) {
+static int lualilka_gpio_setMode(lua_State* L) {
     int pin = luaL_checkinteger(L, 1);
     int mode = luaL_checkinteger(L, 2);
     pinMode(pin, mode);
     return 0;
 }
 
-static int lualilka_gpio_write(lua_State *L) {
+static int lualilka_gpio_write(lua_State* L) {
     int pin = luaL_checkinteger(L, 1);
     int value = luaL_checkinteger(L, 2);
     digitalWrite(pin, value);
     return 0;
 }
 
-static int lualilka_gpio_read(lua_State *L) {
+static int lualilka_gpio_read(lua_State* L) {
     int pin = luaL_checkinteger(L, 1);
     int value = digitalRead(pin);
     lua_pushinteger(L, value);
     return 1;
 }
 
-static int lualilka_gpio_analogRead(lua_State *L) {
+static int lualilka_gpio_analogRead(lua_State* L) {
     int pin = luaL_checkinteger(L, 1);
     int value = analogRead(pin);
     lua_pushinteger(L, value);
@@ -36,7 +36,7 @@ static const struct luaL_Reg lualilka_gpio[] = {
     {NULL, NULL},
 };
 
-int lualilka_gpio_register(lua_State *L) {
+int lualilka_gpio_register(lua_State* L) {
     luaL_newlib(L, lualilka_gpio);
     // Add LOW and HIGH constants
     lua_pushinteger(L, LOW);

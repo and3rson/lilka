@@ -8,8 +8,8 @@
 #include "apps/statusbar.h"
 #include "apps/launcher.h"
 
-AppManager *appManager = AppManager::getInstance();
-ServiceManager *serviceManager = ServiceManager::getInstance();
+AppManager* appManager = AppManager::getInstance();
+ServiceManager* serviceManager = ServiceManager::getInstance();
 
 void setup() {
     lilka::begin();

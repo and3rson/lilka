@@ -11,7 +11,7 @@ SemaphoreHandle_t Controller::semaphore = NULL;
 
 Controller::Controller() {
     for (int i = 0; i < Button::COUNT; i++) {
-        _StateButtons &buttons = *reinterpret_cast<_StateButtons *>(&state);
+        _StateButtons& buttons = *reinterpret_cast<_StateButtons*>(&state);
 
         buttons[i] = (ButtonState){
             .pressed = false,
@@ -23,8 +23,8 @@ Controller::Controller() {
     _clearHandlers();
 }
 
-void Controller::inputTask(void *arg) {
-    Controller *self = (Controller *)arg;
+void Controller::inputTask(void* arg) {
+    Controller* self = (Controller*)arg;
     while (1) {
         xSemaphoreTake(self->semaphore, portMAX_DELAY);
         for (int i = 0; i < Button::COUNT; i++) {
@@ -32,8 +32,8 @@ void Controller::inputTask(void *arg) {
                 // Skip "any" key since its state is computed from other keys
                 continue;
             }
-            _StateButtons &buttons = *reinterpret_cast<_StateButtons *>(&self->state);
-            ButtonState *state = &buttons[i];
+            _StateButtons& buttons = *reinterpret_cast<_StateButtons*>(&self->state);
+            ButtonState* state = &buttons[i];
             if (self->pins[i] < 0) {
                 continue;
             }
@@ -110,8 +110,8 @@ State Controller::getState() {
 
 void Controller::_resetState() {
     for (int i = 0; i < Button::COUNT; i++) {
-        _StateButtons &buttons = *reinterpret_cast<_StateButtons *>(&state);
-        ButtonState *state = &buttons[i];
+        _StateButtons& buttons = *reinterpret_cast<_StateButtons*>(&state);
+        ButtonState* state = &buttons[i];
         state->justPressed = false;
         state->justReleased = false;
     }

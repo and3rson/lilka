@@ -1,6 +1,7 @@
 #include "ball.h"
 
-BallApp::BallApp() : App("Ball") {}
+BallApp::BallApp() : App("Ball") {
+}
 
 void BallApp::run() {
     float x = (float)canvas->width() / 2;

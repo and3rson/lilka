@@ -2,7 +2,7 @@
 
 #include "app.h"
 
-#define APP_CLASS_LIST std::vector<std::function<App *()>>
+#define APP_CLASS_LIST       std::vector<std::function<App*()>>
 #define APP_CLASS(className) []() { return new className(); }
 
 class LauncherApp : public App {

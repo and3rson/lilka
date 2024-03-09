@@ -9,7 +9,7 @@ namespace lilka {
 
 #define MENU_HEIGHT 5
 
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MIN(a, b)   ((a) < (b) ? (a) : (b))
 
 // int ui_menu(
 //     Canvas *canvas, String title, String menu[], int menu_size, int cursor, const menu_icon_t *icons[],
@@ -159,7 +159,7 @@ Menu::Menu(String title) {
     this->setCursor(0);
 }
 
-void Menu::addItem(String title, const menu_icon_t *icon, uint16_t color) {
+void Menu::addItem(String title, const menu_icon_t* icon, uint16_t color) {
     items.push_back({
         .title = title,
         .icon = icon,
@@ -206,7 +206,7 @@ void Menu::update() {
     }
 }
 
-void Menu::draw(Arduino_GFX *canvas) {
+void Menu::draw(Arduino_GFX* canvas) {
     // uint8_t desiredCursorY = cursor * 24 + 96 - 20;
     canvas->fillScreen(canvas->color565(0, 0, 0));
     int8_t angleShift = sin(millis() / 1000.0) * 16;
@@ -214,7 +214,12 @@ void Menu::draw(Arduino_GFX *canvas) {
     canvas->fillTriangle(0, 0, 48 - angleShift, 0, 0, 48 + angleShift, canvas->color565(0, 0, 255));
     // Draw triangle in top-right
     canvas->fillTriangle(
-        canvas->width(), 0, canvas->width() - 48 - angleShift, 0, canvas->width(), 48 - angleShift,
+        canvas->width(),
+        0,
+        canvas->width() - 48 - angleShift,
+        0,
+        canvas->width(),
+        48 - angleShift,
         canvas->color565(255, 255, 0)
     );
     canvas->setCursor(32, 48);
@@ -234,7 +239,7 @@ void Menu::draw(Arduino_GFX *canvas) {
         // canvas->fillRect(0, 96 + i * 24 - 20, LILKA_DISPLAY_WIDTH, 24, i == cursor ? canvas->color565(255, 64, 0) :
         // canvas->color565(0, 0, 0));
         int16_t screenI = i - scroll;
-        const menu_icon_t *icon = items[i].icon;
+        const menu_icon_t* icon = items[i].icon;
         canvas->setTextBound(0, 96 + screenI * 24 - 20, canvas->width(), 24);
         if (icon) {
             // const uint16_t *icon = *icons[i];
@@ -242,7 +247,7 @@ void Menu::draw(Arduino_GFX *canvas) {
             // TODO: Had to do this because I switched to canvas (FreeRTOS experiment)
             // uint16_t *icon2 = (uint16_t *)icon;
             canvas->draw16bitRGBBitmapWithTranColor(
-                0, 96 + screenI * 24 - 20, (uint16_t *)icon, canvas->color565(0, 0, 0), 24, 24
+                0, 96 + screenI * 24 - 20, (uint16_t*)icon, canvas->color565(0, 0, 0), 24, 24
             );
         }
         canvas->setCursor(32, 96 + screenI * 24);
@@ -285,7 +290,7 @@ void Alert::update() {
     }
 }
 
-void Alert::draw(Arduino_GFX *canvas) {
+void Alert::draw(Arduino_GFX* canvas) {
     int top = canvas->height() / 8;
     int mid = canvas->height() / 8 * 2;
     int bottom = canvas->height() / 8 * 7;
@@ -334,7 +339,7 @@ void ProgressDialog::setMessage(String message) {
     this->message = message;
 }
 
-void ProgressDialog::draw(Arduino_GFX *canvas) {
+void ProgressDialog::draw(Arduino_GFX* canvas) {
     int top = canvas->height() / 8;
     int mid = canvas->height() / 8 * 2;
     int bottom = canvas->height() / 8 * 7;
@@ -375,11 +380,17 @@ void ProgressDialog::draw(Arduino_GFX *canvas) {
     int center = (left + right) / 2;
 
     canvas->fillRect(
-        left + barMargin, bottom - barMargin - barHeight, width - barMargin * 2, barHeight,
+        left + barMargin,
+        bottom - barMargin - barHeight,
+        width - barMargin * 2,
+        barHeight,
         canvas->color565(128, 64, 64)
     );
     canvas->fillRect(
-        left + barMargin, bottom - barMargin - barHeight, (width - barMargin * 2) * progress / 100, barHeight,
+        left + barMargin,
+        bottom - barMargin - barHeight,
+        (width - barMargin * 2) * progress / 100,
+        barHeight,
         canvas->color565(255, 128, 0)
     );
     canvas->setCursor(center - w / 2, bottom - barMargin - barHeight - barMargin);

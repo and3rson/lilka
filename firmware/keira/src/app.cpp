@@ -1,8 +1,9 @@
 #include "app.h"
 
-App::App(const char *name) : App(name, 0, 24, lilka::display.width(), lilka::display.height() - 24) {}
+App::App(const char* name) : App(name, 0, 24, lilka::display.width(), lilka::display.height() - 24) {
+}
 
-App::App(const char *name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) : name(name), x(x), y(y), w(w), h(h) {
+App::App(const char* name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) : name(name), x(x), y(y), w(w), h(h) {
     canvas = new lilka::Canvas(x, y, w, h);
     canvas->begin();
     canvas->fillScreen(0);
@@ -23,8 +24,8 @@ void App::start() {
     xTaskCreate(_run, name, 32768, this, 1, &taskHandle);
 }
 
-void App::_run(void *data) {
-    App *app = (App *)data;
+void App::_run(void* data) {
+    App* app = (App*)data;
     app->run();
     if (app->getState() != eTaskState::eDeleted) {
         // App might have been stopped by itself. If not, stop it, or we'll get panic from FreeRTOS kernel.
@@ -58,7 +59,7 @@ void App::queueDraw() {
     // Swap the front and back canvases
     // Serial.println("Queuing draw for " + String(name) + ", canvas address = " + String((uint32_t)canvas));
     xSemaphoreTake(backCanvasMutex, portMAX_DELAY);
-    lilka::Canvas *temp = canvas;
+    lilka::Canvas* temp = canvas;
     canvas = backCanvas;
     backCanvas = temp;
     isDrawQueued = true;
@@ -86,7 +87,7 @@ void App::forceRedraw() {
     isDrawQueued = true;
 }
 
-const char *App::getName() {
+const char* App::getName() {
     return name;
 }
 

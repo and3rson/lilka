@@ -2,7 +2,8 @@
 
 #include "wifi_scan.h"
 
-WifiScanApp::WifiScanApp() : App("WiFi Scanner") {}
+WifiScanApp::WifiScanApp() : App("WiFi Scanner") {
+}
 
 void WifiScanApp::run() {
     lilka::Canvas buffer(canvas->width(), canvas->height());

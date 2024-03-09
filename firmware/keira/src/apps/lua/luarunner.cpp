@@ -90,8 +90,8 @@ bool callDraw(lua_State* L) {
     return true;
 }
 
-AbstractLuaRunnerApp::AbstractLuaRunnerApp(const char* appName)
-    : App(appName, 0, 0, lilka::display.width(), lilka::display.height()), L(NULL) {
+AbstractLuaRunnerApp::AbstractLuaRunnerApp(const char* appName) :
+    App(appName, 0, 0, lilka::display.width(), lilka::display.height()), L(NULL) {
     setFlags(AppFlags::APP_FLAG_FULLSCREEN);
 }
 
@@ -248,7 +248,8 @@ int AbstractLuaRunnerApp::execute() {
     return retCode;
 }
 
-LuaFileRunnerApp::LuaFileRunnerApp(String path) : AbstractLuaRunnerApp("Lua file run"), path(path) {}
+LuaFileRunnerApp::LuaFileRunnerApp(String path) : AbstractLuaRunnerApp("Lua file run"), path(path) {
+}
 
 void LuaFileRunnerApp::run() {
 #ifndef LILKA_NO_LUA
@@ -298,7 +299,8 @@ void LuaFileRunnerApp::run() {
 #endif
 }
 
-LuaLiveRunnerApp::LuaLiveRunnerApp() : AbstractLuaRunnerApp("Lua source run") {}
+LuaLiveRunnerApp::LuaLiveRunnerApp() : AbstractLuaRunnerApp("Lua source run") {
+}
 
 void LuaLiveRunnerApp::run() {
 #ifndef LILKA_NO_LUA
@@ -412,7 +414,8 @@ void LuaLiveRunnerApp::execSource(String source) {
 #endif
 }
 
-LuaReplApp::LuaReplApp() : AbstractLuaRunnerApp("Lua REPL") {}
+LuaReplApp::LuaReplApp() : AbstractLuaRunnerApp("Lua REPL") {
+}
 
 void LuaReplApp::run() {
 #ifndef LILKA_NO_LUA

@@ -9,14 +9,14 @@
 namespace lilka {
 
 // Рекомендовані шрифти для використання з дисплеєм.
-#define FONT_4x6 u8g2_font_4x6_t_cyrillic
-#define FONT_5x7 u8g2_font_5x7_t_cyrillic
-#define FONT_5x8 u8g2_font_5x8_t_cyrillic
-#define FONT_6x12 u8g2_font_6x12_t_cyrillic
-#define FONT_6x13 u8g2_font_6x13_t_cyrillic
-#define FONT_7x13 u8g2_font_7x13_t_cyrillic
-#define FONT_8x13 u8g2_font_8x13_t_cyrillic
-#define FONT_9x15 u8g2_font_9x15_t_cyrillic
+#define FONT_4x6   u8g2_font_4x6_t_cyrillic
+#define FONT_5x7   u8g2_font_5x7_t_cyrillic
+#define FONT_5x8   u8g2_font_5x8_t_cyrillic
+#define FONT_6x12  u8g2_font_6x12_t_cyrillic
+#define FONT_6x13  u8g2_font_6x13_t_cyrillic
+#define FONT_7x13  u8g2_font_7x13_t_cyrillic
+#define FONT_8x13  u8g2_font_8x13_t_cyrillic
+#define FONT_9x15  u8g2_font_9x15_t_cyrillic
 #define FONT_10x20 u8g2_font_10x20_t_cyrillic
 
 class Canvas;
@@ -60,7 +60,7 @@ public:
     ///
     /// Його потрібно викликати перед викликом `lilka::begin()` або не викликати взагалі.
     /// @param splash Масив 16-бітних кольорів (5-6-5) з розміром 280*240.
-    void setSplash(const uint16_t *splash);
+    void setSplash(const uint16_t* splash);
 #ifdef DOXYGEN
     // `Arduino_GFX_Library` має купу гарних методів, але вони погано документовані.
     // Ця секція - лише для документації цих методів. Вона буде прочитана інструментом `doxygen` при генерації
@@ -96,7 +96,7 @@ public:
     /// lilka::display.setCursor(0, 32);
     /// lilka::display.print("Привіт, Лілка!");
     /// @endcode
-    void setFont(const uint8_t *font);
+    void setFont(const uint8_t* font);
     /// Встановити курсор.
     ///
     /// @param x Координата X.
@@ -186,7 +186,7 @@ public:
     /// // Звільнюємо пам'ять
     /// delete image;
     /// @endcode
-    void drawImage(Image *image, int16_t x, int16_t y);
+    void drawImage(Image* image, int16_t x, int16_t y);
 
 #ifdef DOXYGEN
     /// Намалювати зображення з масиву 16-бітних точок.
@@ -201,7 +201,7 @@ public:
     /// lilka::Image *image = lilka::resources.loadImage("image.bmp");
     /// lilka::display.drawBitmap(0, 0, image->pixels, image->width, image->height);
     /// @endcode
-    void draw16bitRGBBitmap(int16_t x, int16_t y, uint16_t *bitmap, int16_t w, int16_t h);
+    void draw16bitRGBBitmap(int16_t x, int16_t y, uint16_t* bitmap, int16_t w, int16_t h);
     /// @see draw16bitRGBBitmap
     void draw16bitRGBBitmap(int16_t x, int16_t y, const uint16_t bitmap[], int16_t w, int16_t h);
 
@@ -222,7 +222,7 @@ public:
     /// );
     /// @endcode
     void draw16bitRGBBitmapWithTranColor(
-        int16_t x, int16_t y, uint16_t *bitmap, uint16_t transparent_color, int16_t w, int16_t h
+        int16_t x, int16_t y, uint16_t* bitmap, uint16_t transparent_color, int16_t w, int16_t h
     );
 #endif
     /// @see draw16bitRGBBitmapWithTranColor
@@ -230,10 +230,10 @@ public:
         int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
     );
     /// Відобразити буфер на екрані (див. `lilka::Canvas`).
-    void renderCanvas(Canvas *canvas);
+    void renderCanvas(Canvas* canvas);
 
 private:
-    const uint16_t *splash;
+    const uint16_t* splash;
 };
 
 /// Клас для роботи з графічним буфером.
@@ -282,11 +282,11 @@ public:
     Canvas(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
     /// Намалювати зображення.
     /// @see Display::drawImage
-    void drawImage(Image *image, int16_t x, int16_t y);
+    void drawImage(Image* image, int16_t x, int16_t y);
     void draw16bitRGBBitmapWithTranColor(
         int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
     );
-    void drawCanvas(Canvas *canvas);
+    void drawCanvas(Canvas* canvas);
     int16_t x();
     int16_t y();
 };
@@ -323,16 +323,16 @@ public:
     /// delete image;
     /// delete rotatedImage;
     /// @endcode
-    void rotate(int16_t angle, Image *dest, int32_t blankColor);
+    void rotate(int16_t angle, Image* dest, int32_t blankColor);
     /// Віддзеркалити зображення по горизонталі і записати результат в `dest`.
-    void flipX(Image *dest);
+    void flipX(Image* dest);
     /// Віддзеркалити зображення по вертикалі і записати результат в `dest`.
-    void flipY(Image *dest);
+    void flipY(Image* dest);
     uint32_t width;
     uint32_t height;
     /// 16-бітний колір (5-6-5), який буде прозорим. За замовчуванням -1 (прозорість відсутня).
     int32_t transparentColor;
-    uint16_t *pixels;
+    uint16_t* pixels;
 };
 
 /// Екземпляр класу `Display`, який можна використовувати для роботи з дисплеєм.

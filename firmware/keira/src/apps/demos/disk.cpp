@@ -1,6 +1,7 @@
 #include "disk.h"
 
-DiskApp::DiskApp() : App("Disk") {}
+DiskApp::DiskApp() : App("Disk") {
+}
 
 void DiskApp::run() {
     float x = random(16, canvas->width() - 16);

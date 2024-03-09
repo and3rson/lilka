@@ -57,13 +57,27 @@ int lualilka_display_setCursor(lua_State* L) {
 }
 
 const uint8_t* fonts[] = {
-    u8g2_font_4x6_t_cyrillic,  u8g2_font_5x7_t_cyrillic,  u8g2_font_5x8_t_cyrillic,
-    u8g2_font_6x12_t_cyrillic, u8g2_font_6x13_t_cyrillic, u8g2_font_7x13_t_cyrillic,
-    u8g2_font_8x13_t_cyrillic, u8g2_font_9x15_t_cyrillic, u8g2_font_10x20_t_cyrillic,
+    u8g2_font_4x6_t_cyrillic,
+    u8g2_font_5x7_t_cyrillic,
+    u8g2_font_5x8_t_cyrillic,
+    u8g2_font_6x12_t_cyrillic,
+    u8g2_font_6x13_t_cyrillic,
+    u8g2_font_7x13_t_cyrillic,
+    u8g2_font_8x13_t_cyrillic,
+    u8g2_font_9x15_t_cyrillic,
+    u8g2_font_10x20_t_cyrillic,
 };
 
 const char fontNames[][12] = {
-    "4x6", "5x7", "5x8", "6x12", "6x13", "7x13", "8x13", "9x15", "10x20",
+    "4x6",
+    "5x7",
+    "5x8",
+    "6x12",
+    "6x13",
+    "7x13",
+    "8x13",
+    "9x15",
+    "10x20",
 };
 
 int lualilka_display_setFont(lua_State* L) {

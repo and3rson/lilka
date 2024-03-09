@@ -5,7 +5,8 @@ Service::Service(const char* name) {
     taskHandle = NULL;
 }
 
-Service::~Service() {}
+Service::~Service() {
+}
 
 void Service::start() {
     Serial.println("Starting service " + String(name));

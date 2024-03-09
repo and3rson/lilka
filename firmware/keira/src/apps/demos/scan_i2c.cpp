@@ -3,7 +3,8 @@
 
 #include "scan_i2c.h"
 
-ScanI2CApp::ScanI2CApp() : App("I2C Scanner") {}
+ScanI2CApp::ScanI2CApp() : App("I2C Scanner") {
+}
 
 void ScanI2CApp::run() {
     lilka::Canvas buffer(canvas->width(), canvas->height());
