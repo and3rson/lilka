@@ -3,13 +3,13 @@ name: code_style
 on: [push]
 
 jobs:
-  check:
+  lint:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
-      - name: Run code style checks
+      - name: Run linters
         run: |
-          apt update -y
-          apt install -y make clang-format
+          sudo apt update -y
+          sudo apt install -y make clang-format
           make lint
