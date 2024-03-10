@@ -109,7 +109,8 @@ void osd_fullname(char* fullname, const char* shortname) {
 }
 
 /* This gives filenames for storage of saves */
-extern char* osd_newextension(char* string, const char* ext) {
+// cppcheck-suppress constParameterPointer
+extern char* osd_newextension(char* string, char* ext) {
     // dirty: assume both extensions is 3 characters
     size_t l = strlen(string);
     string[l - 3] = ext[1];

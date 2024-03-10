@@ -69,6 +69,7 @@ cppcheck: ## Run cppcheck check
 		--suppress=knownPointerToBool \
 		--suppress=noCopyConstructor \
 		--suppress=noOperatorEq \
+		--inline-suppr \
 		--error-exitcode=1
 
 .PHONY: fix
