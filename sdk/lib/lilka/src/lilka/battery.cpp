@@ -8,6 +8,7 @@
 namespace lilka {
 
 #define fmap(x, in_min, in_max, out_min, out_max) (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+#define fmin(a, b)                                ((a) < (b) ? (a) : (b))
 
 Battery::Battery() : emptyVoltage(LILKA_DEFAULT_EMPTY_VOLTAGE), fullVoltage(LILKA_DEFAULT_FULL_VOLTAGE) {
 }
@@ -32,21 +33,17 @@ int Battery::readLevel() {
     // Напруга акумулятора проходить через дільник напруги (33 КОм і 100 КОм, визначений як LILKA_BATTERY_VOLTAGE_DIVIDER).
     // Але при повністю зарядженому акумуляторі (4.2V) напруга на АЦП може бути трохи вищою за максимальне читабельне значення (3.158V замість 3.1V).
     // Тому ми сприймаємо таке перевищення як "100%".
-    float value = ((float)analogRead(LILKA_BATTERY_ADC) / 4095.0); // 0 = 0V, 1 = 3.1V
-
-    float fullValue;
-    if (fullVoltage > LILKA_BATTERY_MAX_MEASURABLE_VOLTAGE) {
-        fullValue = 1;
-    } else {
-        fullValue = fullVoltage / LILKA_BATTERY_MAX_MEASURABLE_VOLTAGE;
+    float voltage = (float)analogRead(LILKA_BATTERY_ADC) / 4095.0 * LILKA_BATTERY_MAX_MEASURABLE_VOLTAGE;
+    if (voltage < 0.5) {
+        return -1;
     }
 
-    float emptyValue = emptyVoltage / LILKA_BATTERY_MAX_MEASURABLE_VOLTAGE;
+    // Максимальна напруга акумулятора, яку ми можемо виміряти.
+    float maxVoltage = fmin(fullVoltage, LILKA_BATTERY_MAX_MEASURABLE_VOLTAGE);
 
-    float level = fmap(value, emptyValue, fullValue, 0, 100);
-    level = constrain(level, 0, 100);
-
-    return level * 100;
+    // Інтерполюємо діапазон [emptyValue;maxVoltage] в діапазон [0;100].
+    float level = fmap(voltage, emptyVoltage, maxVoltage, 0, 100);
+    return constrain(level, 0, 100);
 #endif
 }
 
