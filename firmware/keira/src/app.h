@@ -43,6 +43,12 @@ protected:
 
 private:
     virtual void run() = 0;
+    virtual void onSuspend() {
+    }
+    virtual void onResume() {
+    }
+    virtual void onStop() {
+    }
 
     const char* name;
     uint16_t x, y, w, h;

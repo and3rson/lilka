@@ -36,17 +36,20 @@ void App::_run(void* data) {
 void App::suspend() {
     // TODO: Check if the task is already suspended
     Serial.println("Suspending app " + String(name) + " (state = " + String(getState()) + ")");
+    onSuspend();
     vTaskSuspend(taskHandle);
 }
 
 void App::resume() {
     // TODO: Check if the task is already running
     Serial.println("Resuming app " + String(name) + " (state = " + String(getState()) + ")");
+    onResume();
     vTaskResume(taskHandle);
 }
 
 void App::stop() {
     Serial.println("Stopping app " + String(name) + " (state = " + String(getState()) + ")");
+    onStop();
     vTaskDelete(taskHandle);
 }
 
