@@ -44,14 +44,14 @@ void StatusBarApp::run() {
         xOffset += 8 + 24;
 
         // Draw battery
-        int16_t x1 = 6, y1 = 8;
-        int16_t fullWidth = 22, h = 8;
         int level = lilka::battery.readLevel();
         if (level == -1) {
             canvas->draw16bitRGBBitmapWithTranColor(
                 xOffset, 0, battery_absent, lilka::display.color565(255, 0, 255), 32, 24
             );
         } else {
+            int16_t x1 = 6, y1 = 8;
+            int16_t fullWidth = 22, h = 8;
             int filledWidth = fullWidth * level / 100;
             if (filledWidth < 1) filledWidth = 1;
             int16_t color =
