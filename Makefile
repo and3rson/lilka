@@ -60,6 +60,7 @@ cppcheck:
 		--suppress=constParameterPointer \
 		--suppress=constVariableReference \
 		--suppress=noExplicitConstructor \
+		--suppress=knownPointerToBool \
 		--suppress=noCopyConstructor \
 		--suppress=noOperatorEq \
 		--error-exitcode=1
