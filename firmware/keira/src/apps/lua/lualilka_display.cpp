@@ -300,5 +300,6 @@ int lualilka_display_register(lua_State* L) {
     lua_setfield(L, -2, "width");
     lua_pushinteger(L, app->canvas->height());
     lua_setfield(L, -2, "height");
+    lua_setglobal(L, "display");
     return 0;
 }
