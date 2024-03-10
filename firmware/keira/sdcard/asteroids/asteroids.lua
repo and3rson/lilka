@@ -34,7 +34,7 @@ ANGLE_STEP = 360 / ANGLE_COUNT
 display.fill_screen(BLACK)
 display.set_cursor(8, display.height / 2 - 8)
 display.print("Завантаження...")
-display.render()
+display.queue_draw()
 
 -------------------------------------------------------------------------------
 -- Завантаження ресурсів
