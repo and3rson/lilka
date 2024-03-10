@@ -1,7 +1,6 @@
 #include "launcher.h"
 #include "appmanager.h"
 
-#include "apps/nes/nesapp.h"
 #include "demos/lines.h"
 #include "demos/disk.h"
 #include "demos/ball.h"
@@ -11,6 +10,8 @@
 #include "demos/scan_i2c.h"
 #include "demos/wifi_scan.h"
 #include "lua/luarunner.h"
+#include "mjs/mjsrunner.h"
+#include "nes/nesapp.h"
 
 #include "icons/demos.h"
 #include "icons/sdcard.h"
@@ -265,7 +266,7 @@ void LauncherApp::selectFile(String path) {
     } else if (path.endsWith(".lua")) {
         AppManager::getInstance()->runApp(new LuaFileRunnerApp(path));
     } else if (path.endsWith(".js")) {
-        alert("Помилка", "mJS тимчасово\nне підтримується");
+        AppManager::getInstance()->runApp(new MJSApp(path));
     } else {
         // Get file size
         FILE* file = fopen(path.c_str(), "r");
