@@ -2,42 +2,9 @@
 #include "app.h"
 
 Arduino_GFX* getDrawable(lua_State* L) {
-    // // Check if display is buffered.
-    // // If buffered, return canvas pointer from registry.
-    // // If not buffered, return pointer to actual display.
-    // lua_getfield(L, LUA_REGISTRYINDEX, "isBuffered");
-    // bool isBuffered = lua_toboolean(L, -1);
-    // lua_pop(L, 1);
-    //
-    // if (isBuffered) {
-    //     // Return canvas pointer from registry
-    //     lua_getfield(L, LUA_REGISTRYINDEX, "canvas");
-    //     Canvas* canvas = (Canvas*)lua_touserdata(L, -1);
-    //     lua_pop(L, 1);
-    //     return canvas;
-    // } else {
-    //     return &display;
-    // }
-
-    // // TODO: Buffering is ignored for now (maybe forever, will update docs)
-    // lua_getfield(L, LUA_REGISTRYINDEX, "canvas");
-    // lilka::Canvas* canvas = (lilka::Canvas*)lua_touserdata(L, -1);
-    // lua_pop(L, 1);
-
     lua_getfield(L, LUA_REGISTRYINDEX, "app");
     App* app = (App*)lua_touserdata(L, -1);
     return app->canvas;
-}
-
-int lualilka_display_setBuffered(lua_State* L) {
-    bool buffered = lua_toboolean(L, 1);
-
-    // Store isBuffered in registry
-
-    lua_pushboolean(L, buffered);
-    lua_setfield(L, LUA_REGISTRYINDEX, "isBuffered");
-
-    return 0;
 }
 
 int lualilka_display_color565(lua_State* L) {
@@ -285,25 +252,17 @@ int lualilka_display_drawImage(lua_State* L) {
     return 0;
 };
 
-int lualilka_display_render(lua_State* L) {
-    // Check if display is buffered
-    // TODO: FreeRTOS experiment
-    // lua_getfield(L, LUA_REGISTRYINDEX, "isBuffered");
-    // bool isBuffered = lua_toboolean(L, -1);
-    // lua_pop(L, 1);
-    // if (!isBuffered) {
-    //     // Throw error
-    //     return luaL_error(L, "Буферизація вимкнена, використовуйте display.render() тільки з буферизацією");
-    // }
-    // lua_getfield(L, LUA_REGISTRYINDEX, "canvas");
-    // lilka::Canvas* canvas = (lilka::Canvas*)lua_touserdata(L, -1);
-    // lua_pop(L, 1);
-    // lilka::display.renderCanvas(canvas);
+int lualilka_display_queueDraw(lua_State* L) {
+    // Get App from registry
+    lua_getfield(L, LUA_REGISTRYINDEX, "app");
+    App* app = (App*)lua_touserdata(L, -1);
+    lua_pop(L, 1);
+    // Queue draw
+    app->queueDraw();
     return 0;
 }
 
 static const luaL_Reg lualilka_display[] = {
-    {"set_buffered", lualilka_display_setBuffered},
     {"color565", lualilka_display_color565},
     {"set_cursor", lualilka_display_setCursor},
     {"set_font", lualilka_display_setFont},
@@ -324,7 +283,7 @@ static const luaL_Reg lualilka_display[] = {
     {"draw_arc", lualilka_display_drawArc},
     {"fill_arc", lualilka_display_fillArc},
     {"draw_image", lualilka_display_drawImage},
-    {"render", lualilka_display_render},
+    {"queue_draw", lualilka_display_queueDraw},
     {NULL, NULL},
 };
 
@@ -341,9 +300,5 @@ int lualilka_display_register(lua_State* L) {
     lua_setfield(L, -2, "width");
     lua_pushinteger(L, app->canvas->height());
     lua_setfield(L, -2, "height");
-    // Set isBuffered to true by default in registry
-    lua_pushboolean(L, true);
-    lua_setfield(L, LUA_REGISTRYINDEX, "isBuffered");
-    lua_setglobal(L, "display");
     return 0;
 }
