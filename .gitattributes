@@ -1,4 +1,1 @@
-mjs.h linguist-vendored
 *.h linguist-language=C++
-doomgeneric linguist-vendored
-icons/*.h linguist-generated
