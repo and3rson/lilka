@@ -181,9 +181,9 @@ void drawTask(void* arg) {
         }
         lilka::display.endWrite();
         lilka::display.setTextBound(0, 0, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT);
-        lilka::display.setCursor(32, 0);
+        lilka::display.setCursor(32, 16);
         lilka::display.setTextColor(lilka::display.color565(255, 255, 255), lilka::display.color565(0, 0, 0));
-        lilka::display.setFont(u8g2_font_10x20_t_cyrillic);
+        lilka::display.setFont(FONT_6x12);
         lilka::display.print(" FPS: ");
         lilka::display.print(1000 / delta);
         lilka::display.print(" ");
