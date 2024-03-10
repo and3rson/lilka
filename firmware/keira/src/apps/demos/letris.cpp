@@ -132,7 +132,7 @@ public:
             }
         }
     }
-    void addShape(Shape* shape) {
+    void addShape(const Shape* shape) {
         // Додає фігуру як частину поля
         for (int yy = 0; yy < 4; yy++) {
             for (int xx = 0; xx < 4; xx++) {
@@ -163,7 +163,7 @@ public:
             }
         }
     }
-    bool willCollide(Shape* shape, int dx, int dy) {
+    bool willCollide(const Shape* shape, int dx, int dy) {
         // Повертає true, якщо фігура зіткнеться з іншими блоками, якщо зміститься на (dx, dy)
         for (int yy = 0; yy < 4; yy++) {
             for (int xx = 0; xx < 4; xx++) {

@@ -77,8 +77,8 @@ int SDCard::listDir(String path, Entry entries[]) {
     root.close();
     // Sort filenames, but keep directories first
     qsort(entries, i, sizeof(Entry), [](const void* a, const void* b) -> int {
-        const Entry* ea = (const Entry*)a;
-        const Entry* eb = (const Entry*)b;
+        const Entry* ea = static_cast<const Entry*>(a);
+        const Entry* eb = static_cast<const Entry*>(b);
         if (ea->type == ENT_DIRECTORY && eb->type != ENT_DIRECTORY) {
             return -1;
         } else if (ea->type != ENT_DIRECTORY && eb->type == ENT_DIRECTORY) {

@@ -104,7 +104,7 @@ void Menu::draw(Arduino_GFX* canvas) {
             // TODO: Had to do this because I switched to canvas (FreeRTOS experiment)
             // uint16_t *icon2 = (uint16_t *)icon;
             canvas->draw16bitRGBBitmapWithTranColor(
-                0, 80 + screenI * 24 - 20, (uint16_t*)icon, canvas->color565(0, 0, 0), 24, 24
+                0, 80 + screenI * 24 - 20, const_cast<uint16_t*>(*icon), canvas->color565(0, 0, 0), 24, 24
             );
         }
         canvas->setCursor(32, 80 + screenI * 24);

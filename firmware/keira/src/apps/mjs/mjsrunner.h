@@ -5,7 +5,7 @@
 
 class MJSApp : public App {
 public:
-    MJSApp(String path);
+    explicit MJSApp(String path);
     void run() override;
     static void* ffi_resolver(void* handle, const char* name);
 

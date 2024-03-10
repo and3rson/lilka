@@ -123,7 +123,7 @@ void setup() {
 
     D_AllocBuffers();
     // Back buffer must be allocated before doomgeneric_Create since it calls DG_DrawFrame
-    backBuffer = (uint32_t*)malloc(DOOMGENERIC_RESX * DOOMGENERIC_RESY * 4);
+    backBuffer = static_cast<uint32_t*>(malloc(DOOMGENERIC_RESX * DOOMGENERIC_RESY * 4));
     doomgeneric_Create(argc, argv);
     if (backBuffer == NULL) {
         DG_printf("Failed to allocate back buffer\n");
@@ -224,7 +224,7 @@ extern "C" int DG_GetKey(int* pressed, unsigned char* doomKey) {
     xSemaphoreTake(inputMutex, portMAX_DELAY);
     int ret;
     if (keyqueueRead != keyqueueWrite) {
-        doomkey_t* key = &keyqueue[keyqueueRead];
+        const doomkey_t* key = &keyqueue[keyqueueRead];
         printf("Got key: %d, pressed: %d\n", key->key, key->pressed);
         *pressed = key->pressed;
         *doomKey = key->key;

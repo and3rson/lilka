@@ -58,7 +58,7 @@ const lilka::Button buttonIndices[10] = {
 
 void osd_getinput(void) {
     lilka::State state = lilka::controller.getState();
-    lilka::_StateButtons& buttons = *reinterpret_cast<lilka::_StateButtons*>(&state);
+    const lilka::_StateButtons& buttons = *reinterpret_cast<lilka::_StateButtons*>(&state);
 
     for (int i = 0; i < sizeof(eventIndices) / sizeof(eventIndices[0]); i++) {
         int eventIndex = eventIndices[i];
@@ -109,7 +109,7 @@ void osd_fullname(char* fullname, const char* shortname) {
 }
 
 /* This gives filenames for storage of saves */
-extern char* osd_newextension(char* string, char* ext) {
+extern char* osd_newextension(char* string, const char* ext) {
     // dirty: assume both extensions is 3 characters
     size_t l = strlen(string);
     string[l - 3] = ext[1];

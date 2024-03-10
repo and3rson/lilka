@@ -66,11 +66,6 @@ clang-format: ## Run clang-format check
 .PHONY: cppcheck
 cppcheck: ## Run cppcheck check
 	cppcheck . -i.ccls-cache -ipio -imjs -idoomgeneric -ibak --enable=performance,style \
-		--suppress=cstyleCast \
-		--suppress=constVariablePointer \
-		--suppress=constParameterPointer \
-		--suppress=constVariableReference \
-		--suppress=noExplicitConstructor \
 		--suppress=knownPointerToBool \
 		--suppress=noCopyConstructor \
 		--suppress=noOperatorEq \

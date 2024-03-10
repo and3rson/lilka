@@ -12,7 +12,7 @@ void Service::start() {
 }
 
 void Service::_run(void* arg) {
-    Service* service = (Service*)arg;
+    Service* service = static_cast<Service*>(arg);
     service->run();
     Serial.println("Service " + String(service->name) + " died");
 }

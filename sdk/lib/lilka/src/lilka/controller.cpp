@@ -24,7 +24,7 @@ Controller::Controller() : state{} {
 }
 
 void Controller::inputTask(void* arg) {
-    Controller* self = (Controller*)arg;
+    Controller* self = static_cast<Controller*>(arg);
     while (1) {
         xSemaphoreTake(self->semaphore, portMAX_DELAY);
         for (int i = 0; i < Button::COUNT; i++) {

@@ -3,7 +3,7 @@
 
 class NesApp : public App {
 public:
-    NesApp(String path);
+    explicit NesApp(String path);
 
 private:
     void run();

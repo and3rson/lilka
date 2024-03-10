@@ -8,7 +8,7 @@
 // Does not implement the run method.
 class AbstractLuaRunnerApp : public App {
 public:
-    AbstractLuaRunnerApp(const char* name);
+    explicit AbstractLuaRunnerApp(const char* name);
 
 protected:
     void luaSetup(const char* dir);
@@ -20,7 +20,7 @@ protected:
 // Lua runner app that runs a file.
 class LuaFileRunnerApp : public AbstractLuaRunnerApp {
 public:
-    LuaFileRunnerApp(String path);
+    explicit LuaFileRunnerApp(String path);
 
 private:
     void run();
@@ -30,7 +30,7 @@ private:
 // Lua runner app that runs a string.
 class LuaLiveRunnerApp : public AbstractLuaRunnerApp {
 public:
-    LuaLiveRunnerApp();
+    explicit LuaLiveRunnerApp();
 
 private:
     void run();
@@ -39,7 +39,7 @@ private:
 
 class LuaReplApp : public AbstractLuaRunnerApp {
 public:
-    LuaReplApp();
+    explicit LuaReplApp();
 
 private:
     void run();

@@ -44,7 +44,7 @@ Image* Resources::loadImage(String filename, int32_t transparentColor) {
         // Read row data
         fread(row, 1, width * bytesPerPixel, file);
         for (int x = 0; x < width; x++) {
-            uint8_t* pixel = &row[x * bytesPerPixel];
+            const uint8_t* pixel = &row[x * bytesPerPixel];
             uint8_t b = pixel[0];
             uint8_t g = pixel[1];
             uint8_t r = pixel[2];

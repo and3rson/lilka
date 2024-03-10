@@ -68,7 +68,7 @@ void Driver::clear(uint8 color) {
 }
 
 bitmap_t* Driver::lockWrite() {
-    bitmap = bmp_createhw((uint8*)fb, NES_SCREEN_WIDTH, NES_SCREEN_HEIGHT, NES_SCREEN_WIDTH * 2);
+    bitmap = bmp_createhw(reinterpret_cast<uint8*>(fb), NES_SCREEN_WIDTH, NES_SCREEN_HEIGHT, NES_SCREEN_WIDTH * 2);
     return bitmap;
 }
 
@@ -83,7 +83,7 @@ void Driver::customBlit(bitmap_t* bmp, int numDirties, rect_t* dirtyRects) {
     lilka::Canvas* canvas = app->canvas;
 
     for (int y = 0; y < frame_height; y++) {
-        uint8_t* line = bmp->line[y];
+        const uint8_t* line = bmp->line[y];
         for (int x = 0; x < frame_width; x++) {
             uint8_t index = line[x];
             uint16_t color = nesPalette[index];

@@ -25,7 +25,7 @@ void App::start() {
 }
 
 void App::_run(void* data) {
-    App* app = (App*)data;
+    App* app = static_cast<App*>(data);
     app->run();
     if (app->getState() != eTaskState::eDeleted) {
         // App might have been stopped by itself. If not, stop it, or we'll get panic from FreeRTOS kernel.
