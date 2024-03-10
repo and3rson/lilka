@@ -2,6 +2,9 @@
 #define LILKA_BUZZER_H
 
 #include <stdint.h>
+#include <FreeRTOS.h>
+#include <freertos/task.h>
+#include <freertos/semphr.h>
 
 namespace lilka {
 
@@ -46,6 +49,10 @@ typedef struct {
 /// Клас для роботи з п'єзо-динаміком.
 /// Використовується для відтворення монотонних звуків.
 ///
+/// Всі методи цього класу є неблокуючими, тобто вони не чекають завершення відтворення звуку і не блокують виконання коду, що йде після них.
+///
+/// Щоб зупинити відтворення звуку, використовуйте метод `stop()`.
+///
 /// Приклад використання:
 ///
 /// @code
@@ -64,24 +71,33 @@ typedef struct {
 /// @endcode
 class Buzzer {
 public:
+    Buzzer();
     /// Почати роботу з п'єзо-динаміком.
     /// \warning Цей метод викликається автоматично при виклику `lilka::begin()`.
     void begin();
     /// Відтворити ноту з певною частотою.
     void play(uint16_t frequency);
-    /// Відтворити ноту з певною частотою протягом певного часу.
+    /// Відтворити ноту з певною частотою впродовж певного часу.
     void play(uint16_t frequency, uint32_t duration);
-    /// Зупинити відтворення.
-    void stop();
     /// Відтворити мелодію.
     void playMelody(const Tone* melody, uint32_t length, uint32_t tempo = 120);
+    /// Зупинити відтворення всіх звуків.
+    void stop();
     /// Відтворити мелодію з DOOM - E1M1, At Doom's Gate (Bobby Prince).
     void playDoom();
-};
 
-#define DOOM_MELODY
-#define DOOM_LENGTH
-#define DOOM_TEMPO
+    static void melodyTask(void* arg);
+
+private:
+    // cppcheck-suppress unusedPrivateFunction
+    void _stop();
+
+    SemaphoreHandle_t buzzerMutex;
+    TaskHandle_t melodyTaskHandle;
+    Tone* currentMelody;
+    uint32_t currentMelodyLength;
+    uint32_t currentMelodyTempo;
+};
 
 /// Екземпляр класу `Buzzer`, який можна використовувати для відтворення монотонних звуків.
 /// Вам не потрібно інстанціювати `Buzzer` вручну.
