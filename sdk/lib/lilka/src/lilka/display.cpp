@@ -93,44 +93,49 @@ void Display::setSplash(const uint16_t* splash) {
 
 void Display::drawImage(Image* image, int16_t x, int16_t y) {
     if (image->transparentColor == -1) {
-        draw16bitRGBBitmap(x, y, image->pixels, image->width, image->height);
+        draw16bitRGBBitmap(x - image->pivotX, y - image->pivotY, image->pixels, image->width, image->height);
     } else {
-        draw16bitRGBBitmapWithTranColor(x, y, image->pixels, image->transparentColor, image->width, image->height);
+        draw16bitRGBBitmapWithTranColor(
+            x - image->pivotX, y - image->pivotY, image->pixels, image->transparentColor, image->width, image->height
+        );
     }
 }
 
-void Display::drawImageTransformed(Image* image, int16_t x, int16_t y, Transform transform) {
-    int16_t w = image->width;
-    int16_t h = image->height;
-    int16_t x0 = transform.matrix[0][0] * x + transform.matrix[0][1] * y;
-    int16_t y0 = transform.matrix[1][0] * x + transform.matrix[1][1] * y;
-    int16_t x1 = transform.matrix[0][0] * (x + w) + transform.matrix[0][1] * y;
-    int16_t y1 = transform.matrix[1][0] * (x + w) + transform.matrix[1][1] * y;
-    int16_t x2 = transform.matrix[0][0] * (x + w) + transform.matrix[0][1] * (y + h);
-    int16_t y2 = transform.matrix[1][0] * (x + w) + transform.matrix[1][1] * (y + h);
-    int16_t x3 = transform.matrix[0][0] * x + transform.matrix[0][1] * (y + h);
-    int16_t y3 = transform.matrix[1][0] * x + transform.matrix[1][1] * (y + h);
-    int16_t minX = min(min(x0, x1), min(x2, x3));
-    int16_t minY = min(min(y0, y1), min(y2, y3));
-    int16_t maxX = max(max(x0, x1), max(x2, x3));
-    int16_t maxY = max(max(y0, y1), max(y2, y3));
-    int16_t destWidth = maxX - minX;
-    int16_t destHeight = maxY - minY;
-    Image dest(destWidth, destHeight, 0);
-    for (int y = minY; y < maxY; y++) {
-        for (int x = minX; x < maxX; x++) {
-            int16_t srcX = transform.matrix[0][0] * x + transform.matrix[0][1] * y;
-            int16_t srcY = transform.matrix[1][0] * x + transform.matrix[1][1] * y;
-            if (srcX >= x && srcX < x + w) {
-                if (srcY >= y && srcY < y + h) {
-                    dest.pixels[x - minX + (y - minY) * destWidth] = image->pixels[srcX - x + (srcY - y) * w];
-                } else {
-                    dest.pixels[x - minX + (y - minY) * destWidth] = image->transparentColor;
-                }
+void Display::drawImageTransformed(Image* image, int16_t destX, int16_t destY, Transform transform) {
+    // Transform image around its pivot.
+    // Draw the rotated image at the specified position.
+
+    // Calculate the coordinates of the four corners of the destination rectangle.
+    IntVector v1 = transform.apply(IntVector(-image->pivotX, -image->pivotY));
+    IntVector v2 = transform.apply(IntVector(image->width - image->pivotX, -image->pivotY));
+    IntVector v3 = transform.apply(IntVector(-image->pivotX, image->height - image->pivotY));
+    IntVector v4 = transform.apply(IntVector(image->width - image->pivotX, image->height - image->pivotY));
+
+    // Find the bounding box of the transformed image.
+    IntVector topLeft = IntVector(min(min(v1.x, v2.x), min(v3.x, v4.x)), min(min(v1.y, v2.y), min(v3.y, v4.y)));
+    IntVector bottomRight = IntVector(max(max(v1.x, v2.x), max(v3.x, v4.x)), max(max(v1.y, v2.y), max(v3.y, v4.y)));
+
+    // Create a new image to hold the transformed image.
+    Image destImage(bottomRight.x - topLeft.x, bottomRight.y - topLeft.y, image->transparentColor, 0, 0);
+
+    // Draw the transformed image to the new image.
+    Transform inverse = transform.inverse();
+    for (int y = topLeft.y; y < bottomRight.y; y++) {
+        for (int x = topLeft.x; x < bottomRight.x; x++) {
+            IntVector v = inverse.apply(IntVector(x, y));
+            // Apply pivot offset
+            v.x += image->pivotX;
+            v.y += image->pivotY;
+            if (v.x >= 0 && v.x < image->width && v.y >= 0 && v.y < image->height) {
+                destImage.pixels[x - topLeft.x + (y - topLeft.y) * destImage.width] =
+                    image->pixels[v.x + v.y * image->width];
+            } else {
+                destImage.pixels[x - topLeft.x + (y - topLeft.y) * destImage.width] = image->transparentColor;
             }
         }
     }
-    drawImage(&dest, minX, minY);
+
+    drawImage(&destImage, destX + topLeft.x, destY + topLeft.y);
 }
 
 // Чомусь в Arduino_GFX немає варіанту цього методу для const uint16_t[] - є лише для uint16_t.
@@ -166,47 +171,50 @@ Canvas::Canvas(uint16_t x, uint16_t y, uint16_t width, uint16_t height) :
 
 void Canvas::drawImage(Image* image, int16_t x, int16_t y) {
     if (image->transparentColor == -1) {
-        draw16bitRGBBitmap(x, y, image->pixels, image->width, image->height);
+        draw16bitRGBBitmap(x - image->pivotX, y - image->pivotY, image->pixels, image->width, image->height);
     } else {
-        draw16bitRGBBitmapWithTranColor(x, y, image->pixels, image->transparentColor, image->width, image->height);
+        draw16bitRGBBitmapWithTranColor(
+            x - image->pivotX, y - image->pivotY, image->pixels, image->transparentColor, image->width, image->height
+        );
     }
 }
 
-void Canvas::drawImageTransformed(Image* image, int16_t x, int16_t y, Transform transform) {
-    int16_t w = image->width;
-    int16_t h = image->height;
-    int16_t x0 = transform.matrix[0][0] * x + transform.matrix[0][1] * y;
-    int16_t y0 = transform.matrix[1][0] * x + transform.matrix[1][1] * y;
-    int16_t x1 = transform.matrix[0][0] * (x + w) + transform.matrix[0][1] * y;
-    int16_t y1 = transform.matrix[1][0] * (x + w) + transform.matrix[1][1] * y;
-    int16_t x2 = transform.matrix[0][0] * (x + w) + transform.matrix[0][1] * (y + h);
-    int16_t y2 = transform.matrix[1][0] * (x + w) + transform.matrix[1][1] * (y + h);
-    int16_t x3 = transform.matrix[0][0] * x + transform.matrix[0][1] * (y + h);
-    int16_t y3 = transform.matrix[1][0] * x + transform.matrix[1][1] * (y + h);
-    int16_t minX = min(min(x0, x1), min(x2, x3));
-    int16_t minY = min(min(y0, y1), min(y2, y3));
-    int16_t maxX = max(max(x0, x1), max(x2, x3));
-    int16_t maxY = max(max(y0, y1), max(y2, y3));
-    int16_t destWidth = maxX - minX;
-    int16_t destHeight = maxY - minY;
-    Image dest(destWidth, destHeight, 0);
-    for (int y = minY; y < maxY; y++) {
-        for (int x = minX; x < maxX; x++) {
-            int16_t srcX = transform.matrix[0][0] * x + transform.matrix[0][1] * y;
-            int16_t srcY = transform.matrix[1][0] * x + transform.matrix[1][1] * y;
-            if (srcX >= x && srcX < x + w) {
-                if (srcY >= y && srcY < y + h) {
-                    // Піксель вихідного зображення знаходиться в межах вхідного зображення
-                    dest.pixels[x - minX + (y - minY) * destWidth] = image->pixels[srcX - x + (srcY - y) * w];
-                } else {
-                    // Піксель вихідного зображення знаходиться поза межами вхідного зображення,
-                    // тому він повинен бути прозорим.
-                    dest.pixels[x - minX + (y - minY) * destWidth] = image->transparentColor;
-                }
+void Canvas::drawImageTransformed(Image* image, int16_t destX, int16_t destY, Transform transform) {
+    // Transform image around its pivot.
+    // Draw the rotated image at the specified position.
+
+    // Calculate the coordinates of the four corners of the destination rectangle.
+    IntVector v1 = transform.apply(IntVector(-image->pivotX, -image->pivotY));
+    IntVector v2 = transform.apply(IntVector(image->width - image->pivotX, -image->pivotY));
+    IntVector v3 = transform.apply(IntVector(-image->pivotX, image->height - image->pivotY));
+    IntVector v4 = transform.apply(IntVector(image->width - image->pivotX, image->height - image->pivotY));
+
+    // Find the bounding box of the transformed image.
+    IntVector topLeft = IntVector(min(min(v1.x, v2.x), min(v3.x, v4.x)), min(min(v1.y, v2.y), min(v3.y, v4.y)));
+    IntVector bottomRight = IntVector(max(max(v1.x, v2.x), max(v3.x, v4.x)), max(max(v1.y, v2.y), max(v3.y, v4.y)));
+
+    // Create a new image to hold the transformed image.
+    Image destImage(bottomRight.x - topLeft.x, bottomRight.y - topLeft.y, image->transparentColor, 0, 0);
+
+    // Draw the transformed image to the new image.
+    Transform inverse = transform.inverse();
+    for (int y = topLeft.y; y < bottomRight.y; y++) {
+        for (int x = topLeft.x; x < bottomRight.x; x++) {
+            IntVector v = inverse.apply(IntVector(x, y));
+            // Apply pivot offset
+            v.x += image->pivotX;
+            v.y += image->pivotY;
+            if (v.x >= 0 && v.x < image->width && v.y >= 0 && v.y < image->height) {
+                destImage.pixels[x - topLeft.x + (y - topLeft.y) * destImage.width] =
+                    image->pixels[v.x + v.y * image->width];
+            } else {
+                destImage.pixels[x - topLeft.x + (y - topLeft.y) * destImage.width] = image->transparentColor;
             }
         }
     }
-    drawImage(&dest, minX, minY);
+
+    // TODO: Draw directly to the canvas?
+    drawImage(&destImage, destX + topLeft.x, destY + topLeft.y);
 }
 
 void Canvas::draw16bitRGBBitmapWithTranColor(
@@ -229,8 +237,8 @@ int16_t Canvas::y() {
     return _output_y;
 }
 
-Image::Image(uint32_t width, uint32_t height, int32_t transparentColor) :
-    width(width), height(height), transparentColor(transparentColor) {
+Image::Image(uint32_t width, uint32_t height, int32_t transparentColor, int16_t pivotX, int16_t pivotY) :
+    width(width), height(height), transparentColor(transparentColor), pivotX(pivotX), pivotY(pivotY) {
     // Allocate pixels in PSRAM
     pixels = static_cast<uint16_t*>(ps_malloc(width * height * sizeof(uint16_t)));
 }
@@ -327,6 +335,25 @@ Transform Transform::scale(float sx, float sy) {
     t.matrix[1][1] = sy;
     // Apply the scaling to this transform
     return t.multiply(*this);
+}
+
+Transform Transform::inverse() {
+    // Calculate the inverse of this transform
+    Transform t;
+    float det = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+    t.matrix[0][0] = matrix[1][1] / det;
+    t.matrix[0][1] = -matrix[0][1] / det;
+    t.matrix[1][0] = -matrix[1][0] / det;
+    t.matrix[1][1] = matrix[0][0] / det;
+    return t;
+}
+
+IntVector Transform::apply(IntVector v) {
+    // Apply this transform to a vector
+    return IntVector(matrix[0][0] * v.x + matrix[0][1] * v.y, matrix[1][0] * v.x + matrix[1][1] * v.y);
+}
+
+IntVector::IntVector(int32_t x, int32_t y) : x(x), y(y) {
 }
 
 Display display;

@@ -13,6 +13,8 @@ public:
     ///
     /// \param filename Шлях до файлу.
     /// \param transparentColor 16-бітний колір (5-6-5), який буде прозорим. За замовчуванням -1 (прозорість відсутня).
+    /// \param pivotX X-координата точки, яка буде центром зображення. За замовчуванням 0.
+    /// \param pivotY Y-координата точки, яка буде центром зображення. За замовчуванням 0.
     /// \return Вказівник на зображення.
     ///
     /// \warning Пам'ять для зображення виділяється динамічно. Після використання зображення, його потрібно видалити за допомогою `delete`.
@@ -32,7 +34,7 @@ public:
     /// // Звільнити пам'ять
     /// delete image;
     /// \endcode
-    Image* loadImage(String filename, int32_t transparentColor = -1);
+    Image* loadImage(String filename, int32_t transparentColor = -1, int32_t pivotX = 0, int32_t pivotY = 0);
     /// Прочитати вміст файлу.
     ///
     /// TODO: Update sdcard/filesystem stuff

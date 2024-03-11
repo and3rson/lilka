@@ -22,6 +22,7 @@ namespace lilka {
 class Canvas;
 class Image;
 class Transform;
+class IntVector;
 
 /// Клас для роботи з дисплеєм.
 ///
@@ -311,7 +312,7 @@ public:
 /// @note Основна відмінність Image від поняття "bitmap" погялає в тому, що Image містить масив пікселів, розміри зображення і прозорий колір, в той час як "bitmap" - це просто масив пікселів.
 class Image {
 public:
-    Image(uint32_t width, uint32_t height, int32_t transparentColor = -1);
+    Image(uint32_t width, uint32_t height, int32_t transparentColor = -1, int16_t pivotX = 0, int16_t pivotY = 0);
     ~Image();
     /// Обернути зображення на заданий кут (в градусах) і записати результат в `dest`.
     ///
@@ -344,6 +345,8 @@ public:
     uint32_t height;
     /// 16-бітний колір (5-6-5), який буде прозорим. За замовчуванням -1 (прозорість відсутня).
     int32_t transparentColor;
+    int16_t pivotX;
+    int16_t pivotY;
     uint16_t* pixels;
 };
 
@@ -380,8 +383,21 @@ public:
     /// @param other Інше перетворення.
     Transform multiply(Transform other);
 
+    /// Інвертувати перетворення.
+    /// @note Інвертне перетворення - це таке перетворення, яке скасує це перетворення, тобто є зворотнім до цього.
+    Transform inverse();
+
+    IntVector apply(IntVector vector);
+
     // Матриця перетворення
     float matrix[2][2]; // [рядок][стовпець]
+};
+
+class IntVector {
+public:
+    IntVector(int32_t x, int32_t y);
+    int32_t x;
+    int32_t y;
 };
 
 /// Екземпляр класу `Display`, який можна використовувати для роботи з дисплеєм.

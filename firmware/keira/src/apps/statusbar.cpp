@@ -37,7 +37,7 @@ void StatusBarApp::run() {
                 canvas->draw16bitRGBBitmapWithTranColor(144, 0, wifi_offline, 0, 24, 24);
             } else if (networkService->getNetworkState() == NETWORK_STATE_CONNECTING) {
                 canvas->draw16bitRGBBitmapWithTranColor(144, 0, wifi_connecting, 0, 24, 24);
-            } else {
+            } else if (networkService->getNetworkState() == NETWORK_STATE_ONLINE) {
                 canvas->draw16bitRGBBitmapWithTranColor(144, 0, icons[networkService->getSignalStrength()], 0, 24, 24);
             }
         }
