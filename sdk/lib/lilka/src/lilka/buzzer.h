@@ -91,8 +91,6 @@ public:
 private:
     // cppcheck-suppress unusedPrivateFunction
     void _stop();
-    // cppcheck-suppress unusedPrivateFunction
-    static void melodyTaskCleanup(void* arg);
 
     SemaphoreHandle_t buzzerMutex;
     TaskHandle_t melodyTaskHandle;
