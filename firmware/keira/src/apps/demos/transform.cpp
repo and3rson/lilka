@@ -20,10 +20,10 @@ void TransformApp::run() {
         // canvas->drawImage(face, x, y);
         lilka::Transform transform = lilka::Transform().rotate(angle).scale(sin(angle / 24.0), cos(angle / 50.0));
         // lilka::Transform transform = lilka::Transform().rotate(30).scale(1.5, 1);
-        uint64_t start = micros();
+        // uint64_t start = micros();
         canvas->drawImageTransformed(face, x, y, transform);
-        uint64_t end = micros();
-        Serial.println("Drawing took " + String(end - start) + " us");
+        // uint64_t end = micros();
+        // Serial.println("Drawing took " + String(end - start) + " us");
         queueDraw();
         angle += 8;
 
