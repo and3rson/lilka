@@ -3,16 +3,22 @@
 App::App(const char* name) : App(name, 0, 24, lilka::display.width(), lilka::display.height() - 24) {
 }
 
-App::App(const char* name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) : name(name), x(x), y(y), w(w), h(h) {
-    canvas = new lilka::Canvas(x, y, w, h);
+App::App(const char* name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) :
+    name(name),
+    x(x),
+    y(y),
+    w(w),
+    h(h),
+    flags(AppFlags::APP_FLAG_NONE),
+    taskHandle(NULL),
+    canvas(new lilka::Canvas(x, y, w, h)),
+    backCanvas(new lilka::Canvas(x, y, w, h)),
+    isDrawQueued(false),
+    backCanvasMutex(xSemaphoreCreateMutex()) {
     canvas->begin();
     canvas->fillScreen(0);
-    backCanvas = new lilka::Canvas(x, y, w, h);
     backCanvas->begin();
     backCanvas->fillScreen(0);
-    backCanvasMutex = xSemaphoreCreateMutex();
-    isDrawQueued = false;
-    flags = AppFlags::APP_FLAG_NONE;
     Serial.println(
         "Created app " + String(name) + " at " + String(x) + ", " + String(y) + " with size " + String(w) + "x" +
         String(h)
@@ -20,8 +26,14 @@ App::App(const char* name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) : nam
 }
 
 void App::start() {
+    if (taskHandle != NULL) {
+        Serial.println("App " + String(name) + " is already running");
+        return;
+    }
     Serial.println("Starting app " + String(name));
-    xTaskCreate(_run, name, 8192, this, 1, &taskHandle);
+    if (xTaskCreate(_run, name, 8192, this, 1, &taskHandle) != pdPASS) {
+        Serial.println("Failed to create task for app " + String(name) + " (not enough memory?)");
+    }
 }
 
 void App::_run(void* data) {
@@ -34,23 +46,34 @@ void App::_run(void* data) {
 }
 
 void App::suspend() {
-    // TODO: Check if the task is already suspended
+    if (taskHandle == NULL) {
+        Serial.println("App " + String(name) + " is not running, cannot suspend");
+        return;
+    }
     Serial.println("Suspending app " + String(name) + " (state = " + String(getState()) + ")");
     onSuspend();
     vTaskSuspend(taskHandle);
 }
 
 void App::resume() {
-    // TODO: Check if the task is already running
+    if (taskHandle == NULL) {
+        Serial.println("App " + String(name) + " is not running, cannot resume");
+        return;
+    }
     Serial.println("Resuming app " + String(name) + " (state = " + String(getState()) + ")");
     onResume();
     vTaskResume(taskHandle);
 }
 
 void App::stop() {
+    if (taskHandle == NULL) {
+        Serial.println("App " + String(name) + " is not running, cannot stop");
+        return;
+    }
     Serial.println("Stopping app " + String(name) + " (state = " + String(getState()) + ")");
     onStop();
     vTaskDelete(taskHandle);
+    taskHandle = NULL;
 }
 
 App::~App() {

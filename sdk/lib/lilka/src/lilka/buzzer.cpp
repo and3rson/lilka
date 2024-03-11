@@ -91,8 +91,24 @@ void Buzzer::melodyTask(void* arg) {
         xSemaphoreGive(buzzer->buzzerMutex);
         vTaskDelay(duration / portTICK_PERIOD_MS);
     }
+    // Start another lambda task to delete the melody task & release mutex
+    xSemaphoreTake(buzzer->buzzerMutex, portMAX_DELAY);
     noTone(LILKA_BUZZER);
-    vTaskSuspend(NULL);
+    if (xTaskCreate(buzzer->melodyTaskCleanup, "melodyTaskCleanup", 2048, buzzer, 1, NULL) != pdPASS) {
+        serial_err("Failed to create melody task cleanup task (not enough memory?)");
+        // Failsafe: release the mutex & delete task.
+        // This is NOT thread-safe, but it's better than a deadlock.
+        xSemaphoreGive(buzzer->buzzerMutex);
+        vTaskDelete(NULL);
+        noTone(LILKA_BUZZER);
+    }
+}
+
+void Buzzer::melodyTaskCleanup(void* arg) {
+    Buzzer* buzzer = static_cast<Buzzer*>(arg);
+    vTaskDelete(buzzer->melodyTaskHandle);
+    buzzer->melodyTaskHandle = NULL;
+    xSemaphoreGive(buzzer->buzzerMutex);
 }
 
 void Buzzer::stop() {
