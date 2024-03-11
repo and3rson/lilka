@@ -4,6 +4,7 @@
 Arduino_GFX* getDrawable(lua_State* L) {
     lua_getfield(L, LUA_REGISTRYINDEX, "app");
     const App* app = static_cast<App*>(lua_touserdata(L, -1));
+    lua_pop(L, 1);
     return app->canvas;
 }
 

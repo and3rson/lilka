@@ -21,7 +21,7 @@ App::App(const char* name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) : nam
 
 void App::start() {
     Serial.println("Starting app " + String(name));
-    xTaskCreate(_run, name, 32768, this, 1, &taskHandle);
+    xTaskCreate(_run, name, 8192, this, 1, &taskHandle);
 }
 
 void App::_run(void* data) {

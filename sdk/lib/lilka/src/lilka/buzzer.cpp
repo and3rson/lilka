@@ -20,6 +20,7 @@ void Buzzer::begin() {
     serial_err("Buzzer is not supported on this board");
     return;
 #else
+    _stop();
     pinMode(LILKA_BUZZER, OUTPUT);
 #endif
 }
@@ -55,17 +56,24 @@ void Buzzer::playMelody(const Tone* melody, uint32_t length, uint32_t tempo) {
     xSemaphoreTake(buzzerMutex, portMAX_DELAY);
     _stop();
     currentMelody = static_cast<Tone*>(realloc(currentMelody, length * sizeof(Tone)));
+    // delete[] currentMelody;
+    // currentMelody = new Tone[length];
     memcpy(currentMelody, melody, length * sizeof(Tone));
     currentMelodyLength = length;
     currentMelodyTempo = tempo;
-    xTaskCreate(melodyTask, "melodyTask", 2048, this, 1, &melodyTaskHandle);
+    // Serial.println("Melody task starting, length: " + String(length) + ", tempo: " + String(tempo) + ", first note frequency: " + String(melody[0].frequency));
+    if (xTaskCreate(melodyTask, "melodyTask", 2048, this, 1, &melodyTaskHandle) != pdPASS) {
+        serial_err("Failed to create melody task (not enough memory?)");
+    }
     xSemaphoreGive(buzzerMutex);
 #endif
 }
 
 void Buzzer::melodyTask(void* arg) {
     Buzzer* buzzer = static_cast<Buzzer*>(arg);
+    // Serial.println("Melody task started");
     for (uint32_t i = 0; i < buzzer->currentMelodyLength; i++) {
+        // Serial.println("Playing note " + String(i) + " with frequency " + String(buzzer->currentMelody[i].frequency));
         xSemaphoreTake(buzzer->buzzerMutex, portMAX_DELAY);
         Tone currentTone = buzzer->currentMelody[i];
         if (currentTone.size == 0) {
@@ -82,11 +90,9 @@ void Buzzer::melodyTask(void* arg) {
         }
         xSemaphoreGive(buzzer->buzzerMutex);
         vTaskDelay(duration / portTICK_PERIOD_MS);
-        if (i == buzzer->currentMelodyLength - 1) {
-            noTone(LILKA_BUZZER);
-        }
     }
-    buzzer->stop();
+    noTone(LILKA_BUZZER);
+    vTaskSuspend(NULL);
 }
 
 void Buzzer::stop() {
@@ -100,11 +106,15 @@ void Buzzer::stop() {
 }
 
 void Buzzer::_stop() {
-    if (melodyTaskHandle != NULL) {
-        vTaskDelete(melodyTaskHandle);
-        melodyTaskHandle = NULL;
-    }
+    // TODO: This is not thread-safe
     noTone(LILKA_BUZZER);
+    TaskHandle_t handle = melodyTaskHandle;
+    if (handle != NULL) {
+        melodyTaskHandle = NULL;
+        // This can be called from within the task,
+        // so we postpone the deletion of the task till the end of the function to avoid a deadlock
+        vTaskDelete(handle);
+    }
 }
 
 void Buzzer::playDoom() {
