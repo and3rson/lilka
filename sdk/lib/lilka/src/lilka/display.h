@@ -21,6 +21,7 @@ namespace lilka {
 
 class Canvas;
 class Image;
+class Transform;
 
 /// Клас для роботи з дисплеєм.
 ///
@@ -187,6 +188,14 @@ public:
     /// delete image;
     /// @endcode
     void drawImage(Image* image, int16_t x, int16_t y);
+    /// Намалювати зображення з афінними перетвореннями.
+    /// @param image Вказівник на зображення (об'єкт класу `lilka::Image`).
+    /// @param x Координата X лівого верхнього кута зображення.
+    /// @param y Координата Y лівого верхнього кута зображення.
+    /// @param transform Об'єкт класу `lilka::Transform`, який містить матрицю перетворення.
+    /// @note Зверніть увагу, що перетворення - це повільніше, ніж звичайне малювання зображення, оскільки обчислює координати пікселів "на льоту". Використовуйте його лише тоді, коли не можете заздалегідь створити обернені копії зображеня за допомогою методів `lilka::Image::rotate`, `lilka::Image::flipX` та `lilka::Image::flipY`.
+    /// @see lilka::Transform
+    void drawImageTransformed(Image* image, int16_t x, int16_t y, Transform transform);
 
 #ifdef DOXYGEN
     /// Намалювати зображення з масиву 16-бітних точок.
@@ -283,6 +292,9 @@ public:
     /// Намалювати зображення.
     /// @see Display::drawImage
     void drawImage(Image* image, int16_t x, int16_t y);
+    /// Намалювати зображення з афінними перетвореннями.
+    /// @see Display::drawImageTransformed
+    void drawImageTransformed(Image* image, int16_t x, int16_t y, Transform transform);
     void draw16bitRGBBitmapWithTranColor(
         int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
     );
@@ -333,6 +345,43 @@ public:
     /// 16-бітний колір (5-6-5), який буде прозорим. За замовчуванням -1 (прозорість відсутня).
     int32_t transparentColor;
     uint16_t* pixels;
+};
+
+/// Клас для роботи з афінними перетвореннями.
+///
+/// Афінні перетворення - це перетворення, які зберігають паралельність ліній.
+/// Вони включають в себе обертання, масштабування та віддзеркалення.
+///
+/// Наприклад, ось цей код обертає зображення на 30 градусів та віддзеркалює його по горизонталі:
+///
+/// @code
+/// lilka::Transform transform = lilka::Transform().rotate(30).flipX();
+/// lilka::display.drawImageTransformed(image, 32, 64, transform);
+/// @endcode
+class Transform {
+public:
+    /// Створити об'єкт класу `lilka::Transform`.
+    Transform();
+    Transform(const Transform& other);
+    Transform& operator=(const Transform& other);
+    /// Обернути навколо центру на кут `angle` (в градусах).
+    ///
+    /// Оскільки на екрані вісь Y вказує вниз, обертання буде здійснено за годинниковою стрілкою.
+    /// @param angle Кут обертання в градусах.
+    Transform rotate(int16_t angle);
+    /// Масштабувати по X та Y.
+    ///
+    /// Щоб віддзеркалити зображення, використайте від'ємні значення (наприклад, -1).
+    /// @param scaleX Масштаб по X.
+    /// @param scaleY Масштаб по Y.
+    Transform scale(float scaleX, float scaleY);
+
+    /// Застосувати інше перетворення до цього.
+    /// @param other Інше перетворення.
+    Transform multiply(Transform other);
+
+    // Матриця перетворення
+    float matrix[2][2]; // [рядок][стовпець]
 };
 
 /// Екземпляр класу `Display`, який можна використовувати для роботи з дисплеєм.

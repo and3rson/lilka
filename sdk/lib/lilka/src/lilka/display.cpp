@@ -99,6 +99,40 @@ void Display::drawImage(Image* image, int16_t x, int16_t y) {
     }
 }
 
+void Display::drawImageTransformed(Image* image, int16_t x, int16_t y, Transform transform) {
+    int16_t w = image->width;
+    int16_t h = image->height;
+    int16_t x0 = transform.matrix[0][0] * x + transform.matrix[0][1] * y;
+    int16_t y0 = transform.matrix[1][0] * x + transform.matrix[1][1] * y;
+    int16_t x1 = transform.matrix[0][0] * (x + w) + transform.matrix[0][1] * y;
+    int16_t y1 = transform.matrix[1][0] * (x + w) + transform.matrix[1][1] * y;
+    int16_t x2 = transform.matrix[0][0] * (x + w) + transform.matrix[0][1] * (y + h);
+    int16_t y2 = transform.matrix[1][0] * (x + w) + transform.matrix[1][1] * (y + h);
+    int16_t x3 = transform.matrix[0][0] * x + transform.matrix[0][1] * (y + h);
+    int16_t y3 = transform.matrix[1][0] * x + transform.matrix[1][1] * (y + h);
+    int16_t minX = min(min(x0, x1), min(x2, x3));
+    int16_t minY = min(min(y0, y1), min(y2, y3));
+    int16_t maxX = max(max(x0, x1), max(x2, x3));
+    int16_t maxY = max(max(y0, y1), max(y2, y3));
+    int16_t destWidth = maxX - minX;
+    int16_t destHeight = maxY - minY;
+    Image dest(destWidth, destHeight, 0);
+    for (int y = minY; y < maxY; y++) {
+        for (int x = minX; x < maxX; x++) {
+            int16_t srcX = transform.matrix[0][0] * x + transform.matrix[0][1] * y;
+            int16_t srcY = transform.matrix[1][0] * x + transform.matrix[1][1] * y;
+            if (srcX >= x && srcX < x + w) {
+                if (srcY >= y && srcY < y + h) {
+                    dest.pixels[x - minX + (y - minY) * destWidth] = image->pixels[srcX - x + (srcY - y) * w];
+                } else {
+                    dest.pixels[x - minX + (y - minY) * destWidth] = image->transparentColor;
+                }
+            }
+        }
+    }
+    drawImage(&dest, minX, minY);
+}
+
 // Чомусь в Arduino_GFX немає варіанту цього методу для const uint16_t[] - є лише для uint16_t.
 void Display::draw16bitRGBBitmapWithTranColor(
     int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
@@ -136,6 +170,43 @@ void Canvas::drawImage(Image* image, int16_t x, int16_t y) {
     } else {
         draw16bitRGBBitmapWithTranColor(x, y, image->pixels, image->transparentColor, image->width, image->height);
     }
+}
+
+void Canvas::drawImageTransformed(Image* image, int16_t x, int16_t y, Transform transform) {
+    int16_t w = image->width;
+    int16_t h = image->height;
+    int16_t x0 = transform.matrix[0][0] * x + transform.matrix[0][1] * y;
+    int16_t y0 = transform.matrix[1][0] * x + transform.matrix[1][1] * y;
+    int16_t x1 = transform.matrix[0][0] * (x + w) + transform.matrix[0][1] * y;
+    int16_t y1 = transform.matrix[1][0] * (x + w) + transform.matrix[1][1] * y;
+    int16_t x2 = transform.matrix[0][0] * (x + w) + transform.matrix[0][1] * (y + h);
+    int16_t y2 = transform.matrix[1][0] * (x + w) + transform.matrix[1][1] * (y + h);
+    int16_t x3 = transform.matrix[0][0] * x + transform.matrix[0][1] * (y + h);
+    int16_t y3 = transform.matrix[1][0] * x + transform.matrix[1][1] * (y + h);
+    int16_t minX = min(min(x0, x1), min(x2, x3));
+    int16_t minY = min(min(y0, y1), min(y2, y3));
+    int16_t maxX = max(max(x0, x1), max(x2, x3));
+    int16_t maxY = max(max(y0, y1), max(y2, y3));
+    int16_t destWidth = maxX - minX;
+    int16_t destHeight = maxY - minY;
+    Image dest(destWidth, destHeight, 0);
+    for (int y = minY; y < maxY; y++) {
+        for (int x = minX; x < maxX; x++) {
+            int16_t srcX = transform.matrix[0][0] * x + transform.matrix[0][1] * y;
+            int16_t srcY = transform.matrix[1][0] * x + transform.matrix[1][1] * y;
+            if (srcX >= x && srcX < x + w) {
+                if (srcY >= y && srcY < y + h) {
+                    // Піксель вихідного зображення знаходиться в межах вхідного зображення
+                    dest.pixels[x - minX + (y - minY) * destWidth] = image->pixels[srcX - x + (srcY - y) * w];
+                } else {
+                    // Піксель вихідного зображення знаходиться поза межами вхідного зображення,
+                    // тому він повинен бути прозорим.
+                    dest.pixels[x - minX + (y - minY) * destWidth] = image->transparentColor;
+                }
+            }
+        }
+    }
+    drawImage(&dest, minX, minY);
 }
 
 void Canvas::draw16bitRGBBitmapWithTranColor(
@@ -202,6 +273,60 @@ void Image::flipY(Image* dest) {
             dest->pixels[x + y * width] = pixels[x + (height - 1 - y) * width];
         }
     }
+}
+
+Transform::Transform() : matrix{{1, 0}, {0, 1}} {
+}
+
+// Copy constructor
+Transform::Transform(const Transform& other) {
+    matrix[0][0] = other.matrix[0][0];
+    matrix[0][1] = other.matrix[0][1];
+    matrix[1][0] = other.matrix[1][0];
+    matrix[1][1] = other.matrix[1][1];
+}
+
+// Copy assignment operator
+Transform& Transform::operator=(const Transform& other) {
+    if (this != &other) {
+        matrix[0][0] = other.matrix[0][0];
+        matrix[0][1] = other.matrix[0][1];
+        matrix[1][0] = other.matrix[1][0];
+        matrix[1][1] = other.matrix[1][1];
+    }
+    return *this;
+}
+
+Transform Transform::multiply(Transform other) {
+    // Apply other transform to this transform
+    Transform t;
+    t.matrix[0][0] = matrix[0][0] * other.matrix[0][0] + matrix[0][1] * other.matrix[1][0];
+    t.matrix[0][1] = matrix[0][0] * other.matrix[0][1] + matrix[0][1] * other.matrix[1][1];
+    t.matrix[1][0] = matrix[1][0] * other.matrix[0][0] + matrix[1][1] * other.matrix[1][0];
+    t.matrix[1][1] = matrix[1][0] * other.matrix[0][1] + matrix[1][1] * other.matrix[1][1];
+    return t;
+}
+
+Transform Transform::rotate(int16_t angle) {
+    // Rotate this transform by angle. Do this by multiplying with a rotation matrix.
+    Transform t;
+    t.matrix[0][0] = fCos360(angle);
+    t.matrix[0][1] = -fSin360(angle);
+    t.matrix[1][0] = fSin360(angle);
+    t.matrix[1][1] = fCos360(angle);
+    // Apply the rotation to this transform
+    return t.multiply(*this);
+}
+
+Transform Transform::scale(float sx, float sy) {
+    // Scale this transform by sx and sy. Do this by multiplying with a scaling matrix.
+    Transform t;
+    t.matrix[0][0] = sx;
+    t.matrix[0][1] = 0;
+    t.matrix[1][0] = 0;
+    t.matrix[1][1] = sy;
+    // Apply the scaling to this transform
+    return t.multiply(*this);
 }
 
 Display display;
