@@ -15,10 +15,6 @@ App::App(const char* name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) :
     backCanvas(new lilka::Canvas(x, y, w, h)),
     isDrawQueued(false),
     backCanvasMutex(xSemaphoreCreateMutex()) {
-    canvas->begin();
-    canvas->fillScreen(0);
-    backCanvas->begin();
-    backCanvas->fillScreen(0);
     Serial.println(
         "Created app " + String(name) + " at " + String(x) + ", " + String(y) + " with size " + String(w) + "x" +
         String(h)
