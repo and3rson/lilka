@@ -458,7 +458,7 @@ function lilka.update(delta)
                 bullet.speed_x = ship.speed_x / 2 + display.width * dir_x
                 bullet.speed_y = ship.speed_y / 2 + display.width * dir_y
                 table.insert(bullets, bullet)
-                buzzer.play_melody(SHOOT_SOUND, 400)
+                buzzer.play_melody(SHOOT_SOUND, 600)
             end
 
             -- Вихід з гри
