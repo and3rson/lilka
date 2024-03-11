@@ -6,57 +6,117 @@
 
 namespace lilka {
 
+Buzzer::Buzzer() :
+    buzzerMutex(xSemaphoreCreateMutex()),
+    melodyTaskHandle(NULL),
+    currentMelody(NULL),
+    currentMelodyLength(0),
+    currentMelodyTempo(0) {
+}
+
 void Buzzer::begin() {
     // TODO: Use ledc?
 #if LILKA_VERSION < 2
     serial_err("Buzzer is not supported on this board");
     return;
-#endif
+#else
+    _stop();
     pinMode(LILKA_BUZZER, OUTPUT);
+#endif
 }
 
 void Buzzer::play(uint16_t frequency) {
 #if LILKA_VERSION < 2
     serial_err("Buzzer is not supported on this board");
     return;
-#endif
+#else
+    xSemaphoreTake(buzzerMutex, portMAX_DELAY);
+    _stop();
     tone(LILKA_BUZZER, frequency);
+    xSemaphoreGive(buzzerMutex);
+#endif
 }
 
 void Buzzer::play(uint16_t frequency, uint32_t duration) {
 #if LILKA_VERSION < 2
     serial_err("Buzzer is not supported on this board");
     return;
-#endif
+#else
+    xSemaphoreTake(buzzerMutex, portMAX_DELAY);
+    _stop();
     tone(LILKA_BUZZER, frequency, duration);
+    xSemaphoreGive(buzzerMutex);
+#endif
+}
+
+void Buzzer::playMelody(const Tone* melody, uint32_t length, uint32_t tempo) {
+#if LILKA_VERSION < 2
+    serial_err("Buzzer is not supported on this board");
+#else
+    xSemaphoreTake(buzzerMutex, portMAX_DELAY);
+    _stop();
+    currentMelody = static_cast<Tone*>(realloc(currentMelody, length * sizeof(Tone)));
+    // delete[] currentMelody;
+    // currentMelody = new Tone[length];
+    memcpy(currentMelody, melody, length * sizeof(Tone));
+    currentMelodyLength = length;
+    currentMelodyTempo = tempo;
+    // Serial.println("Melody task starting, length: " + String(length) + ", tempo: " + String(tempo) + ", first note frequency: " + String(melody[0].frequency));
+    if (xTaskCreate(melodyTask, "melodyTask", 2048, this, 1, &melodyTaskHandle) != pdPASS) {
+        serial_err("Failed to create melody task (not enough memory?)");
+    }
+    xSemaphoreGive(buzzerMutex);
+#endif
+}
+
+void Buzzer::melodyTask(void* arg) {
+    Buzzer* buzzer = static_cast<Buzzer*>(arg);
+    // Serial.println("Melody task started");
+    for (uint32_t i = 0; i < buzzer->currentMelodyLength; i++) {
+        // Serial.println("Playing note " + String(i) + " with frequency " + String(buzzer->currentMelody[i].frequency));
+        xSemaphoreTake(buzzer->buzzerMutex, portMAX_DELAY);
+        Tone currentTone = buzzer->currentMelody[i];
+        if (currentTone.size == 0) {
+            taskYIELD();
+            continue;
+        }
+        uint32_t duration = (60000 / buzzer->currentMelodyTempo) / abs(currentTone.size);
+        if (currentTone.size < 0) {
+            duration += duration / 2;
+        }
+
+        if (buzzer->currentMelody[i].frequency != 0) {
+            tone(LILKA_BUZZER, buzzer->currentMelody[i].frequency);
+        }
+        xSemaphoreGive(buzzer->buzzerMutex);
+        vTaskDelay(duration / portTICK_PERIOD_MS);
+    }
+    xSemaphoreTake(buzzer->buzzerMutex, portMAX_DELAY);
+    noTone(LILKA_BUZZER);
+    // Release the mutex & delete task.
+    buzzer->melodyTaskHandle = NULL;
+    xSemaphoreGive(buzzer->buzzerMutex);
+    vTaskDelete(NULL);
 }
 
 void Buzzer::stop() {
 #if LILKA_VERSION < 2
     serial_err("Buzzer is not supported on this board");
-    return;
+#else
+    xSemaphoreTake(buzzerMutex, portMAX_DELAY);
+    _stop();
+    xSemaphoreGive(buzzerMutex);
 #endif
-    noTone(LILKA_BUZZER);
 }
 
-void Buzzer::playMelody(const Tone* melody, uint32_t length, uint32_t tempo) {
-    // TODO: Make this a FreeRTOS task
-    for (uint32_t i = 0; i < length; i++) {
-        Tone tone = melody[i];
-        if (tone.size == 0) {
-            continue;
-        }
-        uint32_t duration = (60000 / tempo) / abs(tone.size);
-        if (tone.size < 0) {
-            duration += duration / 2;
-        }
-
-        if (melody[i].frequency == 0) {
-            delay(duration);
-        } else {
-            play(melody[i].frequency, duration);
-            delay(duration);
-        }
+void Buzzer::_stop() {
+    noTone(LILKA_BUZZER);
+    TaskHandle_t handle = melodyTaskHandle;
+    if (handle != NULL) {
+        melodyTaskHandle = NULL;
+        // This can be called from within the task,
+        // so we postpone the deletion of the task till the end of the function to avoid a deadlock
+        vTaskDelete(handle);
     }
 }
 

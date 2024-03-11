@@ -13,6 +13,7 @@
 #include "lualilka_geometry.h"
 #include "lualilka_gpio.h"
 #include "lualilka_util.h"
+#include "lualilka_buzzer.h"
 #include "lualilka_state.h"
 
 jmp_buf stopjmp;
@@ -30,7 +31,7 @@ bool pushLilka(lua_State* L) {
 
 bool callInit(lua_State* L) {
     // Calls the "init" function of the "lilka" table.
-    // Returns false if the function doesn't exist and pops "lilka" from the stack.
+    // Returns false if the function doesn't exist. Keeps "lilka" on the stack.
     lua_getfield(L, -1, "init");
     if (!lua_isfunction(L, -1)) {
         lua_pop(L, 1);
@@ -53,7 +54,7 @@ bool callUpdate(lua_State* L, uint32_t delta) {
     // Returns false if the function doesn't exist and pops "lilka" from the stack.
     lua_getfield(L, -1, "update");
     if (!lua_isfunction(L, -1)) {
-        lua_pop(L, 1);
+        lua_pop(L, 2);
         return false;
     }
     lua_pushnumber(L, ((float)delta) / 1000.0);
@@ -75,7 +76,7 @@ bool callDraw(lua_State* L) {
     // Returns false if the function doesn't exist and pops "lilka" from the stack.
     lua_getfield(L, -1, "draw");
     if (!lua_isfunction(L, -1)) {
-        lua_pop(L, 1);
+        lua_pop(L, 2);
         return false;
     }
     int retCode = lua_pcall(L, 0, 0, 0);
@@ -95,10 +96,30 @@ AbstractLuaRunnerApp::AbstractLuaRunnerApp(const char* appName) :
     setFlags(AppFlags::APP_FLAG_FULLSCREEN);
 }
 
+void* lua_smart_alloc(void* ud, void* ptr, size_t osize, size_t nsize) {
+    // If there will be less than 32 KB of free RAM after reallocating, use PSRAM allocator.
+    (void)ud;
+    (void)osize;
+    int32_t free_mem = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+    if (nsize) {
+        uint32_t caps = MALLOC_CAP_8BIT;
+        if (free_mem - nsize < 32 * 1024) {
+            // Less than 32 KB of free RAM after reallocating. Use PSRAM allocator.
+            caps |= MALLOC_CAP_SPIRAM;
+        } else {
+            // More than 32 KB of free RAM after reallocating. Use regular allocator.
+        }
+        return heap_caps_realloc(ptr, nsize, caps);
+    } else {
+        free(ptr);
+        return NULL;
+    }
+}
+
 void AbstractLuaRunnerApp::luaSetup(const char* dir) {
     lilka::serial_log("lua: script dir: %s", dir);
 
-    L = luaL_newstate();
+    L = lua_newstate(lua_smart_alloc, NULL);
 
     lilka::serial_log("lua: init libs");
     luaL_openlibs(L);
@@ -133,6 +154,7 @@ void AbstractLuaRunnerApp::luaSetup(const char* dir) {
     lualilka_geometry_register(L);
     lualilka_gpio_register(L);
     lualilka_util_register(L);
+    lualilka_buzzer_register(L);
 
     // lilka::serial_log("lua: init canvas");
     // lilka::Canvas* canvas = new lilka::Canvas();
@@ -224,9 +246,12 @@ int AbstractLuaRunnerApp::execute() {
             lua_pop(L, 1);
             queueDraw();
 
+            lua_gc(L, LUA_GCCOLLECT, 0); // TODO: Use LUA_GCSTEP?
+
             // display.renderCanvas(canvas);
 
-            // Calculate time spent in update
+            // Calculate time spent in update & gargage collection
+            // TODO: Split time spent in update, time spent in draw, time spent in GC?
             uint32_t elapsed = millis() - now;
             // If we're too fast, delay to keep 30 FPS
             if (elapsed < perfectDelta) {
@@ -467,6 +492,7 @@ void LuaReplApp::run() {
         }
 
         int retCode = luaL_loadstring(L, input.c_str()) || execute();
+        lua_gc(L, LUA_GCCOLLECT, 0); // TODO: Use LUA_GCSTEP?
 
         if (retCode) {
             const char* err = lua_tostring(L, -1);

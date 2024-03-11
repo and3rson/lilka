@@ -160,7 +160,8 @@ int16_t Canvas::y() {
 
 Image::Image(uint32_t width, uint32_t height, int32_t transparentColor) :
     width(width), height(height), transparentColor(transparentColor) {
-    pixels = new uint16_t[width * height];
+    // Allocate pixels in PSRAM
+    pixels = static_cast<uint16_t*>(ps_malloc(width * height * sizeof(uint16_t)));
 }
 
 Image::~Image() {

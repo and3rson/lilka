@@ -6,6 +6,7 @@
 Детальніше про їх поведінку можна прочитати в :ref:`секції про написання ігор на Lua <lua-games>`.
 
 .. lua:module:: lilka
+    :noindex:
 
 .. lua:function:: init()
 

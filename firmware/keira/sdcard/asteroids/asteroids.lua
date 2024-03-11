@@ -68,6 +68,67 @@ end
 PRESS_START = resources.load_image(ROOT .. "press_start.bmp")
 YOU_ARE_DEAD = resources.load_image(ROOT .. "game_over.bmp")
 
+-- Buzzer sound for shooting.
+-- First element of each item is frequency, second is note size.
+SHOOT_SOUND = {
+    {880, 8},
+    {784, 8},
+    {698, 8},
+    {659, 8},
+    {587, 8},
+    {523, 8},
+    {440, 8},
+    {392, 8},
+    {349, 8},
+    {330, 8},
+    {294, 8},
+    {262, 8},
+}
+
+BOOM_SOUND = {
+    { 440, 8 },
+    { 392, 8 },
+    { 349, 8 },
+    { 330, 8 },
+    { 294, 8 },
+    { 262, 8 },
+    { 220, 8 },
+    { 196, 8 },
+    { 175, 8 },
+    { 165, 8 },
+    { 147, 8 },
+    { 131, 8 },
+    { 123, 8 },
+    { 110, 8 },
+    { 98, 8 },
+    { 88, 8 },
+}
+
+-- Low-pitch (100-200 Hz) noise.
+DEATH_SOUND = {
+    { 200, 8 },
+    { 100, 8 },
+    { 150, 8 },
+    { 200, 8 },
+    { 100, 8 },
+    { 150, 8 },
+    { 100, 8 },
+    { 150, 8 },
+    { 100, 8 },
+    { 150, 8 },
+    { 50, 8 },
+    { 100, 8 },
+    { 50, 8 },
+    { 100, 8 },
+    { 50, 8 },
+    { 100, 8 },
+    { 50, 8 },
+    { 100, 8 },
+    { 50, 8 },
+    { 100, 8 },
+    { 50, 8 },
+}
+
 -------------------------------------------------------------------------------
 -- Ігрові класи
 -------------------------------------------------------------------------------
@@ -397,6 +458,7 @@ function lilka.update(delta)
                 bullet.speed_x = ship.speed_x / 2 + display.width * dir_x
                 bullet.speed_y = ship.speed_y / 2 + display.width * dir_y
                 table.insert(bullets, bullet)
+                buzzer.play_melody(SHOOT_SOUND, 400)
             end
 
             -- Вихід з гри
@@ -443,6 +505,7 @@ function lilka.update(delta)
                         -- Якщо куля влучила в астероїд, то вони обидвоє вмирають
                         asteroid:kill()
                         bullet:kill()
+                        buzzer.play_melody(BOOM_SOUND, 400)
                     end
                 end
                 if math.dist(asteroid.x, asteroid.y, ship.x, ship.y) < (asteroid.sprite.width / 3 + ship.width / 2) then
@@ -452,6 +515,7 @@ function lilka.update(delta)
                         asteroid:kill()
                         ship:kill()
                         game_state = STATES.GAME_OVER
+                        buzzer.play_melody(DEATH_SOUND, 400)
                     end
                 end
             end
