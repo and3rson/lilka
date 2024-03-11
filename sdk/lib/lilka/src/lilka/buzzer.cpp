@@ -106,7 +106,6 @@ void Buzzer::stop() {
 }
 
 void Buzzer::_stop() {
-    // TODO: This is not thread-safe
     noTone(LILKA_BUZZER);
     TaskHandle_t handle = melodyTaskHandle;
     if (handle != NULL) {

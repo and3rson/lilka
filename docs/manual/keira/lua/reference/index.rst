@@ -14,4 +14,5 @@ Lua API
     geometry
     gpio
     util
+    buzzer
     state
