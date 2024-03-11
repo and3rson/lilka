@@ -82,6 +82,9 @@ void Buzzer::melodyTask(void* arg) {
         }
         xSemaphoreGive(buzzer->buzzerMutex);
         vTaskDelay(duration / portTICK_PERIOD_MS);
+        if (i == buzzer->currentMelodyLength - 1) {
+            noTone(LILKA_BUZZER);
+        }
     }
     buzzer->stop();
 }
