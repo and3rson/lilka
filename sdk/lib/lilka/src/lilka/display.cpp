@@ -109,10 +109,10 @@ void Display::drawImageTransformed(Image* image, int16_t destX, int16_t destY, T
     int32_t imageHeight = image->height;
 
     // Calculate the coordinates of the four corners of the destination rectangle.
-    int_vector_t v1 = transform.apply(int_vector_t{-image->pivotX, -image->pivotY});
-    int_vector_t v2 = transform.apply(int_vector_t{imageWidth - image->pivotX, -image->pivotY});
-    int_vector_t v3 = transform.apply(int_vector_t{-image->pivotX, imageHeight - image->pivotY});
-    int_vector_t v4 = transform.apply(int_vector_t{imageWidth - image->pivotX, imageHeight - image->pivotY});
+    int_vector_t v1 = transform.transform(int_vector_t{-image->pivotX, -image->pivotY});
+    int_vector_t v2 = transform.transform(int_vector_t{imageWidth - image->pivotX, -image->pivotY});
+    int_vector_t v3 = transform.transform(int_vector_t{-image->pivotX, imageHeight - image->pivotY});
+    int_vector_t v4 = transform.transform(int_vector_t{imageWidth - image->pivotX, imageHeight - image->pivotY});
 
     // Find the bounding box of the transformed image.
     int_vector_t topLeft = int_vector_t{min(min(v1.x, v2.x), min(v3.x, v4.x)), min(min(v1.y, v2.y), min(v3.y, v4.y))};
@@ -126,7 +126,7 @@ void Display::drawImageTransformed(Image* image, int16_t destX, int16_t destY, T
     Transform inverse = transform.inverse();
     for (int y = topLeft.y; y < bottomRight.y; y++) {
         for (int x = topLeft.x; x < bottomRight.x; x++) {
-            int_vector_t v = inverse.apply(int_vector_t{x, y});
+            int_vector_t v = inverse.transform(int_vector_t{x, y});
             // Apply pivot offset
             v.x += image->pivotX;
             v.y += image->pivotY;
@@ -192,10 +192,10 @@ void Canvas::drawImageTransformed(Image* image, int16_t destX, int16_t destY, Tr
     int32_t imageHeight = image->height;
 
     // Calculate the coordinates of the four corners of the destination rectangle.
-    int_vector_t v1 = transform.apply(int_vector_t{-image->pivotX, -image->pivotY});
-    int_vector_t v2 = transform.apply(int_vector_t{imageWidth - image->pivotX, -image->pivotY});
-    int_vector_t v3 = transform.apply(int_vector_t{-image->pivotX, imageHeight - image->pivotY});
-    int_vector_t v4 = transform.apply(int_vector_t{imageWidth - image->pivotX, imageHeight - image->pivotY});
+    int_vector_t v1 = transform.transform(int_vector_t{-image->pivotX, -image->pivotY});
+    int_vector_t v2 = transform.transform(int_vector_t{imageWidth - image->pivotX, -image->pivotY});
+    int_vector_t v3 = transform.transform(int_vector_t{-image->pivotX, imageHeight - image->pivotY});
+    int_vector_t v4 = transform.transform(int_vector_t{imageWidth - image->pivotX, imageHeight - image->pivotY});
 
     // Find the bounding box of the transformed image.
     int_vector_t topLeft = int_vector_t{min(min(v1.x, v2.x), min(v3.x, v4.x)), min(min(v1.y, v2.y), min(v3.y, v4.y))};
@@ -211,7 +211,7 @@ void Canvas::drawImageTransformed(Image* image, int16_t destX, int16_t destY, Tr
     int_vector_t point{0, 0};
     for (point.y = topLeft.y; point.y < bottomRight.y; point.y++) {
         for (point.x = topLeft.x; point.x < bottomRight.x; point.x++) {
-            int_vector_t v = inverse.apply(point);
+            int_vector_t v = inverse.transform(point);
             // Apply pivot offset
             v.x += image->pivotX;
             v.y += image->pivotY;
@@ -362,7 +362,7 @@ Transform Transform::inverse() {
     return t;
 }
 
-inline int_vector_t Transform::apply(int_vector_t v) {
+inline int_vector_t Transform::transform(int_vector_t v) {
     // Apply this transform to a vector
     return int_vector_t{
         static_cast<int32_t>(matrix[0][0] * v.x + matrix[0][1] * v.y),
