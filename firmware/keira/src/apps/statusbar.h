@@ -8,4 +8,5 @@ public:
 
 private:
     void run() override;
+    int16_t drawIcons(lilka::Canvas* canvas);
 };

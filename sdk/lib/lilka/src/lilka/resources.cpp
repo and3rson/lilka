@@ -5,7 +5,7 @@
 
 namespace lilka {
 
-Image* Resources::loadImage(String filename, int32_t transparentColor) {
+Image* Resources::loadImage(String filename, int32_t transparentColor, int32_t pivotX, int32_t pivotY) {
     FILE* file = fopen(filename.c_str(), "r");
     if (!file) {
         // serial_err("File not found: %s\n", filename.c_str());
@@ -37,7 +37,7 @@ Image* Resources::loadImage(String filename, int32_t transparentColor) {
         return 0;
     }
 
-    Image* image = new Image(width, height, transparentColor);
+    Image* image = new Image(width, height, transparentColor, pivotX, pivotY);
     fseek(file, dataOffset, SEEK_SET);
     uint8_t row[width * bytesPerPixel];
     for (int y = height - 1; y >= 0; y--) {

@@ -4,8 +4,10 @@
 #include "demos/lines.h"
 #include "demos/disk.h"
 #include "demos/ball.h"
+#include "demos/transform.h"
 #include "demos/epilepsy.h"
 #include "demos/letris.h"
+#include "demos/keyboard.h"
 #include "demos/user_spi.h"
 #include "demos/scan_i2c.h"
 #include "demos/wifi_scan.h"
@@ -68,9 +70,11 @@ void LauncherApp::appsMenu() {
     String titles[] = {
         "Лінії",
         "Шайба",
+        "Перетворення",
         "М'ячик",
         "Епілепсія",
         "Летріс",
+        "Клавіатура",
         "Тест SPI",
         "I2C-сканер",
         "WiFi-сканер",
@@ -80,9 +84,11 @@ void LauncherApp::appsMenu() {
     APP_CLASS_LIST classes = {
         APP_CLASS(DemoLines),
         APP_CLASS(DiskApp),
+        APP_CLASS(TransformApp),
         APP_CLASS(BallApp),
         APP_CLASS(EpilepsyApp),
         APP_CLASS(LetrisApp),
+        APP_CLASS(KeyboardApp),
         APP_CLASS(UserSPIApp),
         APP_CLASS(ScanI2CApp),
         APP_CLASS(WifiScanApp),

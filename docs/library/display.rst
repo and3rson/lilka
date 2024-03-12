@@ -11,3 +11,6 @@
 
 .. doxygenclass:: lilka::Image
     :members:
+
+.. doxygenclass:: lilka::Transform
+    :members:

@@ -1,26 +1,13 @@
+IMAGE2CODE = ./sdk/tools/image2code/image2code.py
+CPPCHECK = cppcheck
+CLANG_FORMAT = clang-format
+
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
-.PHONY: reformat
-reformat: ## Reformat all source files
-	@find \
-		. \
-		-not \( -name .ccls-cache -prune \) \
-		-not \( -name .pio -prune \) \
-		-not \( -name mjs -prune \) \
-		-not \( -name doomgeneric -prune \) \
-		-not \( -name bak -prune \) \
-		-iname *.h \
-		-o -iname *.cpp \
-		-o -iname *.c \
-		-o -iname *.hpp \
-		-o -iname *.h \
-		-o -iname *.rst \
-		| xargs clang-format -i
-
 .PHONY: todo
 todo: ## Find all TODO, FIXME, XXX comments
-	@find \
+	find \
 		. \
 		-not \( -name .ccls-cache -prune \) \
 		-not \( -name .pio -prune \) \
@@ -34,6 +21,20 @@ todo: ## Find all TODO, FIXME, XXX comments
 		-o -iname *.h \
 		-o -iname *.rst \
 		| xargs grep --color=always -n -H -E "TODO|FIXME|XXX" \
+
+.PHONY: icons
+icons:
+	# Find all PNG images in firmware and sdk folders and convert them to .h
+	find \
+		firmware \
+		sdk \
+		-not \( -name .ccls-cache -prune \) \
+		-not \( -name .pio -prune \) \
+		-not \( -name mjs -prune \) \
+		-not \( -name doomgeneric -prune \) \
+		-not \( -name bak -prune \) \
+		-iname *.png \
+		-exec $(IMAGE2CODE) {} \;
 
 .PHONY: check
 check: clang-format cppcheck ## Run all checks
@@ -61,11 +62,11 @@ clang-format: ## Run clang-format check
 		-o -iname *.c \
 		-o -iname *.hpp \
 		-o -iname *.h \
-		| xargs clang-format --dry-run --Werror
+		| xargs $(CLANG_FORMAT) --dry-run --Werror
 
 .PHONY: cppcheck
 cppcheck: ## Run cppcheck check
-	cppcheck . -i.ccls-cache -ipio -imjs -idoomgeneric -ibak --enable=performance,style \
+	$(CPPCHECK) . -i.ccls-cache -ipio -imjs -idoomgeneric -ibak --enable=performance,style \
 		--suppress=knownPointerToBool \
 		--suppress=noCopyConstructor \
 		--suppress=noOperatorEq \
@@ -73,19 +74,4 @@ cppcheck: ## Run cppcheck check
 		--error-exitcode=1
 
 .PHONY: fix
-fix:
-	# Find all files, but exclude .pio and .ccls-cache directories
-	# Preserve colors in output
-	find \
-		. \
-		-not \( -name .ccls-cache -prune \) \
-		-not \( -name .pio -prune \) \
-		-not \( -name mjs -prune \) \
-		-not \( -name doomgeneric -prune \) \
-		-not \( -name bak -prune \) \
-		-iname *.h \
-		-o -iname *.cpp \
-		-o -iname *.c \
-		-o -iname *.hpp \
-		-o -iname *.h \
-		| xargs clang-format -i
+fix: ## Fix code style

@@ -201,6 +201,37 @@ private:
     int16_t progress;
 };
 
+#define LILKA_KB_LAYERS 3
+#define LILKA_KB_ROWS   4
+#define LILKA_KB_COLS   12
+
+/// Клас для відображення діалогового вікна введення.
+///
+/// Малює вікно введення та екранну клавіатуру, дозволяє вводити текст та підтверджувати введення.
+class InputDialog {
+public:
+    explicit InputDialog(String title);
+    void setMasked(bool masked);
+    void update();
+    void draw(Arduino_GFX* canvas);
+    bool isDone();
+    String getValue();
+
+private:
+    void resetBlink();
+
+    String title;
+    bool masked;
+    String value;
+    bool done;
+
+    int16_t layer;
+    int16_t cx;
+    int16_t cy;
+    int64_t lastBlink;
+    bool blinkPhase;
+};
+
 } // namespace lilka
 
 #endif // LILKA_UI_H

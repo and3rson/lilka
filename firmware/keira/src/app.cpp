@@ -15,6 +15,9 @@ App::App(const char* name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) :
     backCanvas(new lilka::Canvas(x, y, w, h)),
     isDrawQueued(false),
     backCanvasMutex(xSemaphoreCreateMutex()) {
+    // Clear buffers
+    canvas->fillScreen(0);
+    backCanvas->fillScreen(0);
     Serial.println(
         "Created app " + String(name) + " at " + String(x) + ", " + String(y) + " with size " + String(w) + "x" +
         String(h)
@@ -27,7 +30,7 @@ void App::start() {
         return;
     }
     Serial.println("Starting app " + String(name));
-    if (xTaskCreate(_run, name, 8192, this, 1, &taskHandle) != pdPASS) {
+    if (xTaskCreatePinnedToCore(_run, name, 8192, this, 1, &taskHandle, 0) != pdPASS) {
         Serial.println("Failed to create task for app " + String(name) + " (not enough memory?)");
     }
 }
