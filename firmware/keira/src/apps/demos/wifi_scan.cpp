@@ -1,6 +1,8 @@
 #include <WiFi.h>
 
 #include "wifi_scan.h"
+#include "servicemanager.h"
+#include "services/network.h"
 
 WifiScanApp::WifiScanApp() : App("WiFi Scanner") {
 }
@@ -35,24 +37,71 @@ void WifiScanApp::run() {
         networks[i] = WiFi.SSID(i);
     }
 
-    // TODO: FreeRTOS experiment
-    // lilka::ui_menu(canvas, "Мережі", networks, count, 0);
     lilka::Menu menu("Мережі");
     for (int16_t i = 0; i < count; i++) {
         menu.addItem(networks[i]);
     }
-    menu.draw(canvas);
-    queueDraw();
+    menu.addItem("<< Назад");
+    count++;
     while (1) {
-        menu.update();
-        menu.draw(canvas);
+        int index = -1;
+        while (index == -1) {
+            menu.update();
+            menu.draw(canvas);
+            queueDraw();
+            index = menu.getSelectedIndex();
+        }
+        if (index == count - 1) {
+            return;
+        }
+
+        String ssid = networks[index];
+
+        // Attempt to connect to the selected network
+        NetworkService* networkService = (NetworkService*)ServiceManager::getInstance()->getService<NetworkService>();
+        // TODO: assert networkService != nullptr
+        if (!networkService->connect(ssid)) {
+            // Password required
+            lilka::InputDialog passwordDialog("Введіть пароль:");
+            passwordDialog.setMasked(true);
+            while (!passwordDialog.isDone()) {
+                passwordDialog.update();
+                passwordDialog.draw(canvas);
+                queueDraw();
+            }
+            String password = passwordDialog.getValue();
+            networkService->connect(ssid, password);
+        }
+
+        buffer.fillScreen(buffer.color565(0, 0, 0));
+        buffer.setCursor(4, 150);
+        buffer.println("Під'єднуємось...");
+        canvas->drawCanvas(&buffer);
         queueDraw();
-        if (menu.getSelectedIndex() != -1) {
-            break;
+
+        // Wait for the network to connect or fail
+        while (networkService->getNetworkState() == NETWORK_STATE_CONNECTING) {
+            taskYIELD();
+        }
+
+        lilka::Alert alert("", "");
+        bool success = networkService->getNetworkState() == NETWORK_STATE_ONLINE;
+        if (success) {
+            alert.setTitle("Успіх");
+            alert.setMessage("Під'єднано до мережі " + ssid);
+        } else {
+            alert.setTitle("Помилка");
+            alert.setMessage("Не вдалося під'єднатись до мережі " + ssid);
+        }
+
+        alert.draw(canvas);
+        queueDraw();
+        while (!alert.isDone()) {
+            alert.update();
+        }
+
+        if (success) {
+            return;
         }
     }
-
-    // while (!lilka::controller.getState().a.justPressed) {
-    //     delay(10);
-    // }
 }

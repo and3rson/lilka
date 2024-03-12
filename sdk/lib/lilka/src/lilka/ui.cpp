@@ -140,6 +140,14 @@ Alert::Alert(String title, String message) {
     this->done = false;
 }
 
+void Alert::setTitle(String title) {
+    this->title = title;
+}
+
+void Alert::setMessage(String message) {
+    this->message = message;
+}
+
 void Alert::update() {
     State state = controller.getState();
     if (state.a.justPressed) {
