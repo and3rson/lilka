@@ -4,16 +4,23 @@
 
 // EEPROM preferences used:
 // - network.last_ssid - last connected SSID
-// - network.[SSID]_password - password of known network with a given SSID
+// - network.[SSID_hash]_pw - password of known network with a given SSID
 
-NetworkService::NetworkService() : Service("network") {
-    state = NETWORK_STATE_OFFLINE;
-    signalStrength = 0;
-    mutex = xSemaphoreCreateMutex();
+NetworkService::NetworkService() :
+    Service("network"),
+    state(NETWORK_STATE_OFFLINE),
+    reason(0),
+    signalStrength(0),
+    mutex(xSemaphoreCreateMutex()),
+    lastPassword(""),
+    ipAddr("") {
+    // TODO: Use the mutex, Luke!
 }
 
 void NetworkService::run() {
     Preferences prefs;
+
+    WiFi.mode(WIFI_STA);
 
     // Check if there is a known network to connect to
     prefs.begin("network", true);
@@ -21,8 +28,13 @@ void NetworkService::run() {
         Serial.println("network worker: no last SSID found, skipping startup connection");
     } else {
         String currentSSID = prefs.getString("last_ssid");
-        String currentPassword = prefs.getString(String(currentSSID + "_password").c_str());
-        connect(currentSSID, currentPassword);
+        Serial.println("network worker: last SSID found: " + currentSSID);
+        lastPassword = getPassword(currentSSID);
+        if (lastPassword == "") {
+            Serial.println("network worker: no password found for last SSID, skipping startup connection");
+        } else {
+            connect(currentSSID, lastPassword);
+        }
     }
     prefs.end();
 
@@ -38,22 +50,43 @@ void NetworkService::run() {
                 state = NETWORK_STATE_ONLINE;
                 Preferences prefs;
                 String connectedSSID = String(info.wifi_sta_connected.ssid, info.wifi_sta_connected.ssid_len);
-                prefs.begin("network", true);
-                if (!String(prefs.getString("last_ssids")).equals(connectedSSID)) {
+                prefs.begin("network", false);
+                if (!prefs.isKey("last_ssid") || !String(prefs.getString("last_ssid")).equals(connectedSSID)) {
                     // Set current SSID as last connected
                     prefs.putString("last_ssid", String(connectedSSID));
                     Serial.println("network worker: last SSID set to " + connectedSSID);
                 }
-                if (!prefs.isKey(String(connectedSSID + "_password").c_str())) {
+                prefs.end();
+                String ssidHash = hash(connectedSSID);
+                String savedPassword = getPassword(connectedSSID);
+                prefs.begin("network", false);
+                if (savedPassword != lastPassword) {
                     // Save password for the connected network
-                    prefs.putString(String(connectedSSID + "_password").c_str(), connectedSSID);
+                    prefs.putString(String(ssidHash + "_pw").c_str(), lastPassword);
                     Serial.println("network worker: password for " + connectedSSID + " saved");
                 }
                 prefs.end();
                 break;
             }
             case ARDUINO_EVENT_WIFI_STA_DISCONNECTED: {
-                Serial.println("network worker: disconnected from WiFi");
+                Serial.println(
+                    "network worker: disconnected from WiFi, reason " + String(info.wifi_sta_disconnected.reason)
+                );
+                state = NETWORK_STATE_OFFLINE;
+                reason = info.wifi_sta_disconnected.reason;
+                break;
+            }
+            case ARDUINO_EVENT_WIFI_STA_GOT_IP:
+            case ARDUINO_EVENT_WIFI_STA_GOT_IP6: {
+                IPAddress ip = WiFi.localIP();
+                ipAddr = ip.toString();
+                Serial.println("network worker: got IP address: " + ipAddr);
+                state = NETWORK_STATE_ONLINE;
+                break;
+            }
+            case ARDUINO_EVENT_WIFI_STA_LOST_IP: {
+                Serial.println("network worker: lost IP address");
+                ipAddr = "";
                 state = NETWORK_STATE_OFFLINE;
                 break;
             }
@@ -108,23 +141,51 @@ int NetworkService::getSignalStrength() {
 // Attempt to connect to a given network.
 // If the network is not known (password is required), return false.
 bool NetworkService::connect(String ssid) {
-    Preferences prefs;
-    prefs.begin("network", false);
-    if (!prefs.isKey(String(ssid + "_password").c_str())) {
+    String password = getPassword(ssid);
+    if (password == "") {
         Serial.println("network worker: no password found for SSID " + ssid);
-        prefs.end();
         return false;
     }
-    prefs.end();
-    // connect(ssid, prefs.getString(String(ssid + "_password").c_str()));
     Serial.println("network worker: found password for SSID " + ssid);
-    connect(ssid, prefs.getString(String(ssid + "_password").c_str()));
+    connect(ssid, password);
     return true;
 }
 
 // Attempt to connect to a given network with a given password.
 void NetworkService::connect(String ssid, String password) {
     Serial.println("network worker: connecting to " + ssid);
-    state = NETWORK_STATE_CONNECTING;
+    lastPassword = password;
+    WiFi.disconnect();
     WiFi.begin(ssid.c_str(), password.c_str());
+}
+
+String NetworkService::getPassword(String ssid) {
+    Preferences prefs;
+    prefs.begin("network", true);
+    String ssidHash = hash(ssid);
+    String result;
+    if (!prefs.isKey(String(ssidHash + "_pw").c_str())) {
+        result = "";
+    } else {
+        result = prefs.getString(String(ssidHash + "_pw").c_str());
+    }
+    prefs.end();
+    return result;
+}
+
+String NetworkService::hash(String input) {
+    // Calculate simple hash of the input and truncate it to 8 hex characters
+
+    uint64_t hash = 0;
+    for (int i = 0; i < input.length(); i++) {
+        hash = (hash << 5) - hash + input[i];
+    }
+
+    char buffer[9];
+    snprintf(buffer, sizeof(buffer), "%08x", (unsigned int)hash);
+    return String(buffer);
+}
+
+String NetworkService::getIpAddr() {
+    return ipAddr;
 }

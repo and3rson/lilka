@@ -93,12 +93,12 @@
 #    define LILKA_I2S_DOUT               2
 #    define LILKA_I2S_LRCK               1
 // Роз'єм розширення
-#    define LILKA_P1                     12 // ADC2, CH1
-#    define LILKA_P2                     13 // ADC2, CH2
-#    define LILKA_P3                     14 // ADC2, CH3
-#    define LILKA_P4                     10
-#    define LILKA_P5                     11
-#    define LILKA_P6                     12
+#    define LILKA_P3                     48
+#    define LILKA_P4                     47
+#    define LILKA_P5                     21
+#    define LILKA_P6                     14 // ADC2, CH3
+#    define LILKA_P7                     13 // ADC2, CH2
+#    define LILKA_P8                     12 // ADC2, CH1
 
 #else
 #    error "LILKA_VERSION is not defined - did you forget to set board to lilka_v2 in your platformio.ini?"

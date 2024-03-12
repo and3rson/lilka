@@ -218,6 +218,7 @@ class InputDialog {
 public:
     explicit InputDialog(String title);
     void setMasked(bool masked);
+    void setValue(String value);
     void update();
     void draw(Arduino_GFX* canvas);
     bool isDone();

@@ -15,7 +15,7 @@ private:
     void sdBrowserMenu(String path);
     void spiffsBrowserMenu();
     void devMenu();
-    void systemUtilsMenu();
+    void settingsMenu();
 
     void selectFile(String path);
     void alert(String title, String message);

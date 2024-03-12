@@ -2,9 +2,9 @@
 
 #include "app.h"
 
-class WifiScanApp : public App {
+class WiFiConfigApp : public App {
 public:
-    WifiScanApp();
+    WiFiConfigApp();
 
 private:
     void run() override;

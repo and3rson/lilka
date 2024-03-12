@@ -18,10 +18,17 @@ public:
     bool connect(String ssid);
     void connect(String ssid, String password);
 
+    String getPassword(String ssid);
+    String getIpAddr();
+
 private:
     void run() override;
+    String hash(String input);
 
     SemaphoreHandle_t mutex;
     NetworkState state;
+    int reason;
     int8_t signalStrength; // Value in range [0,3]
+    String lastPassword;
+    String ipAddr;
 };
