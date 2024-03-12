@@ -140,6 +140,14 @@ Alert::Alert(String title, String message) {
     this->done = false;
 }
 
+void Alert::setTitle(String title) {
+    this->title = title;
+}
+
+void Alert::setMessage(String message) {
+    this->message = message;
+}
+
 void Alert::update() {
     State state = controller.getState();
     if (state.a.justPressed) {
@@ -169,7 +177,7 @@ void Alert::draw(Arduino_GFX* canvas) {
     canvas->fillRect(left, mid, width, bottom - mid, canvas->color565(32, 96, 96));
     canvas->setFont(FONT_9x15);
     canvas->setTextSize(1);
-    canvas->setTextBound(left + xMargin, top, width - xMargin * 2, bottom - mid);
+    canvas->setTextBound(left + xMargin, mid, width - xMargin * 2, bottom - mid);
     canvas->setCursor(left + xMargin, mid + 20);
     canvas->println(message);
 }
@@ -302,6 +310,10 @@ InputDialog::InputDialog(String title) {
 
 void InputDialog::setMasked(bool masked) {
     this->masked = masked;
+}
+
+void InputDialog::setValue(String value) {
+    this->value = value;
 }
 
 void InputDialog::update() {

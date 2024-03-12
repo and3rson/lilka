@@ -1,6 +1,10 @@
 #include "launcher.h"
 #include "appmanager.h"
 
+#include "servicemanager.h"
+#include "services/network.h"
+
+#include "wifi_config.h"
 #include "demos/lines.h"
 #include "demos/disk.h"
 #include "demos/ball.h"
@@ -10,7 +14,6 @@
 #include "demos/keyboard.h"
 #include "demos/user_spi.h"
 #include "demos/scan_i2c.h"
-#include "demos/wifi_scan.h"
 #include "lua/luarunner.h"
 #include "mjs/mjsrunner.h"
 #include "nes/nesapp.h"
@@ -38,8 +41,7 @@ void LauncherApp::run() {
     menu.addItem("Браузер SD-карти", &sdcard, lilka::display.color565(255, 255, 200));
     menu.addItem("Браузер SPIFFS", &memory, lilka::display.color565(200, 255, 200));
     menu.addItem("Розробка", &dev, lilka::display.color565(255, 224, 128));
-    menu.addItem("Системні утиліти", &settings, lilka::display.color565(255, 200, 224));
-    menu.addItem("Про систему", &info, lilka::display.color565(200, 224, 255));
+    menu.addItem("Налаштування", &settings, lilka::display.color565(255, 200, 224));
 
     while (1) {
         menu.update();
@@ -57,9 +59,7 @@ void LauncherApp::run() {
                 // dev_menu();
                 devMenu();
             } else if (index == 4) {
-                systemUtilsMenu();
-            } else if (index == 5) {
-                alert("Keira OS", "by Андерсон\n& friends");
+                settingsMenu();
             }
         }
         taskYIELD();
@@ -77,7 +77,6 @@ void LauncherApp::appsMenu() {
         "Клавіатура",
         "Тест SPI",
         "I2C-сканер",
-        "WiFi-сканер",
         "<< Назад",
     };
     // vector of functions
@@ -91,7 +90,6 @@ void LauncherApp::appsMenu() {
         APP_CLASS(KeyboardApp),
         APP_CLASS(UserSPIApp),
         APP_CLASS(ScanI2CApp),
-        APP_CLASS(WifiScanApp),
     };
     int count = sizeof(titles) / sizeof(titles[0]);
     lilka::Menu menu("Демо");
@@ -316,12 +314,13 @@ void LauncherApp::devMenu() {
     }
 }
 
-void LauncherApp::systemUtilsMenu() {
+void LauncherApp::settingsMenu() {
     String titles[] = {
-        "Перезавантаження",
-        "Версія ESP-IDF",
+        "WiFi",
+        "Про систему",
         "Інфо про пристрій",
         "Таблиця розділів",
+        "Перезавантаження",
         "<< Назад",
     };
     int count = sizeof(titles) / sizeof(titles[0]);
@@ -339,25 +338,28 @@ void LauncherApp::systemUtilsMenu() {
                 return;
             }
             if (index == 0) {
-                esp_restart();
+                AppManager::getInstance()->runApp(new WiFiConfigApp());
             } else if (index == 1) {
-                alert("Версія ESP-IDF", "Версія: " + String(ESP.getSdkVersion()));
+                alert("Keira OS", "by Андерсон & friends");
             } else if (index == 2) {
                 char buf[256];
+                NetworkService* networkService =
+                    static_cast<NetworkService*>(ServiceManager::getInstance()->getService<NetworkService>());
+                // TODO: use dynamic_cast and assert networkService != nullptr
                 sprintf(
                     buf,
                     "Модель: %s\n"
                     "Ревізія: %d\n"
-                    "Версія SDK: %s\n"
                     "Версія ESP-IDF: %s\n"
                     "Частота: %d МГц\n"
-                    "Кількість ядер: %d\n",
+                    "Кількість ядер: %d\n"
+                    "IP: %s",
                     ESP.getChipModel(),
                     ESP.getChipRevision(),
-                    ESP.getSdkVersion(),
                     esp_get_idf_version(),
                     ESP.getCpuFreqMHz(),
-                    ESP.getChipCores()
+                    ESP.getChipCores(),
+                    networkService->getIpAddr().c_str()
                 );
                 alert("Інфо про пристрій", buf);
             } else if (index == 3) {
@@ -386,6 +388,8 @@ void LauncherApp::systemUtilsMenu() {
                         );
                     }
                 }
+            } else if (index == 4) {
+                esp_restart();
             }
         }
     }

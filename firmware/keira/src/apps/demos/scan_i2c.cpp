@@ -10,12 +10,13 @@ void ScanI2CApp::run() {
     lilka::Canvas buffer(canvas->width(), canvas->height());
     buffer.begin();
     buffer.fillScreen(0);
-
-    Wire.begin(9, 10, 100000);
+    buffer.setFont(FONT_9x15);
 
     buffer.fillScreen(canvas->color565(0, 0, 0));
     buffer.setTextBound(4, 0, canvas->width() - 8, canvas->height());
-    buffer.setCursor(4, 48);
+    buffer.setCursor(4, 20);
+    buffer.println("I2C init: SDA=" + String(LILKA_P3) + ", SCL=" + String(LILKA_P4));
+    Wire.begin(LILKA_P3, LILKA_P4, 100000);
     buffer.println("Starting I2C scan...");
     canvas->drawCanvas(&buffer);
     queueDraw();
@@ -31,12 +32,8 @@ void ScanI2CApp::run() {
         } else {
             buffer.print(".");
         }
-        if (address % 16 == 0 || address == 127) {
+        if (address % 24 == 0 || address == 127) {
             buffer.println();
-        }
-        if (address % 32 == 0 || address == 127) {
-            canvas->drawCanvas(&buffer);
-            queueDraw();
         }
     }
 

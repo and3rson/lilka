@@ -12,16 +12,23 @@ enum NetworkState {
 class NetworkService : public Service {
 public:
     NetworkService();
-    void configure(String ssid, String password);
+    // void configure(String ssid, String password);
     NetworkState getNetworkState();
     int getSignalStrength();
+    bool connect(String ssid);
+    void connect(String ssid, String password);
+
+    String getPassword(String ssid);
+    String getIpAddr();
 
 private:
     void run() override;
-    void connect();
-    NetworkState state;
+    String hash(String input);
 
-    String ssid;
-    String password;
-    int8_t _signalStrength; // Value in range [0,3]
+    SemaphoreHandle_t mutex;
+    NetworkState state;
+    int reason;
+    int8_t signalStrength; // Value in range [0,3]
+    String lastPassword;
+    String ipAddr;
 };

@@ -8,10 +8,11 @@ void UserSPIApp::run() {
     lilka::Canvas buffer(canvas->width(), canvas->height());
     buffer.begin();
     buffer.fillScreen(0);
+    buffer.setFont(FONT_9x15);
 
     buffer.fillScreen(buffer.color565(0, 0, 0));
     buffer.setTextBound(4, 0, canvas->width() - 8, canvas->height());
-    buffer.setCursor(4, 48);
+    buffer.setCursor(4, 20);
     buffer.println("SPI2 begin");
     canvas->drawCanvas(&buffer);
     queueDraw();

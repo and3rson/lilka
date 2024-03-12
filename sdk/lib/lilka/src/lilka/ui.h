@@ -116,6 +116,12 @@ public:
     /// @param title Заголовок сповіщення.
     /// @param message Повідомлення сповіщення.
     Alert(String title, String message);
+    /// Змінити заголовок сповіщення.
+    /// @param title Новий заголовок сповіщення.
+    void setTitle(String title);
+    /// Змінити повідомлення сповіщення.
+    /// @param message Нове повідомлення сповіщення.
+    void setMessage(String message);
     /// Оновити стан сповіщення.
     ///
     /// Цю функцію потрібно викликати, щоб сповіщення опрацювало вхідні дані від користувача та оновило свій стан.
@@ -212,6 +218,7 @@ class InputDialog {
 public:
     explicit InputDialog(String title);
     void setMasked(bool masked);
+    void setValue(String value);
     void update();
     void draw(Arduino_GFX* canvas);
     bool isDone();
