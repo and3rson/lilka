@@ -7,6 +7,7 @@
 #include "demos/transform.h"
 #include "demos/epilepsy.h"
 #include "demos/letris.h"
+#include "demos/keyboard.h"
 #include "demos/user_spi.h"
 #include "demos/scan_i2c.h"
 #include "demos/wifi_scan.h"
@@ -73,6 +74,7 @@ void LauncherApp::appsMenu() {
         "М'ячик",
         "Епілепсія",
         "Летріс",
+        "Клавіатура",
         "Тест SPI",
         "I2C-сканер",
         "WiFi-сканер",
@@ -86,6 +88,7 @@ void LauncherApp::appsMenu() {
         APP_CLASS(BallApp),
         APP_CLASS(EpilepsyApp),
         APP_CLASS(LetrisApp),
+        APP_CLASS(KeyboardApp),
         APP_CLASS(UserSPIApp),
         APP_CLASS(ScanI2CApp),
         APP_CLASS(WifiScanApp),

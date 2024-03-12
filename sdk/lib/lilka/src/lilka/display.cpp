@@ -105,15 +105,19 @@ void Display::drawImageTransformed(Image* image, int16_t destX, int16_t destY, T
     // Transform image around its pivot.
     // Draw the rotated image at the specified position.
 
+    int32_t imageWidth = image->width;
+    int32_t imageHeight = image->height;
+
     // Calculate the coordinates of the four corners of the destination rectangle.
-    IntVector v1 = transform.apply(IntVector(-image->pivotX, -image->pivotY));
-    IntVector v2 = transform.apply(IntVector(image->width - image->pivotX, -image->pivotY));
-    IntVector v3 = transform.apply(IntVector(-image->pivotX, image->height - image->pivotY));
-    IntVector v4 = transform.apply(IntVector(image->width - image->pivotX, image->height - image->pivotY));
+    int_vector_t v1 = transform.apply(int_vector_t{-image->pivotX, -image->pivotY});
+    int_vector_t v2 = transform.apply(int_vector_t{imageWidth - image->pivotX, -image->pivotY});
+    int_vector_t v3 = transform.apply(int_vector_t{-image->pivotX, imageHeight - image->pivotY});
+    int_vector_t v4 = transform.apply(int_vector_t{imageWidth - image->pivotX, imageHeight - image->pivotY});
 
     // Find the bounding box of the transformed image.
-    IntVector topLeft = IntVector(min(min(v1.x, v2.x), min(v3.x, v4.x)), min(min(v1.y, v2.y), min(v3.y, v4.y)));
-    IntVector bottomRight = IntVector(max(max(v1.x, v2.x), max(v3.x, v4.x)), max(max(v1.y, v2.y), max(v3.y, v4.y)));
+    int_vector_t topLeft = int_vector_t{min(min(v1.x, v2.x), min(v3.x, v4.x)), min(min(v1.y, v2.y), min(v3.y, v4.y))};
+    int_vector_t bottomRight =
+        int_vector_t{max(max(v1.x, v2.x), max(v3.x, v4.x)), max(max(v1.y, v2.y), max(v3.y, v4.y))};
 
     // Create a new image to hold the transformed image.
     Image destImage(bottomRight.x - topLeft.x, bottomRight.y - topLeft.y, image->transparentColor, 0, 0);
@@ -122,7 +126,7 @@ void Display::drawImageTransformed(Image* image, int16_t destX, int16_t destY, T
     Transform inverse = transform.inverse();
     for (int y = topLeft.y; y < bottomRight.y; y++) {
         for (int x = topLeft.x; x < bottomRight.x; x++) {
-            IntVector v = inverse.apply(IntVector(x, y));
+            int_vector_t v = inverse.apply(int_vector_t{x, y});
             // Apply pivot offset
             v.x += image->pivotX;
             v.y += image->pivotY;
@@ -184,34 +188,44 @@ void Canvas::drawImageTransformed(Image* image, int16_t destX, int16_t destY, Tr
     // Draw the rotated image at the specified position.
 
     // Calculate the coordinates of the four corners of the destination rectangle.
-    IntVector v1 = transform.apply(IntVector(-image->pivotX, -image->pivotY));
-    IntVector v2 = transform.apply(IntVector(image->width - image->pivotX, -image->pivotY));
-    IntVector v3 = transform.apply(IntVector(-image->pivotX, image->height - image->pivotY));
-    IntVector v4 = transform.apply(IntVector(image->width - image->pivotX, image->height - image->pivotY));
+    int32_t imageWidth = image->width;
+    int32_t imageHeight = image->height;
+
+    // Calculate the coordinates of the four corners of the destination rectangle.
+    int_vector_t v1 = transform.apply(int_vector_t{-image->pivotX, -image->pivotY});
+    int_vector_t v2 = transform.apply(int_vector_t{imageWidth - image->pivotX, -image->pivotY});
+    int_vector_t v3 = transform.apply(int_vector_t{-image->pivotX, imageHeight - image->pivotY});
+    int_vector_t v4 = transform.apply(int_vector_t{imageWidth - image->pivotX, imageHeight - image->pivotY});
 
     // Find the bounding box of the transformed image.
-    IntVector topLeft = IntVector(min(min(v1.x, v2.x), min(v3.x, v4.x)), min(min(v1.y, v2.y), min(v3.y, v4.y)));
-    IntVector bottomRight = IntVector(max(max(v1.x, v2.x), max(v3.x, v4.x)), max(max(v1.y, v2.y), max(v3.y, v4.y)));
+    int_vector_t topLeft = int_vector_t{min(min(v1.x, v2.x), min(v3.x, v4.x)), min(min(v1.y, v2.y), min(v3.y, v4.y))};
+    int_vector_t bottomRight =
+        int_vector_t{max(max(v1.x, v2.x), max(v3.x, v4.x)), max(max(v1.y, v2.y), max(v3.y, v4.y))};
 
     // Create a new image to hold the transformed image.
     Image destImage(bottomRight.x - topLeft.x, bottomRight.y - topLeft.y, image->transparentColor, 0, 0);
 
     // Draw the transformed image to the new image.
     Transform inverse = transform.inverse();
-    for (int y = topLeft.y; y < bottomRight.y; y++) {
-        for (int x = topLeft.x; x < bottomRight.x; x++) {
-            IntVector v = inverse.apply(IntVector(x, y));
+    uint64_t start = esp_timer_get_time();
+    int_vector_t point{0, 0};
+    for (point.y = topLeft.y; point.y < bottomRight.y; point.y++) {
+        for (point.x = topLeft.x; point.x < bottomRight.x; point.x++) {
+            int_vector_t v = inverse.apply(point);
             // Apply pivot offset
             v.x += image->pivotX;
             v.y += image->pivotY;
             if (v.x >= 0 && v.x < image->width && v.y >= 0 && v.y < image->height) {
-                destImage.pixels[x - topLeft.x + (y - topLeft.y) * destImage.width] =
+                destImage.pixels[point.x - topLeft.x + (point.y - topLeft.y) * destImage.width] =
                     image->pixels[v.x + v.y * image->width];
             } else {
-                destImage.pixels[x - topLeft.x + (y - topLeft.y) * destImage.width] = image->transparentColor;
+                destImage.pixels[point.x - topLeft.x + (point.y - topLeft.y) * destImage.width] =
+                    image->transparentColor;
             }
         }
     }
+    uint64_t end = esp_timer_get_time();
+    Serial.println("Transformed image in " + String(end - start) + " us");
 
     // TODO: Draw directly to the canvas?
     drawImage(&destImage, destX + topLeft.x, destY + topLeft.y);
@@ -348,12 +362,12 @@ Transform Transform::inverse() {
     return t;
 }
 
-IntVector Transform::apply(IntVector v) {
+inline int_vector_t Transform::apply(int_vector_t v) {
     // Apply this transform to a vector
-    return IntVector(matrix[0][0] * v.x + matrix[0][1] * v.y, matrix[1][0] * v.x + matrix[1][1] * v.y);
-}
-
-IntVector::IntVector(int32_t x, int32_t y) : x(x), y(y) {
+    return int_vector_t{
+        static_cast<int32_t>(matrix[0][0] * v.x + matrix[0][1] * v.y),
+        static_cast<int32_t>(matrix[1][0] * v.x + matrix[1][1] * v.y)
+    };
 }
 
 Display display;

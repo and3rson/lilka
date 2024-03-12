@@ -255,4 +255,193 @@ void ProgressDialog::draw(Arduino_GFX* canvas) {
     canvas->print(buf);
 }
 
+#define K_L0 1
+#define K_L1 2
+#define K_L2 3
+#define K_BS 8
+
+// 2 layers, 4 rows, 12 columns
+const uint8_t keyboard[LILKA_KB_LAYERS][LILKA_KB_ROWS * LILKA_KB_COLS] = {
+    // Layer 0
+    {
+        ' ',  '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',  ' ', // R1
+        ' ',  'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',  ' ', // R2
+        K_L1, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', K_BS, ' ', // R3
+        K_L2, 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', ' ',  ' ', // R4
+    },
+    // Layer 1 (shifted layer 0)
+    {
+        ' ',  '!', '@', '#', '$', '%', '^', '&', '*', '(', ')',  ' ', // R1
+        ' ',  'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',  ' ', // R2
+        K_L0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', K_BS, ' ', // R3
+        K_L2, 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', ' ',  ' ', // R4
+    },
+    // Layer 2 (special keys - braces, slashes, etc)
+    {
+        ' ',  '{', '}', '[', ']', '|', '\\', ':', ';', '\'', '"',  ' ', // R1
+        ' ',  '<', '>', '?', '/', '!', '@',  '#', '$', '%',  '^',  ' ', // R2
+        ' ',  '(', ')', '-', '_', '=', '+',  ':', ';', '\'', K_BS, ' ', // R3
+        K_L0, '<', '>', '?', '/', ' ', ' ',  ' ', ' ', ' ',  ' ',  ' ', // R4
+    },
+};
+
+InputDialog::InputDialog(String title) {
+    this->title = title;
+    this->masked = false;
+
+    this->done = false;
+    this->value = "";
+
+    this->layer = 0;
+    this->cx = 0;
+    this->cy = 0;
+
+    this->lastBlink = 0;
+    this->blinkPhase = true;
+}
+
+void InputDialog::setMasked(bool masked) {
+    this->masked = masked;
+}
+
+void InputDialog::update() {
+    if (millis() - lastBlink > 300) {
+        lastBlink = millis();
+        blinkPhase = !blinkPhase;
+    }
+
+    State state = controller.getState();
+    if (state.a.justPressed) {
+        // TODO: Handle key press
+        const uint8_t* layerKeys = keyboard[layer];
+        uint8_t key = layerKeys[cy * LILKA_KB_COLS + cx];
+        if (key == K_L0) {
+            layer = 0;
+        } else if (key == K_L1) {
+            layer = 1;
+        } else if (key == K_L2) {
+            layer = 2;
+        } else if (key == K_BS) {
+            if (value.length() > 0) {
+                value.remove(value.length() - 1);
+            }
+        } else if (key) {
+            value += (char)key;
+        }
+        resetBlink();
+    } else if (state.b.justPressed) {
+        if (value.length() > 0) {
+            value.remove(value.length() - 1);
+        }
+        resetBlink();
+    } else if (state.start.justPressed) {
+        done = true;
+    } else if (state.up.justPressed) {
+        cy--;
+        if (cy < 0) {
+            cy = LILKA_KB_ROWS - 1;
+        }
+    } else if (state.down.justPressed) {
+        cy++;
+        if (cy > LILKA_KB_ROWS - 1) {
+            cy = 0;
+        }
+    } else if (state.left.justPressed) {
+        cx--;
+        if (cx < 0) {
+            cx = LILKA_KB_COLS - 1;
+        }
+    } else if (state.right.justPressed) {
+        cx++;
+        if (cx > LILKA_KB_COLS - 1) {
+            cx = 0;
+        }
+    }
+}
+
+void InputDialog::draw(Arduino_GFX* canvas) {
+    // Draw keyboard
+    int16_t kbTop = canvas->height() / 2 - 32;
+    int16_t kbHeight = canvas->height() / 2;
+    int16_t kbWidth = canvas->width();
+
+    canvas->fillRect(0, 0, canvas->width(), canvas->height(), canvas->color565(0, 0, 0));
+    canvas->setTextColor(canvas->color565(255, 255, 255));
+    canvas->setFont(FONT_10x20);
+
+    canvas->setTextBound(4, 4, canvas->width() - 8, canvas->height() - 8);
+    canvas->setCursor(4, 20);
+    canvas->println(title);
+
+    canvas->setTextBound(16, 16, canvas->width() - 32, canvas->height() - 32);
+    canvas->setCursor(16, 48);
+    if (masked) {
+        for (int i = 0; i < value.length(); i++) {
+            canvas->print("*");
+        }
+    } else {
+        canvas->print(value);
+    }
+    if (blinkPhase) {
+        canvas->print("|");
+    }
+
+    // canvas->setTextBound(0, kbTop + kbHeight, canvas->width(), canvas->height());
+
+    const uint8_t* layerKeys = keyboard[layer];
+
+    for (int i = 0; i < LILKA_KB_ROWS; i++) {
+        for (int j = 0; j < LILKA_KB_COLS; j++) {
+            // Draw rect if key is focused
+            if (i == cy && j == cx) {
+                canvas->fillRect(
+                    j * kbWidth / LILKA_KB_COLS,
+                    kbTop + i * kbHeight / LILKA_KB_ROWS,
+                    kbWidth / LILKA_KB_COLS,
+                    kbHeight / LILKA_KB_ROWS,
+                    canvas->color565(255, 64, 0)
+                );
+            }
+            uint8_t key = layerKeys[i * LILKA_KB_COLS + j];
+            if (key) {
+                String caption;
+                if (key == K_L0 || key == K_L1 || key == K_L2) {
+                    caption = key == K_L0 ? "ab" : key == K_L1 ? "AB" : "!@";
+                } else if (key == K_BS) {
+                    caption = "<-";
+                } else {
+                    caption = (char)key;
+                }
+                int16_t x1, y1;
+                uint16_t w, h;
+                // Calculate text top-left corner and size
+                canvas->getTextBounds(caption, 0, 0, &x1, &y1, &w, &h);
+                // Print centered text
+                canvas->setCursor(
+                    j * kbWidth / LILKA_KB_COLS + (kbWidth / LILKA_KB_COLS - w) / 2,
+                    kbTop + i * kbHeight / LILKA_KB_ROWS + (kbHeight / LILKA_KB_ROWS - h) / 2 - y1
+                );
+                canvas->print(caption);
+            }
+        }
+    }
+}
+
+bool InputDialog::isDone() {
+    if (done) {
+        done = false;
+        return true;
+    }
+    return false;
+}
+
+String InputDialog::getValue() {
+    return value;
+}
+
+void InputDialog::resetBlink() {
+    lastBlink = millis();
+    blinkPhase = true;
+}
+
 } // namespace lilka

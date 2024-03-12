@@ -22,7 +22,10 @@ namespace lilka {
 class Canvas;
 class Image;
 class Transform;
-class IntVector;
+typedef struct int_vector_t {
+    int32_t x;
+    int32_t y;
+} int_vector_t;
 
 /// Клас для роботи з дисплеєм.
 ///
@@ -387,17 +390,10 @@ public:
     /// @note Інвертне перетворення - це таке перетворення, яке скасує це перетворення, тобто є зворотнім до цього.
     Transform inverse();
 
-    IntVector apply(IntVector vector);
+    int_vector_t apply(int_vector_t vector);
 
     // Матриця перетворення
     float matrix[2][2]; // [рядок][стовпець]
-};
-
-class IntVector {
-public:
-    IntVector(int32_t x, int32_t y);
-    int32_t x;
-    int32_t y;
 };
 
 /// Екземпляр класу `Display`, який можна використовувати для роботи з дисплеєм.

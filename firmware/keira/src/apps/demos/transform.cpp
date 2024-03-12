@@ -8,6 +8,16 @@ TransformApp::TransformApp() : App("Transform") {
 void TransformApp::run() {
     lilka::Image* face = lilka::resources.loadImage("/sd/face.bmp", canvas->color565(0, 0, 0), 32, 32);
 
+    if (!face) {
+        lilka::Alert alert("Помилка", "Не вдалось завантажити face.bmp з SD-карти.");
+        alert.draw(canvas);
+        queueDraw();
+        while (!alert.isDone()) {
+            alert.update();
+        }
+        return;
+    }
+
     int x = canvas->width() / 2;
     int y = canvas->height() / 2;
 
