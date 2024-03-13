@@ -3,6 +3,11 @@
 #include "lilka/display.h"
 #include "lilka/controller.h"
 
+#include "icons/shift.h"
+#include "icons/shifted.h"
+#include "icons/backspace.h"
+#include "icons/whitespace.h"
+
 namespace lilka {
 
 #define MENU_HEIGHT 5
@@ -263,33 +268,37 @@ void ProgressDialog::draw(Arduino_GFX* canvas) {
     canvas->print(buf);
 }
 
-#define K_L0 1
-#define K_L1 2
-#define K_L2 3
-#define K_BS 8
+#define LILKA_KB_LAYERS 3
+#define LILKA_KB_ROWS   4
+#define LILKA_KB_COLS   11
 
-// 2 layers, 4 rows, 12 columns
+#define K_L0            1
+#define K_L1            2
+#define K_L2            3
+#define K_BS            8
+
+// 2 layers, 4 rows, 11 columns
 const uint8_t keyboard[LILKA_KB_LAYERS][LILKA_KB_ROWS * LILKA_KB_COLS] = {
     // Layer 0
     {
-        ' ',  '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',  ' ', // R1
-        ' ',  'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',  ' ', // R2
-        K_L1, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', K_BS, ' ', // R3
-        K_L2, 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', ' ',  ' ', // R4
+        '!',  '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', // R1
+        '?',  'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', // R2
+        K_L1, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', K_BS, // R3
+        K_L2, 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', ' ', // R4
     },
     // Layer 1 (shifted layer 0)
     {
-        ' ',  '!', '@', '#', '$', '%', '^', '&', '*', '(', ')',  ' ', // R1
-        ' ',  'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P',  ' ', // R2
-        K_L0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', K_BS, ' ', // R3
-        K_L2, 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', ' ',  ' ', // R4
+        0,    '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', // R1
+        0,    'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', // R2
+        K_L0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', K_BS, // R3
+        K_L2, 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', ' ', // R4
     },
     // Layer 2 (special keys - braces, slashes, etc)
     {
-        ' ',  '{', '}', '[', ']', '|', '\\', ':', ';', '\'', '"',  ' ', // R1
-        ' ',  '<', '>', '?', '/', '!', '@',  '#', '$', '%',  '^',  ' ', // R2
-        ' ',  '(', ')', '-', '_', '=', '+',  ':', ';', '\'', K_BS, ' ', // R3
-        K_L0, '<', '>', '?', '/', ' ', ' ',  ' ', ' ', ' ',  ' ',  ' ', // R4
+        0,    '{', '}', '[', ']', '|', '\\', ':', ';', '\'', '"', // R1
+        0,    '<', '>', '?', '/', '!', '@',  '#', '$', '%',  '^', // R2
+        0,    '(', ')', '-', '_', '=', '+',  ':', ';', '\'', K_BS, // R3
+        K_L0, '<', '>', '?', '/', 0,   0,    0,   0,   0,    ' ', // R4
     },
 };
 
@@ -402,38 +411,63 @@ void InputDialog::draw(Arduino_GFX* canvas) {
 
     const uint8_t* layerKeys = keyboard[layer];
 
-    for (int i = 0; i < LILKA_KB_ROWS; i++) {
-        for (int j = 0; j < LILKA_KB_COLS; j++) {
+    const uint16_t buttonWidth = kbWidth / LILKA_KB_COLS;
+    const uint16_t buttonHeight = kbHeight / LILKA_KB_ROWS;
+
+    canvas->setTextBound(0, 0, canvas->width(), canvas->height());
+
+    for (int y = 0; y < LILKA_KB_ROWS; y++) {
+        for (int x = 0; x < LILKA_KB_COLS; x++) {
             // Draw rect if key is focused
-            if (i == cy && j == cx) {
+            if (y == cy && x == cx) {
                 canvas->fillRect(
-                    j * kbWidth / LILKA_KB_COLS,
-                    kbTop + i * kbHeight / LILKA_KB_ROWS,
-                    kbWidth / LILKA_KB_COLS,
-                    kbHeight / LILKA_KB_ROWS,
-                    canvas->color565(255, 64, 0)
+                    x * buttonWidth, kbTop + y * buttonHeight, buttonWidth, buttonHeight, canvas->color565(255, 64, 0)
                 );
             }
-            uint8_t key = layerKeys[i * LILKA_KB_COLS + j];
+            uint8_t key = layerKeys[y * LILKA_KB_COLS + x];
             if (key) {
                 String caption;
-                if (key == K_L0 || key == K_L1 || key == K_L2) {
-                    caption = key == K_L0 ? "ab" : key == K_L1 ? "AB" : "!@";
-                } else if (key == K_BS) {
-                    caption = "<-";
+                if (key == K_L0 || key == K_L1 || key == K_BS || key == ' ') {
+                    // Icons
+                    const uint16_t* icon = 0;
+                    const uint16_t iconWidth = 20;
+                    const uint16_t iconHeight = 20;
+                    if (key == K_L0 || key == K_L1) {
+                        icon = layer == 0 ? shift : shifted;
+                    } else if (key == K_BS) {
+                        icon = backspace;
+                    } else if (key == ' ') {
+                        icon = whitespace;
+                    }
+                    if (icon) {
+                        canvas->draw16bitRGBBitmapWithTranColor(
+                            x * buttonWidth + (buttonWidth / 2) - iconWidth / 2,
+                            kbTop + y * buttonHeight + (buttonHeight / 2) - iconHeight / 2,
+                            const_cast<uint16_t*>(icon),
+                            canvas->color565(0, 0, 0),
+                            iconWidth,
+                            iconHeight
+                        );
+                    }
                 } else {
-                    caption = (char)key;
+                    // Captions
+                    if (key == K_L2) {
+                        caption = key == K_L0 ? "ab" : key == K_L1 ? "AB" : "!@";
+                    } else if (key == K_BS) {
+                        caption = "<-";
+                    } else {
+                        caption = (char)key;
+                    }
+                    int16_t x1, y1;
+                    uint16_t w, h;
+                    // Calculate text top-left corner and size
+                    canvas->getTextBounds(caption, 0, 0, &x1, &y1, &w, &h);
+                    // Print centered text
+                    canvas->setCursor(
+                        x * buttonWidth + (buttonWidth - w) / 2, kbTop + y * buttonHeight + (buttonHeight - h) / 2 - y1
+                    );
+                    canvas->print(caption);
                 }
-                int16_t x1, y1;
-                uint16_t w, h;
-                // Calculate text top-left corner and size
-                canvas->getTextBounds(caption, 0, 0, &x1, &y1, &w, &h);
-                // Print centered text
-                canvas->setCursor(
-                    j * kbWidth / LILKA_KB_COLS + (kbWidth / LILKA_KB_COLS - w) / 2,
-                    kbTop + i * kbHeight / LILKA_KB_ROWS + (kbHeight / LILKA_KB_ROWS - h) / 2 - y1
-                );
-                canvas->print(caption);
             }
         }
     }
