@@ -9,6 +9,24 @@ typedef enum {
     APP_FLAG_FULLSCREEN = 1,
 } AppFlags;
 
+/// Клас, що представляє додаток для Кіри.
+///
+/// Додатки запускаються за допомогою синглтону AppManager.
+///
+/// Додаток має визначити принаймні метод run(), який буде викликатися в окремій задачі FreeRTOS.
+///
+/// При завершенні додатку, AppManager зупиняє задачу та видаляє об'єкт додатку.
+///
+/// Приклад запуску додатку:
+///
+/// @code
+/// #include <appmanager.h>
+/// #include <myapp.h>
+///
+/// // ...
+///
+/// AppManager::getInstance()->runApp(new MyApp());
+/// @endcode
 class App {
     friend class AppManager;
 
@@ -42,6 +60,11 @@ protected:
     lilka::Canvas* backCanvas;
 
 private:
+    /// Основний код програми.
+    ///
+    /// Цей метод викликається в окремій задачі FreeRTOS.
+    ///
+    /// Програма завершується, коли цей метод завершується або робить return.
     virtual void run() = 0;
     virtual void onSuspend() {
     }

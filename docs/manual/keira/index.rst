@@ -13,5 +13,6 @@ Keira OS
     features
     flashing
     sdcard
+    custom_apps
     lua/intro
     lua/reference/index
