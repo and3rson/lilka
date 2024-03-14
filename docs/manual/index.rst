@@ -5,6 +5,6 @@
     :maxdepth: 1
 
     environment
-    keira/index
+    keira
     development
     extension

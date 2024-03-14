@@ -16,6 +16,7 @@
     hardware/index
     assembly/index
     manual/index
+    keira/index
     library/index
     faq
     glossary
