@@ -30,7 +30,7 @@ void App::start() {
         return;
     }
     Serial.println("Starting app " + String(name));
-    if (xTaskCreatePinnedToCore(_run, name, 8192, this, 1, &taskHandle, 0) != pdPASS) {
+    if (xTaskCreatePinnedToCore(_run, name, 16384, this, 1, &taskHandle, 0) != pdPASS) {
         Serial.println("Failed to create task for app " + String(name) + " (not enough memory?)");
     }
 }
