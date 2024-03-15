@@ -98,14 +98,6 @@
      - 5 шт в комплекті
 
    * - 1
-     - R4
-     - 33K
-     - `33K Resistor <https://justas-electronics.com.ua/rss0125w-33kOm/>`__
-     - justas-electronics.com.ua
-     - 2.1
-     - 10 шт в комплекті
-
-   * - 1
      - SW1-SW8
      - Arrows + A/B/C/D
      - `Button Kit (12mm) <https://arduino.ua/prod2506-komplekt-knopok-12mm-s-kolpachkom-5-cvetov>`__
@@ -233,6 +225,14 @@
      -
      -
      - \* Запасне місце для THT-альтернативи Q1
+
+   * - 1
+     - R4
+     - 33K
+     - `33K Resistor <https://justas-electronics.com.ua/rss0125w-33kOm/>`__
+     - justas-electronics.com.ua
+     - 2.1
+     - 10 шт в комплекті
 
    * - Разом
      -
