@@ -7,6 +7,7 @@ ScanI2CApp::ScanI2CApp() : App("I2C Scanner") {
 }
 
 void ScanI2CApp::run() {
+#if LILKA_VERSION >= 2
     lilka::Canvas buffer(canvas->width(), canvas->height());
     buffer.begin();
     buffer.fillScreen(0);
@@ -47,4 +48,12 @@ void ScanI2CApp::run() {
     while (!lilka::controller.getState().a.justPressed) {
         taskYIELD();
     }
+#else
+    lilka::Alert alert("Помилка", "Ця програма потребує Лілку версії 2 або вище.");
+    alert.draw(canvas);
+    queueDraw();
+    while (!alert.isDone()) {
+        alert.update();
+    }
+#endif
 }

@@ -71,6 +71,9 @@ void Buzzer::playMelody(const Tone* melody, uint32_t length, uint32_t tempo) {
 
 void Buzzer::melodyTask(void* arg) {
     Buzzer* buzzer = static_cast<Buzzer*>(arg);
+#if LILKA_VERSION < 2
+    serial_err("Buzzer is not supported on this board");
+#else
     // Serial.println("Melody task started");
     for (uint32_t i = 0; i < buzzer->currentMelodyLength; i++) {
         // Serial.println("Playing note " + String(i) + " with frequency " + String(buzzer->currentMelody[i].frequency));
@@ -91,8 +94,11 @@ void Buzzer::melodyTask(void* arg) {
         xSemaphoreGive(buzzer->buzzerMutex);
         vTaskDelay(duration / portTICK_PERIOD_MS);
     }
+#endif
     xSemaphoreTake(buzzer->buzzerMutex, portMAX_DELAY);
+#if LILKA_VERSION >= 2
     noTone(LILKA_BUZZER);
+#endif
     // Release the mutex & delete task.
     buzzer->melodyTaskHandle = NULL;
     xSemaphoreGive(buzzer->buzzerMutex);
@@ -110,7 +116,9 @@ void Buzzer::stop() {
 }
 
 void Buzzer::_stop() {
+#if LILKA_VERSION >= 2
     noTone(LILKA_BUZZER);
+#endif
     TaskHandle_t handle = melodyTaskHandle;
     if (handle != NULL) {
         melodyTaskHandle = NULL;

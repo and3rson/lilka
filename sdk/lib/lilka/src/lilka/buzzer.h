@@ -2,7 +2,7 @@
 #define LILKA_BUZZER_H
 
 #include <stdint.h>
-#include <FreeRTOS.h>
+#include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <freertos/semphr.h>
 

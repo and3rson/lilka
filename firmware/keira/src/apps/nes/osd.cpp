@@ -1,7 +1,7 @@
 #include <esp_heap_caps.h>
 #include <lilka.h>
 
-#include <FreeRTOS.h>
+#include <freertos/FreeRTOS.h>
 #include <freertos/timers.h>
 
 #include "driver.h"

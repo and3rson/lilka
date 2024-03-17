@@ -237,6 +237,14 @@ void LauncherApp::selectFile(String path) {
     if (path.endsWith(".rom") || path.endsWith(".nes")) {
         AppManager::getInstance()->runApp(new NesApp(path));
     } else if (path.endsWith(".bin")) {
+#if LILKA_VERSION < 2
+        lilka::Alert alert("Помилка", "Ця операція потребує Лілку 2.0");
+        alert.draw(canvas);
+        queueDraw();
+        while (!alert.isDone()) {
+            alert.update();
+        }
+#else
         int error;
         error = lilka::multiboot.start(path);
         if (error) {
@@ -267,6 +275,7 @@ void LauncherApp::selectFile(String path) {
             alert("Помилка", String("Етап: 3\nКод: ") + error);
             return;
         }
+#endif
     } else if (path.endsWith(".lua")) {
         AppManager::getInstance()->runApp(new LuaFileRunnerApp(path));
     } else if (path.endsWith(".js")) {
