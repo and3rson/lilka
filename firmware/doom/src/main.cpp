@@ -49,14 +49,32 @@ void buttonHandler(lilka::Button button, bool pressed) {
         case lilka::Button::RIGHT:
             key->key = KEY_RIGHTARROW;
             break;
+        // No strafing
         case lilka::Button::A:
             key->key = KEY_FIRE;
             break;
         case lilka::Button::B:
-            key->key = KEY_ESCAPE;
+            key->key = KEY_USE;
             break;
-        case lilka::Button::SELECT:
+        case lilka::Button::C:
             key->key = KEY_TAB;
+            break;
+        // TODO: Weapon switch
+        // Strafing experiment
+        // case lilka::Button::A:
+        //     key->key = KEY_STRAFE_R;
+        //     break;
+        // case lilka::Button::B:
+        //     key->key = KEY_FIRE;
+        //     break;
+        // case lilka::Button::C:
+        //     key->key = KEY_USE;
+        //     break;
+        // case lilka::Button::D:
+        //     key->key = KEY_STRAFE_L;
+        //     break;
+        case lilka::Button::SELECT:
+            key->key = KEY_ESCAPE;
             break;
         case lilka::Button::START:
             key->key = KEY_ENTER;
