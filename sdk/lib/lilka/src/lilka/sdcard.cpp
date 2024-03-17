@@ -88,6 +88,36 @@ int SDCard::listDir(String path, Entry entries[]) {
     });
     return i;
 }
+size_t SDCard::countFilesInDir(String path){
+
+    size_t countFiles = 0;
+
+    while (!path.equals("/") && path.endsWith("/")) {
+        // Strip trailing slashes, unless it's the root directory
+        path.remove(path.length() - 1);
+    }
+    File root = fs->open(path);
+    // Below we assume if folder can't be open then it has zero files
+    // Btw we will show this error using serial
+    if (!root) {
+        serial_err("countFilesInDir listDir: failed to open directory: %s", path.c_str());
+        return 0; 
+    }
+    if (!root.isDirectory()) {
+        serial_err("countFilesInDir listDir: not a directory: %s", path.c_str());
+        return 0;
+    }
+    File file;
+    do {
+        File file = root.openNextFile();
+        if ((countFiles == 0) &&(!file))
+            break;
+        else
+            countFiles++; 
+    }
+    while (file);
+    return countFiles;
+}
 
 String SDCard::abspath(String filename) {
     while (filename.length() > 0 && filename[0] == '/') {

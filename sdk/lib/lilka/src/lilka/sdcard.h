@@ -26,6 +26,7 @@ public:
     SDFS* fs;
 
     int listDir(String path, Entry entries[]);
+    size_t countFilesInDir(String path);
     String abspath(String path);
 };
 

@@ -143,20 +143,26 @@ void LauncherApp::sdBrowserMenu(String path) {
     if (!lilka::sdcard.available()) {
         alert("Помилка", "SD-карта не знайдена");
     }
+    size_t _numEntries = lilka::sdcard.countFilesInDir(path);
+    if (_numEntries == 0) {
+        alert("Помилка", "Директорія пуста або сталася помилка читання директорії");
+        return;
+    }
 
-    lilka::Entry entries
-        [32]; // TODO - allocate dynamically (increasing to 64 causes task stack overflow which is limited by ARDUINO_LOOP_STACK_SIZE)
+    lilka::Entry *entries = new lilka::Entry[_numEntries];
+
     int numEntries = lilka::sdcard.listDir(path, entries);
 
-    if (numEntries == -1) {
+    if (numEntries == -1 || _numEntries != numEntries) {
         // lilka::ui_alert(canvas, "Помилка", "Не вдалося прочитати директорію");
+        delete[] entries;
         alert("Помилка", "Не вдалося прочитати директорію");
         return;
     }
 
-    String filenames[32];
-    const menu_icon_t* icons[32];
-    uint16_t colors[32];
+    String *filenames= new String[numEntries];
+    const menu_icon_t** icons = new menu_icon_t*[numEntries];
+    uint16_t *colors = new uint16_t [numEntries];
     for (int i = 0; i < numEntries; i++) {
         filenames[i] = entries[i].name;
         icons[i] = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(filenames[i]);
@@ -179,6 +185,11 @@ void LauncherApp::sdBrowserMenu(String path) {
         int16_t index = menu.getSelectedIndex();
         if (index != -1) {
             if (index == numEntries - 1) {
+                // Cleaning
+                delete[] entries;
+                delete[] filenames;
+                delete[] icons;
+                delete[] colors;
                 return;
             }
             if (entries[index].type == lilka::EntryType::ENT_DIRECTORY) {
