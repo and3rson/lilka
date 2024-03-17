@@ -82,14 +82,19 @@ jobs:
       - doom
 
     steps:
-      - name: Download artifacts
+      - name: Download keira artifact
         uses: actions/download-artifact@v4
         with:
           name: keira-firmware
+          path: .
+      - name: Download doom artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: doom-firmware
           path: .
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            doom.bin
             keira.bin
+            doom.bin
