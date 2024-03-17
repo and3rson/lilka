@@ -238,12 +238,8 @@ void LauncherApp::selectFile(String path) {
         AppManager::getInstance()->runApp(new NesApp(path));
     } else if (path.endsWith(".bin")) {
 #if LILKA_VERSION < 2
-        lilka::Alert alert("Помилка", "Ця операція потребує Лілку 2.0");
-        alert.draw(canvas);
-        queueDraw();
-        while (!alert.isDone()) {
-            alert.update();
-        }
+        alert("Помилка", "Ця операція потребує Лілку 2.0");
+        return;
 #else
         int error;
         error = lilka::multiboot.start(path);
