@@ -110,7 +110,7 @@
      - SW9, SW10
      - Select/Start
      - SMD Tactile Button
-     - `arduino.ua <https://arduino.ua/prod6165-taktova-knopka-smd-4pin-6h6x9-5mm-shtok-6-0mm>`__
+     - `imrad.com.ua <https://imrad.com.ua/ua/kfc-a06-6-knopka-taktovaya-6x6x6-6>`__
      - 4
      -
 
@@ -126,7 +126,7 @@
      - SW12
      - Reset
      - SMD Tactile Button
-     - `arduino.ua <https://arduino.ua/prod6165-taktova-knopka-smd-4pin-6h6x9-5mm-shtok-6-0mm>`__
+     - `imrad.com.ua <https://imrad.com.ua/ua/kfc-a06-6-knopka-taktovaya-6x6x6-6>`__
      - 2
      -
 
