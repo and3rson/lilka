@@ -1,6 +1,12 @@
 name: firmware
 
-on: [push]
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: write
 
 jobs:
   keira:
@@ -14,7 +20,7 @@ jobs:
             ~/.cache/pip
             ~/.platformio/.cache
             ./firmware/keira/.pio
-          key: ${{ runner.os }}-pio
+          key: ${{ runner.os }}-keira
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
@@ -24,6 +30,17 @@ jobs:
       - name: Build PlatformIO Project
         working-directory: ./firmware/keira
         run: pio run -e v2
+
+      - name: Copy firmware
+        working-directory: ./firmware/keira
+        run: |
+          cp .pio/build/v2/firmware.bin keira.bin
+
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: keira-firmware
+          path: ./firmware/keira/keira.bin
 
   doom:
     runs-on: ubuntu-latest
@@ -36,7 +53,7 @@ jobs:
             ~/.cache/pip
             ~/.platformio/.cache
             ./firmware/doom/.pio
-          key: ${{ runner.os }}-pio
+          key: ${{ runner.os }}-doom
       - uses: actions/setup-python@v4
         with:
           python-version: '3.9'
@@ -46,3 +63,38 @@ jobs:
       - name: Build PlatformIO Project
         working-directory: ./firmware/doom
         run: pio run -e v2
+
+      - name: Copy firmware
+        working-directory: ./firmware/doom
+        run: |
+          cp .pio/build/v2/firmware.bin doom.bin
+
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: doom-firmware
+          path: ./firmware/doom/doom.bin
+
+  release:
+    runs-on: ubuntu-latest
+    needs:
+      - keira
+      - doom
+
+    steps:
+      - name: Download keira artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: keira-firmware
+          path: .
+      - name: Download doom artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: doom-firmware
+          path: .
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            keira.bin
+            doom.bin

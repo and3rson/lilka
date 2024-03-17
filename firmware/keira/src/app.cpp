@@ -14,7 +14,8 @@ App::App(const char* name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) :
     canvas(new lilka::Canvas(x, y, w, h)),
     backCanvas(new lilka::Canvas(x, y, w, h)),
     isDrawQueued(false),
-    backCanvasMutex(xSemaphoreCreateMutex()) {
+    backCanvasMutex(xSemaphoreCreateMutex()),
+    stackSize(16384) {
     // Clear buffers
     canvas->fillScreen(0);
     backCanvas->fillScreen(0);
@@ -30,8 +31,11 @@ void App::start() {
         return;
     }
     Serial.println("Starting app " + String(name));
-    if (xTaskCreatePinnedToCore(_run, name, 16384, this, 1, &taskHandle, 0) != pdPASS) {
-        Serial.println("Failed to create task for app " + String(name) + " (not enough memory?)");
+    if (xTaskCreatePinnedToCore(_run, name, stackSize, this, 1, &taskHandle, 0) != pdPASS) {
+        Serial.println(
+            "Failed to create task for app " + String(name) +
+            " - not enough memory? Try increasing stack size with setStackSize()"
+        );
     }
 }
 
@@ -129,4 +133,8 @@ eTaskState App::getState() {
         return eTaskState::eInvalid;
     }
     return eTaskGetState(taskHandle);
+}
+
+void App::setStackSize(uint32_t stackSize) {
+    this->stackSize = stackSize;
 }
