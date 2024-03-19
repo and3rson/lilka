@@ -109,7 +109,7 @@ size_t SDCard::countFilesInDir(String path){
     }
     File file;
     do {
-        File file = root.openNextFile();
+        file = root.openNextFile();
         if ((countFiles == 0) &&(!file))
             break;
         else

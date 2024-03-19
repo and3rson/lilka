@@ -152,31 +152,24 @@ void LauncherApp::sdBrowserMenu(String path) {
     lilka::Entry *entries = new lilka::Entry[_numEntries];
 
     int numEntries = lilka::sdcard.listDir(path, entries);
-
-    if (numEntries == -1 || _numEntries != numEntries) {
-        // lilka::ui_alert(canvas, "Помилка", "Не вдалося прочитати директорію");
+    
+    // Так як listDir має повертати -1 в разі помилки 
+    // а countFilesIndir size_t >= 0 додаткові перевірки не потрібні
+    if (_numEntries != numEntries) {
         delete[] entries;
         alert("Помилка", "Не вдалося прочитати директорію");
         return;
     }
 
-    String *filenames= new String[numEntries];
-    const menu_icon_t** icons = new menu_icon_t*[numEntries];
-    uint16_t *colors = new uint16_t [numEntries];
-    for (int i = 0; i < numEntries; i++) {
-        filenames[i] = entries[i].name;
-        icons[i] = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(filenames[i]);
-        colors[i] = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? lilka::display.color565(255, 255, 200)
-                                                                       : get_file_color(filenames[i]);
-    }
-    filenames[numEntries++] = "<< Назад";
-    icons[numEntries - 1] = 0;
-    colors[numEntries - 1] = 0;
-
     lilka::Menu menu("SD: " + path);
     for (int i = 0; i < numEntries; i++) {
-        menu.addItem(filenames[i], icons[i], colors[i]);
+        String filename = entries[i].name;
+        const menu_icon_t* icon = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(filename);
+        uint16_t color = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? lilka::display.color565(255, 255, 200)
+                                                                       : get_file_color(filename);
+        menu.addItem(filename, icon, color);
     }
+    menu.addItem("<< Назад", 0, 0);
 
     while (1) {
         menu.update();
@@ -187,9 +180,6 @@ void LauncherApp::sdBrowserMenu(String path) {
             if (index == numEntries - 1) {
                 // Cleaning
                 delete[] entries;
-                delete[] filenames;
-                delete[] icons;
-                delete[] colors;
                 return;
             }
             if (entries[index].type == lilka::EntryType::ENT_DIRECTORY) {
