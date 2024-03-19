@@ -120,9 +120,9 @@ static const luaL_Reg lualilka_wifi[] = {
     {"disconnect", lualilka_wifi_disconnect},
     {"scan", lualilka_controller_scanNetworks},
     {"rssi", lualilka_controller_getRSSI},
-    {"encryptionType", lualilka_controller_getRSSI}, // TKIP (WPA) = 2 WEP = 5 CCMP (WPA) = 4 NONE = 7 AUTO = 8
+    {"encryptionType", lualilka_controller_getEncryptionType}, // TKIP (WPA) = 2 WEP = 5 CCMP (WPA) = 4 NONE = 7 AUTO = 8
     {"getMAC", lualilka_controller_getMAC},
-    {"getLocalIP", lualilka_controller_getMAC},
+    {"getLocalIP", lualilka_controller_getIP},
     {"config", lualilka_controller_config},
     {NULL, NULL},
 };
