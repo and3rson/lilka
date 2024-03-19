@@ -143,17 +143,17 @@ void LauncherApp::sdBrowserMenu(String path) {
     if (!lilka::sdcard.available()) {
         alert("Помилка", "SD-карта не знайдена");
     }
-    size_t _numEntries = lilka::sdcard.countFilesInDir(path);
+    size_t _numEntries = lilka::sdcard.getEntryCount(path);
     if (_numEntries == 0) {
         alert("Помилка", "Директорія пуста або сталася помилка читання директорії");
         return;
     }
 
-    lilka::Entry *entries = new lilka::Entry[_numEntries];
+    lilka::Entry* entries = new lilka::Entry[_numEntries];
 
     int numEntries = lilka::sdcard.listDir(path, entries);
-    
-    // Так як listDir має повертати -1 в разі помилки 
+
+    // Так як listDir має повертати -1 в разі помилки
     // а countFilesIndir size_t >= 0 додаткові перевірки не потрібні
     if (_numEntries != numEntries) {
         delete[] entries;
@@ -164,9 +164,10 @@ void LauncherApp::sdBrowserMenu(String path) {
     lilka::Menu menu("SD: " + path);
     for (int i = 0; i < numEntries; i++) {
         String filename = entries[i].name;
-        const menu_icon_t* icon = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(filename);
+        const menu_icon_t* icon =
+            entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(filename);
         uint16_t color = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? lilka::display.color565(255, 255, 200)
-                                                                       : get_file_color(filename);
+                                                                            : get_file_color(filename);
         menu.addItem(filename, icon, color);
     }
     menu.addItem("<< Назад", 0, 0);
@@ -177,11 +178,7 @@ void LauncherApp::sdBrowserMenu(String path) {
         queueDraw();
         int16_t index = menu.getSelectedIndex();
         if (index != -1) {
-            if (index >= numEntries - 1) {
-                // Cleaning
-                delete[] entries;
-                return;
-            }
+            if (index >= numEntries - 1) break;
             if (entries[index].type == lilka::EntryType::ENT_DIRECTORY) {
                 sdBrowserMenu(path + entries[index].name + "/");
             } else {
@@ -190,6 +187,9 @@ void LauncherApp::sdBrowserMenu(String path) {
         }
         taskYIELD();
     }
+    // Cleaning
+    delete[] entries;
+    return;
 }
 
 void LauncherApp::spiffsBrowserMenu() {
