@@ -3,10 +3,6 @@
 #include "lualilka_sdcard.h"
 #include "lilka.h"
 
-static FILE* current_file_entrie;
-static String current_file_path;
-static String current_file_mode;
-
 int lualilka_sdcard_listDir(lua_State* L) {
     int n = lua_gettop(L);
 
@@ -39,7 +35,7 @@ int lualilka_sdcard_listDir(lua_State* L) {
     return 1;
 }
 
-int lualilka_sdcard_openfile(lua_State* L){
+int lualilka_sdcard_readAll(lua_State* L){
     int n = lua_gettop(L);
 
     if (n != 2) {
@@ -50,53 +46,54 @@ int lualilka_sdcard_openfile(lua_State* L){
         return luaL_error(L, "SD card not found");
     }
 
-    current_file_path = lua_tostring(L, 1);
-    current_file_mode = lua_tostring(L, 2);
-    if(current_file_entrie == NULL){
-        current_file_entrie = fopen(current_file_path.c_str(), current_file_mode.c_str());
-        // current_file_entrie = lilka::sdcard.fs->open(current_file_path.c_str(), current_file_mode.c_str(), true);
+    String path = lua_tostring(L, 1);
+    int line_index = lua_tointeger(L, 2);
+
+    path = "/sd" + path;
+
+    char line[256];
+    int current_line = 1;
+
+    FILE * current_file_entrie = fopen(path.c_str(), "ab+");
+
+    if( current_file_entrie == NULL ) { 
+        fclose(current_file_entrie);                      
+        return 0;
     }
-    else{
-        return luaL_error(L, "Another file is opened \"%s\"", current_file_path);
+
+    while (fgets(line, sizeof(line), current_file_entrie)) {
+        if (current_line == line_index) {
+            lua_pushstring(L, line);
+            break;
+        }
+        current_line++;
     }
 
-    return 0;
-}
-
-int lualilka_sdcard_closeFile(lua_State* L){
-    if(current_file_entrie != NULL){
-        fclose(current_file_entrie);
-        current_file_path = "";
-        current_file_mode = "";
-    }
-    return 0;
-}
-
-int lualilka_sdcard_readAll(lua_State* L){
-    // Serial.println("TEST----->");
-    // if(current_file_entrie != NULL){
-        
-    //     String string_ = fread(current_file_entrie,);
-    //     lilka::serial_log(string_.c_str());
-    //     lua_pushstring(L, string_.c_str());
-
-    // }
-    // else{
-    //     return luaL_error(L, "File not opened / Unsupported mode(R/RW)");
-    // }
-    return 0;
+    return 1;
 }
 
 int lualilka_sdcard_writeAppend(lua_State* L){
     int n = lua_gettop(L);
 
-    if (n != 1) {
-        return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
+    if (n != 2) {
+        return luaL_error(L, "Очікується 2 аргумент, отримано %d", n);
     }
 
-    String append_text = lua_tostring(L, 1);
+    if (!lilka::sdcard.available()) {
+        return luaL_error(L, "SD card not found");
+    }
 
-    fprintf(current_file_entrie, append_text.c_str());
+    String path = lua_tostring(L, 1);
+    String text = lua_tostring(L, 2);
+
+    path = "/sd" + path;
+
+    FILE * current_file_entrie = fopen(path.c_str(), "ab+");
+
+    fprintf(current_file_entrie, text.c_str());
+
+    fclose(current_file_entrie);
+
     return 0;
 }
 
@@ -113,7 +110,9 @@ int lualilka_sdcard_removeFile(lua_State* L){
 
     String path = lua_tostring(L, 1);
 
-    lilka::sdcard.fs->remove(path);
+    path = "/sd" + path;
+
+    remove(path.c_str());
 
     return 0;
 }
@@ -129,23 +128,26 @@ int lualilka_sdcard_renameFile(lua_State* L){
         return luaL_error(L, "SD card not found");
     }
 
-    String path = lua_tostring(L, 1);
+    String old_name = lua_tostring(L, 1);
     String new_name = lua_tostring(L, 2);
 
-    lilka::sdcard.fs->rename(path, new_name);
+    old_name = "/sd" + old_name;
+    new_name = "/sd" + new_name;
+
+    if (rename(old_name.c_str(), new_name.c_str()) != 0){
+        return luaL_error(L, "Error renaming file");
+    }
     
     return 0;
 }
 
 
 static const luaL_Reg lualilka_sdcard[] = {
-    {"listDir", lualilka_sdcard_listDir},
-    {"openFile", lualilka_sdcard_openfile},
-    {"closeFile", lualilka_sdcard_closeFile},
-    {"readFile", lualilka_sdcard_readAll},
-    {"writeFile", lualilka_sdcard_writeAppend},
-    {"removeFile", lualilka_sdcard_removeFile},
-    {"renameFile", lualilka_sdcard_renameFile},
+    {"list_dir", lualilka_sdcard_listDir},
+    {"read_file", lualilka_sdcard_readAll},
+    {"write_file", lualilka_sdcard_writeAppend},
+    {"remove_file", lualilka_sdcard_removeFile},
+    {"rename_file", lualilka_sdcard_renameFile},
     {NULL, NULL},
 };
 
