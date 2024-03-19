@@ -30,7 +30,7 @@ int lualilka_wifi_disconnect(lua_State* L) {
     return 0;
 }
 
-int lualilka_wifi_scanNetworks(lua_State* L) {
+int lualilka_wifi_scan_networks(lua_State* L) {
     int n = WiFi.scanNetworks();
 
     lua_createtable(L, n, 0);
@@ -42,7 +42,7 @@ int lualilka_wifi_scanNetworks(lua_State* L) {
     return 1;
 }
 
-int lualilka_wifi_getRSSI(lua_State* L) {
+int lualilka_wifi_get_RSSI(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 1) {
         return luaL_error(L, "Очікується 1 аргументи, отримано %d", n);
@@ -55,7 +55,7 @@ int lualilka_wifi_getRSSI(lua_State* L) {
     return 1;
 }
 
-int lualilka_wifi_getEncryptionType(lua_State* L) {
+int lualilka_wifi_get_encryption_type(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 1) {
         return luaL_error(L, "Очікується 1 аргументи, отримано %d", n);
@@ -68,7 +68,7 @@ int lualilka_wifi_getEncryptionType(lua_State* L) {
     return 1;
 }
 
-int lualilka_wifi_getMAC(lua_State* L) {
+int lualilka_wifi_get_MAC(lua_State* L) {
     byte mac[6];
 
     WiFi.macAddress(mac);
@@ -76,7 +76,7 @@ int lualilka_wifi_getMAC(lua_State* L) {
     String s;
     for (byte i = 0; i < sizeof(mac); i++) {
         char buf[3];
-        sprintf(buf, "%02X", mac[i]); // J-M-L: slight modification, added the 0 in the format for padding
+        sprintf(buf, "%02X", mac[i]);
         s += buf;
         if (i < 5) s += ':';
     }
@@ -86,7 +86,7 @@ int lualilka_wifi_getMAC(lua_State* L) {
     return 1;
 }
 
-int lualilka_wifi_getIP(lua_State* L) {
+int lualilka_wifi_get_IP(lua_State* L) {
     byte mac[4];
 
     IPAddress ip = WiFi.localIP();
@@ -118,11 +118,11 @@ static const luaL_Reg lualilka_wifi[] = {
     {"connect", lualilka_wifi_connect},
     {"status", lualilka_wifi_status},
     {"disconnect", lualilka_wifi_disconnect},
-    {"scan", lualilka_wifi_scanNetworks},
-    {"rssi", lualilka_wifi_getRSSI},
-    {"encryptionType", lualilka_wifi_getEncryptionType}, // TKIP (WPA) = 2 WEP = 5 CCMP (WPA) = 4 NONE = 7 AUTO = 8
-    {"getMAC", lualilka_wifi_getMAC},
-    {"getLocalIP", lualilka_wifi_getIP},
+    {"scan", lualilka_wifi_scan_networks},
+    {"RSSI", lualilka_wifi_get_RSSI},
+    {"encryption_type", lualilka_wifi_get_encryption_type}, // TKIP (WPA) = 2 WEP = 5 CCMP (WPA) = 4 NONE = 7 AUTO = 8
+    {"get_MAC", lualilka_wifi_get_MAC},
+    {"get_local_IP", lualilka_wifi_get_IP},
     {"config", lualilka_wifi_config},
     {NULL, NULL},
 };
