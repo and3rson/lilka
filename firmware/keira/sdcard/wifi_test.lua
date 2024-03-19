@@ -9,4 +9,6 @@ local scan = wifi.scan()
 print(#scan)
 for i = 1, #scan do -- This will cycle through and print each element of the array
     print(scan[i])
+    rssi = wifi.rssi(i)
+    print(rssi)
 end
