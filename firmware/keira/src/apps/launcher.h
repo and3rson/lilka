@@ -8,7 +8,10 @@ typedef struct {
 } app_t;
 
 #define APP_ITEM_LIST std::vector<app_t>
-#define APP_ITEM(name, className) {name, []() { return new className(); }}
+#define APP_ITEM(name, className)              \
+    {                                          \
+        name, []() { return new className(); } \
+    }
 
 class LauncherApp : public App {
 public:
