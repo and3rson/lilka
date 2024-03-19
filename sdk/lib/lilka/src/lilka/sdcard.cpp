@@ -100,11 +100,11 @@ size_t SDCard::getEntryCount(String path) {
     // Below we assume if folder can't be open then it has zero files
     // Btw we will show this error using serial
     if (!root) {
-        serial_err("countFilesInDir listDir: failed to open directory: %s", path.c_str());
+        serial_err("%s:%s:getEntryCount: failed to open directory: %s", __FILE__, __LINE__, path.c_str());
         return 0;
     }
     if (!root.isDirectory()) {
-        serial_err("countFilesInDir listDir: not a directory: %s", path.c_str());
+        serial_err("%s:%s:getEntryCount: not a directory: %s", __FILE__, __LINE__, path.c_str());
         return 0;
     }
 
