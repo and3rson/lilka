@@ -152,11 +152,11 @@ void LauncherApp::sdBrowserMenu(String path) {
     lilka::Entry* entries = new lilka::Entry[_numEntries];
 
     int numEntries = lilka::sdcard.listDir(path, entries);
+    std::unique_ptr<lilka::Entry[]> entriesPtr(entries);
 
     // Так як listDir має повертати -1 в разі помилки
     // а countFilesIndir size_t >= 0 додаткові перевірки не потрібні
     if (_numEntries != numEntries) {
-        delete[] entries;
         alert("Помилка", "Не вдалося прочитати директорію");
         return;
     }
@@ -187,8 +187,7 @@ void LauncherApp::sdBrowserMenu(String path) {
         }
         taskYIELD();
     }
-    // Cleaning
-    delete[] entries;
+
     return;
 }
 
