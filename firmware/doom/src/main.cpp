@@ -105,9 +105,22 @@ void setup() {
     char arg[] = "doomgeneric";
     char arg2[] = "-iwad";
     char arg3[64];
+
+    // Get firmware arg
+    String firmwareFile = lilka::multiboot.getFirmwarePath();
+    lilka::serial_log("Firmware file: %s\n", firmwareFile.c_str());
+    String firmwarePath;
+    if (firmwareFile.length()) {
+        // Get directory from firmware file
+        int lastSlash = firmwareFile.lastIndexOf('/');
+        firmwarePath = firmwareFile.substring(0, lastSlash + 1);
+    } else {
+        firmwarePath = "/";
+    }
+
     bool found = false;
-    // Find the wad file
-    File root = SD.open("/");
+    // Find the WAD file
+    File root = SD.open(firmwarePath.c_str());
     File file;
     while ((file = root.openNextFile())) {
         if (file.isDirectory()) {
