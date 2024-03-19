@@ -14,7 +14,6 @@ int lualilka_sdcard_listDir(lua_State* L) {
         return luaL_error(L, "SD card not found");
     }
 
-
     lilka::Entry entries[32];
 
     String path = lua_tostring(L, 1);
@@ -29,13 +28,13 @@ int lualilka_sdcard_listDir(lua_State* L) {
 
     for (int i = 0; i < numEntries; i++) {
         lua_pushstring(L, entries[i].name.c_str());
-        lua_rawseti (L, -2, i+1); /* In lua indices start at 1 */
+        lua_rawseti(L, -2, i + 1); /* In lua indices start at 1 */
     }
 
     return 1;
 }
 
-int lualilka_sdcard_readAll(lua_State* L){
+int lualilka_sdcard_readAll(lua_State* L) {
     int n = lua_gettop(L);
 
     if (n != 2) {
@@ -54,10 +53,10 @@ int lualilka_sdcard_readAll(lua_State* L){
     char line[256];
     int current_line = 1;
 
-    FILE * current_file_entrie = fopen(path.c_str(), "ab+");
+    FILE* current_file_entrie = fopen(path.c_str(), "ab+");
 
-    if( current_file_entrie == NULL ) { 
-        fclose(current_file_entrie);                      
+    if (current_file_entrie == NULL) {
+        fclose(current_file_entrie);
         return 0;
     }
 
@@ -72,7 +71,7 @@ int lualilka_sdcard_readAll(lua_State* L){
     return 1;
 }
 
-int lualilka_sdcard_writeAppend(lua_State* L){
+int lualilka_sdcard_writeAppend(lua_State* L) {
     int n = lua_gettop(L);
 
     if (n != 2) {
@@ -88,7 +87,7 @@ int lualilka_sdcard_writeAppend(lua_State* L){
 
     path = "/sd" + path;
 
-    FILE * current_file_entrie = fopen(path.c_str(), "ab+");
+    FILE* current_file_entrie = fopen(path.c_str(), "ab+");
 
     fprintf(current_file_entrie, text.c_str());
 
@@ -97,7 +96,7 @@ int lualilka_sdcard_writeAppend(lua_State* L){
     return 0;
 }
 
-int lualilka_sdcard_removeFile(lua_State* L){
+int lualilka_sdcard_removeFile(lua_State* L) {
     int n = lua_gettop(L);
 
     if (n != 1) {
@@ -117,7 +116,7 @@ int lualilka_sdcard_removeFile(lua_State* L){
     return 0;
 }
 
-int lualilka_sdcard_renameFile(lua_State* L){
+int lualilka_sdcard_renameFile(lua_State* L) {
     int n = lua_gettop(L);
 
     if (n != 2) {
@@ -134,13 +133,12 @@ int lualilka_sdcard_renameFile(lua_State* L){
     old_name = "/sd" + old_name;
     new_name = "/sd" + new_name;
 
-    if (rename(old_name.c_str(), new_name.c_str()) != 0){
+    if (rename(old_name.c_str(), new_name.c_str()) != 0) {
         return luaL_error(L, "Error renaming file");
     }
-    
+
     return 0;
 }
-
 
 static const luaL_Reg lualilka_sdcard[] = {
     {"list_dir", lualilka_sdcard_listDir},
