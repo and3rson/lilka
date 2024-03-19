@@ -177,7 +177,7 @@ void LauncherApp::sdBrowserMenu(String path) {
         queueDraw();
         int16_t index = menu.getSelectedIndex();
         if (index != -1) {
-            if (index == numEntries - 1) {
+            if (index >= numEntries - 1) {
                 // Cleaning
                 delete[] entries;
                 return;
