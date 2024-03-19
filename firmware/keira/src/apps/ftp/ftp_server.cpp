@@ -1,4 +1,5 @@
 #include "ftp_server.h"
+#include "WiFi.h"
 
 FTPServerApp::FTPServerApp() : App("FTP Server") {
 }
@@ -20,7 +21,11 @@ void FTPServerApp::run() {
     canvas->fillScreen(0);
     canvas->setCursor(32, 32);
     canvas->setTextBound(16, 16, canvas->width() - 32, canvas->height() - 32);
-    canvas->print("FTP Server запущений\nНатисніть A для виходу");
+    canvas->printf(
+        "FTP Server запущений\nIP: %s\nПорт: %d\nНатисніть A для виходу",
+        WiFi.localIP().toString().c_str(),
+        FTP_CTRL_PORT
+    );
     queueDraw();
 
     while (true) {
