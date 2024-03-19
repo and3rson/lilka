@@ -79,17 +79,19 @@ void LauncherApp::appsMenu() {
         APP_ITEM("Тест SPI", UserSPIApp),
         APP_ITEM("I2C-сканер", ScanI2CApp),
     };
+    int appCount = app_items.size();
     lilka::Menu menu("Демо");
     for (int i = 0; i < app_items.size(); i++) {
         menu.addItem(app_items[i].name);
     }
+    menu.addItem("<< Назад");
     while (1) {
         menu.update();
         menu.draw(canvas);
         queueDraw();
         int16_t index = menu.getSelectedIndex();
         if (index != -1) {
-            if (index == app_items.size() - 1) {
+            if (index == appCount) {
                 break;
             }
             AppManager::getInstance()->runApp(app_items[index].construct());
@@ -283,6 +285,7 @@ void LauncherApp::devMenu() {
         APP_ITEM("Lua REPL", LuaReplApp),
         APP_ITEM("FTP сервер", FTPServerApp),
     };
+    int appCount = app_items.size();
     lilka::Menu menu("Розробка");
     for (int i = 0; i < app_items.size(); i++) {
         menu.addItem(app_items[i].name);
@@ -294,7 +297,7 @@ void LauncherApp::devMenu() {
         queueDraw();
         int16_t index = menu.getSelectedIndex();
         if (index != -1) {
-            if (index == app_items.size() - 1) {
+            if (index == appCount) {
                 return;
             }
             AppManager::getInstance()->runApp(app_items[index].construct());
