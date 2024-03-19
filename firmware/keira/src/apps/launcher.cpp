@@ -143,34 +143,34 @@ void LauncherApp::sdBrowserMenu(String path) {
     if (!lilka::sdcard.available()) {
         alert("Помилка", "SD-карта не знайдена");
     }
+    size_t _numEntries = lilka::sdcard.getEntryCount(path);
+    if (_numEntries == 0) {
+        alert("Помилка", "Директорія пуста або сталася помилка читання директорії");
+        return;
+    }
 
-    lilka::Entry entries
-        [32]; // TODO - allocate dynamically (increasing to 64 causes task stack overflow which is limited by ARDUINO_LOOP_STACK_SIZE)
+    lilka::Entry* entries = new lilka::Entry[_numEntries];
+
     int numEntries = lilka::sdcard.listDir(path, entries);
+    std::unique_ptr<lilka::Entry[]> entriesPtr(entries);
 
-    if (numEntries == -1) {
-        // lilka::ui_alert(canvas, "Помилка", "Не вдалося прочитати директорію");
+    // Так як listDir має повертати -1 в разі помилки
+    // а countFilesIndir size_t >= 0 додаткові перевірки не потрібні
+    if (_numEntries != numEntries) {
         alert("Помилка", "Не вдалося прочитати директорію");
         return;
     }
 
-    String filenames[32];
-    const menu_icon_t* icons[32];
-    uint16_t colors[32];
-    for (int i = 0; i < numEntries; i++) {
-        filenames[i] = entries[i].name;
-        icons[i] = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(filenames[i]);
-        colors[i] = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? lilka::display.color565(255, 255, 200)
-                                                                       : get_file_color(filenames[i]);
-    }
-    filenames[numEntries++] = "<< Назад";
-    icons[numEntries - 1] = 0;
-    colors[numEntries - 1] = 0;
-
     lilka::Menu menu("SD: " + path);
     for (int i = 0; i < numEntries; i++) {
-        menu.addItem(filenames[i], icons[i], colors[i]);
+        String filename = entries[i].name;
+        const menu_icon_t* icon =
+            entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(filename);
+        uint16_t color = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? lilka::display.color565(255, 255, 200)
+                                                                            : get_file_color(filename);
+        menu.addItem(filename, icon, color);
     }
+    menu.addItem("<< Назад", 0, 0);
 
     while (1) {
         menu.update();
@@ -178,9 +178,7 @@ void LauncherApp::sdBrowserMenu(String path) {
         queueDraw();
         int16_t index = menu.getSelectedIndex();
         if (index != -1) {
-            if (index == numEntries - 1) {
-                return;
-            }
+            if (index >= numEntries - 1) break;
             if (entries[index].type == lilka::EntryType::ENT_DIRECTORY) {
                 sdBrowserMenu(path + entries[index].name + "/");
             } else {
@@ -189,6 +187,8 @@ void LauncherApp::sdBrowserMenu(String path) {
         }
         taskYIELD();
     }
+
+    return;
 }
 
 void LauncherApp::spiffsBrowserMenu() {
