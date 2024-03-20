@@ -11,8 +11,6 @@ public:
     bool available();
 
     int listDir(String path, Entry entries[]);
-    int readdir(String filenames[]);
-    int readdir(String filenames[], String extension);
     size_t getEntryCount(String path);
     String abspath(String filename);
 

@@ -69,51 +69,6 @@ int Filesystem::listDir(String path, Entry entries[]) {
     return i;
 }
 
-int Filesystem::readdir(String filenames[]) {
-    File _root = fs->open("/");
-    int count = 0;
-    File file = _root.openNextFile();
-    while (file) {
-        if (file.isDirectory()) {
-            file.close();
-            file = _root.openNextFile();
-            continue;
-        }
-        filenames[count++] = file.name();
-        file.close();
-        file = _root.openNextFile();
-    }
-    _root.close();
-    // Sort filenames
-    qsort(filenames, count, sizeof(String), [](const void* a, const void* b) -> int {
-        const String* ea = static_cast<const String*>(a);
-        const String* eb = static_cast<const String*>(b);
-        return ea->compareTo(*eb);
-    });
-    return count;
-}
-
-int Filesystem::readdir(String filenames[], String extension) {
-    File _root = fs->open("/");
-    int count = 0;
-    File file = _root.openNextFile();
-    while (file) {
-        if (file.isDirectory()) {
-            file.close();
-            file = _root.openNextFile();
-            continue;
-        }
-        String name = file.name();
-        if (name.endsWith(extension)) {
-            filenames[count++] = name;
-        }
-        file.close();
-        file = _root.openNextFile();
-    }
-    _root.close();
-    return count;
-}
-
 size_t Filesystem::getEntryCount(String path) {
     size_t countFiles = 0;
 
