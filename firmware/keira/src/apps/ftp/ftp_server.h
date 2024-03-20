@@ -1,5 +1,5 @@
 #include "app.h"
-#include "ESP32FtpServer.h"
+#include "FtpServer.h"
 
 class FTPServerApp : public App {
 public:

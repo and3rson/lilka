@@ -19,12 +19,14 @@ void FTPServerApp::run() {
     ftpSrv.begin("lilka", password);
 
     canvas->fillScreen(0);
-    canvas->setCursor(32, 32);
+    canvas->setCursor(16, 16);
     canvas->setTextBound(16, 16, canvas->width() - 32, canvas->height() - 32);
     canvas->printf(
-        "FTP Server запущений\nIP: %s\nПорт: %d\nНатисніть A для виходу",
+        "FTP сервер запущений\n\nIP: %s\nПорт: %d\nКористувач: %s\nПароль: %s\n\nНатисніть A для виходу",
         WiFi.localIP().toString().c_str(),
-        FTP_CTRL_PORT
+        FTP_CMD_PORT,
+        "lilka",
+        password
     );
     queueDraw();
 
