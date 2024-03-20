@@ -8,8 +8,8 @@
  *
  *
  * Use Ethernet library
- * 
- * Commands implemented: 
+ *
+ * Commands implemented:
  *   USER, PASS, AUTH (AUTH only return 'not implemented' code)
  *   CDUP, CWD, PWD, QUIT, NOOP
  *   MODE, PASV, PORT, STRU, TYPE
@@ -43,7 +43,7 @@
  *     Firefox
  *   with a second Arduino and sketch of SurferTim at
  *     http://playground.arduino.cc/Code/FTP
- * 
+ *
  */
 
 #include "FtpServer.h"
@@ -143,10 +143,10 @@ void FtpServer::iniVariables()
 {
   // Default for data port
   dataPort = FTP_DATA_PORT_DFLT;
-  
+
   // Default Data connection is Active
   dataConn = FTP_NoConn;
-  
+
   // Set the root directory
   strcpy( cwdName, "/" );
 
@@ -292,9 +292,9 @@ uint8_t FtpServer::handleFTP() {
 void FtpServer::clientConnected()
 {
   DEBUG_PRINTLN( F(" Client connected!") );
-  // client.print(F("220 --- ")); client.print(welcomeMessage); client.println(F(" ---"));
-  client.println(F("220 ---   FTP Server By Renzo Mischianti   ---"));
-  // client.print(F("220 --    Version ")); client.print(FTP_SERVER_VERSION); client.println(F("    --"));
+  client.print(F("220- --- ")); client.print(welcomeMessage); client.println(F(" ---"));
+  client.println(F("220- ---   By Renzo Mischianti   ---"));
+  client.print(F("220 --    Version ")); client.print(FTP_SERVER_VERSION); client.println(F("    --"));
   iCL = 0;
   if (FtpServer::_callback) {
 	  FtpServer::_callback(FTP_CONNECT, free(), capacity());
@@ -333,7 +333,7 @@ bool FtpServer::processCommand()
   DEBUG_PRINTLN(command);
 
   //
-  //  USER - User Identity 
+  //  USER - User Identity
   //
   if( CommandIs( "USER" ))
   {
@@ -426,13 +426,13 @@ bool FtpServer::processCommand()
            ( CommandIs( "CWD" ) && ParameterIs( "." ))) {
 	  client.print( F("257 \"")); client.print( cwdName ); client.print( F("\"") ); client.println( F(" is your current directory") );
   //
-  //  CDUP - Change to Parent Directory 
+  //  CDUP - Change to Parent Directory
   //
   } else if( CommandIs( "CDUP" ) ||
            ( CommandIs( "CWD" ) && ParameterIs( ".." )))
   {
     bool ok = false;
-    
+
     if( strlen( cwdName ) > 1 )            // do nothing if cwdName is root
     {
       // if cwdName ends with '/', remove it (must not append)
@@ -484,7 +484,7 @@ bool FtpServer::processCommand()
   ///////////////////////////////////////
 
   //
-  //  MODE - Transfer Mode 
+  //  MODE - Transfer Mode
   //
   else if( CommandIs( "MODE" ))
   {
@@ -605,7 +605,7 @@ bool FtpServer::processCommand()
     client.println(F("226 Data connection closed"));
   }
   //
-  //  DELE - Delete a File 
+  //  DELE - Delete a File
   //
   else if( CommandIs( "DELE" ))
   {
@@ -814,7 +814,7 @@ bool FtpServer::processCommand()
     }
   }
   //
-  //  RMD - Remove a Directory 
+  //  RMD - Remove a Directory
   //
   else if( CommandIs( "RMD" ))
   {
@@ -832,7 +832,7 @@ bool FtpServer::processCommand()
     }
   }
   //
-  //  RNFR - Rename From 
+  //  RNFR - Rename From
   //
   else if( CommandIs( "RNFR" ))
   {
@@ -846,7 +846,7 @@ bool FtpServer::processCommand()
     }
   }
   //
-  //  RNTO - Rename To 
+  //  RNTO - Rename To
   //
   else if( CommandIs( "RNTO" ))
   {
@@ -894,7 +894,7 @@ bool FtpServer::processCommand()
   else if( CommandIs( "SYST" ))
     FtpOutCli << F("215 MSDOS") << endl;
   */
-  
+
   ///////////////////////////////////////
   //                                   //
   //   EXTENSIONS COMMANDS (RFC 3659)  //
@@ -1038,7 +1038,7 @@ bool FtpServer::dataConnected()
   transferStage = FTP_Close;
   return false;
 }
- 
+
 bool FtpServer::openDir( FTP_DIR * pdir )
 {
   bool openD;
@@ -1732,7 +1732,7 @@ void FtpServer::closeTransfer()
   }
   else
     client.println(F("226 File successfully transferred") );
-  
+
   file.close();
   data.stop();
 }
@@ -1755,7 +1755,7 @@ void FtpServer::abortTransfer()
     transferStage = FTP_Close;
   }
 //  if( data.connected())
-  data.stop(); 
+  data.stop();
 }
 
 // Read a char from client connected to ftp server
@@ -1766,7 +1766,7 @@ void FtpServer::abortTransfer()
 //    -2 if buffer cmdLine is full
 //    -1 if line not completed
 //     0 if empty line received
-//    length of cmdLine (positive) if no empty line received 
+//    length of cmdLine (positive) if no empty line received
 
 int8_t FtpServer::readChar()
 {
@@ -1838,7 +1838,7 @@ bool FtpServer::haveParameter()
   if( parameter != NULL && strlen( parameter ) > 0 )
     return true;
   client.println("501 No file name" );
-  return false;  
+  return false;
 }
 
 int utf8_strlen(const String& str)
@@ -1928,7 +1928,7 @@ bool FtpServer::makePath( char * fullName, char * param )
 {
   if( param == NULL )
     param = parameter;
-    
+
   // Root or empty?
   if( strcmp( param, "/" ) == 0 || strlen( param ) == 0 )
   {
@@ -1936,7 +1936,7 @@ bool FtpServer::makePath( char * fullName, char * param )
     return true;
   }
   // If relative path, concatenate with current dir
-  if( param[0] != '/' ) 
+  if( param[0] != '/' )
   {
     strcpy( fullName, cwdName );
     if( fullName[ strlen( fullName ) - 1 ] != '/' )
@@ -2039,10 +2039,10 @@ uint8_t FtpServer::getDateTime( char * dt, uint16_t * pyear, uint8_t * pmonth, u
   if( i == 18 )
     return 0;
   i ++ ;
-  
+
   strncpy( dt, parameter, 14 );
   dt[ 14 ] = 0;
-  * psecond = atoi( dt + 12 ); 
+  * psecond = atoi( dt + 12 );
   dt[ 12 ] = 0;
   * pminute = atoi( dt + 10 );
   dt[ 10 ] = 0;
@@ -2064,7 +2064,7 @@ uint8_t FtpServer::getDateTime( char * dt, uint16_t * pyear, uint8_t * pmonth, u
 // Create string YYYYMMDDHHMMSS from date and time
 //
 // parameters:
-//    date, time 
+//    date, time
 //    tstr: where to store the string. Must be at least 15 characters long
 //
 // return:
@@ -2074,7 +2074,7 @@ char * FtpServer::makeDateTimeStr( char * tstr, uint16_t date, uint16_t time )
 {
   sprintf( tstr, "%04u%02u%02u%02u%02u%02u",
            (( date & 0xFE00 ) >> 9 ) + 1980, ( date & 0x01E0 ) >> 5, date & 0x001F,
-           ( time & 0xF800 ) >> 11, ( time & 0x07E0 ) >> 5, ( time & 0x001F ) << 1 );            
+           ( time & 0xF800 ) >> 11, ( time & 0x07E0 ) >> 5, ( time & 0x001F ) << 1 );
   return tstr;
 }
 
@@ -2226,7 +2226,7 @@ bool FtpServer::isDir( char * path )
 #else
   FTP_FILE file;
   bool res;
-  
+
   if( ! openFile( path, FTP_FILE_READ )) {
     return false;
   }
@@ -2271,7 +2271,7 @@ bool FtpServer::timeStamp( char * path, uint16_t year, uint8_t month, uint8_t da
   return res;
 #endif
 }
-                        
+
 bool FtpServer::getFileModTime( char * path, uint16_t * pdate, uint16_t * ptime )
 {
 #if STORAGE_TYPE == STORAGE_FATFS
@@ -2290,7 +2290,7 @@ bool FtpServer::getFileModTime( char * path, uint16_t * pdate, uint16_t * ptime 
 }
 
 // Assume SD library is SdFat (or family) and file is open
-                        
+
 #if STORAGE_TYPE != STORAGE_FATFS
 bool FtpServer::getFileModTime( uint16_t * pdate, uint16_t * ptime )
 {

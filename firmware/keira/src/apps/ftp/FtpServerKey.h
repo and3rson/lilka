@@ -18,8 +18,8 @@
 #define FTP_SERVER_CONFIG_H
 
 // Uncomment to enable printing out nice debug messages.
-#define FTP_SERVER_DEBUG
-#define FTP_ADDITIONAL_DEBUG
+// #define FTP_SERVER_DEBUG
+// #define FTP_ADDITIONAL_DEBUG
 
 // Define where debug output will be printed.
 #define DEBUG_PRINTER Serial

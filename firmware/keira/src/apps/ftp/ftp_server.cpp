@@ -5,16 +5,21 @@ FTPServerApp::FTPServerApp() : App("FTP Server") {
 }
 
 void FTPServerApp::run() {
-    char password[9];
-    // Generate random 8-char password
-    for (int i = 0; i < 8; i++) {
-        if (random(0, 2) == 0) {
-            password[i] = random(48, 57);
-        } else {
-            password[i] = random(97, 122);
+    const uint8_t pwdLen = 6;
+    static char password[pwdLen + 1];
+    static bool hasPassword = false;
+    if (!hasPassword) {
+        // Generate random 6-char password
+        for (int i = 0; i < pwdLen; i++) {
+            if (random(0, 2) == 0) {
+                password[i] = random(48, 57);
+            } else {
+                password[i] = random(97, 122);
+            }
         }
+        password[pwdLen] = '\0';
+        hasPassword = true;
     }
-    password[8] = '\0';
 
     ftpSrv.begin("lilka", password);
 
