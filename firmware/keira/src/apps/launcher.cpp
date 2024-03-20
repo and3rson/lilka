@@ -1,3 +1,5 @@
+#include <ff.h>
+
 #include "launcher.h"
 #include "appmanager.h"
 
@@ -308,6 +310,7 @@ void LauncherApp::settingsMenu() {
         "Про систему",
         "Інфо про пристрій",
         "Таблиця розділів",
+        "Форматування SD-карти",
         "Перезавантаження",
         "<< Назад",
     };
@@ -377,6 +380,37 @@ void LauncherApp::settingsMenu() {
                 );
             }
         } else if (index == 4) {
+            if (!lilka::sdcard.available()) {
+                alert("Помилка", "SD-карта не знайдена");
+                continue;
+            }
+            lilka::Alert confirm(
+                "Форматування", "УВАГА: Це очистить ВСІ дані з SD-карти!\n\nПродовжити?\n\nSTART - так\nA - скасувати"
+            );
+            confirm.draw(canvas);
+            queueDraw();
+            while (!confirm.isFinished()) {
+                confirm.update();
+                taskYIELD();
+            }
+            if (confirm.getButton() != lilka::Button::START) {
+                continue;
+            }
+            lilka::ProgressDialog dialog("Форматування", "Будь ласка, зачекайте...");
+            dialog.draw(canvas);
+            queueDraw();
+            const uint32_t workSize = FF_MAX_SS * 4;
+            void* work = ps_malloc(workSize
+            ); // Buffer (4 sectors), otherwise f_mkfs tries to allocate in stack and fails due to task stack size
+            FRESULT result = f_mkfs("/sd", FM_ANY, 0, work, workSize); // TODO - hardcoded mountpoint
+            free(work);
+            if (result != FR_OK) {
+                this->alert("Помилка", "Не вдалося сформатувати SD-карту, код помилки: " + String(result));
+                continue;
+            }
+            this->alert("Форматування", "Форматування SD-карти завершено!");
+
+        } else if (index == 5) {
             esp_restart();
         }
     }
@@ -386,11 +420,8 @@ void LauncherApp::alert(String title, String message) {
     lilka::Alert alert(title, message);
     alert.draw(canvas);
     queueDraw();
-    while (1) {
+    while (!alert.isFinished()) {
         alert.update();
-        if (alert.isFinished()) {
-            break;
-        }
         taskYIELD();
     }
 }

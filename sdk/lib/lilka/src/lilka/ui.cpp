@@ -203,6 +203,10 @@ bool Alert::isFinished() {
     return false;
 }
 
+Button Alert::getButton() {
+    return button;
+}
+
 ProgressDialog::ProgressDialog(String title, String message) {
     this->title = title;
     this->message = message;
