@@ -50,6 +50,7 @@ public:
     ///
     /// @param title Заголовок меню.
     explicit Menu(String title);
+    ~Menu();
     /// Додати пункт до меню.
     /// @param title Заголовок пункту.
     /// @param icon Іконка пункту (масив з ``uint16_t`` розміром 576 елементів, який представляє 24x24px зображення). За замовчуванням ``0`` (відсутня іконка).
@@ -87,6 +88,9 @@ private:
     String title;
     std::vector<MenuItem> items;
     bool done;
+    Image* iconImage;
+    Canvas* iconCanvas;
+    int64_t lastCursorMove;
 };
 
 /// Клас для відображення сповіщення.
