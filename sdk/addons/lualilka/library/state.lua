@@ -23,6 +23,6 @@
 --- display.fill_screen(display.color565(64, 0, 64))
 --- display.set_cursor(0, 64)
 --- display.print('Лічильник запусків\nпрограми: ', state.counter)
---- display.render()
+--- display.queue_draw()
 --- util.sleep(0.5)
 state = {}
