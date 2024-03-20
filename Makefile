@@ -11,9 +11,10 @@ todo: ## Find all TODO, FIXME, XXX comments
 		. \
 		-not \( -name .ccls-cache -prune \) \
 		-not \( -name .pio -prune \) \
-		-not \( -name mjs -prune \) \
 		-not \( -name doomgeneric -prune \) \
 		-not \( -name bak -prune \) \
+		-not \( -name mJS -prune \) \
+		-not \( -name SimpleFTPServer -prune \) \
 		-iname *.h \
 		-o -iname *.cpp \
 		-o -iname *.c \
@@ -30,9 +31,10 @@ icons:
 		sdk \
 		-not \( -name .ccls-cache -prune \) \
 		-not \( -name .pio -prune \) \
-		-not \( -name mjs -prune \) \
 		-not \( -name doomgeneric -prune \) \
 		-not \( -name bak -prune \) \
+		-not \( -name mJS -prune \) \
+		-not \( -name SimpleFTPServer -prune \) \
 		-iname *.png \
 		-exec $(IMAGE2CODE) {} \;
 
@@ -54,10 +56,10 @@ clang-format: ## Run clang-format check
 		. \
 		-not \( -name .ccls-cache -prune \) \
 		-not \( -name .pio -prune \) \
-		-not \( -name mjs -prune \) \
 		-not \( -name doomgeneric -prune \) \
 		-not \( -name bak -prune \) \
-		-not \( -name ftp -prune \) \
+		-not \( -name mJS -prune \) \
+		-not \( -name SimpleFTPServer -prune \) \
 		-iname *.h \
 		-o -iname *.cpp \
 		-o -iname *.c \
@@ -67,7 +69,7 @@ clang-format: ## Run clang-format check
 
 .PHONY: cppcheck
 cppcheck: ## Run cppcheck check
-	$(CPPCHECK) . -i.ccls-cache -ipio -imjs -idoomgeneric -ibak -iftp --enable=performance,style \
+	$(CPPCHECK) . -i.ccls-cache -ipio -idoomgeneric -ibak -imJS -iSimpleFTPServer --enable=performance,style \
 		--suppress=knownPointerToBool \
 		--suppress=noCopyConstructor \
 		--suppress=noOperatorEq \
