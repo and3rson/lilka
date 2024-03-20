@@ -57,6 +57,7 @@ clang-format: ## Run clang-format check
 		-not \( -name mjs -prune \) \
 		-not \( -name doomgeneric -prune \) \
 		-not \( -name bak -prune \) \
+		-not \( -name ftp -prune \) \
 		-iname *.h \
 		-o -iname *.cpp \
 		-o -iname *.c \
