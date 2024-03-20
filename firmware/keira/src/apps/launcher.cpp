@@ -229,15 +229,16 @@ void LauncherApp::selectFile(String path) {
         alert("Помилка", "Ця операція потребує Лілку 2.0");
         return;
 #else
+        lilka::ProgressDialog dialog("Завантаження", path);
+        dialog.draw(canvas);
+        queueDraw();
         int error;
         error = lilka::multiboot.start(path);
         if (error) {
             alert("Помилка", String("Етап: 1\nКод: ") + error);
             return;
         }
-        lilka::ProgressDialog dialog(
-            "Завантаження", path + "\nРозмір: " + String(lilka::multiboot.getBytesTotal()) + " Б"
-        );
+        dialog.setMessage(path + "\nРозмір: " + String(lilka::multiboot.getBytesTotal()) + " Б");
         dialog.draw(canvas);
         queueDraw();
         while ((error = lilka::multiboot.process()) > 0) {

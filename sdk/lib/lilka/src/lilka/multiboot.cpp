@@ -235,10 +235,6 @@ String MultiBoot::getFirmwarePath() {
         serial_err("Firmware path is not set");
         return "";
     }
-    // Clear firmware path from OTA partition
-    if (esp_partition_erase_range(ota_partition, partition_size - 256, 256) != ESP_OK) {
-        serial_err("Failed to erase firmware path from OTA partition");
-    }
     return String(buf);
 }
 
