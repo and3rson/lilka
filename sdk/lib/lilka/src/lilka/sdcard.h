@@ -4,30 +4,21 @@
 #include <SD.h>
 
 #include "config.h"
-
+#include "fsdefs.h"
 namespace lilka {
-
-typedef enum {
-    ENT_FILE,
-    ENT_DIRECTORY,
-} EntryType;
-
-typedef struct {
-    String name;
-    EntryType type;
-    size_t size;
-} Entry;
 
 class SDCard {
 public:
     SDCard();
     void begin();
     bool available();
-    SDFS* fs;
 
     int listDir(String path, Entry entries[]);
     size_t getEntryCount(String path);
     String abspath(String path);
+
+private:
+    SDFS* fs;
 };
 
 extern SDCard sdcard;

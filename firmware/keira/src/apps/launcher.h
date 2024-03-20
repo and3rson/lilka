@@ -12,6 +12,10 @@ typedef struct {
     {                                          \
         name, []() { return new className(); } \
     }
+typedef enum {
+    FB_SD,
+    FB_SPIFFS,
+} FileBrowserType;
 
 class LauncherApp : public App {
 public:
@@ -20,8 +24,7 @@ public:
 private:
     void run() override;
     void appsMenu();
-    void sdBrowserMenu(String path);
-    void spiffsBrowserMenu();
+    void fileBrowserMenu(String path, int fbrowserType);
     void devMenu();
     void settingsMenu();
 

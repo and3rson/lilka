@@ -53,9 +53,9 @@ void LauncherApp::run() {
             if (index == 0) {
                 appsMenu();
             } else if (index == 1) {
-                sdBrowserMenu("/");
+                fileBrowserMenu("/", FB_SD);
             } else if (index == 2) {
-                spiffsBrowserMenu();
+                fileBrowserMenu("/", FB_SPIFFS);
             } else if (index == 3) {
                 // dev_menu();
                 devMenu();
@@ -127,20 +127,39 @@ const uint16_t get_file_color(const String& filename) {
         return lilka::display.color565(200, 200, 200);
     }
 }
-
-void LauncherApp::sdBrowserMenu(String path) {
-    if (!lilka::sdcard.available()) {
-        alert("Помилка", "SD-карта не знайдена");
-    }
-    size_t _numEntries = lilka::sdcard.getEntryCount(path);
-    if (_numEntries == 0) {
-        alert("Помилка", "Директорія пуста або сталася помилка читання директорії");
+void LauncherApp::fileBrowserMenu(String path, int fbrowserType) {
+    size_t _numEntries = 0;
+    if (fbrowserType == FB_SD) {
+        if (!lilka::sdcard.available()) {
+            alert("Помилка", "SD-карта не знайдена");
+            return;
+        }
+        size_t _numEntries = lilka::sdcard.getEntryCount(path);
+        if (_numEntries == 0) {
+            alert("Помилка", "Директорія пуста або сталася помилка читання директорії");
+            return;
+        }
+    } else if (fbrowserType == FB_SPIFFS) {
+        if (!lilka::filesystem.available()) {
+            alert("Помилка", "SPIFFS не підтримується");
+            return;
+        }
+        size_t _numEntries = lilka::filesystem.getEntryCount(path);
+        if (_numEntries == 0) {
+            alert("Помилка", "Директорія пуста або сталася помилка читання директорії");
+            return;
+        }
+    } else {
+        alert("Помилка", "Цей тип носія не підтримується");
         return;
     }
 
     lilka::Entry* entries = new lilka::Entry[_numEntries];
+    int numEntries = -1;
 
-    int numEntries = lilka::sdcard.listDir(path, entries);
+    if (fbrowserType == FB_SD) numEntries = lilka::sdcard.listDir(path, entries);
+    else numEntries = lilka::filesystem.listDir(path, entries);
+
     std::unique_ptr<lilka::Entry[]> entriesPtr(entries);
 
     // Так як listDir має повертати -1 в разі помилки
@@ -150,7 +169,12 @@ void LauncherApp::sdBrowserMenu(String path) {
         return;
     }
 
-    lilka::Menu menu("SD: " + path);
+    String menuLabel;
+    if (fbrowserType == FB_SD) menuLabel = "SD: " + path;
+    else menuLabel = "SPIFFS: " + path;
+
+    lilka::Menu menu(menuLabel);
+
     for (int i = 0; i < numEntries; i++) {
         String filename = entries[i].name;
         const menu_icon_t* icon =
@@ -169,56 +193,13 @@ void LauncherApp::sdBrowserMenu(String path) {
         if (index != -1) {
             if (index >= numEntries - 1) break;
             if (entries[index].type == lilka::EntryType::ENT_DIRECTORY) {
-                sdBrowserMenu(path + entries[index].name + "/");
+                fileBrowserMenu(path + entries[index].name + "/", fbrowserType);
             } else {
-                selectFile(lilka::sdcard.abspath(path + entries[index].name));
+                if (fbrowserType == FB_SD) selectFile(lilka::sdcard.abspath(path + entries[index].name));
+                else selectFile(lilka::filesystem.abspath(path + entries[index].name));
             }
         }
         taskYIELD();
-    }
-
-    return;
-}
-
-void LauncherApp::spiffsBrowserMenu() {
-    if (!lilka::filesystem.available()) {
-        alert("Помилка", "SPIFFS не підтримується");
-        return;
-    }
-
-    String filenames
-        [32]; // TODO - allocate dynamically (increasing to 64 causes task stack overflow which is limited by ARDUINO_LOOP_STACK_SIZE)
-    int numEntries = lilka::filesystem.readdir(filenames);
-
-    if (numEntries == -1) {
-        alert("Помилка", "Не вдалося прочитати корінь SPIFFS");
-        return;
-    }
-    const menu_icon_t* icons[32];
-    uint16_t colors[32];
-    for (int i = 0; i < numEntries; i++) {
-        icons[i] = get_file_icon(filenames[i]);
-        colors[i] = get_file_color(filenames[i]);
-    }
-    filenames[numEntries++] = "<< Назад";
-    icons[numEntries - 1] = 0;
-    colors[numEntries - 1] = 0;
-
-    lilka::Menu menu("SPIFFS");
-    for (int i = 0; i < numEntries; i++) {
-        menu.addItem(filenames[i], icons[i], colors[i]);
-    }
-    while (1) {
-        menu.update();
-        menu.draw(canvas);
-        queueDraw();
-        int16_t index = menu.getSelectedIndex();
-        if (index != -1) {
-            if (index == numEntries - 1) {
-                return;
-            }
-            selectFile(lilka::filesystem.abspath(filenames[index]));
-        }
     }
 }
 
