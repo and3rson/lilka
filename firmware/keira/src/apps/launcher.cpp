@@ -168,7 +168,7 @@ void LauncherApp::sdBrowserMenu(String path) {
             queueDraw();
         }
         int16_t index = menu.getCursor();
-        if (index >= numEntries - 1) break;
+        if (index == numEntries) break;
         if (entries[index].type == lilka::EntryType::ENT_DIRECTORY) {
             sdBrowserMenu(path + entries[index].name + "/");
         } else {
@@ -229,15 +229,16 @@ void LauncherApp::selectFile(String path) {
         alert("Помилка", "Ця операція потребує Лілку 2.0");
         return;
 #else
+        lilka::ProgressDialog dialog("Завантаження", path + "\n\nПочинаємо...");
+        dialog.draw(canvas);
+        queueDraw();
         int error;
         error = lilka::multiboot.start(path);
         if (error) {
             alert("Помилка", String("Етап: 1\nКод: ") + error);
             return;
         }
-        lilka::ProgressDialog dialog(
-            "Завантаження", path + "\nРозмір: " + String(lilka::multiboot.getBytesTotal()) + " Б"
-        );
+        dialog.setMessage(path + "\n\nРозмір: " + String(lilka::multiboot.getBytesTotal()) + " Б");
         dialog.draw(canvas);
         queueDraw();
         while ((error = lilka::multiboot.process()) > 0) {

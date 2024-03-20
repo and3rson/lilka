@@ -63,6 +63,8 @@ public:
     /// \return <0 - у разі помилки. В разі успіху цей метод не повертається, оскільки пристрій перезавантажується.
     int finishAndReboot();
 
+    String getFirmwarePath();
+
 private:
     String path;
     FILE* file;
