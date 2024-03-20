@@ -109,18 +109,18 @@ void setup() {
     // Get firmware arg
     String firmwareFile = lilka::multiboot.getFirmwarePath();
     lilka::serial_log("Firmware file: %s\n", firmwareFile.c_str());
-    String firmwarePath;
+    String firmwareDir;
     if (firmwareFile.length()) {
         // Get directory from firmware file
         int lastSlash = firmwareFile.lastIndexOf('/');
-        firmwarePath = firmwareFile.substring(0, lastSlash + 1);
+        firmwareDir = firmwareFile.substring(0, lastSlash);
     } else {
-        firmwarePath = "/";
+        firmwareDir = "/";
     }
 
     bool found = false;
     // Find the WAD file
-    File root = SD.open(firmwarePath.c_str());
+    File root = SD.open(firmwareDir.c_str());
     File file;
     while ((file = root.openNextFile())) {
         if (file.isDirectory()) {
@@ -131,7 +131,7 @@ void setup() {
         name.toLowerCase();
         lilka::serial_log("Checking file: %s\n", name.c_str());
         if (name.startsWith("doom") && name.endsWith(".wad")) {
-            strcpy(arg3, (String("/sd/") + file.name()).c_str());
+            strcpy(arg3, (String("/sd") + firmwareDir + "/" + file.name()).c_str());
             lilka::serial_log("Found .WAD file: %s\n", arg3);
             found = true;
             file.close();

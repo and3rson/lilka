@@ -179,7 +179,6 @@ int MultiBoot::process() {
         bytesWritten += len;
     }
 
-    serial_log("Written %d bytes", bytesWritten);
     return bytesWritten;
 }
 
