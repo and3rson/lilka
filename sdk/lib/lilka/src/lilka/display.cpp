@@ -366,7 +366,7 @@ inline int_vector_t Transform::transform(int_vector_t v) {
     // Apply this transform to a vector
     return int_vector_t{
         static_cast<int32_t>(matrix[0][0] * v.x + matrix[0][1] * v.y),
-        static_cast<int32_t>(matrix[1][0] * v.x + matrix[1][1] * v.y)
+        static_cast<int32_t>(matrix[1][0] * v.x + matrix[1][1] * v.y),
     };
 }
 
