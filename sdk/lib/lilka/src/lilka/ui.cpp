@@ -17,8 +17,8 @@ namespace lilka {
 Menu::Menu(String title) {
     this->title = title;
     this->scroll = 0;
-    this->selectedIndex = -1;
     this->setCursor(0);
+    this->done = false;
 }
 
 void Menu::addItem(String title, const menu_icon_t* icon, uint16_t color) {
@@ -56,7 +56,7 @@ void Menu::update() {
         }
     } else if (state.a.justPressed) {
         // Execute selected function
-        this->selectedIndex = cursor;
+        done = true;
     }
 
     if (cursor < scroll) {
@@ -133,16 +133,23 @@ void Menu::draw(Arduino_GFX* canvas) {
     }
 }
 
-int16_t Menu::getSelectedIndex() {
-    int16_t index = selectedIndex;
-    selectedIndex = -1;
-    return index;
+bool Menu::isFinished() {
+    if (done) {
+        done = false;
+        return true;
+    }
+    return false;
+}
+
+int16_t Menu::getCursor() {
+    return cursor;
 }
 
 Alert::Alert(String title, String message) {
     this->title = title;
     this->message = message;
     this->done = false;
+    this->button = Button::COUNT;
 }
 
 void Alert::setTitle(String title) {
@@ -155,7 +162,8 @@ void Alert::setMessage(String message) {
 
 void Alert::update() {
     State state = controller.getState();
-    if (state.a.justPressed) {
+    if (state.a.justPressed || state.start.justPressed) {
+        button = state.a.justPressed ? Button::A : Button::START;
         done = true;
     }
 }
@@ -187,12 +195,16 @@ void Alert::draw(Arduino_GFX* canvas) {
     canvas->println(message);
 }
 
-bool Alert::isDone() {
+bool Alert::isFinished() {
     if (done) {
         done = false;
         return true;
     }
     return false;
+}
+
+Button Alert::getButton() {
+    return button;
 }
 
 ProgressDialog::ProgressDialog(String title, String message) {
@@ -473,7 +485,7 @@ void InputDialog::draw(Arduino_GFX* canvas) {
     }
 }
 
-bool InputDialog::isDone() {
+bool InputDialog::isFinished() {
     if (done) {
         done = false;
         return true;

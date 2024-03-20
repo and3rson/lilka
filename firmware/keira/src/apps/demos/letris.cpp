@@ -295,7 +295,7 @@ void LetrisApp::run() {
     queueDraw();
     while (1) {
         alert.update();
-        if (alert.isDone()) {
+        if (alert.isFinished()) {
             break;
         }
         taskYIELD();

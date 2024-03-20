@@ -38,7 +38,7 @@ void WiFiConfigApp::run() {
         lilka::Alert alert("Помилка", "Не вдалося сканувати мережі, код помилки: " + String(count));
         alert.draw(canvas);
         queueDraw();
-        while (!alert.isDone()) {
+        while (!alert.isFinished()) {
             alert.update();
         }
         return;
@@ -66,23 +66,22 @@ void WiFiConfigApp::run() {
     menu.addItem("<< Назад");
     count++;
     while (1) {
-        int index = -1;
-        while (index == -1) {
+        while (!menu.isFinished()) {
             menu.update();
             menu.draw(canvas);
             queueDraw();
-            index = menu.getSelectedIndex();
         }
-        if (index == count - 1) {
+        int cursor = menu.getCursor();
+        if (cursor == count - 1) {
             return;
         }
 
-        String ssid = networks[index];
+        String ssid = networks[cursor];
 
         lilka::InputDialog passwordDialog("Введіть пароль:");
         passwordDialog.setMasked(true);
         passwordDialog.setValue(networkService->getPassword(ssid));
-        while (!passwordDialog.isDone()) {
+        while (!passwordDialog.isFinished()) {
             passwordDialog.update();
             passwordDialog.draw(canvas);
             queueDraw();
@@ -124,7 +123,7 @@ void WiFiConfigApp::run() {
 
         alert.draw(canvas);
         queueDraw();
-        while (!alert.isDone()) {
+        while (!alert.isFinished()) {
             alert.update();
         }
 

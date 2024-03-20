@@ -5,6 +5,7 @@
 #include <vector>
 #include "Arduino_GFX.h"
 #include "display.h"
+#include "controller.h"
 
 typedef uint16_t const menu_icon_t[576]; // 24x24px icon
 
@@ -73,19 +74,19 @@ public:
     /// // ...
     /// @endcode
     void draw(Arduino_GFX* canvas);
+    /// Перевірити, чи обрано пункт меню.
+    ///
+    /// Якщо пункт обрано (користувач натиснув кнопку "A"), повертається ``true``, інакше ``false``. Після виклику цієї функції пункт перестає бути обраним.
+    bool isFinished();
     /// Отримати індекс обраного пункту меню.
-    ///
-    /// Якщо жоден пункт не обрано, повертається ``-1``.
-    ///
-    /// Також ця функція очищує обраний пункт, тому щойно вона поверне індекс обраного пункту, вона почне повертати ``-1`` до тих пір, поки не буде обрано новий пункт.
-    int16_t getSelectedIndex();
+    int16_t getCursor();
 
 private:
     int16_t cursor;
     int16_t scroll;
     String title;
     std::vector<MenuItem> items;
-    int16_t selectedIndex;
+    bool done;
 };
 
 /// Клас для відображення сповіщення.
@@ -104,7 +105,7 @@ private:
 /// void loop() {
 ///     lilka::Alert warning("Увага", "Повітряна тривога в москві, загроза балістичних ракет!");
 ///     warning.draw(&lilka::display);
-///     while (!warning.isDone()) {
+///     while (!warning.isFinished()) {
 ///         warning.update();
 ///     }
 /// }
@@ -141,13 +142,18 @@ public:
     void draw(Arduino_GFX* canvas);
     /// Перевірити, чи користувач закрив сповіщення.
     ///
-    /// Якщо сповіщення закрито (користувач натиснув кнопку "A"), повертається ``true``, інакше ``false``.
-    bool isDone();
+    /// Якщо сповіщення закрито (користувач натиснув кнопку "A" або "Start"), повертається ``true``, інакше ``false``.
+    bool isFinished();
+    /// Отримати кнопку, якою користувач закрив сповіщення.
+    ///
+    /// Якщо сповіщення не закрито, результат буде невизначеним. Рекомендується використовувати цю функцію тільки після того, як ``isFinished()`` поверне ``true``.
+    Button getButton();
 
 private:
     String title;
     String message;
     bool done;
+    Button button;
 };
 
 /// Клас для відображення індикатора виконання.
@@ -217,7 +223,7 @@ public:
     void setValue(String value);
     void update();
     void draw(Arduino_GFX* canvas);
-    bool isDone();
+    bool isFinished();
     String getValue();
 
 private:

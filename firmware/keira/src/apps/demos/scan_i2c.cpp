@@ -52,7 +52,7 @@ void ScanI2CApp::run() {
     lilka::Alert alert("Помилка", "Ця програма потребує Лілку версії 2 або вище.");
     alert.draw(canvas);
     queueDraw();
-    while (!alert.isDone()) {
+    while (!alert.isFinished()) {
         alert.update();
     }
 #endif
