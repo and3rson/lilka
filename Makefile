@@ -66,7 +66,7 @@ clang-format: ## Run clang-format check
 
 .PHONY: cppcheck
 cppcheck: ## Run cppcheck check
-	$(CPPCHECK) . -i.ccls-cache -ipio -imjs -idoomgeneric -ibak --enable=performance,style \
+	$(CPPCHECK) . -i.ccls-cache -ipio -imjs -idoomgeneric -ibak -iftp --enable=performance,style \
 		--suppress=knownPointerToBool \
 		--suppress=noCopyConstructor \
 		--suppress=noOperatorEq \
