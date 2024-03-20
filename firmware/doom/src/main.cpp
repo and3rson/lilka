@@ -130,7 +130,7 @@ void setup() {
     if (!found) {
         lilka::Alert alert("Doom", "Не знайдено .WAD-файлу на картці пам'яті");
         alert.draw(&lilka::display);
-        while (!alert.isDone()) {
+        while (!alert.isFinished()) {
             alert.update();
         }
         esp_restart();

@@ -18,7 +18,7 @@ void MJSApp::run() {
         lilka::Alert alert("mJS", String("Помилка: ") + err);
         alert.draw(canvas);
         queueDraw();
-        while (!alert.isDone()) {
+        while (!alert.isFinished()) {
             alert.update();
         }
     }
