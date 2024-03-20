@@ -2,8 +2,16 @@
 
 #include "app.h"
 
-#define APP_CLASS_LIST       std::vector<std::function<App*()>>
-#define APP_CLASS(className) []() { return new className(); }
+typedef struct {
+    const char* name;
+    std::function<App*()> construct;
+} app_t;
+
+#define APP_ITEM_LIST std::vector<app_t>
+#define APP_ITEM(name, className)              \
+    {                                          \
+        name, []() { return new className(); } \
+    }
 
 class LauncherApp : public App {
 public:
