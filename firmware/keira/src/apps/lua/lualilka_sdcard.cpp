@@ -106,6 +106,7 @@ int lualilka_sdcard_read_all(lua_State* L) {
     size_t bytesRead = fread(buf, 1, maxBytes, current_file_entrie);
 
     if (bytesRead < maxBytes && ferror(current_file_entrie)) {
+        free(buf);
         return luaL_error(L, "помилка читання з файлу");
     }
 
