@@ -28,7 +28,7 @@ void StatusBarApp::run() {
         canvas->setFont(FONT_9x15);
         canvas->setCursor(24, 17);
         struct tm timeinfo = clockService->getTime();
-        char strftime_buf[64];
+        char strftime_buf[16];
         strftime(strftime_buf, sizeof(strftime_buf), "%H:%M:%S", &timeinfo);
         canvas->print(strftime_buf);
 
