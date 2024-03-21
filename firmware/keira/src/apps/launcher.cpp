@@ -130,7 +130,7 @@ const uint16_t get_file_color(const String& filename) {
 void LauncherApp::fileBrowserMenu(String path) {
     size_t fileCount = 0;
     // openddir accepts only path which ends with /
-    String fPath = path.c_str()[path.length()] == '/' ? path : path + "/";
+    const String fPath = path.c_str()[path.length()] == '/' ? path : path + "/";
 
     DIR* currentDir = opendir(fPath.c_str());
 
@@ -157,8 +157,8 @@ void LauncherApp::fileBrowserMenu(String path) {
     rewinddir(currentDir);
     int i = 0;
     while ((entry = readdir(currentDir)) != NULL) {
-        String fileName = entry->d_name;
-        String fullPath = fPath + fileName;
+        const String fileName = entry->d_name;
+        const String fullPath = fPath + fileName;
         // Skip some specific files
         if (fileName == "." || fileName == "..") continue;
         struct stat fileStat;
@@ -168,7 +168,7 @@ void LauncherApp::fileBrowserMenu(String path) {
             size_t fileSize = fileStat.st_size;
             // TODO : move this to better place
             String humanReadableFileSize;
-            if (fileSize == 0) humanReadableFileSize = "0 B";
+            if (fileSize == 0) humanReadableFileSize = "0B";
             else {
                 const char* suffixes[] = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
                 const int numSuffixes = sizeof(suffixes) / sizeof(suffixes[0]);
@@ -209,7 +209,7 @@ void LauncherApp::fileBrowserMenu(String path) {
                 entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(fileName);
             uint16_t color = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? lilka::display.color565(255, 255, 200)
                                                                                 : get_file_color(fileName);
-            while (humanReadableFileSize.length() != 8) {
+            while (humanReadableFileSize.length() != 6) {
                 humanReadableFileSize = humanReadableFileSize + " ";
             }
             menu.addItem(humanReadableFileSize + " " + fileName, icon, color);
