@@ -134,7 +134,7 @@ void LauncherApp::fileBrowserMenu(String path) {
 
     DIR* currentDir = opendir(fPath.c_str());
 
-    struct dirent* entry = 0;
+    const struct dirent* entry = 0;
     if (!currentDir) {
         alert("Помилка", strerror(errno));
         return;
