@@ -3,7 +3,7 @@
 #include "lualilka_sdcard.h"
 #include "lilka.h"
 
-int lualilka_sdcard_listDir(lua_State* L) {
+int lualilka_sdcard_list_dir(lua_State* L) {
     int n = lua_gettop(L);
 
     if (n != 1) {
@@ -34,7 +34,7 @@ int lualilka_sdcard_listDir(lua_State* L) {
     return 1;
 }
 
-int lualilka_sdcard_readAll(lua_State* L) {
+int lualilka_sdcard_read_all(lua_State* L) {
     int n = lua_gettop(L);
 
     if (n != 2) {
@@ -68,10 +68,13 @@ int lualilka_sdcard_readAll(lua_State* L) {
         current_line++;
     }
 
+    fclose(current_file_entrie);
+
+
     return 1;
 }
 
-int lualilka_sdcard_writeAppend(lua_State* L) {
+int lualilka_sdcard_write_append(lua_State* L) {
     int n = lua_gettop(L);
 
     if (n != 2) {
@@ -96,7 +99,7 @@ int lualilka_sdcard_writeAppend(lua_State* L) {
     return 0;
 }
 
-int lualilka_sdcard_removeFile(lua_State* L) {
+int lualilka_sdcard_remove_file(lua_State* L) {
     int n = lua_gettop(L);
 
     if (n != 1) {
@@ -116,7 +119,7 @@ int lualilka_sdcard_removeFile(lua_State* L) {
     return 0;
 }
 
-int lualilka_sdcard_renameFile(lua_State* L) {
+int lualilka_sdcard_rename_file(lua_State* L) {
     int n = lua_gettop(L);
 
     if (n != 2) {
@@ -141,11 +144,11 @@ int lualilka_sdcard_renameFile(lua_State* L) {
 }
 
 static const luaL_Reg lualilka_sdcard[] = {
-    {"list_dir", lualilka_sdcard_listDir},
-    {"read_file", lualilka_sdcard_readAll},
-    {"write_file", lualilka_sdcard_writeAppend},
-    {"remove_file", lualilka_sdcard_removeFile},
-    {"rename_file", lualilka_sdcard_renameFile},
+    {"list_dir", lualilka_sdcard_list_dir},
+    {"read_file", lualilka_sdcard_read_all},
+    {"write_file", lualilka_sdcard_write_append},
+    {"remove_file", lualilka_sdcard_remove_file},
+    {"rename_file", lualilka_sdcard_rename_file},
     {NULL, NULL},
 };
 
