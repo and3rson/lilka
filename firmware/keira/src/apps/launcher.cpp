@@ -212,7 +212,11 @@ void LauncherApp::fileBrowserMenu(String path) {
             while (humanReadableFileSize.length() != 6) {
                 humanReadableFileSize = humanReadableFileSize + " ";
             }
-            menu.addItem(humanReadableFileSize + " " + fileName, icon, color);
+            if (entries[i].type == lilka::EntryType::ENT_DIRECTORY) {
+                menu.addItem(fileName, icon, color);
+            } else {
+                menu.addItem(humanReadableFileSize + " " + fileName, icon, color);
+            }
         }
         i++;
     }
