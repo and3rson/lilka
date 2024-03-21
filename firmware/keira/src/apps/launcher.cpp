@@ -202,7 +202,7 @@ void LauncherApp::fileBrowserMenu(String path) {
         int16_t index = menu.getCursor();
         if (index == fileCount) break;
         if (entries[index].type == lilka::EntryType::ENT_DIRECTORY) {
-            fileBrowserMenu(path + entries[index].name + "/");
+            fileBrowserMenu(path + entries[index].name);
         } else {
             selectFile(lilka::sdcard.abspath(path + entries[index].name));
         }
