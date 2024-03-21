@@ -55,7 +55,7 @@ int lualilka_sdcard_open_file(lua_State* L) {
 
     FILE* current_file_entrie = fopen(path.c_str(), mode.c_str());
 
-    if(!current_file_entrie) return luaL_error(L, "Помилка при відкриванні файла");
+    if (!current_file_entrie) return luaL_error(L, "Помилка при відкриванні файла");
 
     lua_pushlightuserdata(L, current_file_entrie);
 
@@ -102,7 +102,6 @@ int lualilka_sdcard_read_all(lua_State* L) {
         return luaL_error(L, "Помилка виділення пам'яті");
     }
 
-
     fseek(current_file_entrie, 0, SEEK_SET);
     size_t bytesRead = fread(buf, 1, maxBytes, current_file_entrie);
 
@@ -128,7 +127,7 @@ int lualilka_sdcard_write_append(lua_State* L) {
         return luaL_error(L, "SD card not found");
     }
 
-    FILE* current_file_entrie = (FILE*) lua_touserdata(L, 1);
+    FILE* current_file_entrie = (FILE*)lua_touserdata(L, 1);
     String text = lua_tostring(L, 2);
 
     fprintf(current_file_entrie, text.c_str());
