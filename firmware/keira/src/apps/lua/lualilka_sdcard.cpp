@@ -126,7 +126,7 @@ int lualilka_sdcard_write_append(lua_State* L) {
         return luaL_error(L, "SD card not found");
     }
 
-    FILE* current_file_entrie =  static_cast<FILE*>(lua_touserdata(L, 1));
+    FILE* current_file_entrie = static_cast<FILE*>(lua_touserdata(L, 1));
     String text = lua_tostring(L, 2);
 
     fprintf(current_file_entrie, text.c_str());
