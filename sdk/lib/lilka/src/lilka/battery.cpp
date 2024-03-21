@@ -33,15 +33,26 @@ int Battery::readLevel() {
     // Напруга акумулятора проходить через дільник напруги (33 КОм і 100 КОм, визначений як LILKA_BATTERY_VOLTAGE_DIVIDER).
     // Але при повністю зарядженому акумуляторі (4.2V) напруга на АЦП може бути трохи вищою за максимальне читабельне значення (3.158V замість 3.1V).
     // Тому ми сприймаємо таке перевищення як "100%".
-    float voltage = (float)analogRead(LILKA_BATTERY_ADC) / 4095.0 * LILKA_BATTERY_MAX_MEASURABLE_VOLTAGE;
+
+    // Зчитуємо значення АЦП 32 рази, щоб вибрати медіану
+    uint16_t count = 32;
+    uint16_t values[count];
+    for (int i = 0; i < count; i++) {
+        values[i] = analogRead(LILKA_BATTERY_ADC);
+    }
+    // Сортуємо масив значень АЦП
+    std::sort(values, values + count);
+    // Вибираємо медіану
+    uint16_t value = values[count / 2];
+    float voltage = (float)value / 4095.0 * LILKA_BATTERY_MAX_MEASURABLE_VOLTAGE;
     if (voltage < 0.5) {
         return -1;
     }
 
-    // Максимальна напруга акумулятора, яку ми можемо виміряти.
+    // Максимальна напруга акумулятора, яку ми можемо виміряти
     float maxVoltage = fmin(fullVoltage, LILKA_BATTERY_MAX_MEASURABLE_VOLTAGE);
 
-    // Інтерполюємо діапазон [emptyValue;maxVoltage] в діапазон [0;100].
+    // Інтерполюємо діапазон [emptyValue;maxVoltage] в діапазон [0;100]
     float level = fmap(voltage, emptyVoltage, maxVoltage, 0, 100);
     return constrain(level, 0, 100);
 #endif
