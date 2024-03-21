@@ -17,8 +17,16 @@ namespace lilka {
 Menu::Menu(String title) {
     this->title = title;
     this->scroll = 0;
-    this->selectedIndex = -1;
     this->setCursor(0);
+    this->done = false;
+    this->iconImage = new Image(24, 24, display.color565(0, 0, 0), 12, 12);
+    this->iconCanvas = new Canvas(24, 24);
+    this->lastCursorMove = millis();
+}
+
+Menu::~Menu() {
+    delete iconImage;
+    delete iconCanvas;
 }
 
 void Menu::addItem(String title, const menu_icon_t* icon, uint16_t color) {
@@ -48,15 +56,17 @@ void Menu::update() {
         } else {
             cursor--;
         }
+        lastCursorMove = millis();
     } else if (state.down.justPressed) {
         // Move cursor down
         cursor++;
         if (cursor >= items.size()) {
             cursor = 0;
         }
+        lastCursorMove = millis();
     } else if (state.a.justPressed) {
         // Execute selected function
-        this->selectedIndex = cursor;
+        done = true;
     }
 
     if (cursor < scroll) {
@@ -108,9 +118,26 @@ void Menu::draw(Arduino_GFX* canvas) {
             // Cast icon to non-const uint16_t * to avoid warning
             // TODO: Had to do this because I switched to canvas (FreeRTOS experiment)
             // uint16_t *icon2 = (uint16_t *)icon;
-            canvas->draw16bitRGBBitmapWithTranColor(
-                0, 80 + screenI * 24 - 20, const_cast<uint16_t*>(*icon), canvas->color565(0, 0, 0), 24, 24
-            );
+            // int16_t dx = 0;
+            // int16_t dy = 0;
+            // if (cursor == i) {
+            //     dx = random(0, 3) - 1;
+            //     dy = random(0, 3) - 1;
+            // }
+            if (cursor == i) {
+                memcpy(iconImage->pixels, *icon, sizeof(menu_icon_t));
+                // Transform t = Transform().rotate(millis() * 30);
+                Transform t = Transform().rotate(sin((millis() - lastCursorMove) * PI / 1000) * 30);
+                iconCanvas->fillScreen(canvas->color565(0, 0, 0));
+                iconCanvas->drawImageTransformed(iconImage, 12, 12, t);
+                canvas->draw16bitRGBBitmapWithTranColor(
+                    0, 80 + screenI * 24 - 20, iconCanvas->getFramebuffer(), canvas->color565(0, 0, 0), 24, 24
+                );
+            } else {
+                canvas->draw16bitRGBBitmapWithTranColor(
+                    0, 80 + screenI * 24 - 20, const_cast<uint16_t*>(*icon), canvas->color565(0, 0, 0), 24, 24
+                );
+            }
         }
         canvas->setCursor(32, 80 + screenI * 24);
         if (items[i].color && cursor != i) {
@@ -133,16 +160,23 @@ void Menu::draw(Arduino_GFX* canvas) {
     }
 }
 
-int16_t Menu::getSelectedIndex() {
-    int16_t index = selectedIndex;
-    selectedIndex = -1;
-    return index;
+bool Menu::isFinished() {
+    if (done) {
+        done = false;
+        return true;
+    }
+    return false;
+}
+
+int16_t Menu::getCursor() {
+    return cursor;
 }
 
 Alert::Alert(String title, String message) {
     this->title = title;
     this->message = message;
     this->done = false;
+    this->button = Button::COUNT;
 }
 
 void Alert::setTitle(String title) {
@@ -155,7 +189,8 @@ void Alert::setMessage(String message) {
 
 void Alert::update() {
     State state = controller.getState();
-    if (state.a.justPressed) {
+    if (state.a.justPressed || state.start.justPressed) {
+        button = state.a.justPressed ? Button::A : Button::START;
         done = true;
     }
 }
@@ -187,12 +222,16 @@ void Alert::draw(Arduino_GFX* canvas) {
     canvas->println(message);
 }
 
-bool Alert::isDone() {
+bool Alert::isFinished() {
     if (done) {
         done = false;
         return true;
     }
     return false;
+}
+
+Button Alert::getButton() {
+    return button;
 }
 
 ProgressDialog::ProgressDialog(String title, String message) {
@@ -473,7 +512,7 @@ void InputDialog::draw(Arduino_GFX* canvas) {
     }
 }
 
-bool InputDialog::isDone() {
+bool InputDialog::isFinished() {
     if (done) {
         done = false;
         return true;

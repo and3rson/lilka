@@ -302,7 +302,7 @@ void LuaFileRunnerApp::run() {
         lilka::Alert alert("Lua", String("Помилка: ") + err);
         alert.draw(canvas);
         queueDraw();
-        while (!alert.isDone()) {
+        while (!alert.isFinished()) {
             alert.update();
         }
     }
@@ -430,7 +430,7 @@ void LuaLiveRunnerApp::execSource(String source) {
         lilka::Alert alert("Lua", String("Помилка: ") + err);
         alert.draw(canvas);
         queueDraw();
-        while (!alert.isDone()) {
+        while (!alert.isFinished()) {
             alert.update();
         }
     }

@@ -23,7 +23,7 @@
 
     Ви повинні визначити її в своєму коді, якщо ви хочете використовувати її для оновлення вашої програми.
 
-.. lua:function:: render()
+.. lua:function:: draw()
 
     Ця функція автоматично викликається після `lilka.update`. Тут відбувається відображення графіки.
 
@@ -32,4 +32,4 @@
 .. lua:autoclass:: lilka
 
     .. Does not work with aliases... So we have to copy-paste the stuff above.
-    .. :members: init, update, render
+    .. :members: init, update, draw

@@ -115,8 +115,8 @@ https://github.com/arduino-libraries/Ethernet/issues/88
 #define FTP_TIME_OUT  5 * 60
 
 
-// Wait for authentication for 10 seconds (expressed in seconds)
-#define FTP_AUTH_TIME_OUT 10
+// Wait for authentication for 30 seconds (expressed in seconds)
+#define FTP_AUTH_TIME_OUT 30
 
 
 // Size of file buffer for read/write
