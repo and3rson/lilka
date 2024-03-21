@@ -34,7 +34,7 @@ int lualilka_sdcard_list_dir(lua_State* L) {
     return 1;
 }
 
-int lualilka_sdcard_read_all(lua_State* L) {
+int lualilka_sdcard_open_file(lua_State* L) {
     int n = lua_gettop(L);
 
     if (n != 2) {
@@ -46,30 +46,73 @@ int lualilka_sdcard_read_all(lua_State* L) {
     }
 
     String path = lua_tostring(L, 1);
+
+    path = "/sd/" + path;
+
+    String mode = lua_tostring(L, 2);
+
     int line_index = lua_tointeger(L, 2);
 
-    path = "/sd" + path;
+    FILE* current_file_entrie = fopen(path.c_str(), mode.c_str());
 
-    char line[256];
-    int current_line = 1;
+    if(!current_file_entrie) return luaL_error(L, "Помилка при відкриванні файла");
 
-    FILE* current_file_entrie = fopen(path.c_str(), "ab+");
+    lua_pushlightuserdata(L, current_file_entrie);
 
-    if (current_file_entrie == NULL) {
-        fclose(current_file_entrie);
-        return 0;
+    return 1;
+}
+
+int lualilka_sdcard_close_file(lua_State* L) {
+    int n = lua_gettop(L);
+
+    if (n != 1) {
+        return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
 
-    while (fgets(line, sizeof(line), current_file_entrie)) {
-        if (current_line == line_index) {
-            lua_pushstring(L, line);
-            break;
-        }
-        current_line++;
+    if (!lilka::sdcard.available()) {
+        return luaL_error(L, "SD card not found");
     }
 
-    fclose(current_file_entrie);
+    FILE* current_file_entrie = (FILE*)lua_touserdata(L, 1);
 
+    if (current_file_entrie) {
+        fclose(current_file_entrie); // Закриття файлу
+    }
+
+    return 1;
+}
+
+int lualilka_sdcard_read_all(lua_State* L) {
+    int n = lua_gettop(L);
+
+    if (n != 2) {
+        return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
+    }
+
+    if (!lilka::sdcard.available()) {
+        return luaL_error(L, "SD card not found");
+    }
+
+    FILE* current_file_entrie = (FILE*)lua_touserdata(L, 1);
+
+    size_t maxBytes = luaL_checknumber(L, 2);
+    char* buf = (char*)malloc(maxBytes);
+
+    if (buf == NULL) {
+        return luaL_error(L, "Помилка виділення пам'яті");
+    }
+
+
+    fseek(current_file_entrie, 0, SEEK_SET);
+    size_t bytesRead = fread(buf, 1, maxBytes, current_file_entrie);
+
+    if (bytesRead < maxBytes && ferror(current_file_entrie)) {
+        return luaL_error(L, "помилка читання з файлу");
+    }
+
+    lua_pushlstring(L, buf, bytesRead);
+
+    free(buf);
 
     return 1;
 }
@@ -85,16 +128,10 @@ int lualilka_sdcard_write_append(lua_State* L) {
         return luaL_error(L, "SD card not found");
     }
 
-    String path = lua_tostring(L, 1);
+    FILE* current_file_entrie = (FILE*) lua_touserdata(L, 1);
     String text = lua_tostring(L, 2);
 
-    path = "/sd" + path;
-
-    FILE* current_file_entrie = fopen(path.c_str(), "ab+");
-
     fprintf(current_file_entrie, text.c_str());
-
-    fclose(current_file_entrie);
 
     return 0;
 }
@@ -112,7 +149,7 @@ int lualilka_sdcard_remove_file(lua_State* L) {
 
     String path = lua_tostring(L, 1);
 
-    path = "/sd" + path;
+    path = "/sd/" + path;
 
     remove(path.c_str());
 
@@ -133,8 +170,8 @@ int lualilka_sdcard_rename_file(lua_State* L) {
     String old_name = lua_tostring(L, 1);
     String new_name = lua_tostring(L, 2);
 
-    old_name = "/sd" + old_name;
-    new_name = "/sd" + new_name;
+    old_name = "/sd/" + old_name;
+    new_name = "/sd/" + new_name;
 
     if (rename(old_name.c_str(), new_name.c_str()) != 0) {
         return luaL_error(L, "Error renaming file");
@@ -145,6 +182,8 @@ int lualilka_sdcard_rename_file(lua_State* L) {
 
 static const luaL_Reg lualilka_sdcard[] = {
     {"list_dir", lualilka_sdcard_list_dir},
+    {"open_file", lualilka_sdcard_open_file},
+    {"close_file", lualilka_sdcard_close_file},
     {"read_file", lualilka_sdcard_read_all},
     {"write_file", lualilka_sdcard_write_append},
     {"remove_file", lualilka_sdcard_remove_file},
