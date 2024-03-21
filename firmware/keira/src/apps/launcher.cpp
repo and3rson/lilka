@@ -181,7 +181,7 @@ void LauncherApp::fileBrowserMenu(String path) {
                     exp++;
                 }
                 char buffer[50];
-                snprintf(buffer, sizeof(buffer), "%.2f %s", size, suffixes[exp]);
+                snprintf(buffer, sizeof(buffer), "%.0f %s", size, suffixes[exp]);
 
                 humanReadableFileSize = humanReadableFileSize + buffer;
             }
@@ -212,7 +212,7 @@ void LauncherApp::fileBrowserMenu(String path) {
             while (humanReadableFileSize.length != 8) {
                 humanReadableFileSize = humanReadableFileSize + " ";
             }
-            menu.addItem(humanReadableFileSize + +fileName, icon, color);
+            menu.addItem(humanReadableFileSize + " " + fileName, icon, color);
         }
         i++;
     }
