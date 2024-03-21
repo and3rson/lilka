@@ -94,7 +94,7 @@ int lualilka_sdcard_read_all(lua_State* L) {
     FILE* current_file_entrie = static_cast<FILE*>(lua_touserdata(L, 1));
 
     size_t maxBytes = luaL_checknumber(L, 2);
-    char* buf = (char*)malloc(maxBytes);
+    char* buf = static_cast<char*>(malloc(maxBytes));
 
     if (buf == NULL) {
         return luaL_error(L, "Помилка виділення пам'яті");
