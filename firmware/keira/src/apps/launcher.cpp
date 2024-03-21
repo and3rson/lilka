@@ -130,7 +130,7 @@ const uint16_t get_file_color(const String& filename) {
 void LauncherApp::fileBrowserMenu(String path) {
     size_t fileCount = 0;
     // openddir accepts only path which ends with /
-    const String fPath = path.c_str()[path.length()] == '/' ? path : path + "/";
+    const String fPath = path.c_str()[path.length() - 1] == '/' ? path : path + "/";
 
     DIR* currentDir = opendir(fPath.c_str());
 
