@@ -121,7 +121,7 @@ static const luaL_Reg lualilka_wifi[] = {
     {"scan", lualilka_wifi_scan_networks},
     {"get_rssi", lualilka_wifi_get_rssi},
     {"get_encryption_type", lualilka_wifi_get_encryption_type}, // TKIP (WPA) = 2 WEP = 5 CCMP (WPA) = 4 NONE = 7 AUTO = 8
-    {"get_mac", lualilka_wifi_get_mca},
+    {"get_mac", lualilka_wifi_get_mac},
     {"get_local_ip", lualilka_wifi_get_ip},
     {"set_config", lualilka_wifi_set_config},
     {NULL, NULL},
