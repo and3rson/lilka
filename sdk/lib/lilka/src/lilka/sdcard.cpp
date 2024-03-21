@@ -36,7 +36,7 @@ void SDCard::begin() {
 }
 
 bool SDCard::available() {
-    return !(fs->cardType == CARD_NONE || fs->cardType == CARD_UNKNOWN);
+    return !(fs->cardType() == CARD_NONE || fs->cardType() == CARD_UNKNOWN);
 }
 
 int SDCard::listDir(String path, Entry entries[]) {
