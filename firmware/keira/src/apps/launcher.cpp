@@ -186,8 +186,30 @@ void LauncherApp::fileBrowserMenu(String path) {
                 humanReadableFileSize = humanReadableFileSize + buffer;
             }
             entries[i].name = fileName;
-            entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(filename);
-            menu.addItem(humanReadableFileSize + "\t" + fileName, get_file_icon(fileName), get_file_color(fileName));
+            // TODO : Get rid of lilka::ENT_
+            // stat() allows more better options from the box
+            /*
+                if (S_ISREG(file_stat.st_mode)) type += "Regular File\n";
+                else if (S_ISDIR(file_stat.st_mode)) type += "Directory\n";
+                else if (S_ISLNK(file_stat.st_mode)) type += "Symbolic Link\n";
+                else if (S_ISCHR(file_stat.st_mode)) type += "Character Device\n";
+                else if (S_ISBLK(file_stat.st_mode)) type += "Block Device\n";
+                else if (S_ISFIFO(file_stat.st_mode)) type += "FIFO (Named Pipe)\n";
+                else if (S_ISSOCK(file_stat.st_mode)) type += "Socket\n"; 
+                else type += "Unknown\n";
+    
+                Access time, Modification time, and Inode change time
+                file_info += "Last Access Time: " + std::string(std::ctime(&file_stat.st_atime));
+                file_info += "Last Modification Time: " + std::string(std::ctime(&file_stat.st_mtime));
+                file_info += "Last Inode Change Time: " + std::string(std::ctime(&file_stat.st_ctime));               
+           */
+
+            entries[i].type = S_ISDIR(fileStat.st_mode) ? lilka::ENT_DIRECTORY : lilka::ENT_FILE;
+            const menu_icon_t* icon =
+                entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(fileName);
+            uint16_t color = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? lilka::display.color565(255, 255, 200)
+                                                                                : get_file_color(fileName);
+            menu.addItem(humanReadableFileSize + "\t" + fileName, icon, color);
         }
         i++;
     }
