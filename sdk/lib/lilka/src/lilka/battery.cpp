@@ -27,7 +27,7 @@ void Battery::begin() {
 
 int Battery::readLevel() {
 #if LILKA_VERSION < 2
-    return 0;
+    return -1;
 #else
     // АЦП може зчитувати напругу від 0 до 3.1V.
     // Напруга акумулятора проходить через дільник напруги (33 КОм і 100 КОм, визначений як LILKA_BATTERY_VOLTAGE_DIVIDER).

@@ -5,6 +5,7 @@
 
 class Service {
     friend class AppManager;
+    friend class ServiceManager;
 
 public:
     Service(const char* name);
@@ -13,12 +14,12 @@ public:
 
 protected:
     void setStackSize(uint32_t stackSize);
+    const char* name;
 
 private:
     static void _run(void* arg);
     virtual void run() = 0;
 
-    const char* name;
     xTaskHandle taskHandle;
     uint32_t stackSize;
 };

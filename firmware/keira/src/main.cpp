@@ -5,6 +5,7 @@
 #include "servicemanager.h"
 #include "appmanager.h"
 
+#include "services/clock.h"
 #include "services/network.h"
 
 #include "apps/statusbar.h"
@@ -17,6 +18,7 @@ void setup() {
     lilka::display.setSplash(keira_splash);
     lilka::begin();
     serviceManager->addService(new NetworkService());
+    serviceManager->addService(new ClockService());
     appManager->setPanel(new StatusBarApp());
     appManager->runApp(new LauncherApp());
 }
