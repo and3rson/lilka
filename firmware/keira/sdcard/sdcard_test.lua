@@ -1,9 +1,21 @@
-test = sdcard.open_file("test.txt", "rb+") 
+local file_dir = sdcard.listDir("/")
 
-sdcard.write_file(test, "HELLOWORLD") 
+print(#file_dir)
 
-text = sdcard.read_file(test, 5) 
+for i = 0, #file_dir do 
+    print(file_dir[i])
+end
+
+file = sdcard.open_file("test.txt", "rb+") 
+
+sdcard.write_file(file, "HELLOWORLD") 
+
+text = sdcard.read_file(file, 5) 
 
 print(text) 
 
-sdcard.close_file(test)
+size = sdcard.file_size(file)
+print(size)
+
+sdcard.close_file(file)
+

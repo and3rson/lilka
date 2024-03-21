@@ -51,8 +51,6 @@ int lualilka_sdcard_open_file(lua_State* L) {
 
     String mode = lua_tostring(L, 2);
 
-    int line_index = lua_tointeger(L, 2);
-
     FILE* current_file_entrie = fopen(path.c_str(), mode.c_str());
 
     if (!current_file_entrie) return luaL_error(L, "Помилка при відкриванні файла");
@@ -73,7 +71,7 @@ int lualilka_sdcard_close_file(lua_State* L) {
         return luaL_error(L, "SD card not found");
     }
 
-    FILE* current_file_entrie = (FILE*)lua_touserdata(L, 1);
+    FILE* current_file_entrie = static_cast<FILE*>(lua_touserdata(L, 1));
 
     if (current_file_entrie) {
         fclose(current_file_entrie); // Закриття файлу
@@ -93,7 +91,7 @@ int lualilka_sdcard_read_all(lua_State* L) {
         return luaL_error(L, "SD card not found");
     }
 
-    FILE* current_file_entrie = (FILE*)lua_touserdata(L, 1);
+    FILE* current_file_entrie = static_cast<FILE*>(lua_touserdata(L, 1));
 
     size_t maxBytes = luaL_checknumber(L, 2);
     char* buf = (char*)malloc(maxBytes);
@@ -128,7 +126,7 @@ int lualilka_sdcard_write_append(lua_State* L) {
         return luaL_error(L, "SD card not found");
     }
 
-    FILE* current_file_entrie = (FILE*)lua_touserdata(L, 1);
+    FILE* current_file_entrie =  static_cast<FILE*>(lua_touserdata(L, 1));
     String text = lua_tostring(L, 2);
 
     fprintf(current_file_entrie, text.c_str());
@@ -183,7 +181,7 @@ int lualilka_sdcard_rename_file(lua_State* L) {
 int lualilka_sdcard_file_size(lua_State* L) {
     int n = lua_gettop(L);
 
-    if (n != 2) {
+    if (n != 1) {
         return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
 
@@ -191,10 +189,10 @@ int lualilka_sdcard_file_size(lua_State* L) {
         return luaL_error(L, "SD card not found");
     }
 
-    FILE* current_file_entrie = (FILE*)lua_touserdata(L, 1);
+    FILE* current_file_entrie = static_cast<FILE*>(lua_touserdata(L, 1));
 
     fseek(current_file_entrie, 0, SEEK_END); // seek to end of file
-    size_t size = ftell(f); // get current file pointer
+    size_t size = ftell(current_file_entrie); // get current file pointer
     fseek(current_file_entrie, 0, SEEK_SET); // seek back to beginning of file
 
     lua_pushinteger(L, size);
