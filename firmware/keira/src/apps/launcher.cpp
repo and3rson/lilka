@@ -139,7 +139,7 @@ void LauncherApp::fileBrowserMenu(String path, int fbrowserType) {
             alert("Помилка", "SD-карта не знайдена");
             return;
         }
-        size_t _numEntries = lilka::sdcard.getEntryCount(path);
+        _numEntries = lilka::sdcard.getEntryCount(path);
         if (_numEntries == 0) {
             alert("Помилка", "Директорія пуста або сталася помилка читання директорії");
             return;
@@ -149,7 +149,7 @@ void LauncherApp::fileBrowserMenu(String path, int fbrowserType) {
             alert("Помилка", "SPIFFS не підтримується");
             return;
         }
-        size_t _numEntries = lilka::filesystem.getEntryCount(path);
+        _numEntries = lilka::filesystem.getEntryCount(path);
         if (_numEntries == 0) {
             alert("Помилка", "Директорія пуста або сталася помилка читання директорії");
             return;
