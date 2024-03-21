@@ -161,7 +161,6 @@ void LauncherApp::fileBrowserMenu(String path) {
         String fullPath = fPath + fileName;
         // Skip some specific files
         if (fileName == "." || fileName == "..") continue;
-        entries[i].name = fileName;
         struct stat fileStat;
         // At this point zero means all good
         if (stat(fullPath.c_str(), &fileStat) == 0) {
@@ -186,6 +185,8 @@ void LauncherApp::fileBrowserMenu(String path) {
 
                 humanReadableFileSize = humanReadableFileSize + buffer;
             }
+            entries[i].name = fileName;
+            entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(filename);
             menu.addItem(humanReadableFileSize + "\t" + fileName, get_file_icon(fileName), get_file_color(fileName));
         }
         i++;
