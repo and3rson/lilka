@@ -10,6 +10,7 @@
 #include "icons/wifi_3.h"
 #include "icons/ram.h"
 #include "servicemanager.h"
+#include "services/clock.h"
 #include "services/network.h"
 
 StatusBarApp::StatusBarApp() : App("StatusBar", 0, 0, lilka::display.width(), 24) {
@@ -18,17 +19,18 @@ StatusBarApp::StatusBarApp() : App("StatusBar", 0, 0, lilka::display.width(), 24
 const uint16_t* icons[] = {wifi_offline, wifi_0, wifi_1, wifi_2, wifi_3};
 
 void StatusBarApp::run() {
-    int counter = 0;
     lilka::Canvas iconCanvas(240, 24);
     while (1) {
         canvas->fillScreen(lilka::display.color565(0, 0, 0));
 
-        // Print counter for debug purpose
-        // TODO: Replace with actual time from NTP
+        ClockService* clockService = ServiceManager::getInstance()->getService<ClockService>("clock");
         canvas->setTextColor(lilka::display.color565(255, 255, 255), lilka::display.color565(0, 0, 0));
         canvas->setFont(FONT_9x15);
         canvas->setCursor(24, 17);
-        canvas->print("Час: " + String(counter++));
+        struct tm timeinfo = clockService->getTime();
+        char strftime_buf[16];
+        strftime(strftime_buf, sizeof(strftime_buf), "%H:%M:%S", &timeinfo);
+        canvas->print(strftime_buf);
 
         // Draw icons
         int16_t xOffset = drawIcons(&iconCanvas);
@@ -41,7 +43,7 @@ void StatusBarApp::run() {
 }
 
 int16_t StatusBarApp::drawIcons(lilka::Canvas* iconCanvas) {
-    NetworkService* networkService = ServiceManager::getInstance()->getService<NetworkService>();
+    NetworkService* networkService = ServiceManager::getInstance()->getService<NetworkService>("network");
 
     int16_t xOffset = 0;
 

@@ -8,13 +8,15 @@ public:
     void addService(Service* service);
 
     template <typename T>
-    T* getService() {
-        for (Service* service : services) {
-            T* t = static_cast<T*>(service);
-            if (t != nullptr) {
-                return t;
-            }
+    T* getService(const char* name) {
+        std::vector<Service*>::iterator it =
+            std::find_if(services.begin(), services.end(), [name](const Service* service) {
+                return strcmp(service->name, name) == 0;
+            });
+        if (it != services.end()) {
+            return static_cast<T*>(*it);
         }
+        lilka::serial_err("getService(): service %s not found", name);
         return nullptr;
     }
 

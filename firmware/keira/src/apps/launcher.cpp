@@ -341,7 +341,7 @@ void LauncherApp::settingsMenu() {
         } else if (index == 2) {
             char buf[256];
             NetworkService* networkService =
-                static_cast<NetworkService*>(ServiceManager::getInstance()->getService<NetworkService>());
+                static_cast<NetworkService*>(ServiceManager::getInstance()->getService<NetworkService>("network"));
             // TODO: use dynamic_cast and assert networkService != nullptr
             sprintf(
                 buf,
