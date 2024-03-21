@@ -317,6 +317,7 @@ void LauncherApp::settingsMenu() {
     };
     int count = sizeof(titles) / sizeof(titles[0]);
     lilka::Menu menu("Системні утиліти");
+    menu.addActivationButton(lilka::Button::B);
     for (int i = 0; i < count; i++) {
         menu.addItem(titles[i]);
     }
@@ -325,6 +326,9 @@ void LauncherApp::settingsMenu() {
             menu.update();
             menu.draw(canvas);
             queueDraw();
+        }
+        if (menu.getButton() == lilka::Button::B) {
+            return;
         }
         int16_t index = menu.getCursor();
         if (index == count - 1) {
@@ -386,8 +390,10 @@ void LauncherApp::settingsMenu() {
                 continue;
             }
             lilka::Alert confirm(
-                "Форматування", "УВАГА: Це очистить ВСІ дані з SD-карти!\n\nПродовжити?\n\nSTART - так\nA - скасувати"
+                "Форматування",
+                "УВАГА: Це очистить ВСІ дані з SD-карти!\n\nПродовжити?\n\nSTART - продовжити\nA - скасувати"
             );
+            confirm.addActivationButton(lilka::Button::START);
             confirm.draw(canvas);
             queueDraw();
             while (!confirm.isFinished()) {
