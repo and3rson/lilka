@@ -180,12 +180,35 @@ int lualilka_sdcard_rename_file(lua_State* L) {
     return 0;
 }
 
+int lualilka_sdcard_file_size(lua_State* L) {
+    int n = lua_gettop(L);
+
+    if (n != 2) {
+        return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
+    }
+
+    if (!lilka::sdcard.available()) {
+        return luaL_error(L, "SD card not found");
+    }
+
+    FILE* current_file_entrie = (FILE*)lua_touserdata(L, 1);
+
+    fseek(current_file_entrie, 0, SEEK_END); // seek to end of file
+    size_t size = ftell(f); // get current file pointer
+    fseek(current_file_entrie, 0, SEEK_SET); // seek back to beginning of file
+
+    lua_pushinteger(L, size);
+
+    return 1;
+}
+
 static const luaL_Reg lualilka_sdcard[] = {
     {"list_dir", lualilka_sdcard_list_dir},
     {"open_file", lualilka_sdcard_open_file},
     {"close_file", lualilka_sdcard_close_file},
     {"read_file", lualilka_sdcard_read_all},
     {"write_file", lualilka_sdcard_write_append},
+    {"file_size", lualilka_sdcard_file_size},
     {"remove_file", lualilka_sdcard_remove_file},
     {"rename_file", lualilka_sdcard_rename_file},
     {NULL, NULL},
