@@ -20,7 +20,7 @@ int lualilka_wifi_connect(lua_State* L) {
     return 0;
 }
 
-int lualilka_wifi_status(lua_State* L) {
+int lualilka_wifi_get_status(lua_State* L) {
     lua_pushinteger(L, WiFi.status());
     return 1;
 }
@@ -42,7 +42,7 @@ int lualilka_wifi_scan_networks(lua_State* L) {
     return 1;
 }
 
-int lualilka_wifi_get_RSSI(lua_State* L) {
+int lualilka_wifi_get_rssi(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 1) {
         return luaL_error(L, "Очікується 1 аргументи, отримано %d", n);
@@ -68,7 +68,7 @@ int lualilka_wifi_get_encryption_type(lua_State* L) {
     return 1;
 }
 
-int lualilka_wifi_get_MAC(lua_State* L) {
+int lualilka_wifi_get_mac(lua_State* L) {
     byte mac[6];
 
     WiFi.macAddress(mac);
@@ -86,7 +86,7 @@ int lualilka_wifi_get_MAC(lua_State* L) {
     return 1;
 }
 
-int lualilka_wifi_get_IP(lua_State* L) {
+int lualilka_wifi_get_ip(lua_State* L) {
     byte mac[4];
 
     IPAddress ip = WiFi.localIP();
@@ -96,7 +96,7 @@ int lualilka_wifi_get_IP(lua_State* L) {
     return 1;
 }
 
-int lualilka_wifi_config(lua_State* L) {
+int lualilka_wifi_set_config(lua_State* L) {
     int n = lua_gettop(L);
     if (n != 5) {
         return luaL_error(L, "Очікується 5 аргументів, отримано %d", n);
@@ -116,14 +116,14 @@ int lualilka_wifi_config(lua_State* L) {
 
 static const luaL_Reg lualilka_wifi[] = {
     {"connect", lualilka_wifi_connect},
-    {"status", lualilka_wifi_status},
+    {"get_status", lualilka_wifi_get_status},
     {"disconnect", lualilka_wifi_disconnect},
     {"scan", lualilka_wifi_scan_networks},
-    {"RSSI", lualilka_wifi_get_RSSI},
-    {"encryption_type", lualilka_wifi_get_encryption_type}, // TKIP (WPA) = 2 WEP = 5 CCMP (WPA) = 4 NONE = 7 AUTO = 8
-    {"get_MAC", lualilka_wifi_get_MAC},
-    {"get_local_IP", lualilka_wifi_get_IP},
-    {"config", lualilka_wifi_config},
+    {"get_rssi", lualilka_wifi_get_rssi},
+    {"get_encryption_type", lualilka_wifi_get_encryption_type}, // TKIP (WPA) = 2 WEP = 5 CCMP (WPA) = 4 NONE = 7 AUTO = 8
+    {"get_mac", lualilka_wifi_get_mca},
+    {"get_local_ip", lualilka_wifi_get_ip},
+    {"set_config", lualilka_wifi_set_config},
     {NULL, NULL},
 };
 
