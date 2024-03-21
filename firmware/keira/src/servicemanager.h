@@ -9,9 +9,10 @@ public:
 
     template <typename T>
     T* getService(const char* name) {
-        std::vector<Service*>::iterator it = std::find_if(services.begin(), services.end(), [name](Service* service) {
-            return strcmp(service->name, name) == 0;
-        });
+        std::vector<Service*>::iterator it =
+            std::find_if(services.begin(), services.end(), [name](const Service* service) {
+                return strcmp(service->name, name) == 0;
+            });
         if (it != services.end()) {
             return static_cast<T*>(*it);
         }
