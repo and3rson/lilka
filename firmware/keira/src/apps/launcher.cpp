@@ -209,7 +209,7 @@ void LauncherApp::fileBrowserMenu(String path) {
                 entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(fileName);
             uint16_t color = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? lilka::display.color565(255, 255, 200)
                                                                                 : get_file_color(fileName);
-            while (humanReadableFileSize.length != 8) {
+            while (humanReadableFileSize.length() != 8) {
                 humanReadableFileSize = humanReadableFileSize + " ";
             }
             menu.addItem(humanReadableFileSize + " " + fileName, icon, color);
