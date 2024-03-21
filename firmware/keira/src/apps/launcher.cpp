@@ -209,7 +209,10 @@ void LauncherApp::fileBrowserMenu(String path) {
                 entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(fileName);
             uint16_t color = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? lilka::display.color565(255, 255, 200)
                                                                                 : get_file_color(fileName);
-            menu.addItem(humanReadableFileSize + "\t" + fileName, icon, color);
+            while (humanReadableFileSize.length != 8) {
+                humanReadableFileSize = humanReadableFileSize + " ";
+            }
+            menu.addItem(humanReadableFileSize + +fileName, icon, color);
         }
         i++;
     }
@@ -225,9 +228,9 @@ void LauncherApp::fileBrowserMenu(String path) {
         int16_t index = menu.getCursor();
         if (index == fileCount) break;
         if (entries[index].type == lilka::EntryType::ENT_DIRECTORY) {
-            fileBrowserMenu(path + entries[index].name);
+            fileBrowserMenu(fPath + entries[index].name);
         } else {
-            selectFile(lilka::sdcard.abspath(path + entries[index].name));
+            selectFile(fPath + entries[index].name);
         }
     }
 }

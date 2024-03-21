@@ -6,7 +6,7 @@
 #include "appmanager.h"
 
 #include "services/network.h"
-
+#include "services/automount.h"
 #include "apps/statusbar.h"
 #include "apps/launcher.h"
 
@@ -17,6 +17,7 @@ void setup() {
     lilka::display.setSplash(keira_splash);
     lilka::begin();
     serviceManager->addService(new NetworkService());
+    serviceManager->addService(new AutoMountService());
     appManager->setPanel(new StatusBarApp());
     appManager->runApp(new LauncherApp());
 }
