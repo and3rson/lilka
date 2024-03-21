@@ -22,9 +22,10 @@ private:
     void appsMenu();
     void sdBrowserMenu(String path);
     void spiffsBrowserMenu();
+    void fileBrowserMenu(String path);
+    void selectFile(String path);
     void devMenu();
     void settingsMenu();
 
-    void selectFile(String path);
     void alert(String title, String message);
 };

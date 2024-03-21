@@ -2,7 +2,7 @@
 
 #include "launcher.h"
 #include "appmanager.h"
-
+#include <dirent.h>
 #include "servicemanager.h"
 #include "services/network.h"
 
@@ -56,9 +56,9 @@ void LauncherApp::run() {
         if (index == 0) {
             appsMenu();
         } else if (index == 1) {
-            sdBrowserMenu("/");
+            fileBrowserMenu("/sd");
         } else if (index == 2) {
-            spiffsBrowserMenu();
+            fileBrowserMenu("/fs");
         } else if (index == 3) {
             // dev_menu();
             devMenu();
@@ -125,6 +125,87 @@ const uint16_t get_file_color(const String& filename) {
         return lilka::display.color565(255, 200, 128);
     } else {
         return lilka::display.color565(200, 200, 200);
+    }
+}
+void LauncherApp::fileBrowserMenu(String path) {
+    size_t fileCount = 0;
+    // openddir accepts only path which ends with /
+    String fPath = path.c_str()[path.length()] == '/' ? path : path + "/";
+
+    DIR* currentDir = opendir(fPath.c_str());
+
+    struct dirent* entry;
+    if (!currentDir) {
+        alert("Помилка", strerror(errno));
+        return;
+    }
+
+    // Counting items in directory
+    while ((entry = readdir(currentDir)) != NULL) {
+        String fileName = entry->d_name;
+        // Skip some specific files
+        if (fileName == ".." || fileName == ".") continue;
+
+        fileCount++;
+    }
+    // Allocating memory for MenuEntries;
+    lilka::Entry* entries = new lilka::Entry[fileCount];
+    std::unique_ptr<lilka::Entry[]> entriesPTR(entries);
+
+    lilka::Menu menu("Path: " + path);
+    // Returning to directory begining
+    rewinddir(currentDir);
+    size_t index = 0;
+
+    while ((entry = readdir(currentDir)) != NULL) {
+        String fileName = entry->d_name;
+        String fullPath = fPath + fileName;
+        // Skip some specific files
+        if (fileName == "." || fileName == "..") continue;
+        entries[index].name = fileName;
+        struct stat fileStat;
+        // At this point zero means all good
+        if (stat(fullPath.c_str(), &fileStat) == 0) {
+            // NOTE: There's also additional interesting data we could retrieve
+            size_t fileSize = fileStat.st_size;
+            // TODO : move this to better place
+            String humanReadableFileSize;
+            if (fileSize == 0) humanReadableFileSize = "0 B";
+            else {
+                const char* suffixes[] = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
+                const int numSuffixes = sizeof(suffixes) / sizeof(suffixes[0]);
+
+                int exp = 0;
+                double size = (double)(fileSize);
+
+                while (size >= 1024 && exp < numSuffixes - 1) {
+                    size /= 1024;
+                    exp++;
+                }
+                char buffer[50];
+                snprintf(buffer, sizeof(buffer), "%.2f %s", size, suffixes[exp]);
+
+                humanReadableFileSize = humanReadableFileSize + buffer;
+            }
+            menu.addItem(humanReadableFileSize + "\t" + fileName, get_file_icon(fileName), get_file_color(fileName));
+        }
+    }
+    closedir(currentDir);
+    menu.addItem("<< Назад", 0, 0);
+
+    while (1) {
+        while (!menu.isFinished()) {
+            menu.update();
+            menu.draw(canvas);
+            queueDraw();
+        }
+        int16_t index = menu.getCursor();
+        if (index == fileCount) break;
+        if (entries[index].type == lilka::EntryType::ENT_DIRECTORY) {
+            fileBrowserMenu(path + entries[index].name + "/");
+        } else {
+            selectFile(lilka::sdcard.abspath(path + entries[index].name));
+        }
     }
 }
 
