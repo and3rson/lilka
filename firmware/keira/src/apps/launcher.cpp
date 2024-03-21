@@ -134,7 +134,7 @@ void LauncherApp::fileBrowserMenu(String path) {
 
     DIR* currentDir = opendir(fPath.c_str());
 
-    struct dirent* entry;
+    struct dirent* entry = 0;
     if (!currentDir) {
         alert("Помилка", strerror(errno));
         return;
@@ -155,14 +155,13 @@ void LauncherApp::fileBrowserMenu(String path) {
     lilka::Menu menu("Path: " + path);
     // Returning to directory begining
     rewinddir(currentDir);
-    size_t index = 0;
-
+    int i = 0;
     while ((entry = readdir(currentDir)) != NULL) {
         String fileName = entry->d_name;
         String fullPath = fPath + fileName;
         // Skip some specific files
         if (fileName == "." || fileName == "..") continue;
-        entries[index].name = fileName;
+        entries[i].name = fileName;
         struct stat fileStat;
         // At this point zero means all good
         if (stat(fullPath.c_str(), &fileStat) == 0) {
@@ -189,6 +188,7 @@ void LauncherApp::fileBrowserMenu(String path) {
             }
             menu.addItem(humanReadableFileSize + "\t" + fileName, get_file_icon(fileName), get_file_color(fileName));
         }
+        i++;
     }
     closedir(currentDir);
     menu.addItem("<< Назад", 0, 0);
