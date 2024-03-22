@@ -61,7 +61,7 @@ void Menu::update() {
     } else if (state.left.justPressed) {
         // Scroll PageUp
         if (cursor == 0) {
-            cursor = items.size - 1;
+            cursor = items.size() - 1;
         } else {
             cursor = cursor - PAGE_LEN;
             if (cursor <= 0) {
@@ -70,7 +70,7 @@ void Menu::update() {
         }
     } else if (state.right.justPressed) {
         // Scroll PageDown
-        if (cursor == items.size - 1) {
+        if (cursor == items.size() - 1) {
             cursor = 0;
         } else {
             cursor = cursor + PAGE_LEN;
