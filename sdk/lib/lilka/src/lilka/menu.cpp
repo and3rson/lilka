@@ -65,7 +65,7 @@ void Menu::update() {
         } else {
             cursor = cursor - PAGE_LEN;
             if (cursor <= 0) {
-                cursor = 0;
+                cursor = items.size() - 1;
             }
         }
     } else if (state.right.justPressed) {
@@ -75,7 +75,7 @@ void Menu::update() {
         } else {
             cursor = cursor + PAGE_LEN;
             if (cursor > items.size()) {
-                cursor = items.size() - 1;
+                cursor = 0;
             }
         }
     }
