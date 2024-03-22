@@ -1,5 +1,4 @@
-#ifndef AUTOMOUNT_SERVICE_H
-#define AUTOMOUNT_SERVICE_H
+#pragma once
 #include <SPIFFS.h>
 #include <SD.h>
 #include "service.h"
@@ -25,5 +24,3 @@ private:
 public:
     AutoMountService();
 };
-
-#endif
