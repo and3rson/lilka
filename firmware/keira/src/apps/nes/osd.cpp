@@ -21,13 +21,15 @@ extern "C" {
 
 // No need to add `extern "C"` to functions below, because it's already declared in `osd.h`
 
+int osd_init_sound();
+
 void* mem_alloc(int size, bool prefer_fast_memory) {
-    return malloc(size);
-    // if (prefer_fast_memory) {
-    //     return heap_caps_malloc(size, MALLOC_CAP_8BIT);
-    // } else {
-    //     return heap_caps_malloc_prefer(size, MALLOC_CAP_SPIRAM, MALLOC_CAP_DEFAULT);
-    // }
+    // return malloc(size);
+    if (prefer_fast_memory) {
+        return heap_caps_malloc(size, MALLOC_CAP_8BIT);
+    } else {
+        return heap_caps_malloc_prefer(size, MALLOC_CAP_SPIRAM, MALLOC_CAP_DEFAULT);
+    }
 }
 
 const int eventIndices[10] = {
@@ -82,6 +84,7 @@ int logprint(const char* string) {
 
 int osd_init() {
     nofrendo_log_chain_logfunc(logprint);
+    osd_init_sound();
     return 0;
 }
 
@@ -128,23 +131,97 @@ int osd_makesnapname(char* filename, int len) {
 void osd_getmouse(int* x, int* y, int* button) {
 }
 
+#define DEFAULT_FRAGSIZE    64
+#define HW_AUDIO_SAMPLERATE 22050
+#define HW_AUDIO_BPS        16
+static void (*audio_callback)(void* buffer, int length) = NULL;
+int16_t* audio_frame;
+QueueHandle_t queue;
 int osd_init_sound() {
+    audio_frame = static_cast<int16_t*>(malloc(DEFAULT_FRAGSIZE * 4));
+    if (!audio_frame) {
+        lilka::serial_err("Failed to allocate audio_frame\n");
+    }
+
+    esp_i2s::i2s_config_t cfg = {
+        .mode = (esp_i2s::i2s_mode_t)(esp_i2s::I2S_MODE_MASTER | esp_i2s::I2S_MODE_TX),
+        .sample_rate = HW_AUDIO_SAMPLERATE,
+        .bits_per_sample = esp_i2s::I2S_BITS_PER_SAMPLE_16BIT,
+        .channel_format = esp_i2s::I2S_CHANNEL_FMT_RIGHT_LEFT,
+        .communication_format =
+            (esp_i2s::i2s_comm_format_t)(esp_i2s::I2S_COMM_FORMAT_I2S | esp_i2s::I2S_COMM_FORMAT_I2S_MSB),
+        .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
+        .dma_buf_count = 7,
+        .dma_buf_len = 256,
+        .use_apll = false,
+    };
+    i2s_driver_install(esp_i2s::I2S_NUM_0, &cfg, 2, &queue);
+    esp_i2s::i2s_pin_config_t pins = {
+        .bck_io_num = LILKA_I2S_BCLK,
+        .ws_io_num = LILKA_I2S_LRCK,
+        .data_out_num = LILKA_I2S_DOUT,
+        .data_in_num = -1,
+    };
+    i2s_set_pin(esp_i2s::I2S_NUM_0, &pins);
+    i2s_zero_dma_buffer(esp_i2s::I2S_NUM_0);
+    audio_callback = 0;
     return 0;
 }
 
 void osd_stopsound() {
+    audio_callback = 0;
 }
 
 void do_audio_frame() {
+    // Reference: https://github.com/moononournation/arduino-nofrendo/blob/c5ba6d39c1fff0ceed314b76f6da5145d0d99bcc/examples/esp32-nofrendo/sound.c#L72
+    int left = HW_AUDIO_SAMPLERATE / NES_REFRESH_RATE;
+    while (left) {
+        int n = DEFAULT_FRAGSIZE;
+        if (n > left) n = left;
+        audio_callback(audio_frame, n); //get more data
+
+        //16 bit mono -> 32-bit (16 bit r+l)
+        const int16_t* mono_ptr = audio_frame + n;
+        int16_t* stereo_ptr = audio_frame + n + n;
+        int i = n;
+        while (i--) {
+            // int16_t a = (*(--mono_ptr) >> 2);
+            // Too silent, so I changed it to:
+            int16_t a = *(--mono_ptr);
+            *(--stereo_ptr) = a;
+            *(--stereo_ptr) = a;
+        }
+
+        size_t i2s_bytes_write;
+        i2s_write(esp_i2s::I2S_NUM_0, static_cast<int16_t*>(audio_frame), 4 * n, &i2s_bytes_write, portMAX_DELAY);
+        left -= i2s_bytes_write / 4;
+    }
 }
 
 void osd_setsound(void (*playfunc)(void* buffer, int length)) {
+    audio_callback = playfunc;
+    xTaskCreatePinnedToCore(
+        [](void* arg) {
+            const TickType_t xFrequency = pdMS_TO_TICKS(1000 / NES_REFRESH_RATE);
+            TickType_t xLastWakeTime = xTaskGetTickCount();
+            while (1) {
+                // Call do_audio_frame 60 times per second.
+                do_audio_frame();
+                vTaskDelayUntil(&xLastWakeTime, xFrequency);
+            }
+        },
+        "nes_audio",
+        8192,
+        NULL,
+        1,
+        NULL,
+        1
+    );
 }
 
 void osd_getsoundinfo(sndinfo_t* info) {
-    // dummy value
-    info->sample_rate = 22050;
-    info->bps = 16;
+    info->sample_rate = HW_AUDIO_SAMPLERATE;
+    info->bps = HW_AUDIO_BPS;
 }
 
 void osd_getvideoinfo(vidinfo_t* info) {
