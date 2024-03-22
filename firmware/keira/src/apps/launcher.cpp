@@ -215,7 +215,7 @@ void LauncherApp::fileBrowserMenu(String path) {
             if (entries[i].type == lilka::EntryType::ENT_DIRECTORY) {
                 menu.addItem(fileName, icon, color);
             } else {
-                menu.addItem(humanReadableFileSize + " " + fileName, icon, color);
+                menu.addItem(fileName, icon, color, humanReadableFileSize);
             }
         }
         i++;
