@@ -23,11 +23,12 @@ Menu::~Menu() {
     delete iconCanvas;
 }
 
-void Menu::addItem(String title, const menu_icon_t* icon, uint16_t color) {
+void Menu::addItem(String title, const menu_icon_t* icon, uint16_t color, String postfix) {
     items.push_back({
         .title = title,
         .icon = icon,
         .color = color,
+        .postfix = postfix,
     });
 }
 
@@ -146,6 +147,18 @@ void Menu::draw(Arduino_GFX* canvas) {
         }
         // gfx->print(i == cursor ? "> " : "  ");
         canvas->println(items[i].title);
+
+        if (items[i].postfix.length()) {
+            // Calculate postfix width
+            int16_t x1, y1;
+            uint16_t w, h;
+            canvas->getTextBounds(items[i].postfix, 0, 0, &x1, &y1, &w, &h);
+            (void)x1;
+            (void)y1;
+            (void)h;
+            canvas->setCursor(canvas->width() - w - 8, 80 + screenI * 24);
+            canvas->println(items[i].postfix);
+        }
     }
 
     // Draw scrollbar
