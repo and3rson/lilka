@@ -75,7 +75,7 @@ void Menu::update() {
         } else {
             cursor = cursor + PAGE_LEN;
             if (cursor > items.size()) {
-                cursor = items.size();
+                cursor = items.size() - 1;
             }
         }
     }
