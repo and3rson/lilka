@@ -222,7 +222,7 @@ void LauncherApp::fileBrowserMenu(String path) {
     }
     closedir(currentDir);
     menu.addItem("<< Назад", 0, 0);
-
+    menu.addActivationButton(lilka::Button::D);
     while (1) {
         while (!menu.isFinished()) {
             menu.update();
@@ -231,10 +231,17 @@ void LauncherApp::fileBrowserMenu(String path) {
         }
         int16_t index = menu.getCursor();
         if (index == fileCount) break;
-        if (entries[index].type == lilka::EntryType::ENT_DIRECTORY) {
-            fileBrowserMenu(fPath + entries[index].name);
-        } else {
-            selectFile(fPath + entries[index].name);
+        String fullFilePath = fPath + entries[index].name;
+        if (menu.getButton() == lilka::Button::A) {
+            // Open
+            if (entries[index].type == lilka::EntryType::ENT_DIRECTORY) {
+                fileBrowserMenu(fullFilePath);
+            } else {
+                selectFile(fullFilePath);
+            }
+        } else if (menu.getButton() == lilka::Button::D) {
+            // Back
+            break;
         }
     }
 }
