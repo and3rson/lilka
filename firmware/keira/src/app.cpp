@@ -15,7 +15,7 @@ App::App(const char* name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) :
     backCanvas(new lilka::Canvas(x, y, w, h)),
     isDrawQueued(false),
     backCanvasMutex(xSemaphoreCreateMutex()),
-    stackSize(16384) {
+    stackSize(8192) {
     // Clear buffers
     canvas->fillScreen(0);
     backCanvas->fillScreen(0);
