@@ -15,6 +15,7 @@ typedef struct {
     String title;
     const menu_icon_t* icon;
     uint16_t color;
+    String postfix;
 } MenuItem;
 
 /// Клас для відображення меню.
@@ -55,7 +56,8 @@ public:
     /// @param title Заголовок пункту.
     /// @param icon Іконка пункту (масив з ``uint16_t`` розміром 576 елементів, який представляє 24x24px зображення). За замовчуванням ``0`` (відсутня іконка).
     /// @param color Колір пункту. За замовчуванням ``0`` (стандартний колір).
-    void addItem(String title, const menu_icon_t* icon = 0, uint16_t color = 0);
+    /// @param postfix Текст, який додається після заголовка пункту і вирівнюється до правого краю меню.
+    void addItem(String title, const menu_icon_t* icon = 0, uint16_t color = 0, String postfix = "");
     /// Встановити курсор на пункт меню.
     /// @param cursor Індекс пункту меню.
     void setCursor(int16_t cursor);

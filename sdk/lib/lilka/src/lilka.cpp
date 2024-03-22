@@ -10,6 +10,7 @@ void begin() {
     multiboot.begin();
     spi_begin();
     buzzer.begin(); // Play notification sound
+    audio.begin();
     display.begin(); // Must be initialized BEFORE SD card
     sdcard.begin();
     controller.begin(); // Must be initialized AFTER SD card (since SD card somehow messes with GPIO)
