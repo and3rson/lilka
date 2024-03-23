@@ -16,6 +16,7 @@
 #include "lualilka_buzzer.h"
 #include "lualilka_state.h"
 #include "lualilka_wifi.h"
+#include "lualilka_imageTransform.h"
 
 jmp_buf stopjmp;
 
@@ -157,6 +158,7 @@ void AbstractLuaRunnerApp::luaSetup(const char* dir) {
     lualilka_util_register(L);
     lualilka_buzzer_register(L);
     lualilka_wifi_register(L);
+    lualilka_imageTransform_register(L);
 
     // lilka::serial_log("lua: init canvas");
     // lilka::Canvas* canvas = new lilka::Canvas();
