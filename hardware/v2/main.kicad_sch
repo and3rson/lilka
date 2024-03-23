@@ -10369,7 +10369,7 @@
 				)
 			)
 		)
-		(property "Footprint" "footprints:SolderJumperFat"
+		(property "Footprint" "Jumper:SolderJumper-2_P1.3mm_Bridged_Pad1.0x1.5mm"
 			(at 91.44 85.09 0)
 			(effects
 				(font
