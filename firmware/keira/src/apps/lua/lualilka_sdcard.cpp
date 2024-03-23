@@ -102,7 +102,6 @@ int lualilka_sdcard_read(lua_State* L) {
     size_t maxBytes = luaL_checknumber(L, 2);
 
     char* buf = new char[maxBytes];
-    std::unique_ptr<char> bufPtr(buf);
 
     if (buf == NULL) {
         return luaL_error(L, "Помилка виділення пам'яті");
