@@ -82,18 +82,10 @@
      - 5 шт в комплекті
 
    * - 2
-     - R2, R5
+     - R2, R3
      - 100K
      - 100K Resistor
      - `arduino.ua <https://arduino.ua/prod1549-rezistor-100-kom-5-shtyk>`__
-     - 2
-     - 5 шт в комплекті
-
-   * - 1
-     - R3
-     - 200
-     - 200 Ohm Resistor
-     - `arduino.ua <https://arduino.ua/prod339-rezistor-200-om-5-shtyk>`__
      - 2
      - 5 шт в комплекті
 
@@ -131,6 +123,15 @@
      -
 
    * - 1
+     - U1
+     - ESP32-S3-WROOM-1-N16R8
+     - ESP32-S3-WROOM-1-N16R8 Module
+     - - `prom.ua <https://prom.ua/ua/p2051994816-esp32-dualcore-240mhz.html>`__
+       - `rcscomponents.kiev.ua (проблеми з постачанням) <https://www.rcscomponents.kiev.ua/product/esp32-s3-wroom-1-n16r8_184448.html>`__
+     - 200
+     -
+
+   * - 1
      - U2
      - 280x240 1.69\" TFT
      - 1.7\" TFT Display (ST7789)
@@ -156,12 +157,11 @@
 
    * - 1
      - U4
-     - ESP32-S3-WROOM-1-N16R8
-     - ESP32-S3-WROOM-1-N16R8 Module
-     - - `prom.ua <https://prom.ua/ua/p2051994816-esp32-dualcore-240mhz.html>`__
-       - `rcscomponents.kiev.ua (проблеми з постачанням) <https://www.rcscomponents.kiev.ua/product/esp32-s3-wroom-1-n16r8_184448.html>`__
-     - 200
-     -
+     - USBLC6-2SC6
+     - USBLC6-2SC6 ESD Protection
+     - https://www.rcscomponents.kiev.ua/product/usblc6-2sc6-diodna-zbirka-smd_25302.html
+     - 6
+     - Необов'язково, але рекомендується для додаткового захисту
 
    * - Разом
      -
