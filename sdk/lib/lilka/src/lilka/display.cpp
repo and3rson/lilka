@@ -207,7 +207,6 @@ void Canvas::drawImageTransformed(Image* image, int16_t destX, int16_t destY, Tr
 
     // Draw the transformed image to the new image.
     Transform inverse = transform.inverse();
-    uint64_t start = esp_timer_get_time();
     int_vector_t point{0, 0};
     for (point.y = topLeft.y; point.y < bottomRight.y; point.y++) {
         for (point.x = topLeft.x; point.x < bottomRight.x; point.x++) {
@@ -224,8 +223,6 @@ void Canvas::drawImageTransformed(Image* image, int16_t destX, int16_t destY, Tr
             }
         }
     }
-    uint64_t end = esp_timer_get_time();
-    Serial.println("Transformed image in " + String(end - start) + " us");
 
     // TODO: Draw directly to the canvas?
     drawImage(&destImage, destX + topLeft.x, destY + topLeft.y);
@@ -366,7 +363,7 @@ inline int_vector_t Transform::transform(int_vector_t v) {
     // Apply this transform to a vector
     return int_vector_t{
         static_cast<int32_t>(matrix[0][0] * v.x + matrix[0][1] * v.y),
-        static_cast<int32_t>(matrix[1][0] * v.x + matrix[1][1] * v.y)
+        static_cast<int32_t>(matrix[1][0] * v.x + matrix[1][1] * v.y),
     };
 }
 

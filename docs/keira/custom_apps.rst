@@ -155,7 +155,7 @@ Keira написана на C++, і вона містить ряд вбудов�
 
 .. code-block:: cpp
     :linenos:
-    :emphasize-lines: 1, 7, 21
+    :emphasize-lines: 1, 7
     :caption: launcher.cpp
 
     #include "myapp.h"  // <--- підключаємо вашу програму
@@ -163,31 +163,17 @@ Keira написана на C++, і вона містить ряд вбудов�
     // ...
 
         // всередині функції appsMenu:
-        String titles[] = {
-            "Моя програма",  // <--- назва вашої програми
-            "Лінії",
-            "Шайба",
-            "Перетворення",
-            "М'ячик",
-            "Епілепсія",
-            "Летріс",
-            "Клавіатура",
-            "Тест SPI",
-            "I2C-сканер",
-            "<< Назад",
-        };
-        // vector of functions
-        APP_CLASS_LIST classes = {
-            APP_CLASS(MyApp),  // <--- клас вашої програми
-            APP_CLASS(DemoLines),
-            APP_CLASS(DiskApp),
-            APP_CLASS(TransformApp),
-            APP_CLASS(BallApp),
-            APP_CLASS(EpilepsyApp),
-            APP_CLASS(LetrisApp),
-            APP_CLASS(KeyboardApp),
-            APP_CLASS(UserSPIApp),
-            APP_CLASS(ScanI2CApp),
+        APP_ITEM_LIST app_items = {
+            APP_ITEM("Моя програма", MyApp),  // <--- ваша програма
+            APP_ITEM("Лінії", DemoLines),
+            APP_ITEM("Диск", DiskApp),
+            APP_ITEM("Перетворення", TransformApp),
+            APP_ITEM("М'ячик", BallApp),
+            APP_ITEM("Епілепсія", EpilepsyApp),
+            APP_ITEM("Летріс", LetrisApp),
+            APP_ITEM("Клавіатура", KeyboardApp),
+            APP_ITEM("Тест SPI", UserSPIApp),
+            APP_ITEM("I2C-сканер", ScanI2CApp),
         };
 
 Після цього перепрошийте Лілку, і ваша програма з'явиться в меню програм.

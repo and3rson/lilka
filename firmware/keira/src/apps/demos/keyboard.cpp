@@ -10,7 +10,7 @@ void KeyboardApp::run() {
         dialog.update();
         dialog.draw(canvas);
         queueDraw();
-        if (dialog.isDone()) {
+        if (dialog.isFinished()) {
             break;
         }
     }
@@ -20,7 +20,7 @@ void KeyboardApp::run() {
     queueDraw();
     while (true) {
         alert.update();
-        if (alert.isDone()) {
+        if (alert.isFinished()) {
             break;
         }
     }

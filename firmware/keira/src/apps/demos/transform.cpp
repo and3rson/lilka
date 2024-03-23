@@ -12,7 +12,7 @@ void TransformApp::run() {
         lilka::Alert alert("Помилка", "Не вдалось завантажити face.bmp з SD-карти.");
         alert.draw(canvas);
         queueDraw();
-        while (!alert.isDone()) {
+        while (!alert.isFinished()) {
             alert.update();
         }
         return;

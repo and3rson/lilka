@@ -1,6 +1,6 @@
 #include "service.h"
 
-Service::Service(const char* name) : name(name), taskHandle(NULL), stackSize(16384) {
+Service::Service(const char* name) : name(name), taskHandle(NULL), stackSize(8192) {
 }
 
 Service::~Service() {

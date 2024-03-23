@@ -99,6 +99,7 @@
 .. toctree::
     :maxdepth: 1
 
+    audio
     battery
     buzzer
     controller

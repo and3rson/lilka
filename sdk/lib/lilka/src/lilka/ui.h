@@ -5,6 +5,7 @@
 #include <vector>
 #include "Arduino_GFX.h"
 #include "display.h"
+#include "controller.h"
 
 typedef uint16_t const menu_icon_t[576]; // 24x24px icon
 
@@ -14,6 +15,7 @@ typedef struct {
     String title;
     const menu_icon_t* icon;
     uint16_t color;
+    String postfix;
 } MenuItem;
 
 /// Клас для відображення меню.
@@ -49,11 +51,13 @@ public:
     ///
     /// @param title Заголовок меню.
     explicit Menu(String title);
+    ~Menu();
     /// Додати пункт до меню.
     /// @param title Заголовок пункту.
     /// @param icon Іконка пункту (масив з ``uint16_t`` розміром 576 елементів, який представляє 24x24px зображення). За замовчуванням ``0`` (відсутня іконка).
     /// @param color Колір пункту. За замовчуванням ``0`` (стандартний колір).
-    void addItem(String title, const menu_icon_t* icon = 0, uint16_t color = 0);
+    /// @param postfix Текст, який додається після заголовка пункту і вирівнюється до правого краю меню.
+    void addItem(String title, const menu_icon_t* icon = 0, uint16_t color = 0, String postfix = "");
     /// Встановити курсор на пункт меню.
     /// @param cursor Індекс пункту меню.
     void setCursor(int16_t cursor);
@@ -73,19 +77,33 @@ public:
     /// // ...
     /// @endcode
     void draw(Arduino_GFX* canvas);
+    /// Перевірити, чи обрано пункт меню.
+    ///
+    /// Якщо пункт обрано (користувач натиснув кнопку "A"), повертається ``true``, інакше ``false``. Після виклику цієї функції пункт перестає бути обраним.
+    bool isFinished();
     /// Отримати індекс обраного пункту меню.
+    int16_t getCursor();
+    /// Дозволити вибір пункту меню за допомогою інших кнопок.
     ///
-    /// Якщо жоден пункт не обрано, повертається ``-1``.
+    /// За замовчуванням вибір пункту можливий тільки за допомогою кнопки "A". Після виклику цієї функції можна вибирати пункт за допомогою додаткових кнопок.
+    /// @see getButton
+    void addActivationButton(Button activationButton);
+    /// Отримати кнопку, якою користувач обрав пункт меню.
     ///
-    /// Також ця функція очищує обраний пункт, тому щойно вона поверне індекс обраного пункту, вона почне повертати ``-1`` до тих пір, поки не буде обрано новий пункт.
-    int16_t getSelectedIndex();
+    /// Якщо пункт не обрано, результат буде невизначеним. Рекомендується використовувати цю функцію тільки після того, як ``isFinished()`` поверне ``true``.
+    Button getButton();
 
 private:
     int16_t cursor;
     int16_t scroll;
     String title;
     std::vector<MenuItem> items;
-    int16_t selectedIndex;
+    bool done;
+    Image* iconImage;
+    Canvas* iconCanvas;
+    int64_t lastCursorMove;
+    std::vector<Button> activationButtons;
+    Button button;
 };
 
 /// Клас для відображення сповіщення.
@@ -104,7 +122,7 @@ private:
 /// void loop() {
 ///     lilka::Alert warning("Увага", "Повітряна тривога в москві, загроза балістичних ракет!");
 ///     warning.draw(&lilka::display);
-///     while (!warning.isDone()) {
+///     while (!warning.isFinished()) {
 ///         warning.update();
 ///     }
 /// }
@@ -141,13 +159,24 @@ public:
     void draw(Arduino_GFX* canvas);
     /// Перевірити, чи користувач закрив сповіщення.
     ///
-    /// Якщо сповіщення закрито (користувач натиснув кнопку "A"), повертається ``true``, інакше ``false``.
-    bool isDone();
+    /// Якщо сповіщення закрито (користувач натиснув кнопку "A" або "Start"), повертається ``true``, інакше ``false``.
+    bool isFinished();
+    /// Дозволити закриття сповіщення за допомогою інших кнопок.
+    ///
+    /// За замовчуванням закриття сповіщення можливе тільки за допомогою кнопки "A". Після виклику цієї функції можна закривати сповіщення за допомогою додаткових кнопок.
+    /// @see getButton
+    void addActivationButton(Button activationButton);
+    /// Отримати кнопку, якою користувач закрив сповіщення.
+    ///
+    /// Якщо сповіщення не закрито, результат буде невизначеним. Рекомендується використовувати цю функцію тільки після того, як ``isFinished()`` поверне ``true``.
+    Button getButton();
 
 private:
     String title;
     String message;
     bool done;
+    Button button;
+    std::vector<Button> activationButtons;
 };
 
 /// Клас для відображення індикатора виконання.
@@ -217,7 +246,7 @@ public:
     void setValue(String value);
     void update();
     void draw(Arduino_GFX* canvas);
-    bool isDone();
+    bool isFinished();
     String getValue();
 
 private:

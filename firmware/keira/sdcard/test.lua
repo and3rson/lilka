@@ -13,13 +13,10 @@ for i = 10, 1, -1 do
     local y = math.random(280 - 64)
     display.draw_image(face, x, y)
 
-    display.render()
+    display.queue_draw()
 
     util.sleep(0.25)
 end
-
--- Now, we want to draw random lines & faces really fast directly to display, without any buffering!
-display.set_buffered(false)
 
 local key = controller.get_state()
 while not key.a.just_pressed do
@@ -33,6 +30,8 @@ while not key.a.just_pressed do
     local x = math.random(240 - 64)
     local y = math.random(280 - 64)
     display.draw_image(face, x, y)
+
+    display.queue_draw()
 
     key = controller.get_state()
 end
