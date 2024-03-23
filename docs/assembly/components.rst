@@ -50,20 +50,12 @@
      -
 
    * - 1
-     - J3
-     - Ext
-     - Dual Row Connector
-     - `arduino.ua <https://arduino.ua/prod1077-konnektor-dvyhryadnii-2h40-pin-papa>`__
-     - 9
-     -
-
-   * - 1
      - J4
-     - UART
-     - Dual Row Connector
-     - `arduino.ua <https://arduino.ua/prod1077-konnektor-dvyhryadnii-2h40-pin-papa>`__
-     - 0
-     - Та саме деталь, що й J4
+     - Ext
+     - Pin Header
+     - `arduino.ua <https://arduino.ua/prod332-konnektor-40-pin-papa>`__
+     - 5
+     -
 
    * - 1
      - J5
@@ -155,14 +147,6 @@
      - 26
      -
 
-   * - 1
-     - U4
-     - USBLC6-2SC6
-     - USBLC6-2SC6 ESD Protection
-     - https://www.rcscomponents.kiev.ua/product/usblc6-2sc6-diodna-zbirka-smd_25302.html
-     - 6
-     - Необов'язково, але рекомендується для додаткового захисту
-
    * - Разом
      -
      -
@@ -197,7 +181,7 @@
      - 10 шт в комплекті
 
    * - 1
-     - J2
+     - J2, J3
      - Bat
      - Будь-яка LiPo на ваш розсуд
      - `m-teh.com.ua <https://m-teh.com.ua/li-pol-akumuliator-603048p-1000-ma-hod-3.7v-z-plato%D1%96u-zakhystu/?gad_source=1&gclid=CjwKCAiA29auBhBxEiwAnKcSqmJoC5UaOLX_kOIJX7G_EQOqEse5RDJBtxz8IvMHU9rLfGlj-MlgyhoCXgEQAvD_BwE>`__
