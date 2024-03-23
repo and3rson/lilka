@@ -117,6 +117,8 @@ int lualilka_sdcard_read(lua_State* L) {
     }
 
     lua_pushlstring(L, buf, bytesRead);
+
+    delete(buf);
     return 1;
 }
 
