@@ -2397,197 +2397,6 @@
 				)
 			)
 		)
-		(symbol "Jumper:SolderJumper_2_Bridged"
-			(pin_names
-				(offset 0) hide)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "JP"
-				(at 0 2.032 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "SolderJumper_2_Bridged"
-				(at 0 -2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Solder Jumper, 2-pole, closed/bridged"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "solder jumper SPST"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "SolderJumper*Bridged*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "SolderJumper_2_Bridged_0_1"
-				(rectangle
-					(start -0.508 0.508)
-					(end 0.508 -0.508)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-				(arc
-					(start -0.254 1.016)
-					(mid -1.2656 0)
-					(end -0.254 -1.016)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(arc
-					(start -0.254 1.016)
-					(mid -1.2656 0)
-					(end -0.254 -1.016)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-				(polyline
-					(pts
-						(xy -0.254 1.016) (xy -0.254 -1.016)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0.254 1.016) (xy 0.254 -1.016)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(arc
-					(start 0.254 -1.016)
-					(mid 1.2656 0)
-					(end 0.254 1.016)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(arc
-					(start 0.254 -1.016)
-					(mid 1.2656 0)
-					(end 0.254 1.016)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
-			)
-			(symbol "SolderJumper_2_Bridged_1_1"
-				(pin passive line
-					(at -3.81 0 0)
-					(length 2.54)
-					(name "A"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 3.81 0 180)
-					(length 2.54)
-					(name "B"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-		)
 		(symbol "Jumper:SolderJumper_2_Open"
 			(pin_names
 				(offset 0) hide)
@@ -3782,7 +3591,7 @@
 						)
 					)
 				)
-				(pin power_out line
+				(pin passive line
 					(at 17.78 -5.08 180)
 					(length 2.54)
 					(name "OUT-"
@@ -5040,102 +4849,6 @@
 				)
 			)
 		)
-		(symbol "power:GND1"
-			(power)
-			(pin_numbers hide)
-			(pin_names
-				(offset 0) hide)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "#PWR"
-				(at 0 -6.35 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Value" "GND1"
-				(at 0 -3.81 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Power symbol creates a global label with name \"GND1\" , ground"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "global power"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "GND1_0_1"
-				(polyline
-					(pts
-						(xy 0 0) (xy 0 -1.27) (xy 1.27 -1.27) (xy 0 -2.54) (xy -1.27 -1.27) (xy 0 -1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "GND1_1_1"
-				(pin power_in line
-					(at 0 0 270)
-					(length 0)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-		)
 		(symbol "power:PWR_FLAG"
 			(power)
 			(pin_numbers hide)
@@ -5372,12 +5085,6 @@
 		(uuid "19490a94-66ba-4d55-80d5-8f9e68e58a53")
 	)
 	(junction
-		(at 104.14 85.09)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "198bb564-1dd9-4031-bc70-ed98da0c9d16")
-	)
-	(junction
 		(at 46.99 171.45)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5498,12 +5205,6 @@
 		(uuid "988384b7-3a2a-47b6-8226-073781f8413e")
 	)
 	(junction
-		(at 78.74 85.09)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "99471d08-e44a-4f0b-938d-28b0c915a285")
-	)
-	(junction
 		(at 120.65 81.28)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5550,6 +5251,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "e7bac96e-5f56-42a5-8e1b-458f6d32b455")
+	)
+	(junction
+		(at 78.74 81.28)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ee33042f-8e7c-4bff-9369-6ca31d68f4ef")
 	)
 	(no_connect
 		(at 114.3 55.88)
@@ -6197,7 +5904,7 @@
 	)
 	(wire
 		(pts
-			(xy 78.74 60.96) (xy 78.74 85.09)
+			(xy 78.74 60.96) (xy 78.74 81.28)
 		)
 		(stroke
 			(width 0)
@@ -6787,7 +6494,7 @@
 	)
 	(wire
 		(pts
-			(xy 78.74 85.09) (xy 87.63 85.09)
+			(xy 78.74 81.28) (xy 104.14 81.28)
 		)
 		(stroke
 			(width 0)
@@ -6874,16 +6581,6 @@
 			(type default)
 		)
 		(uuid "c11b1f5c-3f7c-4472-8f89-0e2bc49afde3")
-	)
-	(wire
-		(pts
-			(xy 104.14 85.09) (xy 104.14 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c5b109ec-8074-4c2c-a170-b05463553068")
 	)
 	(wire
 		(pts
@@ -7134,16 +6831,6 @@
 			(type default)
 		)
 		(uuid "e7c9b310-10a6-4b7f-8424-2192c3c33776")
-	)
-	(wire
-		(pts
-			(xy 95.25 85.09) (xy 104.14 85.09)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e8deb43d-292b-4f71-a754-94f98253bcc5")
 	)
 	(wire
 		(pts
@@ -9492,74 +9179,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Jumper:SolderJumper_2_Bridged")
-		(at 91.44 85.09 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "0bcd51b0-670e-4595-aa75-3f05dfb99b88")
-		(property "Reference" "JP2"
-			(at 91.44 78.74 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "ComGnd"
-			(at 91.44 81.28 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Jumper:SolderJumper-2_P1.3mm_Bridged_Pad1.0x1.5mm"
-			(at 91.44 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 91.44 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 91.44 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "0b09f275-0fc8-41b7-a392-dc880d09fe4e")
-		)
-		(pin "1"
-			(uuid "918ecfba-7818-4d7c-b107-dca049c46fbd")
-		)
-		(instances
-			(project "main"
-				(path "/acd95ae8-394c-495e-b013-2a405fdaf383"
-					(reference "JP2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "my:uSD-adapter-3v3")
 		(at 48.26 215.9 0)
 		(unit 1)
@@ -9914,6 +9533,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 44.45 76.2 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "1c482ec2-110f-4a76-8f16-510e9b7479b6")
+		(property "Reference" "#PWR04"
+			(at 44.45 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 44.45 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 44.45 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 44.45 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 44.45 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "19b37998-6012-496a-abdd-42dc56d2f704")
+		)
+		(instances
+			(project "main"
+				(path "/acd95ae8-394c-495e-b013-2a405fdaf383"
+					(reference "#PWR04")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Regulator_Linear:TLV1117-33")
 		(at 175.26 60.96 0)
 		(unit 1)
@@ -9990,81 +9675,6 @@
 			(project "main"
 				(path "/acd95ae8-394c-495e-b013-2a405fdaf383"
 					(reference "U3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND1")
-		(at 44.45 76.2 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "1f09329c-6161-4041-b800-3e1e407c2592")
-		(property "Reference" "#PWR024"
-			(at 44.45 82.55 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND1"
-			(at 44.45 81.28 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 44.45 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 44.45 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND1\" , ground"
-			(at 44.45 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Mark" "GNDBUS"
-			(at 44.45 81.28 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "f34b0cfa-9cdb-47c4-b10e-e77690c58d18")
-		)
-		(instances
-			(project "main"
-				(path "/acd95ae8-394c-495e-b013-2a405fdaf383"
-					(reference "#PWR024")
 					(unit 1)
 				)
 			)
@@ -10786,7 +10396,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 104.14 85.09 0)
+		(at 78.74 81.28 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -10795,7 +10405,7 @@
 		(fields_autoplaced yes)
 		(uuid "589b09ab-c35b-4c6c-874d-84148a612291")
 		(property "Reference" "#PWR033"
-			(at 104.14 91.44 0)
+			(at 78.74 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10804,7 +10414,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 104.14 90.17 0)
+			(at 78.74 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10812,7 +10422,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 104.14 85.09 0)
+			(at 78.74 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10821,7 +10431,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 104.14 85.09 0)
+			(at 78.74 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10830,7 +10440,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 104.14 85.09 0)
+			(at 78.74 81.28 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13233,81 +12843,6 @@
 			(project "main"
 				(path "/acd95ae8-394c-495e-b013-2a405fdaf383"
 					(reference "#PWR01")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND1")
-		(at 78.74 85.09 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "b7aad7d6-e097-4c54-8a75-2c80153bdd9f")
-		(property "Reference" "#PWR04"
-			(at 78.74 91.44 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND1"
-			(at 78.74 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 78.74 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 78.74 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND1\" , ground"
-			(at 78.74 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Mark" "GNDBUS"
-			(at 78.74 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "ae1e106d-29db-4e7a-b583-1ca7c800a234")
-		)
-		(instances
-			(project "main"
-				(path "/acd95ae8-394c-495e-b013-2a405fdaf383"
-					(reference "#PWR04")
 					(unit 1)
 				)
 			)
