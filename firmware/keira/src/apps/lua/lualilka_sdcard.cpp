@@ -101,23 +101,16 @@ int lualilka_sdcard_read(lua_State* L) {
 
     size_t maxBytes = luaL_checknumber(L, 2);
 
-    char* buf = new char[maxBytes];
-
-    if (buf == NULL) {
-        return luaL_error(L, "Помилка виділення пам'яті");
-    }
+    std::unique_ptr<char[]> bufPtr(new char[maxBytes]); // Змінили на std::unique_ptr<char[]>
 
     fseek(current_file_entry, 0, SEEK_SET);
-    size_t bytesRead = fread(buf, 1, maxBytes, current_file_entry);
+    size_t bytesRead = fread(bufPtr.get(), 1, maxBytes, current_file_entry);
 
     if (bytesRead < maxBytes && ferror(current_file_entry)) {
-        free(buf);
         return luaL_error(L, "помилка читання з файлу");
     }
 
-    lua_pushlstring(L, buf, bytesRead);
-
-    delete[] (buf);
+    lua_pushlstring(L, bufPtr.get(), bytesRead);
     return 1;
 }
 
