@@ -3740,7 +3740,7 @@
     (property "Value" "ComGnd" (at 91.44 81.28 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "Jumper:SolderJumper-2_P1.3mm_Bridged_Pad1.0x1.5mm" (at 91.44 85.09 0)
+    (property "Footprint" "footprints:SolderJumperFat" (at 91.44 85.09 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 91.44 85.09 0)
