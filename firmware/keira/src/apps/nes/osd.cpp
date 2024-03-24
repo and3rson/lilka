@@ -209,6 +209,8 @@ void do_audio_frame() {
 }
 
 void osd_setsound(void (*playfunc)(void* buffer, int length)) {
+#if LILKA_VERSION == 1
+#elif LILKA_VERSION == 2
     audio_callback = playfunc;
     xTaskCreatePinnedToCore(
         [](void* arg) {
@@ -227,6 +229,7 @@ void osd_setsound(void (*playfunc)(void* buffer, int length)) {
         NULL,
         1
     );
+#endif
 }
 
 void osd_getsoundinfo(sndinfo_t* info) {
