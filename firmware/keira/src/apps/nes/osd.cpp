@@ -174,6 +174,8 @@ int osd_init_sound() {
     audio_callback = 0;
     return OSD_OK;
 #endif
+
+    return OSD_INIT_FAILED;
 }
 
 void osd_stopsound() {
