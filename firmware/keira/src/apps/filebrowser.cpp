@@ -86,23 +86,27 @@ String FileBrowserApp::getFileInfo(const String& path) {
     return file_info;
 }
 void FileBrowserApp::openFile(String path) {
-    if (path.endsWith(".rom") || path.endsWith(".nes")) {
+    // NOTE: if implementing different then FAT32 filesystems
+    // this should be reworked
+    String lowerCasedPath = path;
+    lowerCasedPath.toLowerCase();
+    if (lowerCasedPath.endsWith(".rom") || lowerCasedPath.endsWith(".nes")) {
         AppManager::getInstance()->runApp(new NesApp(path));
-    } else if (path.endsWith(".bin")) {
+    } else if (lowerCasedPath.endsWith(".bin")) {
 #if LILKA_VERSION < 2
         alertDraw("Помилка", "Ця операція потребує Лілку 2.0");
         return;
 #else
-        lilka::ProgressDialog dialog("Завантаження", path + "\n\nПочинаємо...");
+        lilka::ProgressDialog dialog("Завантаження", lowerCasedPath + "\n\nПочинаємо...");
         dialog.draw(canvas);
         queueDraw();
         int error;
-        error = lilka::multiboot.start(path);
+        error = lilka::multiboot.start(lowerCasedPath);
         if (error) {
             alertDraw("Помилка", String("Етап: 1\nКод: ") + error);
             return;
         }
-        dialog.setMessage(path + "\n\nРозмір: " + String(lilka::multiboot.getBytesTotal()) + " Б");
+        dialog.setMessage(lowerCasedPath + "\n\nРозмір: " + String(lilka::multiboot.getBytesTotal()) + " Б");
         dialog.draw(canvas);
         queueDraw();
         while ((error = lilka::multiboot.process()) > 0) {
@@ -125,44 +129,48 @@ void FileBrowserApp::openFile(String path) {
             return;
         }
 #endif
-    } else if (path.endsWith(".lua")) {
-        AppManager::getInstance()->runApp(new LuaFileRunnerApp(path));
-    } else if (path.endsWith(".js")) {
-        AppManager::getInstance()->runApp(new MJSApp(path));
+    } else if (lowerCasedPath.endsWith(".lua")) {
+        AppManager::getInstance()->runApp(new LuaFileRunnerApp(lowerCasedPath));
+    } else if (lowerCasedPath.endsWith(".js")) {
+        AppManager::getInstance()->runApp(new MJSApp(lowerCasedPath));
     } else {
         // Probably better to use info?
         // Get file size
         struct stat fileStat;
-        if (stat(path.c_str(), &fileStat) == 0) {
+        if (stat(lowerCasedPath.c_str(), &fileStat) == 0) {
             alertDraw(
-                path,
+                lowerCasedPath,
                 String("Розмір:\n") + getHumanReadableSize(fileStat.st_size) + " або " + fileStat.st_size + " байт"
             );
-        } else alertDraw(path, String("Сталася помилка при визначенні розміру файлу"));
+        } else alertDraw(lowerCasedPath, String("Сталася помилка при визначенні розміру файлу"));
     }
 }
 const menu_icon_t* FileBrowserApp::getFileIcon(const String& filename) {
     // Use
-    if (filename.endsWith(".rom") || filename.endsWith(".nes")) {
+    String lowerCasedFileName = filename;
+    lowerCasedFileName.toLowerCase();
+    if (lowerCasedFileName.endsWith(".rom") || lowerCasedFileName.endsWith(".nes")) {
         return &nes;
-    } else if (filename.endsWith(".bin")) {
+    } else if (lowerCasedFileName.endsWith(".bin")) {
         return &bin;
-    } else if (filename.endsWith(".lua")) {
+    } else if (lowerCasedFileName.endsWith(".lua")) {
         return &lua;
-    } else if (filename.endsWith(".js")) {
+    } else if (lowerCasedFileName.endsWith(".js")) {
         return &js;
     } else {
         return &normalfile;
     }
 }
 const uint16_t FileBrowserApp::getFileColor(const String& filename) {
-    if (filename.endsWith(".rom") || filename.endsWith(".nes")) {
+    String lowerCasedFileName = filename;
+    lowerCasedFileName.toLowerCase();
+    if (lowerCasedFileName.endsWith(".rom") || lowerCasedFileName.endsWith(".nes")) {
         return lilka::display.color565(255, 128, 128);
-    } else if (filename.endsWith(".bin")) {
+    } else if (lowerCasedFileName.endsWith(".bin")) {
         return lilka::display.color565(128, 255, 128);
-    } else if (filename.endsWith(".lua")) {
+    } else if (lowerCasedFileName.endsWith(".lua")) {
         return lilka::display.color565(128, 128, 255);
-    } else if (filename.endsWith(".js")) {
+    } else if (lowerCasedFileName.endsWith(".js")) {
         return lilka::display.color565(255, 200, 128);
     } else {
         return lilka::display.color565(200, 200, 200);
