@@ -86,7 +86,8 @@ int logprint(const char* string) {
 
 int osd_init() {
     nofrendo_log_chain_logfunc(logprint);
-    return osd_init_sound();
+    osd_init_sound();
+    return 0;
 }
 
 void osd_shutdown() {
