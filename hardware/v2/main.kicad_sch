@@ -7034,7 +7034,7 @@
 		)
 		(uuid ff1bc339-0d1d-447f-a9f5-3cb57f9de88c)
 	)
-	(text "Додаткові модулі"
+	(text "Модулі"
 		(exclude_from_sim no)
 		(at 20.32 194.31 0)
 		(effects
@@ -8926,6 +8926,144 @@
 			)
 		)
 	)
+	(netclass_flag ""
+		(length 2.54)
+		(shape round)
+		(at 123.19 46.99 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "00c60788-f89c-4a6b-915f-7f73a68791a4")
+		(property "Netclass" "Power"
+			(at 123.8885 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(justify left)
+			)
+		)
+	)
+	(netclass_flag ""
+		(length 2.54)
+		(shape round)
+		(at 120.65 60.96 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2c0ce233-028f-4faf-9dd6-2cd913cee666")
+		(property "Netclass" "Power"
+			(at 121.3485 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(justify left)
+			)
+		)
+	)
+	(netclass_flag ""
+		(length 2.54)
+		(shape round)
+		(at 102.87 58.42 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "31aa62c6-4b8e-4c14-8f30-a799c3bfb297")
+		(property "Netclass" "Power"
+			(at 103.5685 55.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(justify left)
+			)
+		)
+	)
+	(netclass_flag ""
+		(length 2.54)
+		(shape round)
+		(at 140.97 60.96 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7817a7ef-aa2f-4e72-bc29-7ebfaaf59b70")
+		(property "Netclass" "Power"
+			(at 141.6685 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(justify left)
+			)
+		)
+	)
+	(netclass_flag ""
+		(length 2.54)
+		(shape round)
+		(at 88.9 44.45 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b3340222-8548-44ce-b134-c94443d2e74f")
+		(property "Netclass" "Power"
+			(at 89.5985 41.91 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(justify left)
+			)
+		)
+	)
+	(netclass_flag ""
+		(length 2.54)
+		(shape round)
+		(at 165.1 46.99 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "bef31419-0857-4cda-a8b5-4543c0ea6319")
+		(property "Netclass" "Power"
+			(at 165.7985 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(justify left)
+			)
+		)
+	)
 	(symbol
 		(lib_id "Switch:SW_Push")
 		(at 59.69 161.29 90)
@@ -9086,8 +9224,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0fdfd42c-42aa-4f9c-81bc-93d56f9f1dc7")
-		(property "Reference" "J5"
-			(at 55.88 214.63 0)
+		(property "Reference" "J3"
+			(at 55.88 214.6299 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9096,7 +9234,7 @@
 			)
 		)
 		(property "Value" "uSD"
-			(at 55.88 217.17 0)
+			(at 55.88 217.1699 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9152,7 +9290,7 @@
 		(instances
 			(project "main"
 				(path "/acd95ae8-394c-495e-b013-2a405fdaf383"
-					(reference "J5")
+					(reference "J3")
 					(unit 1)
 				)
 			)
@@ -9654,7 +9792,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "28ee8a30-3d51-4f00-90bb-45c9c36e2dc3")
-		(property "Reference" "J8"
+		(property "Reference" "J4"
 			(at 91.44 50.8 0)
 			(effects
 				(font
@@ -9718,7 +9856,7 @@
 		(instances
 			(project "main"
 				(path "/acd95ae8-394c-495e-b013-2a405fdaf383"
-					(reference "J8")
+					(reference "J4")
 					(unit 1)
 				)
 			)
@@ -10094,8 +10232,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "4ccd8c50-4bb8-46be-866d-4896490b1b82")
-		(property "Reference" "R2"
-			(at 151.13 53.34 0)
+		(property "Reference" "R3"
+			(at 151.13 53.3399 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10104,7 +10242,7 @@
 			)
 		)
 		(property "Value" "100K"
-			(at 151.13 55.88 0)
+			(at 151.13 55.8799 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10148,7 +10286,7 @@
 		(instances
 			(project "main"
 				(path "/acd95ae8-394c-495e-b013-2a405fdaf383"
-					(reference "R2")
+					(reference "R3")
 					(unit 1)
 				)
 			)
@@ -10434,8 +10572,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "62c07452-e9cc-47cf-93e0-9a0119f6dd3d")
-		(property "Reference" "R3"
-			(at 123.19 76.2 0)
+		(property "Reference" "R2"
+			(at 123.19 76.1999 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10444,7 +10582,7 @@
 			)
 		)
 		(property "Value" "100K"
-			(at 123.19 78.74 0)
+			(at 123.19 78.7399 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10488,7 +10626,7 @@
 		(instances
 			(project "main"
 				(path "/acd95ae8-394c-495e-b013-2a405fdaf383"
-					(reference "R3")
+					(reference "R2")
 					(unit 1)
 				)
 			)
@@ -10638,8 +10776,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "6dceee43-30b6-4017-a561-cdb910eda409")
-		(property "Reference" "J7"
-			(at 135.89 217.17 0)
+		(property "Reference" "J5"
+			(at 135.89 216.5349 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10648,11 +10786,12 @@
 			)
 		)
 		(property "Value" "~"
-			(at 121.92 208.28 0)
+			(at 135.89 218.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 			)
 		)
 		(property "Footprint" "footprints:MAX98357-I2S-Module"
@@ -10712,7 +10851,7 @@
 		(instances
 			(project "main"
 				(path "/acd95ae8-394c-495e-b013-2a405fdaf383"
-					(reference "J7")
+					(reference "J5")
 					(unit 1)
 				)
 			)
@@ -12273,13 +12412,13 @@
 		(at 85.09 217.17 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board no)
 		(dnp yes)
 		(fields_autoplaced yes)
 		(uuid "b51ec599-9fd1-444b-91ad-7d3b7357b94e")
 		(property "Reference" "J6"
-			(at 92.71 215.9 0)
+			(at 92.71 215.8999 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12288,7 +12427,7 @@
 			)
 		)
 		(property "Value" "PCM5102A"
-			(at 92.71 218.44 0)
+			(at 92.71 218.4399 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12890,7 +13029,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "c51a8b76-94d4-4046-ac71-122beff0a1b8")
-		(property "Reference" "J4"
+		(property "Reference" "J2"
 			(at 223.52 199.39 0)
 			(effects
 				(font
@@ -12972,7 +13111,7 @@
 		(instances
 			(project "main"
 				(path "/acd95ae8-394c-495e-b013-2a405fdaf383"
-					(reference "J4")
+					(reference "J2")
 					(unit 1)
 				)
 			)
