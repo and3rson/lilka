@@ -194,6 +194,14 @@ bool Menu::setItem(int16_t index, String title, const menu_icon_t* icon, uint16_
         return true;
     }
 }
+bool Menu::getItem(int16_t index, MenuItem* menuItem) {
+    if ((menuItem == NULL) || index > items.size() - 1) {
+        return false;
+    } else {
+        memcpy(menuItem, &(items[index]), sizeof(MenuItem));
+        return true;
+    }
+}
 void Menu::clearItems() {
     setCursor(0);
     items.clear();
