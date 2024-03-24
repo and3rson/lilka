@@ -18,11 +18,11 @@ private:
     String currentPath;
     DIR* currentDir;
     // Blocking Draw Functions:
-    void alertDraw(lilka::Alert& alert);
+    void alertDraw(const String title, const String message);
     void menuDraw(lilka::Menu& menu);
 
 public:
-    // TODO: Refactor this place, probably pass Path through constructor
+    // TODO: Refactor this place, probably pass
     void setPath(const String path);
     FileBrowserApp();
 

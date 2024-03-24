@@ -16,7 +16,7 @@
 #include "icons/lua.h"
 #include "icons/js.h"
 
-FileBrowserApp::FileBrowserApp() : App(APP_FBROWSER_NAME) {
+FileBrowserApp::FileBrowserApp() : App(APP_FBROWSER_NAME), currentDir(0) {
 }
 
 String FileBrowserApp::getHumanReadableSize(size_t size) {
@@ -168,7 +168,7 @@ const uint16_t FileBrowserApp::getFileColor(const String& filename) {
         return lilka::display.color565(200, 200, 200);
     }
 }
-void FileBrowserApp::alertDraw(String& title, String& message) {
+void FileBrowserApp::alertDraw(const String title, const String message) {
     lilka::Alert alert(title, message);
     alert.draw(canvas);
     queueDraw();
