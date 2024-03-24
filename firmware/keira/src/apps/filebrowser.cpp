@@ -79,9 +79,9 @@ String FileBrowserApp::getFileInfo(const String& path) {
     file_info = file_info + "Owner Group: " + getGroupNameFromGID(file_stat.st_gid) + "\n";
     */
     // Access time, Modification time, and Inode change time
-    file_info = file_info + "Last Access Time: " + String(std::ctime(&file_stat.st_atime));
-    file_info = file_info + "Last Modification Time: " + String(std::ctime(&file_stat.st_mtime));
-    file_info = file_info + "Last Inode Change Time: " + String(std::ctime(&file_stat.st_ctime));
+    file_info += "Last Access Time: " + String(std::ctime(&file_stat.st_atime));
+    file_info += "Last Modification Time: " + String(std::ctime(&file_stat.st_mtime));
+    file_info += "Last Inode Change Time: " + String(std::ctime(&file_stat.st_ctime));
 
     return file_info;
 }
@@ -90,7 +90,7 @@ void FileBrowserApp::openFile(String path) {
         AppManager::getInstance()->runApp(new NesApp(path));
     } else if (path.endsWith(".bin")) {
 #if LILKA_VERSION < 2
-        alert("Помилка", "Ця операція потребує Лілку 2.0");
+        alertDraw("Помилка", "Ця операція потребує Лілку 2.0");
         return;
 #else
         lilka::ProgressDialog dialog("Завантаження", path + "\n\nПочинаємо...");
@@ -99,7 +99,7 @@ void FileBrowserApp::openFile(String path) {
         int error;
         error = lilka::multiboot.start(path);
         if (error) {
-            alert("Помилка", String("Етап: 1\nКод: ") + error);
+            alertDraw("Помилка", String("Етап: 1\nКод: ") + error);
             return;
         }
         dialog.setMessage(path + "\n\nРозмір: " + String(lilka::multiboot.getBytesTotal()) + " Б");
@@ -116,12 +116,12 @@ void FileBrowserApp::openFile(String path) {
             }
         }
         if (error < 0) {
-            alert("Помилка", String("Етап: 2\nКод: ") + error);
+            alertDraw("Помилка", String("Етап: 2\nКод: ") + error);
             return;
         }
         error = lilka::multiboot.finishAndReboot();
         if (error) {
-            alert("Помилка", String("Етап: 3\nКод: ") + error);
+            alertDraw("Помилка", String("Етап: 3\nКод: ") + error);
             return;
         }
 #endif
@@ -130,19 +130,19 @@ void FileBrowserApp::openFile(String path) {
     } else if (path.endsWith(".js")) {
         AppManager::getInstance()->runApp(new MJSApp(path));
     } else {
+        // Probably better to use info?
         // Get file size
-        FILE* file = fopen(path.c_str(), "r");
-        if (!file) {
-            alert("Помилка", "Не вдалося відкрити файл");
-            return;
-        }
-        fseek(file, 0, SEEK_END);
-        long size = ftell(file);
-        fclose(file);
-        alert(path, String("Розмір:\n") + size + " байт");
+        struct stat fileStat;
+        if (stat(path.c_str(), &fileStat) == 0) {
+            alertDraw(
+                path,
+                String("Розмір:\n") + getHumanReadableSize(fileStat.st_size) + " або " + fileStat.st_size + " байт"
+            );
+        } else alertDraw(path, String("Сталася помилка при визначенні розміру файлу"));
     }
 }
 const menu_icon_t* FileBrowserApp::getFileIcon(const String& filename) {
+    // Use
     if (filename.endsWith(".rom") || filename.endsWith(".nes")) {
         return &nes;
     } else if (filename.endsWith(".bin")) {
@@ -168,7 +168,7 @@ const uint16_t FileBrowserApp::getFileColor(const String& filename) {
         return lilka::display.color565(200, 200, 200);
     }
 }
-void FileBrowserApp::alert(String title, String message) {
+void FileBrowserApp::alertDraw(String& title, String& message) {
     lilka::Alert alert(title, message);
     alert.draw(canvas);
     queueDraw();
@@ -177,19 +177,29 @@ void FileBrowserApp::alert(String title, String message) {
         taskYIELD();
     }
 }
+
+void FileBrowserApp::menuDraw(lilka::Menu& menu) {
+    while (!menu.isFinished()) {
+        menu.update();
+        menu.draw(canvas);
+        queueDraw();
+    }
+}
+
 void FileBrowserApp::openPath(const String& path) {
     size_t fileCount = 0;
     // openddir accepts only path which ends with /
     const String fPath = path.c_str()[path.length() - 1] == '/' ? path : path + "/";
 
-    DIR* currentDir = opendir(fPath.c_str());
+    currentDir = opendir(fPath.c_str());
 
     const struct dirent* entry = 0;
     if (!currentDir) {
-        alert("Помилка", strerror(errno));
+        alertDraw("Помилка", strerror(errno));
         return;
     }
-
+    // Directory open success
+    currentPath = fPath;
     // Counting items in directory
     while ((entry = readdir(currentDir)) != NULL) {
         String fileName = entry->d_name;
@@ -201,7 +211,7 @@ void FileBrowserApp::openPath(const String& path) {
     // Allocating memory for MenuEntries;
     dirent* entries = new dirent[fileCount];
     std::unique_ptr<dirent[]> entriesPTR(entries);
-
+    // TODO: Reuse item instead of infinity creation/deletion of it
     lilka::Menu menu("Path: " + path);
     // Returning to directory begining
     rewinddir(currentDir);
@@ -233,13 +243,14 @@ void FileBrowserApp::openPath(const String& path) {
     }
     closedir(currentDir);
     menu.addItem("<< Назад", 0, 0);
+    // TODO: There's a reason to create function which could work with
+    // multiple buttons definition in a form setActivationButton(lilka::Button::A|lilka::Button::B|lilka::Button::D)
     menu.addActivationButton(lilka::Button::D);
+    menu.addActivationButton(lilka::Button::C);
+    // Not really needed cuz it's allready added, but just in case
+    menu.addActivationButton(lilka::Button::A);
     while (1) {
-        while (!menu.isFinished()) {
-            menu.update();
-            menu.draw(canvas);
-            queueDraw();
-        }
+        menuDraw(menu);
         int16_t index = menu.getCursor();
         if (index == fileCount) break;
         String fullFilePath = fPath + entries[index].d_name;
@@ -253,6 +264,10 @@ void FileBrowserApp::openPath(const String& path) {
         } else if (menu.getButton() == lilka::Button::D) {
             // Back
             break;
+        } else if (menu.getButton() == lilka::Button::C) {
+            // Info
+            // TODO: Find a better ui component for this
+            alertDraw("Інформація про файл", getFileInfo(fPath + entries->d_name));
         }
     }
 }
@@ -261,4 +276,5 @@ void FileBrowserApp::setPath(const String path) {
 }
 void FileBrowserApp::run() {
     openPath(currentPath);
+    // This app immediately exits after
 };

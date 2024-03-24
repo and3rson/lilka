@@ -12,12 +12,17 @@ private:
     String getFileInfo(const String& filePath);
     const menu_icon_t* getFileIcon(const String& filename);
     const uint16_t getFileColor(const String& filename);
-    void alert(String title, String message);
     void openFile(String path);
     void openPath(const String& path);
+    // Fields:
     String currentPath;
+    DIR* currentDir;
+    // Blocking Draw Functions:
+    void alertDraw(lilka::Alert& alert);
+    void menuDraw(lilka::Menu& menu);
 
 public:
+    // TODO: Refactor this place, probably pass Path through constructor
     void setPath(const String path);
     FileBrowserApp();
 
