@@ -5,6 +5,8 @@
 #include <freertos/timers.h>
 
 #include "driver.h"
+#define OSD_OK          0
+#define OSD_INIT_FAILED -1
 
 extern "C" {
 #include <event.h>
@@ -84,8 +86,7 @@ int logprint(const char* string) {
 
 int osd_init() {
     nofrendo_log_chain_logfunc(logprint);
-    osd_init_sound();
-    return 0;
+    return osd_init_sound();
 }
 
 void osd_shutdown() {
@@ -138,9 +139,15 @@ static void (*audio_callback)(void* buffer, int length) = NULL;
 int16_t* audio_frame;
 QueueHandle_t queue;
 int osd_init_sound() {
+#if LILKA_VERSION == 1
+    lilka::serial_err("This part of code should never be called. Audio not supported for this version of lilka");
+    return OSD_INIT_FAILED;
+#elif LILKA_VERSION == 2
     audio_frame = static_cast<int16_t*>(malloc(DEFAULT_FRAGSIZE * 4));
     if (!audio_frame) {
         lilka::serial_err("Failed to allocate audio_frame\n");
+        //
+        return OSD_INIT_FAILED;
     }
 
     esp_i2s::i2s_config_t cfg = {
@@ -165,7 +172,8 @@ int osd_init_sound() {
     i2s_set_pin(esp_i2s::I2S_NUM_0, &pins);
     i2s_zero_dma_buffer(esp_i2s::I2S_NUM_0);
     audio_callback = 0;
-    return 0;
+    return OSD_OK;
+#endif
 }
 
 void osd_stopsound() {
