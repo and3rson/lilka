@@ -183,7 +183,21 @@ bool Menu::isFinished() {
 int16_t Menu::getCursor() {
     return cursor;
 }
-
+bool Menu::setItem(int16_t index, String title, const menu_icon_t* icon, uint16_t color, String postfix) {
+    if (index > items.size() - 1) {
+        return false;
+    } else {
+        items[index].title = title;
+        items[index].icon = icon;
+        items[index].color = color;
+        items[index].postfix = postfix;
+        return true;
+    }
+}
+void Menu::clearItems() {
+    setCursor(0);
+    items.clear();
+}
 void Menu::addActivationButton(Button activationButton) {
     activationButtons.push_back(activationButton);
 }
