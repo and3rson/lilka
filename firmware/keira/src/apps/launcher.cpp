@@ -6,6 +6,9 @@
 #include "servicemanager.h"
 #include "services/network.h"
 
+// Apps:
+#include "filebrowser.h"
+
 #include "wifi_config.h"
 #include "demos/lines.h"
 #include "demos/disk.h"
@@ -56,9 +59,13 @@ void LauncherApp::run() {
         if (index == 0) {
             appsMenu();
         } else if (index == 1) {
-            fileBrowserMenu("/sd");
+            auto fbApp = new FileBrowserApp();
+            fbApp->setPath("/sd");
+            AppManager::getInstance()->runApp(fbApp);
         } else if (index == 2) {
-            fileBrowserMenu("/fs");
+            auto fbApp = new FileBrowserApp();
+            fbApp->setPath("/sd");
+            AppManager::getInstance()->runApp(fbApp);
         } else if (index == 3) {
             // dev_menu();
             devMenu();
@@ -97,210 +104,6 @@ void LauncherApp::appsMenu() {
             break;
         }
         AppManager::getInstance()->runApp(app_items[index].construct());
-    }
-}
-
-const menu_icon_t* get_file_icon(const String& filename) {
-    if (filename.endsWith(".rom") || filename.endsWith(".nes")) {
-        return &nes;
-    } else if (filename.endsWith(".bin")) {
-        return &bin;
-    } else if (filename.endsWith(".lua")) {
-        return &lua;
-    } else if (filename.endsWith(".js")) {
-        return &js;
-    } else {
-        return &normalfile;
-    }
-}
-
-const uint16_t get_file_color(const String& filename) {
-    if (filename.endsWith(".rom") || filename.endsWith(".nes")) {
-        return lilka::display.color565(255, 128, 128);
-    } else if (filename.endsWith(".bin")) {
-        return lilka::display.color565(128, 255, 128);
-    } else if (filename.endsWith(".lua")) {
-        return lilka::display.color565(128, 128, 255);
-    } else if (filename.endsWith(".js")) {
-        return lilka::display.color565(255, 200, 128);
-    } else {
-        return lilka::display.color565(200, 200, 200);
-    }
-}
-void LauncherApp::fileBrowserMenu(String path) {
-    size_t fileCount = 0;
-    // openddir accepts only path which ends with /
-    const String fPath = path.c_str()[path.length() - 1] == '/' ? path : path + "/";
-
-    DIR* currentDir = opendir(fPath.c_str());
-
-    const struct dirent* entry = 0;
-    if (!currentDir) {
-        alert("Помилка", strerror(errno));
-        return;
-    }
-
-    // Counting items in directory
-    while ((entry = readdir(currentDir)) != NULL) {
-        String fileName = entry->d_name;
-        // Skip some specific files
-        if (fileName == ".." || fileName == ".") continue;
-
-        fileCount++;
-    }
-    // Allocating memory for MenuEntries;
-    lilka::Entry* entries = new lilka::Entry[fileCount];
-    std::unique_ptr<lilka::Entry[]> entriesPTR(entries);
-
-    lilka::Menu menu("Path: " + path);
-    // Returning to directory begining
-    rewinddir(currentDir);
-    int i = 0;
-    while ((entry = readdir(currentDir)) != NULL) {
-        const String fileName = entry->d_name;
-        const String fullPath = fPath + fileName;
-        // Skip some specific files
-        if (fileName == "." || fileName == "..") continue;
-        struct stat fileStat;
-        // At this point zero means all good
-        if (stat(fullPath.c_str(), &fileStat) == 0) {
-            // NOTE: There's also additional interesting data we could retrieve
-            size_t fileSize = fileStat.st_size;
-            // TODO : move this to better place
-            String humanReadableFileSize;
-            if (fileSize == 0) humanReadableFileSize = "0B";
-            else {
-                const char* suffixes[] = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
-                const int numSuffixes = sizeof(suffixes) / sizeof(suffixes[0]);
-
-                int exp = 0;
-                double size = (double)(fileSize);
-
-                while (size >= 1024 && exp < numSuffixes - 1) {
-                    size /= 1024;
-                    exp++;
-                }
-                char buffer[50];
-                snprintf(buffer, sizeof(buffer), "%.0f %s", size, suffixes[exp]);
-
-                humanReadableFileSize = humanReadableFileSize + buffer;
-            }
-            entries[i].name = fileName;
-            // TODO : Get rid of lilka::ENT_
-            // stat() allows more better options from the box
-            /*
-                if (S_ISREG(file_stat.st_mode)) type += "Regular File\n";
-                else if (S_ISDIR(file_stat.st_mode)) type += "Directory\n";
-                else if (S_ISLNK(file_stat.st_mode)) type += "Symbolic Link\n";
-                else if (S_ISCHR(file_stat.st_mode)) type += "Character Device\n";
-                else if (S_ISBLK(file_stat.st_mode)) type += "Block Device\n";
-                else if (S_ISFIFO(file_stat.st_mode)) type += "FIFO (Named Pipe)\n";
-                else if (S_ISSOCK(file_stat.st_mode)) type += "Socket\n"; 
-                else type += "Unknown\n";
-    
-                Access time, Modification time, and Inode change time
-                file_info += "Last Access Time: " + std::string(std::ctime(&file_stat.st_atime));
-                file_info += "Last Modification Time: " + std::string(std::ctime(&file_stat.st_mtime));
-                file_info += "Last Inode Change Time: " + std::string(std::ctime(&file_stat.st_ctime));               
-           */
-
-            entries[i].type = S_ISDIR(fileStat.st_mode) ? lilka::ENT_DIRECTORY : lilka::ENT_FILE;
-            const menu_icon_t* icon =
-                entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(fileName);
-            uint16_t color = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? lilka::display.color565(255, 255, 200)
-                                                                                : get_file_color(fileName);
-            while (humanReadableFileSize.length() != 6) {
-                humanReadableFileSize = humanReadableFileSize + " ";
-            }
-            if (entries[i].type == lilka::EntryType::ENT_DIRECTORY) {
-                menu.addItem(fileName, icon, color);
-            } else {
-                menu.addItem(fileName, icon, color, humanReadableFileSize);
-            }
-        }
-        i++;
-    }
-    closedir(currentDir);
-    menu.addItem("<< Назад", 0, 0);
-    menu.addActivationButton(lilka::Button::D);
-    while (1) {
-        while (!menu.isFinished()) {
-            menu.update();
-            menu.draw(canvas);
-            queueDraw();
-        }
-        int16_t index = menu.getCursor();
-        if (index == fileCount) break;
-        String fullFilePath = fPath + entries[index].name;
-        if (menu.getButton() == lilka::Button::A) {
-            // Open
-            if (entries[index].type == lilka::EntryType::ENT_DIRECTORY) {
-                fileBrowserMenu(fullFilePath);
-            } else {
-                selectFile(fullFilePath);
-            }
-        } else if (menu.getButton() == lilka::Button::D) {
-            // Back
-            break;
-        }
-    }
-}
-
-void LauncherApp::selectFile(String path) {
-    if (path.endsWith(".rom") || path.endsWith(".nes")) {
-        AppManager::getInstance()->runApp(new NesApp(path));
-    } else if (path.endsWith(".bin")) {
-#if LILKA_VERSION < 2
-        alert("Помилка", "Ця операція потребує Лілку 2.0");
-        return;
-#else
-        lilka::ProgressDialog dialog("Завантаження", path + "\n\nПочинаємо...");
-        dialog.draw(canvas);
-        queueDraw();
-        int error;
-        error = lilka::multiboot.start(path);
-        if (error) {
-            alert("Помилка", String("Етап: 1\nКод: ") + error);
-            return;
-        }
-        dialog.setMessage(path + "\n\nРозмір: " + String(lilka::multiboot.getBytesTotal()) + " Б");
-        dialog.draw(canvas);
-        queueDraw();
-        while ((error = lilka::multiboot.process()) > 0) {
-            int progress = lilka::multiboot.getBytesWritten() * 100 / lilka::multiboot.getBytesTotal();
-            dialog.setProgress(progress);
-            dialog.draw(canvas);
-            queueDraw();
-            if (lilka::controller.getState().a.justPressed) {
-                lilka::multiboot.cancel();
-                return;
-            }
-        }
-        if (error < 0) {
-            alert("Помилка", String("Етап: 2\nКод: ") + error);
-            return;
-        }
-        error = lilka::multiboot.finishAndReboot();
-        if (error) {
-            alert("Помилка", String("Етап: 3\nКод: ") + error);
-            return;
-        }
-#endif
-    } else if (path.endsWith(".lua")) {
-        AppManager::getInstance()->runApp(new LuaFileRunnerApp(path));
-    } else if (path.endsWith(".js")) {
-        AppManager::getInstance()->runApp(new MJSApp(path));
-    } else {
-        // Get file size
-        FILE* file = fopen(path.c_str(), "r");
-        if (!file) {
-            alert("Помилка", "Не вдалося відкрити файл");
-            return;
-        }
-        fseek(file, 0, SEEK_END);
-        long size = ftell(file);
-        fclose(file);
-        alert(path, String("Розмір:\n") + size + " байт");
     }
 }
 
