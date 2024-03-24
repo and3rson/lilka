@@ -18,6 +18,31 @@ for i = 10, 1, -1 do
     util.sleep(0.25)
 end
 
+for i = 10, 1, -1 do
+    display.fill_rect(0, 0, display.width, display.height, math.random(0xFFFF))
+    display.set_cursor(64, 64)
+    display.print("Start in " .. i .. "...")
+
+    local x = math.random(240 )
+    local y = math.random(280 - 64)
+    local rot = math.random(360)
+
+    local scaleX = math.random()
+    local scaleY = math.random()
+
+    local transform = imageTransform()
+
+    transform = transform:rotate(rot)
+
+    transform = transform:scale(scaleX, scaleY)
+
+    display.draw_image_transformed(face, x, y, transform)
+
+    display.queue_draw()
+
+    util.sleep(0.25)
+end
+
 local key = controller.get_state()
 while not key.a.just_pressed do
     local x1 = math.random(240)
