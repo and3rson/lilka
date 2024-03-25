@@ -1,7 +1,9 @@
+#include <stdio.h>
+#include <Preferences.h>
+
 #include "multiboot.h"
 #include "sdcard.h"
 #include "serial.h"
-#include "stdio.h"
 
 extern "C" bool verifyRollbackLater() {
     return true;
@@ -10,6 +12,8 @@ extern "C" bool verifyRollbackLater() {
 namespace lilka {
 
 extern SDCard sdcard;
+
+#define MULTIBOOT_PATH_KEY "multiboot_path"
 
 MultiBoot::MultiBoot() :
     ota_handle(0), current_partition(NULL), ota_partition(NULL), path(""), bytesTotal(0), bytesWritten(0), file(NULL) {
@@ -140,19 +144,17 @@ int MultiBoot::start(String path) {
         return -5;
     }
 
-    // Write path to last 256 bytes of the OTA partition
-    size_t partition_size = ota_partition->size;
-    size_t offset = partition_size - 256;
+    Preferences prefs;
+    prefs.begin("lilka", false);
     String arg = path;
     // Remove "/sd" prefix
     // TODO: Maybe we should use absolute path (including "/sd")?
+    // TODO: Store arg in RAM?
     if (arg.startsWith("/sd/")) {
         arg = arg.substring(3);
     }
-    if (esp_partition_write(ota_partition, offset, arg.c_str(), arg.length() + 1) != ESP_OK) {
-        serial_err("Failed to write arg to OTA partition");
-        return -6;
-    }
+    prefs.putString(MULTIBOOT_PATH_KEY, arg);
+    prefs.end();
 
     return 0;
 }
@@ -173,7 +175,7 @@ int MultiBoot::process() {
         esp_err_t err = esp_ota_write(ota_handle, buf, len);
         if (err != ESP_OK) {
             serial_err("Failed to write OTA: %d", err);
-            return -7;
+            return -6;
         }
 
         bytesWritten += len;
@@ -206,14 +208,14 @@ int MultiBoot::finishAndReboot() {
     esp_err_t err = esp_ota_end(ota_handle);
     if (err != ESP_OK) {
         serial_err("Failed to end OTA: %d", err);
-        return -8;
+        return -7;
     }
 
     // Перевстановлення активного розділу на OTA-розділ (його буде запущено лише один раз, після чого активним залишиться основний розділ).
     err = esp_ota_set_boot_partition(ota_partition);
     if (err != ESP_OK) {
         serial_err("Failed to set boot partition: %d", err);
-        return -9;
+        return -8;
     }
 
     // Запуск нової прошивки.
@@ -223,18 +225,15 @@ int MultiBoot::finishAndReboot() {
 }
 
 String MultiBoot::getFirmwarePath() {
-    size_t partition_size = current_partition->size;
-    size_t offset = partition_size - 256;
-    char buf[256];
-    if (esp_partition_read(current_partition, offset, buf, sizeof(buf)) != ESP_OK) {
-        serial_err("Failed to read firmware path from current partition");
-        return "";
+    Preferences prefs;
+    prefs.begin("lilka", true);
+    String arg = "";
+    if (prefs.isKey(MULTIBOOT_PATH_KEY)) {
+        arg = prefs.getString(MULTIBOOT_PATH_KEY);
+        prefs.remove(MULTIBOOT_PATH_KEY);
     }
-    if (static_cast<uint8_t>(buf[0]) == 0xFF) {
-        serial_err("Firmware path is not set");
-        return "";
-    }
-    return String(buf);
+    prefs.end();
+    return arg;
 }
 
 MultiBoot multiboot;

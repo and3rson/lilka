@@ -26,6 +26,7 @@ todo: ## Find all TODO, FIXME, XXX comments
 .PHONY: icons
 icons:
 	# Find all PNG images in firmware and sdk folders and convert them to .h
+	# Exclude splash screens
 	find \
 		firmware \
 		sdk \
@@ -35,6 +36,7 @@ icons:
 		-not \( -name bak -prune \) \
 		-not \( -name mJS -prune \) \
 		-not \( -name SimpleFTPServer -prune \) \
+		-not \( -name *splash* -prune \) \
 		-iname *.png \
 		-exec $(IMAGE2CODE) {} \;
 

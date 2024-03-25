@@ -15,7 +15,7 @@ AppManager* appManager = AppManager::getInstance();
 ServiceManager* serviceManager = ServiceManager::getInstance();
 
 void setup() {
-    lilka::display.setSplash(keira_splash);
+    lilka::display.setSplash(keira_splash, keira_splash_length);
     lilka::begin();
     serviceManager->addService(new NetworkService());
     serviceManager->addService(new ClockService());
