@@ -1,0 +1,222 @@
+(footprint "Charge_Controller_TP4056_4pin"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at 13.97 -12.93 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "8dfb1265-e0a3-48a3-bc74-cf799644624d")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+		)
+	)
+	(property "Value" "Charge_Controller_TP4056_4pin"
+		(at 13.97 -11.43 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "682f558b-d43e-4fdc-932e-41742cf90db3")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Footprint" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "36fd6b53-830e-40db-a89f-9b6a545a49ef")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "98e0a9cb-834b-409a-8f9c-15cc1603b205")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "73fe08f8-3f40-4a80-a798-5843d9bebd3f")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_line
+		(start -0.635 5.08)
+		(end -0.635 12.065)
+		(stroke
+			(width 0.2)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "d0cd269c-3153-41c9-8af4-2b7d662819b1")
+	)
+	(fp_line
+		(start -0.635 12.065)
+		(end 0 12.065)
+		(stroke
+			(width 0.2)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "9253f640-02ef-4fa7-a96b-08b8dfbb6997")
+	)
+	(fp_line
+		(start 0 0)
+		(end 0 17.145)
+		(stroke
+			(width 0.1)
+			(type dash)
+		)
+		(layer "F.SilkS")
+		(uuid "2169ebf3-ddeb-4802-a3bb-23ecaa2a2127")
+	)
+	(fp_line
+		(start 0 5.08)
+		(end -0.635 5.08)
+		(stroke
+			(width 0.2)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "4f348d8d-96d0-4cbe-acc4-104e0b378b30")
+	)
+	(fp_line
+		(start 0 17.145)
+		(end 27.94 17.145)
+		(stroke
+			(width 0.1)
+			(type dash)
+		)
+		(layer "F.SilkS")
+		(uuid "429e7f48-632e-4ec9-9ddc-290902839347")
+	)
+	(fp_line
+		(start 26.67 15.24)
+		(end 27.94 15.24)
+		(stroke
+			(width 0.1)
+			(type dash)
+		)
+		(layer "F.SilkS")
+		(uuid "561c7853-3b18-4403-9800-2840e0e7a7dc")
+	)
+	(fp_line
+		(start 27.94 0)
+		(end 0 0)
+		(stroke
+			(width 0.1)
+			(type dash)
+		)
+		(layer "F.SilkS")
+		(uuid "824fa3e1-1a3a-4d5b-8c11-b8f77098dfce")
+	)
+	(fp_line
+		(start 27.94 1.905)
+		(end 26.67 1.905)
+		(stroke
+			(width 0.1)
+			(type dash)
+		)
+		(layer "F.SilkS")
+		(uuid "49c3974c-912b-41d0-95b2-693ffcab6886")
+	)
+	(fp_line
+		(start 27.94 1.905)
+		(end 27.94 0)
+		(stroke
+			(width 0.1)
+			(type dash)
+		)
+		(layer "F.SilkS")
+		(uuid "721e01ba-a774-43f5-abc8-95387bbb3427")
+	)
+	(fp_line
+		(start 27.94 17.145)
+		(end 27.94 15.24)
+		(stroke
+			(width 0.1)
+			(type dash)
+		)
+		(layer "F.SilkS")
+		(uuid "bb90a331-26ab-466d-94cf-481a5d551566")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 13.97 -9.93 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "0ec169ee-fe8c-4f28-88f3-2e5b71e4a160")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole rect
+		(at 1.5 1.6)
+		(size 1.7 1.5)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "3b07aba7-3cf7-4ad8-ab37-bf1c99aa3492")
+	)
+	(pad "2" thru_hole rect
+		(at 1.5 15.6)
+		(size 1.7 1.5)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "0543c102-ceb1-41d8-9924-d5b08697d7b0")
+	)
+	(pad "3" thru_hole rect
+		(at 24.5 1.6)
+		(size 1.7 1.5)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "dc0cc81a-c94f-47fb-9f46-202dd1d95448")
+	)
+	(pad "4" thru_hole rect
+		(at 24.5 15.6)
+		(size 1.7 1.5)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "9b7beac6-bb00-443e-acd8-506d03ded91a")
+	)
+	(model "${KIPRJMOD}/3dmodels/tp4056_pcb_asm.stp"
+		(offset
+			(xyz 14 -8.5 1.5)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 -90)
+		)
+	)
+)

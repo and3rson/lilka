@@ -501,8 +501,6 @@
       "Net-(D1-A)": "Power",
       "Net-(D1-K)": "Power",
       "Net-(J4-OUT+)": "Power",
-      "Net-(J5-OUT+)": "Power",
-      "Net-(J8-OUT+)": "Power",
       "Net-(Q1-D)": "Power",
       "VBUS": "Power"
     },
@@ -522,7 +520,7 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "",
+      "plot": "v21/",
       "pos_files": "",
       "specctra_dsn": "",
       "step": "main.step",

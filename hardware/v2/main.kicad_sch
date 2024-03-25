@@ -3418,7 +3418,7 @@
 			(symbol "Charge_Controller_TP4056_1_1"
 				(rectangle
 					(start 0 0)
-					(end 15.24 -20.32)
+					(end 15.24 -7.62)
 					(stroke
 						(width 0)
 						(type default)
@@ -3492,42 +3492,6 @@
 						)
 					)
 					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 17.78 -15.24 180)
-					(length 2.54)
-					(name "BAT+"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 17.78 -17.78 180)
-					(length 2.54)
-					(name "BAT-"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "6"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -5157,14 +5121,6 @@
 		(uuid "1b3ade85-f836-421b-9552-cfc0db95d796")
 	)
 	(no_connect
-		(at 106.68 73.66)
-		(uuid "464a9f0f-73b3-4b84-9680-a576b901e75c")
-	)
-	(no_connect
-		(at 106.68 71.12)
-		(uuid "7971a7cc-1cbe-4c57-9d6d-af0db9957852")
-	)
-	(no_connect
 		(at 119.38 219.71)
 		(uuid "b2d417a4-521c-4af1-ba97-a713d1ab3531")
 	)
@@ -5239,16 +5195,6 @@
 			(type default)
 		)
 		(uuid "06cddccd-6b70-4fea-a9ef-40d8eebdf91e")
-	)
-	(wire
-		(pts
-			(xy 101.6 71.12) (xy 106.68 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "07ebb562-d0a9-46c9-a897-95a23a10d8c3")
 	)
 	(wire
 		(pts
@@ -6289,16 +6235,6 @@
 			(type default)
 		)
 		(uuid "ac6f1c98-e27f-4459-a00b-30bf8839d573")
-	)
-	(wire
-		(pts
-			(xy 101.6 73.66) (xy 106.68 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ac91901d-fd39-4fe0-a6e1-29d0a261a2b9")
 	)
 	(wire
 		(pts
@@ -9808,7 +9744,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connectors:Charge_Controller_TP4056"
+		(property "Footprint" "Connectors:Charge_Controller_TP4056_4pin"
 			(at 90.17 50.8 0)
 			(effects
 				(font
@@ -9838,17 +9774,11 @@
 		(pin "2"
 			(uuid "2d962408-8d63-47e9-8fec-55081c08dd5f")
 		)
-		(pin "5"
-			(uuid "1107a455-2592-49d1-ae2d-cd1ec5b315c0")
-		)
 		(pin "3"
 			(uuid "cefc648b-012d-4cee-b38d-4075ea36a4f6")
 		)
 		(pin "4"
 			(uuid "32015da4-d9d9-47fb-9bf5-8743698104e7")
-		)
-		(pin "6"
-			(uuid "edf62f8c-7b43-4f98-ad95-51898be0d510")
 		)
 		(pin "1"
 			(uuid "3330490a-baee-4929-82b6-d369c618d493")
