@@ -114,6 +114,9 @@ void setup() {
         // Get directory from firmware file
         int lastSlash = firmwareFile.lastIndexOf('/');
         firmwareDir = firmwareFile.substring(0, lastSlash);
+        if (firmwareDir.length() == 0) {
+            firmwareDir = "/";
+        }
     } else {
         firmwareDir = "/";
     }

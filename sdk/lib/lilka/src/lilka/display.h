@@ -64,8 +64,9 @@ public:
     /// @note Якщо викликати цей метод, то вітальний екран буде відображатись навіть якщо `LILKA_NO_SPLASH` встановлено в `true`.
     ///
     /// Його потрібно викликати перед викликом `lilka::begin()` або не викликати взагалі.
-    /// @param splash Масив 16-бітних кольорів (5-6-5) з розміром 280*240.
-    void setSplash(const uint16_t* splash);
+    /// @param splash Масив 16-бітних кольорів (5-6-5) з розміром 280*240 (або масив байтів, закодованих алгоритмом RLE, з довжиною rleLength).
+    /// @param rleLength Якщо використовується RLE-кодування, цей аргумент вказує довжину масиву splash. Зображення повинне бути згенероване за допомогою утиліти `sdk/tools/image2code` з прапорцем `--rle`.
+    void setSplash(const void* splash, uint32_t rleLength = 0);
 #ifdef DOXYGEN
     // `Arduino_GFX_Library` має купу гарних методів, але вони погано документовані.
     // Ця секція - лише для документації цих методів. Вона буде прочитана інструментом `doxygen` при генерації
@@ -246,7 +247,8 @@ public:
     void renderCanvas(Canvas* canvas);
 
 private:
-    const uint16_t* splash;
+    const void* splash;
+    uint32_t rleLength;
 };
 
 /// Клас для роботи з графічним буфером.
@@ -419,6 +421,19 @@ public:
 
     // Матриця перетворення
     float matrix[2][2]; // [рядок][стовпець]
+};
+
+class RLEDecoder {
+public:
+    RLEDecoder(const uint8_t* data, uint32_t length);
+    uint16_t next();
+
+private:
+    const uint8_t* data;
+    uint32_t length;
+    uint32_t pos;
+    uint8_t count;
+    uint16_t current;
 };
 
 /// Екземпляр класу `Display`, який можна використовувати для роботи з дисплеєм.

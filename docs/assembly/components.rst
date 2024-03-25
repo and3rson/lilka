@@ -50,7 +50,7 @@
      -
 
    * - 1
-     - J4
+     - J2
      - Ext
      - Pin Header
      - `arduino.ua <https://arduino.ua/prod332-konnektor-40-pin-papa>`__
@@ -58,7 +58,7 @@
      -
 
    * - 1
-     - J5
+     - J3
      - uSD
      - SD Card Interface Module
      - `diyshop.com.ua <https://diyshop.com.ua/en/modul-interfejsa-mini-sd-karty-kardrider>`__
@@ -73,8 +73,8 @@
      - 3
      - 5 шт в комплекті
 
-   * - 2
-     - R2, R3
+   * - 1
+     - R2
      - 100K
      - 100K Resistor
      - `arduino.ua <https://arduino.ua/prod1549-rezistor-100-kom-5-shtyk>`__
@@ -181,15 +181,7 @@
      - 10 шт в комплекті
 
    * - 1
-     - J2, J3
-     - Bat
-     - Будь-яка LiPo на ваш розсуд
-     - `m-teh.com.ua <https://m-teh.com.ua/li-pol-akumuliator-603048p-1000-ma-hod-3.7v-z-plato%D1%96u-zakhystu/?gad_source=1&gclid=CjwKCAiA29auBhBxEiwAnKcSqmJoC5UaOLX_kOIJX7G_EQOqEse5RDJBtxz8IvMHU9rLfGlj-MlgyhoCXgEQAvD_BwE>`__
-     - 116
-     -
-
-   * - 1
-     - J8
+     - J4
      - TP4056
      - TP4056 Charging Module
      - `arduino.ua <https://arduino.ua/prod1486-zaryadnii-modyl-tp4056-micro-usb-s-fynkciei-zashhiti-akkymylyatora>`__
@@ -207,12 +199,12 @@
      -
 
    * - 1
-     - Q2
-     - TP2104 *
-     -
-     -
-     -
-     - \* Запасне місце для THT-альтернативи Q1
+     - R3
+     - 100K
+     - 100K Resistor
+     - `arduino.ua <https://arduino.ua/prod1549-rezistor-100-kom-5-shtyk>`__
+     - 2
+     - 5 шт в комплекті
 
    * - 1
      - R4
@@ -221,6 +213,14 @@
      - `justas-electronics.com.ua <https://justas-electronics.com.ua/rss0125w-33kOm/>`__
      - 2.1
      - 10 шт в комплекті
+
+   * - 1
+     - \-
+     - Bat
+     - Будь-яка LiPo на ваш розсуд
+     - `m-teh.com.ua <https://m-teh.com.ua/li-pol-akumuliator-603048p-1000-ma-hod-3.7v-z-plato%D1%96u-zakhystu/?gad_source=1&gclid=CjwKCAiA29auBhBxEiwAnKcSqmJoC5UaOLX_kOIJX7G_EQOqEse5RDJBtxz8IvMHU9rLfGlj-MlgyhoCXgEQAvD_BwE>`__
+     - 116
+     -
 
    * - Разом
      -
@@ -247,25 +247,29 @@
      - Примітка
 
    * - 1
-     - J6
-     - PCM5102A
-     - PCM5102A Audio Module
-     - `prom.ua <https://prom.ua/ua/p1401452703-pcm5102a-modul-tsap.html>`__
-     - 299
-     -
-
-   * -
-     -
-     -
-     - АБО
-     -
-     -
-     -
-
-   * - 1
-     - J7
+     - J5
      - MAX98357
      - Mono Audio Amplifier Module
      - `arduino.ua <https://arduino.ua/prod4112-modyl-aydioysilitelya-mono-3vt-klassa-d-na-max98357>`__
      - 92
+     -
+
+   * - 1
+     - \-
+     - Speaker
+     - 8 Ohm 1 W Speaker
+     - `arduino.ua <https://arduino.ua/prod4280-dinamik-miniaturnii-8om-1-vt-30x20x4-2mm>`__
+     - 17
+     - (Або будь-який інший динамік чи гніздо для навушників на ваш розсуд)
+
+   * - Разом
+     -
+     -
+     -
+     -
+     - .. raw:: html
+
+            <div id="total-audio"></div>
+            <script>calculateTotal(document.querySelector('#total-audio'), 6);
+            </script>
      -

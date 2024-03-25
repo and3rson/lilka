@@ -76,7 +76,7 @@
 	)
 	(fp_line
 		(start -8.89 -8.255)
-		(end 8.89 -8.255)
+		(end -2.54 -8.255)
 		(stroke
 			(width 0.1)
 			(type default)
@@ -85,17 +85,7 @@
 		(uuid "877a31ed-2e7f-4e6c-a0ce-318e40fc5ec7")
 	)
 	(fp_line
-		(start 8.89 -2.54)
-		(end 8.89 -8.255)
-		(stroke
-			(width 0.1)
-			(type default)
-		)
-		(layer "F.SilkS")
-		(uuid "a04f0462-f028-4313-9331-f4cc736da942")
-	)
-	(fp_line
-		(start 8.89 9.525)
+		(start -2.54 9.525)
 		(end -8.89 9.525)
 		(stroke
 			(width 0.1)
@@ -105,14 +95,86 @@
 		(uuid "fc17534d-e2c0-4510-ad64-b8937fda5449")
 	)
 	(fp_line
-		(start 8.89 9.525)
-		(end 8.89 4.064)
+		(start 2.54 -8.255)
+		(end 7.62 -8.255)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "ff7ed655-ff0b-43bf-8c62-71952f9e459d")
+	)
+	(fp_line
+		(start 7.62 -8.255)
+		(end 8.89 -6.985)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "b44b1232-9581-4780-bbda-5e0da857474b")
+	)
+	(fp_line
+		(start 7.62 9.525)
+		(end 2.54 9.525)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "a36aac63-a90a-442d-9aea-3c20a29c2a37")
+	)
+	(fp_line
+		(start 8.89 -1.905)
+		(end 8.89 -6.985)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "a04f0462-f028-4313-9331-f4cc736da942")
+	)
+	(fp_line
+		(start 8.89 8.255)
+		(end 7.62 9.525)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.SilkS")
+		(uuid "0c3897e4-550e-4cd2-8006-316c6a194b60")
+	)
+	(fp_line
+		(start 8.89 8.255)
+		(end 8.89 3.175)
 		(stroke
 			(width 0.1)
 			(type default)
 		)
 		(layer "F.SilkS")
 		(uuid "ebb07840-1a50-4072-bf1b-1bb15eb96c3b")
+	)
+	(fp_circle
+		(center 5.08 -1.065)
+		(end 6.08 -1.065)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "06513d0d-858d-4ae1-9df7-46f051f98532")
+	)
+	(fp_circle
+		(center 5.08 2.335)
+		(end 6.08 2.335)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "77ecfb34-7bc4-47ad-9596-7b29637e8b66")
 	)
 	(fp_text user "LRC"
 		(at -9.525 -6.985 90)
@@ -199,7 +261,7 @@
 		)
 	)
 	(fp_text user "-"
-		(at 5.08 -1.065 90)
+		(at 5.08 -1.065 0)
 		(unlocked yes)
 		(layer "F.SilkS" knockout)
 		(uuid "a66fd81c-0691-4b5b-a876-31a5289e11d8")

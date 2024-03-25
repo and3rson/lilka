@@ -10,5 +10,5 @@
 .. toctree::
     :maxdepth: 2
 
-    components
     configurations
+    components

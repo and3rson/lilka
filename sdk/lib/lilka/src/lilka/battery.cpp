@@ -34,16 +34,7 @@ int Battery::readLevel() {
     // Але при повністю зарядженому акумуляторі (4.2V) напруга на АЦП може бути трохи вищою за максимальне читабельне значення (3.158V замість 3.1V).
     // Тому ми сприймаємо таке перевищення як "100%".
 
-    // Зчитуємо значення АЦП 32 рази, щоб вибрати медіану
-    uint16_t count = 32;
-    uint16_t values[count];
-    for (int i = 0; i < count; i++) {
-        values[i] = analogRead(LILKA_BATTERY_ADC);
-    }
-    // Сортуємо масив значень АЦП
-    std::sort(values, values + count);
-    // Вибираємо медіану
-    uint16_t value = values[count / 2];
+    uint16_t value = readRawValue();
     float voltage = (float)value / 4095.0 * LILKA_BATTERY_MAX_MEASURABLE_VOLTAGE;
     if (voltage < 0.5) {
         return -1;
@@ -56,6 +47,20 @@ int Battery::readLevel() {
     float level = fmap(voltage, emptyVoltage, maxVoltage, 0, 100);
     return constrain(level, 0, 100);
 #endif
+}
+
+uint16_t Battery::readRawValue() {
+    // Зчитуємо значення АЦП 32 рази, щоб вибрати медіану
+    uint16_t count = 32;
+    uint16_t values[count];
+    for (int i = 0; i < count; i++) {
+        values[i] = analogRead(LILKA_BATTERY_ADC);
+    }
+    // Сортуємо масив значень АЦП
+    std::sort(values, values + count);
+    // Вибираємо медіану
+    uint16_t value = values[count / 2];
+    return value;
 }
 
 void Battery::setEmptyVoltage(float voltage) {
