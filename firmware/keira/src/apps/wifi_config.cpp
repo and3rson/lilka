@@ -78,15 +78,36 @@ void WiFiConfigApp::run() {
 
         String ssid = networks[cursor];
 
-        lilka::InputDialog passwordDialog("Введіть пароль:");
-        passwordDialog.setMasked(true);
-        passwordDialog.setValue(networkService->getPassword(ssid));
-        while (!passwordDialog.isFinished()) {
-            passwordDialog.update();
-            passwordDialog.draw(canvas);
+        String password = "";
+        // Check if WiFi network is insecure
+        if (WiFi.encryptionType(cursor) == WIFI_AUTH_OPEN) {
+            lilka::Alert alert(
+                "Увага",
+                "Ви під'єднуєтеся до незахищеної мережі " + ssid +
+                    "\n\n"
+                    "A - продовжити\n"
+                    "B - обрати іншу мережу"
+            );
+            alert.addActivationButton(lilka::Button::B);
+            alert.draw(canvas);
             queueDraw();
+            while (!alert.isFinished()) {
+                alert.update();
+            }
+            if (alert.getButton() == lilka::Button::B) {
+                continue;
+            }
+        } else {
+            lilka::InputDialog passwordDialog("Введіть пароль:");
+            passwordDialog.setMasked(true);
+            passwordDialog.setValue(networkService->getPassword(ssid));
+            while (!passwordDialog.isFinished()) {
+                passwordDialog.update();
+                passwordDialog.draw(canvas);
+                queueDraw();
+            }
+            password = passwordDialog.getValue();
         }
-        String password = passwordDialog.getValue();
         networkService->connect(ssid, password);
 
         buffer.fillScreen(buffer.color565(0, 0, 0));
