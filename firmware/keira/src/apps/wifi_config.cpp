@@ -4,6 +4,11 @@
 #include "servicemanager.h"
 #include "services/network.h"
 
+#include "icons/wifi_0.h"
+#include "icons/wifi_1.h"
+#include "icons/wifi_2.h"
+#include "icons/wifi_3.h"
+
 WiFiConfigApp::WiFiConfigApp() : App("WiFi") {
 }
 
@@ -55,10 +60,29 @@ void WiFiConfigApp::run() {
 
     lilka::Menu menu("Мережі");
     for (int16_t i = 0; i < count; i++) {
-        // TODO: Add security (or signal strength) icon
+        const int8_t rssi = WiFi.RSSI(i);
+        uint8_t signalStrength;
+        if (rssi == 0) {
+            signalStrength = 0;
+        } else {
+            const int8_t excellent = -50;
+            const int8_t good = -70;
+            const int8_t fair = -80;
+
+            if (rssi >= excellent) {
+                signalStrength = 3;
+            } else if (rssi >= good) {
+                signalStrength = 2;
+            } else if (rssi >= fair) {
+                signalStrength = 1;
+            } else {
+                signalStrength = 0;
+            }
+        }
+        menu_icon_t* icons[] = {&wifi_0, &wifi_1, &wifi_2, &wifi_3};
         menu.addItem(
             networks[i],
-            0,
+            icons[signalStrength],
             networkService->getPassword(networks[i]).length() ? lilka::display.color565(0, 255, 0)
                                                               : lilka::display.color565(255, 255, 255)
         );
