@@ -1,4 +1,4 @@
-local file_dir = sdcard.dlist("/")
+local file_dir = sdcard.ls("/")
 
 print(#file_dir)
 
@@ -6,16 +6,14 @@ for i = 0, #file_dir do
     print(file_dir[i])
 end
 
-file = sdcard.fopen("test.txt", "rb+") 
+file = file("/test.txt", "a+") 
 
-sdcard.fwrite(file, "HELLOWORLD") 
+file:write("HELLOWORLD") 
 
-text = sdcard.fread(file, 5) 
+text = file:read(5) 
 
 print(text) 
 
-size = sdcard.fsize(file)
+size = file:size()
 print(size)
-
-sdcard.fclose(file)
 
