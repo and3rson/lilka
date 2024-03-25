@@ -12,7 +12,7 @@ static int lualilka_create_object_file(lua_State* L) {
 }
 
 static int lualilka_delete_object_file(lua_State* L) {
-    FILE* filePointer = *reinterpret_cast<FILE**>(lua_touserdata(L, 1));
+    FILE* filePointer = *reinterpret_cast<FILE**>(luaL_checkudata(L, 1, FILE_OBJECT));
     if (filePointer) {
         fclose(filePointer);
     }
