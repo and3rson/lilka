@@ -25,7 +25,8 @@ Display::Display() :
         &displayBus, LILKA_DISPLAY_RST, LILKA_DISPLAY_ROTATION, true, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, 0, 20,
         0, 20
     ),
-    splash(NULL) {
+    splash(default_splash),
+    rleLength(default_splash_length) {
 }
 
 void Display::begin() {
@@ -37,26 +38,26 @@ void Display::begin() {
 #endif
     setFont(FONT_10x20);
     setUTF8Print(true);
-#ifdef LILKA_NO_SPLASH
     if (splash != NULL) {
-#else
-    if (splash == NULL) {
-        splash = default_splash;
-    }
-#endif
-        uint16_t row[default_splash_width];
+        uint16_t row[display.width()];
         for (int i = 0; i <= 4; i++) {
             startWrite();
-            writeAddrWindow(0, 0, default_splash_width, default_splash_height);
-            for (int y = 0; y < default_splash_height; y++) {
-                for (int x = 0; x < default_splash_width; x++) {
-                    uint16_t color = splash[y * default_splash_width + x];
+            writeAddrWindow(0, 0, display.width(), display.height());
+            RLEDecoder decoder(static_cast<const uint8_t*>(splash), rleLength);
+            for (int y = 0; y < display.height(); y++) {
+                for (int x = 0; x < display.width(); x++) {
+                    uint16_t color;
+                    if (rleLength) {
+                        color = decoder.next();
+                    } else {
+                        color = static_cast<const uint16_t*>(splash)[y * display.width() + x];
+                    }
                     uint16_t r = ((color >> 11) & 0x1F) << 3;
                     uint16_t g = ((color >> 5) & 0x3F) << 2;
                     uint16_t b = (color & 0x1F) << 3;
                     row[x] = color565(r * i / 4, g * i / 4, b * i / 4);
                 }
-                writePixels(row, default_splash_width);
+                writePixels(row, display.width());
             }
             endWrite();
         }
@@ -67,28 +68,32 @@ void Display::begin() {
         delay(800);
         for (int i = 4; i >= 0; i--) {
             startWrite();
-            writeAddrWindow(0, 0, default_splash_width, default_splash_height);
-            for (int y = 0; y < default_splash_height; y++) {
-                for (int x = 0; x < default_splash_width; x++) {
-                    uint16_t color = splash[y * default_splash_width + x];
+            writeAddrWindow(0, 0, display.width(), display.height());
+            RLEDecoder decoder(static_cast<const uint8_t*>(splash), rleLength);
+            for (int y = 0; y < display.height(); y++) {
+                for (int x = 0; x < display.width(); x++) {
+                    uint16_t color;
+                    if (rleLength) {
+                        color = decoder.next();
+                    } else {
+                        color = static_cast<const uint16_t*>(splash)[y * display.width() + x];
+                    }
                     uint16_t r = ((color >> 11) & 0x1F) << 3;
                     uint16_t g = ((color >> 5) & 0x3F) << 2;
                     uint16_t b = (color & 0x1F) << 3;
                     row[x] = color565(r * i / 4, g * i / 4, b * i / 4);
                 }
-                writePixels(row, default_splash_width);
+                writePixels(row, display.width());
             }
             endWrite();
         }
-#ifdef LILKA_NO_SPLASH
     }
-#else
-#endif
     serial_log("display ok");
 }
 
-void Display::setSplash(const uint16_t* splash) {
+void Display::setSplash(const void* splash, uint32_t rleLength) {
     this->splash = splash;
+    this->rleLength = rleLength;
 }
 
 void Display::drawImage(Image* image, int16_t x, int16_t y) {
@@ -365,6 +370,30 @@ inline int_vector_t Transform::transform(int_vector_t v) {
         static_cast<int32_t>(matrix[0][0] * v.x + matrix[0][1] * v.y),
         static_cast<int32_t>(matrix[1][0] * v.x + matrix[1][1] * v.y),
     };
+}
+
+RLEDecoder::RLEDecoder(const uint8_t* data, uint32_t length) :
+    data(data), length(length), pos(0), count(0), current(0) {
+}
+
+uint16_t RLEDecoder::next() {
+    if (count == 0) {
+        // Read the next value from the RLE stream
+        if (pos >= length) {
+            // End of stream
+            return display.color565(255, 255, 0);
+        }
+        count = data[pos++];
+        if (count == 0) {
+            // This is bullshit. The count should never be zero. The user has messed up the data. I don't want to deal with this. /AD
+            return display.color565(255, 255, 255);
+        }
+        uint8_t lo = data[pos++];
+        uint8_t hi = data[pos++];
+        current = (hi << 8) | lo;
+    }
+    count--;
+    return current;
 }
 
 Display display;
