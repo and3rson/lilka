@@ -22,7 +22,9 @@ Menu::~Menu() {
     delete iconImage;
     delete iconCanvas;
 }
-
+void Menu::setTitle(String title) {
+    this->title = title;
+}
 void Menu::addItem(String title, const menu_icon_t* icon, uint16_t color, String postfix) {
     items.push_back({
         .title = title,
