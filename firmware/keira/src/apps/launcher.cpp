@@ -101,13 +101,15 @@ void LauncherApp::appsMenu() {
 }
 
 const menu_icon_t* get_file_icon(const String& filename) {
-    if (filename.endsWith(".rom") || filename.endsWith(".nes")) {
+    String lowerCasedFileName = filename;
+    lowerCasedFileName.toLowerCase();
+    if (lowerCasedFileName.endsWith(".rom") || lowerCasedFileName.endsWith(".nes")) {
         return &nes;
-    } else if (filename.endsWith(".bin")) {
+    } else if (lowerCasedFileName.endsWith(".bin")) {
         return &bin;
-    } else if (filename.endsWith(".lua")) {
+    } else if (lowerCasedFileName.endsWith(".lua")) {
         return &lua;
-    } else if (filename.endsWith(".js")) {
+    } else if (lowerCasedFileName.endsWith(".js")) {
         return &js;
     } else {
         return &normalfile;
@@ -115,13 +117,15 @@ const menu_icon_t* get_file_icon(const String& filename) {
 }
 
 const uint16_t get_file_color(const String& filename) {
-    if (filename.endsWith(".rom") || filename.endsWith(".nes")) {
+    String lowerCasedFileName = filename;
+    lowerCasedFileName.toLowerCase();
+    if (lowerCasedFileName.endsWith(".rom") || lowerCasedFileName.endsWith(".nes")) {
         return lilka::display.color565(255, 128, 128);
-    } else if (filename.endsWith(".bin")) {
+    } else if (lowerCasedFileName.endsWith(".bin")) {
         return lilka::display.color565(128, 255, 128);
-    } else if (filename.endsWith(".lua")) {
+    } else if (lowerCasedFileName.endsWith(".lua")) {
         return lilka::display.color565(128, 128, 255);
-    } else if (filename.endsWith(".js")) {
+    } else if (lowerCasedFileName.endsWith(".js")) {
         return lilka::display.color565(255, 200, 128);
     } else {
         return lilka::display.color565(200, 200, 200);
@@ -222,9 +226,11 @@ void LauncherApp::spiffsBrowserMenu() {
 }
 
 void LauncherApp::selectFile(String path) {
-    if (path.endsWith(".rom") || path.endsWith(".nes")) {
+    String lowerCasedPath = path;
+    lowerCasedPath.toLowerCase();
+    if (lowerCasedPath.endsWith(".rom") || lowerCasedPath.endsWith(".nes")) {
         AppManager::getInstance()->runApp(new NesApp(path));
-    } else if (path.endsWith(".bin")) {
+    } else if (lowerCasedPath.endsWith(".bin")) {
 #if LILKA_VERSION < 2
         alert("Помилка", "Ця операція потребує Лілку 2.0");
         return;
@@ -261,9 +267,9 @@ void LauncherApp::selectFile(String path) {
             return;
         }
 #endif
-    } else if (path.endsWith(".lua")) {
+    } else if (lowerCasedPath.endsWith(".lua")) {
         AppManager::getInstance()->runApp(new LuaFileRunnerApp(path));
-    } else if (path.endsWith(".js")) {
+    } else if (lowerCasedPath.endsWith(".js")) {
         AppManager::getInstance()->runApp(new MJSApp(path));
     } else {
         // Get file size
