@@ -2,7 +2,7 @@
 #include "app.h"
 #include "lualilka_imageTransform.h"
 
-Arduino_GFX* getDrawable(lua_State* L) {
+lilka::Canvas* getDrawable(lua_State* L) {
     lua_getfield(L, LUA_REGISTRYINDEX, "app");
     const App* app = static_cast<App*>(lua_touserdata(L, -1));
     lua_pop(L, 1);
@@ -243,13 +243,15 @@ int lualilka_display_drawImage(lua_State* L) {
     int16_t x = luaL_checknumber(L, 2);
     int16_t y = luaL_checknumber(L, 3);
 
-    if (image->transparentColor >= 0) {
-        getDrawable(L)->draw16bitRGBBitmapWithTranColor(
-            x, y, image->pixels, image->transparentColor, image->width, image->height
-        );
-    } else {
-        getDrawable(L)->draw16bitRGBBitmap(x, y, image->pixels, image->width, image->height);
-    }
+    getDrawable(L)->drawImage(image, x, y);
+
+    // if (image->transparentColor >= 0) {
+    //     getDrawable(L)->draw16bitRGBBitmapWithTranColor(
+    //         x, y, image->pixels, image->transparentColor, image->width, image->height
+    //     );
+    // } else {
+    //     getDrawable(L)->draw16bitRGBBitmap(x, y, image->pixels, image->width, image->height);
+    // }
 
     return 0;
 };
@@ -268,54 +270,56 @@ int lualilka_display_drawImageTransformed(lua_State* L) {
     lilka::Image* image = reinterpret_cast<lilka::Image*>(lua_touserdata(L, -1));
     lua_pop(L, 1); // Pop the userdata pointer
 
-    int16_t d_x = luaL_checknumber(L, 2);
-    int16_t d_y = luaL_checknumber(L, 3);
+    int16_t x = luaL_checknumber(L, 2);
+    int16_t y = luaL_checknumber(L, 3);
 
-    int32_t imageWidth = image->width;
-    int32_t imageHeight = image->height;
+    // int32_t imageWidth = image->width;
+    // int32_t imageHeight = image->height;
 
     lilka::Transform& transform = *reinterpret_cast<lilka::Transform*>(luaL_checkudata(L, 4, IMAGE_TRANSFORM));
 
-    // Calculate the coordinates of the four corners of the destination rectangle.
-    lilka::int_vector_t v1 = transform.transform(lilka::int_vector_t{-image->pivotX, -image->pivotY});
-    lilka::int_vector_t v2 = transform.transform(lilka::int_vector_t{imageWidth - image->pivotX, -image->pivotY});
-    lilka::int_vector_t v3 = transform.transform(lilka::int_vector_t{-image->pivotX, imageHeight - image->pivotY});
-    lilka::int_vector_t v4 =
-        transform.transform(lilka::int_vector_t{imageWidth - image->pivotX, imageHeight - image->pivotY});
+    getDrawable(L)->drawImageTransformed(image, x, y, transform);
 
-    // Find the bounding box of the transformed image.
-    lilka::int_vector_t topLeft =
-        lilka::int_vector_t{min(min(v1.x, v2.x), min(v3.x, v4.x)), min(min(v1.y, v2.y), min(v3.y, v4.y))};
-    lilka::int_vector_t bottomRight =
-        lilka::int_vector_t{max(max(v1.x, v2.x), max(v3.x, v4.x)), max(max(v1.y, v2.y), max(v3.y, v4.y))};
+    // // Calculate the coordinates of the four corners of the destination rectangle.
+    // lilka::int_vector_t v1 = transform.transform(lilka::int_vector_t{-image->pivotX, -image->pivotY});
+    // lilka::int_vector_t v2 = transform.transform(lilka::int_vector_t{imageWidth - image->pivotX, -image->pivotY});
+    // lilka::int_vector_t v3 = transform.transform(lilka::int_vector_t{-image->pivotX, imageHeight - image->pivotY});
+    // lilka::int_vector_t v4 =
+    //     transform.transform(lilka::int_vector_t{imageWidth - image->pivotX, imageHeight - image->pivotY});
 
-    // Create a new image to hold the transformed image.
-    lilka::Image destImage(bottomRight.x - topLeft.x, bottomRight.y - topLeft.y, image->transparentColor, 0, 0);
+    // // Find the bounding box of the transformed image.
+    // lilka::int_vector_t topLeft =
+    //     lilka::int_vector_t{min(min(v1.x, v2.x), min(v3.x, v4.x)), min(min(v1.y, v2.y), min(v3.y, v4.y))};
+    // lilka::int_vector_t bottomRight =
+    //     lilka::int_vector_t{max(max(v1.x, v2.x), max(v3.x, v4.x)), max(max(v1.y, v2.y), max(v3.y, v4.y))};
 
-    // Draw the transformed image to the new image.
-    lilka::Transform inverse = transform.inverse();
-    for (int y = topLeft.y; y < bottomRight.y; y++) {
-        for (int x = topLeft.x; x < bottomRight.x; x++) {
-            lilka::int_vector_t v = inverse.transform(lilka::int_vector_t{x, y});
-            // Apply pivot offset
-            v.x += image->pivotX;
-            v.y += image->pivotY;
-            if (v.x >= 0 && v.x < image->width && v.y >= 0 && v.y < image->height) {
-                destImage.pixels[x - topLeft.x + (y - topLeft.y) * destImage.width] =
-                    image->pixels[v.x + v.y * image->width];
-            } else {
-                destImage.pixels[x - topLeft.x + (y - topLeft.y) * destImage.width] = image->transparentColor;
-            }
-        }
-    }
+    // // Create a new image to hold the transformed image.
+    // lilka::Image destImage(bottomRight.x - topLeft.x, bottomRight.y - topLeft.y, image->transparentColor, 0, 0);
 
-    if (destImage.transparentColor >= 0) {
-        getDrawable(L)->draw16bitRGBBitmapWithTranColor(
-            d_x, d_y, destImage.pixels, destImage.transparentColor, destImage.width, destImage.height
-        );
-    } else {
-        getDrawable(L)->draw16bitRGBBitmap(d_x, d_y, destImage.pixels, destImage.width, destImage.height);
-    }
+    // // Draw the transformed image to the new image.
+    // lilka::Transform inverse = transform.inverse();
+    // for (int y = topLeft.y; y < bottomRight.y; y++) {
+    //     for (int x = topLeft.x; x < bottomRight.x; x++) {
+    //         lilka::int_vector_t v = inverse.transform(lilka::int_vector_t{x, y});
+    //         // Apply pivot offset
+    //         v.x += image->pivotX;
+    //         v.y += image->pivotY;
+    //         if (v.x >= 0 && v.x < image->width && v.y >= 0 && v.y < image->height) {
+    //             destImage.pixels[x - topLeft.x + (y - topLeft.y) * destImage.width] =
+    //                 image->pixels[v.x + v.y * image->width];
+    //         } else {
+    //             destImage.pixels[x - topLeft.x + (y - topLeft.y) * destImage.width] = image->transparentColor;
+    //         }
+    //     }
+    // }
+
+    // if (destImage.transparentColor >= 0) {
+    //     getDrawable(L)->draw16bitRGBBitmapWithTranColor(
+    //         d_x, d_y, destImage.pixels, destImage.transparentColor, destImage.width, destImage.height
+    //     );
+    // } else {
+    //     getDrawable(L)->draw16bitRGBBitmap(d_x, d_y, destImage.pixels, destImage.width, destImage.height);
+    // }
 
     return 0;
 }
