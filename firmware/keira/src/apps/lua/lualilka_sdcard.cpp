@@ -33,14 +33,14 @@ static int lualilka_file_size(lua_State* L) {
     return luaL_error(L, "Size read error");
 }
 
-static int lualilka_file_ptrTo(lua_State* L) {
+static int lualilka_file_seek(lua_State* L) {
     FILE* filePointer = *reinterpret_cast<FILE**>(luaL_checkudata(L, 1, FILE_OBJECT));
     if (filePointer) {
-        size_t ptrTo = luaL_checknumber(L, 2);
-        fseek(filePointer, ptrTo, SEEK_SET);
+        size_t seek = luaL_checknumber(L, 2);
+        fseek(filePointer, seek, SEEK_SET);
         return 0;
     }
-    return luaL_error(L, "ptrTo error");
+    return luaL_error(L, "seek error");
 }
 
 static int lualilka_file_read(lua_State* L) {
@@ -173,8 +173,8 @@ int lualilka_sdcard_register(lua_State* L) {
 
     lua_pushcfunction(L, lualilka_file_size);
     lua_setfield(L, -2, "size");
-    lua_pushcfunction(L, lualilka_file_ptrTo);
-    lua_setfield(L, -2, "ptrto");
+    lua_pushcfunction(L, lualilka_file_seek);
+    lua_setfield(L, -2, "seek");
     lua_pushcfunction(L, lualilka_file_read);
     lua_setfield(L, -2, "read");
     lua_pushcfunction(L, lualilka_file_write);
