@@ -181,14 +181,6 @@
      - 10 шт в комплекті
 
    * - 1
-     - J2, J3
-     - Bat
-     - Будь-яка LiPo на ваш розсуд
-     - `m-teh.com.ua <https://m-teh.com.ua/li-pol-akumuliator-603048p-1000-ma-hod-3.7v-z-plato%D1%96u-zakhystu/?gad_source=1&gclid=CjwKCAiA29auBhBxEiwAnKcSqmJoC5UaOLX_kOIJX7G_EQOqEse5RDJBtxz8IvMHU9rLfGlj-MlgyhoCXgEQAvD_BwE>`__
-     - 116
-     -
-
-   * - 1
      - J4
      - TP4056
      - TP4056 Charging Module
@@ -207,14 +199,6 @@
      -
 
    * - 1
-     - Q2
-     - TP2104 *
-     -
-     -
-     -
-     - \* Запасне місце для THT-альтернативи Q1
-
-   * - 1
      - R3
      - 100K
      - 100K Resistor
@@ -229,6 +213,14 @@
      - `justas-electronics.com.ua <https://justas-electronics.com.ua/rss0125w-33kOm/>`__
      - 2.1
      - 10 шт в комплекті
+
+   * - 1
+     - \-
+     - Bat
+     - Будь-яка LiPo на ваш розсуд
+     - `m-teh.com.ua <https://m-teh.com.ua/li-pol-akumuliator-603048p-1000-ma-hod-3.7v-z-plato%D1%96u-zakhystu/?gad_source=1&gclid=CjwKCAiA29auBhBxEiwAnKcSqmJoC5UaOLX_kOIJX7G_EQOqEse5RDJBtxz8IvMHU9rLfGlj-MlgyhoCXgEQAvD_BwE>`__
+     - 116
+     -
 
    * - Разом
      -
@@ -260,4 +252,24 @@
      - Mono Audio Amplifier Module
      - `arduino.ua <https://arduino.ua/prod4112-modyl-aydioysilitelya-mono-3vt-klassa-d-na-max98357>`__
      - 92
+     -
+
+   * - 1
+     - \-
+     - Speaker
+     - 8 Ohm 1 W Speaker
+     - `arduino.ua <https://arduino.ua/prod4280-dinamik-miniaturnii-8om-1-vt-30x20x4-2mm>`__
+     - 17
+     - (Або будь-який інший динамік чи гніздо для навушників на ваш розсуд)
+
+   * - Разом
+     -
+     -
+     -
+     -
+     - .. raw:: html
+
+            <div id="total-audio"></div>
+            <script>calculateTotal(document.querySelector('#total-audio'), 6);
+            </script>
      -
