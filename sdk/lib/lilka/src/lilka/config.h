@@ -99,6 +99,8 @@
 #    define LILKA_P6                     14 // ADC2, CH3
 #    define LILKA_P7                     13 // ADC2, CH2
 #    define LILKA_P8                     12 // ADC2, CH1
+#    define LILKA_EXT_PINS \
+        { LILKA_P3, LILKA_P4, LILKA_P5, LILKA_P6, LILKA_P7, LILKA_P8 }
 
 #else
 #    error "LILKA_VERSION is not defined - did you forget to set board to lilka_v2 in your platformio.ini?"
