@@ -1,5 +1,4 @@
 #include "app.h"
-#include "FtpServer.h"
 
 class FTPServerApp : public App {
 public:
@@ -7,5 +6,6 @@ public:
 
 private:
     void run() override;
-    FtpServer ftpSrv;
+    String createPassword();
+    String getPassword();
 };

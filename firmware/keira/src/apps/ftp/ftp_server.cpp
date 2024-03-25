@@ -1,46 +1,90 @@
+#include <WiFi.h>
+#include <Preferences.h>
+#include <FtpServer.h>
+
 #include "ftp_server.h"
-#include "WiFi.h"
 
 FTPServerApp::FTPServerApp() : App("FTP Server") {
 }
 
 void FTPServerApp::run() {
-    const uint8_t pwdLen = 6;
-    static char password[pwdLen + 1];
-    static bool hasPassword = false;
-    if (!hasPassword) {
-        // Generate random 6-char password
-        for (int i = 0; i < pwdLen; i++) {
-            if (random(0, 2) == 0) {
-                password[i] = random(48, 57);
+    String password = getPassword();
+    if (password.isEmpty()) {
+        password = createPassword();
+    }
+
+    FtpServer ftpSrv;
+    ftpSrv.begin("lilka", password.c_str());
+
+    while (1) {
+        canvas->fillScreen(0);
+        canvas->setCursor(16, 16);
+        canvas->setTextBound(16, 16, canvas->width() - 32, canvas->height() - 32);
+        canvas->printf(
+            "FTP сервер запущений\n"
+            "\n"
+            "IP: %s\n"
+            "Порт: %d\n"
+            "Користувач: %s\n"
+            "Пароль: %s\n"
+            "\n"
+            "Натисніть [A] для виходу\n"
+            "Натисніть [SELECT]\n"
+            "для зміни паролю",
+            WiFi.localIP().toString().c_str(),
+            FTP_CMD_PORT,
+            "lilka",
+            password.c_str()
+        );
+        queueDraw();
+
+        while (true) {
+            lilka::State state = lilka::controller.getState();
+            if (state.a.justPressed) {
+                return;
+            } else if (state.select.justPressed) {
+                password = createPassword();
+                ftpSrv.credentials("lilka", password.c_str());
+                break;
             } else {
-                password[i] = random(97, 122);
+                ftpSrv.handleFTP();
+                taskYIELD();
             }
         }
-        password[pwdLen] = '\0';
-        hasPassword = true;
     }
+}
 
-    ftpSrv.begin("lilka", password);
-
-    canvas->fillScreen(0);
-    canvas->setCursor(16, 16);
-    canvas->setTextBound(16, 16, canvas->width() - 32, canvas->height() - 32);
-    canvas->printf(
-        "FTP сервер запущений\n\nIP: %s\nПорт: %d\nКористувач: %s\nПароль: %s\n\nНатисніть A для виходу",
-        WiFi.localIP().toString().c_str(),
-        FTP_CMD_PORT,
-        "lilka",
-        password
-    );
-    queueDraw();
-
-    while (true) {
-        lilka::State state = lilka::controller.getState();
-        if (state.a.justPressed) {
-            break;
+String FTPServerApp::createPassword() {
+    // Generate random 6-char password
+    const uint8_t pwdLen = 6;
+    static char password[pwdLen + 1];
+    for (int i = 0; i < pwdLen; i++) {
+        if (random(0, 2) == 0) {
+            password[i] = random(48, 57);
+        } else {
+            password[i] = random(97, 122);
         }
-        ftpSrv.handleFTP();
-        taskYIELD();
     }
+    password[pwdLen] = '\0';
+
+    Preferences prefs;
+    prefs.begin("ftp", false);
+    prefs.putString("password", password);
+    prefs.end();
+
+    return String(password);
+}
+
+String FTPServerApp::getPassword() {
+    Preferences prefs;
+    prefs.begin("ftp", true);
+    String password;
+    if (!prefs.isKey("password")) {
+        password = "";
+    } else {
+        password = prefs.getString("password", "");
+    }
+    prefs.end();
+
+    return password;
 }
