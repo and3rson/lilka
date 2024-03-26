@@ -24,6 +24,9 @@ typedef struct {
 TaskHandle_t soundTaskHandle = NULL;
 SemaphoreHandle_t soundMutexHandle = NULL;
 sound_task_data_t* sound_task_data = NULL;
+// QueueHandle_t soundQueue = NULL;
+
+extern SemaphoreHandle_t backBufferMutex;
 
 void soundTask(void* param);
 
@@ -40,12 +43,40 @@ static boolean I_I2S_InitSound(bool _use_sfx_prefix) {
     lilka::serial_log("I_I2S_InitSound");
     use_sfx_prefix = _use_sfx_prefix;
     soundMutexHandle = xSemaphoreCreateMutex();
+
+    xSemaphoreTake(
+        backBufferMutex, portMAX_DELAY
+    ); // Acquire back buffer mutex to prevent drawing while initializing I2S
+    esp_i2s::i2s_config_t cfg = {
+        .mode = (esp_i2s::i2s_mode_t)(esp_i2s::I2S_MODE_MASTER | esp_i2s::I2S_MODE_TX),
+        .sample_rate = 11025,
+        .bits_per_sample = esp_i2s::I2S_BITS_PER_SAMPLE_16BIT,
+        .channel_format = esp_i2s::I2S_CHANNEL_FMT_RIGHT_LEFT,
+        .communication_format =
+            (esp_i2s::i2s_comm_format_t)(esp_i2s::I2S_COMM_FORMAT_STAND_I2S | esp_i2s::I2S_COMM_FORMAT_STAND_MSB),
+        .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
+        .dma_buf_count = 2,
+        .dma_buf_len = 512,
+        .use_apll = false,
+        .tx_desc_auto_clear = true,
+    };
+    // i2s_driver_install(esp_i2s::I2S_NUM_0, &cfg, 2, &soundQueue);
+    i2s_driver_install(esp_i2s::I2S_NUM_0, &cfg, 0, NULL);
+    esp_i2s::i2s_pin_config_t pin_cfg = {
+        .bck_io_num = LILKA_I2S_BCLK,
+        .ws_io_num = LILKA_I2S_LRCK,
+        .data_out_num = LILKA_I2S_DOUT,
+        .data_in_num = -1,
+    };
+    i2s_set_pin(esp_i2s::I2S_NUM_0, &pin_cfg);
+    i2s_zero_dma_buffer(esp_i2s::I2S_NUM_0);
+    xSemaphoreGive(backBufferMutex);
     return true;
 }
 
 static void I_I2S_ShutdownSound(void) {
     lilka::serial_log("I_I2S_ShutdownSound");
-    I2S.end();
+    // I2S.end();
 }
 
 static void GetSfxLumpName(sfxinfo_t* sfx, char* buf, size_t buf_len) {
@@ -82,7 +113,7 @@ static void I_I2S_UpdateSoundParams(int handle, int vol, int sep) {
 }
 
 static int I_I2S_StartSound(sfxinfo_t* sfxinfo, int channel, int vol, int sep) {
-    lilka::serial_log("I_I2S_StartSound: %s", DEH_String(sfxinfo->name));
+    lilka::serial_log("I_I2S_StartSound: %s, channel: %d", DEH_String(sfxinfo->name), channel);
     // Get sound lump
     int lump = I_I2S_GetSfxLumpNum(sfxinfo);
     if (lump == -1) {
@@ -120,7 +151,7 @@ static int I_I2S_StartSound(sfxinfo_t* sfxinfo, int channel, int vol, int sep) {
     data += 16;
     length -= 32;
 
-    printf("%x %x %x %x", data[0], data[1], data[2], data[3]);
+    // printf("%x %x %x %x", data[0], data[1], data[2], data[3]);
 
     // for (int i = 0; i < length; i++) {
     //     I2S.write(data[i] << 6);
@@ -133,7 +164,7 @@ static int I_I2S_StartSound(sfxinfo_t* sfxinfo, int channel, int vol, int sep) {
         // Stop current sound
         vTaskDelete(soundTaskHandle);
         soundTaskHandle = NULL;
-        I2S.end();
+        // I2S.end();
 
         // Delete sound task data
         delete sound_task_data;
@@ -143,7 +174,7 @@ static int I_I2S_StartSound(sfxinfo_t* sfxinfo, int channel, int vol, int sep) {
     sound_task_data = new sound_task_data_t{data, length, samplerate};
 
     // Start sound
-    xTaskCreatePinnedToCore(soundTask, "soundTask", 4096, sound_task_data, 1, &soundTaskHandle, 0);
+    xTaskCreatePinnedToCore(soundTask, "soundTask", 8192, sound_task_data, 1, &soundTaskHandle, 0);
     xSemaphoreGive(soundMutexHandle);
 
     //
@@ -168,19 +199,57 @@ static int I_I2S_StartSound(sfxinfo_t* sfxinfo, int channel, int vol, int sep) {
     return 0; // Return channel number?
 }
 
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
 void soundTask(void* param) {
     sound_task_data_t* sound_task_data = static_cast<sound_task_data_t*>(param);
     xSemaphoreTake(soundMutexHandle, portMAX_DELAY);
-    I2S.begin(I2S_PHILIPS_MODE, sound_task_data->sample_rate, 16);
+    // I2S.begin(I2S_PHILIPS_MODE, sound_task_data->sample_rate, 16);
     xSemaphoreGive(soundMutexHandle);
-    while (!I2S.availableForWrite()) {
-        taskYIELD();
-    }
-    for (int i = 0; i < sound_task_data->length; i++) {
+    // while (!I2S.availableForWrite()) {
+    //     taskYIELD();
+    // }
+    // for (int i = 0; i < sound_task_data->length; i++) {
+    //     xSemaphoreTake(soundMutexHandle, portMAX_DELAY);
+    //     I2S.write(sound_task_data->data[i] << 6);
+    //     I2S.write(sound_task_data->data[i] << 6);
+    //     xSemaphoreGive(soundMutexHandle);
+    // }
+
+    esp_i2s::i2s_set_sample_rates(esp_i2s::I2S_NUM_0, sound_task_data->sample_rate);
+
+    constexpr size_t samplesPerBuffer = 128;
+    constexpr size_t bytesPerSample = 4;
+
+    // size_t writtenTotal = 0;
+    size_t samplesWritten = 0;
+    size_t samplesTotal = sound_task_data->length;
+    // size_t bytesTotal = sound_task_data->length * 4;
+    while (samplesWritten < samplesTotal) {
+        size_t written = 0;
+        uint16_t buffer[samplesPerBuffer * bytesPerSample / 2]; // 1 KiB buffer
         xSemaphoreTake(soundMutexHandle, portMAX_DELAY);
-        I2S.write(sound_task_data->data[i] << 6);
-        I2S.write(sound_task_data->data[i] << 6);
+        // Convert 8-bit mono samples to 16-bit stereo samples (x4 size)
+        for (int i = 0; i < MIN(samplesPerBuffer, samplesTotal - samplesWritten); i++) {
+            uint16_t word = sound_task_data->data[samplesWritten + i] << 3;
+            buffer[i * 2] = word;
+            buffer[i * 2 + 1] = word;
+        }
+        // Serial.print("Writing ");
+        // Serial.print(MIN((samplesTotal - samplesWritten) * bytesPerSample, samplesPerBuffer * bytesPerSample));
+        // Serial.println(" bytes");
+        esp_i2s::i2s_write(
+            esp_i2s::I2S_NUM_0,
+            buffer,
+            MIN((samplesTotal - samplesWritten) * bytesPerSample, samplesPerBuffer * bytesPerSample),
+            &written,
+            portMAX_DELAY
+        );
+        // Serial.print("Wrote");
+        // Serial.print(written);
+        // Serial.println(" bytes");
         xSemaphoreGive(soundMutexHandle);
+        samplesWritten += (written + 3) / 4; // Round up
     }
 
     // size_t writtenTotal = 0;
@@ -197,7 +266,7 @@ void soundTask(void* param) {
     xSemaphoreTake(soundMutexHandle, portMAX_DELAY);
     soundTaskHandle = NULL;
     delete sound_task_data;
-    I2S.end();
+    // I2S.end();
     xSemaphoreGive(soundMutexHandle);
     vTaskDelete(NULL);
 }

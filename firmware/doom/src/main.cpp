@@ -186,12 +186,12 @@ void gameTask(void* arg) {
         doomgeneric_Tick();
         taskYIELD();
         // Print free memory
-        Serial.print("Free heap: ");
-        Serial.print(ESP.getFreeHeap());
+        // Serial.print("Free heap: ");
+        // Serial.print(ESP.getFreeHeap());
 
         // Print free stack
-        Serial.print("  |  Game task free stack: ");
-        Serial.println(uxTaskGetStackHighWaterMark(NULL));
+        // Serial.print("  |  Game task free stack: ");
+        // Serial.println(uxTaskGetStackHighWaterMark(NULL));
     }
 }
 
@@ -283,6 +283,7 @@ bool hadNewLine = true;
 
 extern "C" void DG_printf(const char* format, ...) {
     // Save string to buffer
+    xSemaphoreTake(backBufferMutex, portMAX_DELAY);
     char buffer[256];
     va_list args;
     va_start(args, format);
@@ -303,6 +304,7 @@ extern "C" void DG_printf(const char* format, ...) {
             hadNewLine = true;
         }
     }
+    xSemaphoreGive(backBufferMutex);
 }
 
 void loop() {
