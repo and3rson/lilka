@@ -276,9 +276,9 @@ int lualilka_display_drawImageTransformed(lua_State* L) {
     // int32_t imageWidth = image->width;
     // int32_t imageHeight = image->height;
 
-    lilka::Transform& transform = *reinterpret_cast<lilka::Transform*>(luaL_checkudata(L, 4, IMAGE_TRANSFORM));
+    lilka::Transform* transform = *reinterpret_cast<lilka::Transform**>(luaL_checkudata(L, 4, IMAGE_TRANSFORM));
 
-    getDrawable(L)->drawImageTransformed(image, x, y, transform);
+    getDrawable(L)->drawImageTransformed(image, x, y, *transform);
 
     // // Calculate the coordinates of the four corners of the destination rectangle.
     // lilka::int_vector_t v1 = transform.transform(lilka::int_vector_t{-image->pivotX, -image->pivotY});
