@@ -8,39 +8,47 @@ static int lualilka_create_object_imageTransform(lua_State* L) {
 }
 
 static int lualilka_delete_object_imageTransform(lua_State* L) {
-    delete *reinterpret_cast<lilka::Transform**>(lua_touserdata(L, 1));
+    lilka::Transform** transformPtr = reinterpret_cast<lilka::Transform**>(luaL_checkudata(L, 1, IMAGE_TRANSFORM));
+    if (*transformPtr) {
+        delete *transformPtr;
+        *transformPtr = nullptr;
+    } else {
+        lilka::serial_err("double free of transform %p, should never happen", transformPtr);
+    }
     return 0;
 }
 
 static int lualilka_imageTransform_rotate(lua_State* L) {
     lilka::Transform* transformPtr = reinterpret_cast<lilka::Transform*>(luaL_checkudata(L, 1, IMAGE_TRANSFORM));
-    lilka::Transform rotatedTransform = transformPtr->rotate(luaL_checknumber(L, 2));
-    *reinterpret_cast<lilka::Transform*>(lua_newuserdata(L, sizeof(lilka::Transform))) = rotatedTransform;
+    lilka::Transform* rotatedTransform = new lilka::Transform(transformPtr->rotate(luaL_checknumber(L, 2)));
+    *reinterpret_cast<lilka::Transform**>(lua_newuserdata(L, sizeof(lilka::Transform))) = rotatedTransform;
     luaL_setmetatable(L, IMAGE_TRANSFORM);
     return 1;
 }
 
 static int lualilka_imageTransform_scale(lua_State* L) {
     lilka::Transform* transformPtr = reinterpret_cast<lilka::Transform*>(luaL_checkudata(L, 1, IMAGE_TRANSFORM));
-    lilka::Transform scaledTransform = transformPtr->scale(luaL_checknumber(L, 2), luaL_checknumber(L, 3));
-    *reinterpret_cast<lilka::Transform*>(lua_newuserdata(L, sizeof(lilka::Transform))) = scaledTransform;
+    lilka::Transform* scaledTransform =
+        new lilka::Transform(transformPtr->scale(luaL_checknumber(L, 2), luaL_checknumber(L, 3)));
+    *reinterpret_cast<lilka::Transform**>(lua_newuserdata(L, sizeof(lilka::Transform))) = scaledTransform;
     luaL_setmetatable(L, IMAGE_TRANSFORM);
     return 1;
 }
 
 static int lualilka_imageTransform_multiply(lua_State* L) {
     lilka::Transform* transformPtr = reinterpret_cast<lilka::Transform*>(luaL_checkudata(L, 1, IMAGE_TRANSFORM));
-    lilka::Transform multipliedTransfform =
-        transformPtr->multiply(*reinterpret_cast<lilka::Transform*>(luaL_checkudata(L, 2, IMAGE_TRANSFORM)));
-    *reinterpret_cast<lilka::Transform*>(lua_newuserdata(L, sizeof(lilka::Transform))) = multipliedTransfform;
+    lilka::Transform* multipliedTransfform = new lilka::Transform(
+        transformPtr->multiply(*reinterpret_cast<lilka::Transform*>(luaL_checkudata(L, 2, IMAGE_TRANSFORM)))
+    );
+    *reinterpret_cast<lilka::Transform**>(lua_newuserdata(L, sizeof(lilka::Transform))) = multipliedTransfform;
     luaL_setmetatable(L, IMAGE_TRANSFORM);
     return 1;
 }
 
 static int lualilka_imageTransform_inverse(lua_State* L) {
     lilka::Transform* transformPtr = reinterpret_cast<lilka::Transform*>(luaL_checkudata(L, 1, IMAGE_TRANSFORM));
-    lilka::Transform inversedTransform = transformPtr->inverse();
-    *reinterpret_cast<lilka::Transform*>(lua_newuserdata(L, sizeof(lilka::Transform))) = inversedTransform;
+    lilka::Transform* inversedTransform = new lilka::Transform(transformPtr->inverse());
+    *reinterpret_cast<lilka::Transform**>(lua_newuserdata(L, sizeof(lilka::Transform))) = inversedTransform;
     luaL_setmetatable(L, IMAGE_TRANSFORM);
     return 1;
 }

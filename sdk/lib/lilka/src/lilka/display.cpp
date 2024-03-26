@@ -124,22 +124,30 @@ void Display::drawImageTransformed(Image* image, int16_t destX, int16_t destY, T
     int_vector_t bottomRight =
         int_vector_t{max(max(v1.x, v2.x), max(v3.x, v4.x)), max(max(v1.y, v2.y), max(v3.y, v4.y))};
 
+    if (bottomRight.x - topLeft.x == 0 || bottomRight.y - topLeft.y == 0) {
+        // The transformed image is empty.
+        lilka::serial_err("Transform leads to image with zero width or height");
+        return;
+    }
+
     // Create a new image to hold the transformed image.
     Image destImage(bottomRight.x - topLeft.x, bottomRight.y - topLeft.y, image->transparentColor, 0, 0);
 
     // Draw the transformed image to the new image.
     Transform inverse = transform.inverse();
-    for (int y = topLeft.y; y < bottomRight.y; y++) {
-        for (int x = topLeft.x; x < bottomRight.x; x++) {
-            int_vector_t v = inverse.transform(int_vector_t{x, y});
+    int_vector_t point{0, 0};
+    for (point.y = topLeft.y; point.y < bottomRight.y; point.y++) {
+        for (point.x = topLeft.x; point.x < bottomRight.x; point.x++) {
+            int_vector_t v = inverse.transform(point);
             // Apply pivot offset
             v.x += image->pivotX;
             v.y += image->pivotY;
             if (v.x >= 0 && v.x < image->width && v.y >= 0 && v.y < image->height) {
-                destImage.pixels[x - topLeft.x + (y - topLeft.y) * destImage.width] =
+                destImage.pixels[point.x - topLeft.x + (point.y - topLeft.y) * destImage.width] =
                     image->pixels[v.x + v.y * image->width];
             } else {
-                destImage.pixels[x - topLeft.x + (y - topLeft.y) * destImage.width] = image->transparentColor;
+                destImage.pixels[point.x - topLeft.x + (point.y - topLeft.y) * destImage.width] =
+                    image->transparentColor;
             }
         }
     }
@@ -206,6 +214,12 @@ void Canvas::drawImageTransformed(Image* image, int16_t destX, int16_t destY, Tr
     int_vector_t topLeft = int_vector_t{min(min(v1.x, v2.x), min(v3.x, v4.x)), min(min(v1.y, v2.y), min(v3.y, v4.y))};
     int_vector_t bottomRight =
         int_vector_t{max(max(v1.x, v2.x), max(v3.x, v4.x)), max(max(v1.y, v2.y), max(v3.y, v4.y))};
+
+    if (bottomRight.x - topLeft.x == 0 || bottomRight.y - topLeft.y == 0) {
+        // The transformed image is empty.
+        lilka::serial_err("Transform leads to image with zero width or height");
+        return;
+    }
 
     // Create a new image to hold the transformed image.
     Image destImage(bottomRight.x - topLeft.x, bottomRight.y - topLeft.y, image->transparentColor, 0, 0);
