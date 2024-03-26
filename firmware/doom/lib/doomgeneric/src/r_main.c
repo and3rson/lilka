@@ -28,6 +28,7 @@
 
 #include "doomdef.h"
 #include "d_loop.h"
+#include "d_alloc.h"
 
 #include "m_bbox.h"
 #include "m_menu.h"
@@ -116,7 +117,7 @@ void (*spanfunc) (void);
 int R_AllocMain (void)
 {
     int viewangletox_size = sizeof(int) * FINEANGLES/2;
-    viewangletox = malloc (viewangletox_size);
+    viewangletox = ps_malloc (viewangletox_size);
     if (viewangletox == NULL)
     {
         return -1;

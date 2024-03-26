@@ -185,6 +185,13 @@ void gameTask(void* arg) {
     while (1) {
         doomgeneric_Tick();
         taskYIELD();
+        // Print free memory
+        Serial.print("Free heap: ");
+        Serial.print(ESP.getFreeHeap());
+
+        // Print free stack
+        Serial.print("  |  Game task free stack: ");
+        Serial.println(uxTaskGetStackHighWaterMark(NULL));
     }
 }
 
@@ -217,6 +224,7 @@ void drawTask(void* arg) {
         lilka::display.setTextBound(0, 0, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT);
         lilka::display.setCursor(32, 16);
         lilka::display.setTextColor(lilka::display.color565(255, 255, 255), lilka::display.color565(0, 0, 0));
+        lilka::display.fillRect(32, 0, 64, 20, 0);
         lilka::display.setFont(FONT_6x12);
         lilka::display.print(" FPS: ");
         lilka::display.print(1000 / delta);
