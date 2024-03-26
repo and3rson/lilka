@@ -18,6 +18,7 @@
 #include "lualilka_sdcard.h"
 #include "lualilka_wifi.h"
 #include "lualilka_imageTransform.h"
+#include "lualilka_dialog.h"
 
 jmp_buf stopjmp;
 
@@ -161,6 +162,9 @@ void AbstractLuaRunnerApp::luaSetup(const char* dir) {
     lualilka_sdcard_register(L);
     lualilka_wifi_register(L);
     lualilka_imageTransform_register(L);
+    lualilka_dialog_register_inputDialog(L);
+    lualilka_dialog_register_alertDialog(L);
+    lualilka_dialog_register_progressDialog(L);
 
     // lilka::serial_log("lua: init canvas");
     // lilka::Canvas* canvas = new lilka::Canvas();
