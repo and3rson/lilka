@@ -45,7 +45,7 @@ void Menu::setCursor(int16_t cursor) {
 
 void Menu::update() {
     State state = controller.getState();
-
+    auto cursorLastPos = cursor;
     if (state.up.justPressed) {
         // Move cursor up
         if (cursor == 0) {
@@ -53,16 +53,23 @@ void Menu::update() {
         } else {
             cursor--;
         }
-        lastCursorMove = millis();
     } else if (state.down.justPressed) {
         // Move cursor down
         cursor++;
         if (cursor >= items.size()) {
             cursor = 0;
         }
-        lastCursorMove = millis();
-    }
+    } else if (state.left.justPressed) {
+        // Scroll PageUp
+        if (cursor == 0) cursor = items.size() - 1;
+        else cursor = (cursor - MENU_HEIGHT) <= 0 ? cursor = 0 : (cursor - MENU_HEIGHT);
 
+    } else if (state.right.justPressed) {
+        // Scroll PageDown
+        if (cursor == items.size() - 1) cursor = 0;
+        else cursor = (cursor + MENU_HEIGHT) >= items.size() - 1 ? items.size() - 1 : (cursor + MENU_HEIGHT);
+    }
+    if (cursorLastPos != cursor) lastCursorMove = millis();
     if (cursor < scroll) {
         scroll = cursor;
         // cursorY = cursor * 24 + 96 - 20;
