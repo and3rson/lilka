@@ -19,7 +19,16 @@ NetworkService::NetworkService() :
 
 void NetworkService::run() {
     Preferences prefs;
-
+    // Setting Lilka hostname
+    // Take LILKA_HOSTNAME_PREFIX as a prefix
+    // and append MAC to it
+    // This value should be guaranted random enough
+    // to avoid potential conflicts
+    byte mac[6];
+    WiFi.macAddress(mac);
+    char cstrMac[50];
+    sprintf(cstrMac, LILKA_HOSTNAME_PREFIX "%06X", mac);
+    WiFi.setHostname(cstrMac);
     WiFi.mode(WIFI_STA);
 
     // Check if there is a known network to connect to

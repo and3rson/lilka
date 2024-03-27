@@ -2,7 +2,7 @@
 
 #include <WiFi.h>
 #include "service.h"
-
+#define LILKA_HOSTNAME_PREFIX "LilkaV2_"
 enum NetworkState {
     NETWORK_STATE_OFFLINE,
     NETWORK_STATE_CONNECTING,
