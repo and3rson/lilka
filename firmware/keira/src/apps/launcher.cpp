@@ -11,6 +11,7 @@
 #include "demos/disk.h"
 #include "demos/ball.h"
 #include "demos/transform.h"
+#include "demos/cube.h"
 #include "demos/epilepsy.h"
 #include "demos/letris.h"
 #include "demos/keyboard.h"
@@ -74,6 +75,7 @@ void LauncherApp::appsMenu() {
         APP_ITEM("Диск", DiskApp),
         APP_ITEM("Перетворення", TransformApp),
         APP_ITEM("М'ячик", BallApp),
+        APP_ITEM("Куб", CubeApp),
         APP_ITEM("Епілепсія", EpilepsyApp),
         APP_ITEM("Летріс", LetrisApp),
         APP_ITEM("Клавіатура", KeyboardApp),
