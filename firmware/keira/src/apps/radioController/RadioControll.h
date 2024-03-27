@@ -2,16 +2,16 @@
 
 #include "app.h"
 
-struct CHData{
-  int16_t min_value = -100;
-  int16_t max_value = 100;
-  int16_t mid_value = 0;
-  int16_t current_value;
+struct CHData {
+    int16_t min_value = -100;
+    int16_t max_value = 100;
+    int16_t mid_value = 0;
+    int16_t current_value;
 };
 
 struct CHDataArray {
-  static constexpr int8_t NUM_CH = 4;
-  CHData ch[NUM_CH];
+    static constexpr int8_t NUM_CH = 4;
+    CHData ch[NUM_CH];
 };
 
 class RadioControllApp : public App {

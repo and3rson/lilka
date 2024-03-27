@@ -11,28 +11,28 @@ bfs::SbusTx sbus_tx(&Serial2, -1, 12, false);
 // /* SBUS data */
 
 bool isNumeric(String str) {
-  // Check if the string is empty
-  if (str.length() == 0) {
-    return false;
-  }
+    // Check if the string is empty
+    if (str.length() == 0) {
+        return false;
+    }
 
-  // Check each character of the string
-  for (int i = 0; i < str.length(); i++) {
-    // Allow '-' sign only at the beginning
-    if (i == 0 && str.charAt(i) == '-') {
-      continue;
+    // Check each character of the string
+    for (int i = 0; i < str.length(); i++) {
+        // Allow '-' sign only at the beginning
+        if (i == 0 && str.charAt(i) == '-') {
+            continue;
+        }
+        // Check if the character is not a digit
+        if (!isdigit(str.charAt(i))) {
+            return false;
+        }
     }
-    // Check if the character is not a digit
-    if (!isdigit(str.charAt(i))) {
-      return false;
-    }
-  }
-  
-  return true; // If all characters are digits or '-' sign at the beginning, return true
+
+    return true; // If all characters are digits or '-' sign at the beginning, return true
 }
 
 bool RadioControllApp::readSettings() {
-    FILE *file = fopen("/sd/RadioContollSetting.csv", "r");
+    FILE* file = fopen("/sd/RadioContollSetting.csv", "r");
     if (!file) {
         Serial.println("Error opening file!");
         return false;
@@ -91,17 +91,16 @@ bool RadioControllApp::readSettings() {
     return true;
 }
 
-void RadioControllApp::saveSetting(){
-    FILE *fp = fopen("/sd/RadioContollSetting.csv", "w+");
-    if(fp != NULL){
-        for(int i = 0; i < data.NUM_CH; i++){
+void RadioControllApp::saveSetting() {
+    FILE* fp = fopen("/sd/RadioContollSetting.csv", "w+");
+    if (fp != NULL) {
+        for (int i = 0; i < data.NUM_CH; i++) {
             char buf[100];
             sprintf(buf, "%d,%d,%d;\n", data.ch[i].min_value, data.ch[i].max_value, data.ch[i].mid_value);
             fwrite(buf, sizeof(char), strlen(buf), fp);
         }
         fclose(fp);
-    }
-    else {
+    } else {
         lilka::Alert alert("ERROR", "Не можливо зберегти файл");
         alert.draw(canvas);
         queueDraw();
@@ -111,45 +110,56 @@ void RadioControllApp::saveSetting(){
     }
 }
 
-void RadioControllApp::SettingsMenu(){
-
+void RadioControllApp::SettingsMenu() {
     lilka::Menu SettingsMenu("CH");
     lilka::Menu CHSettingsMenu("SETTINGS");
 
-    for(int i = 0; i < data.NUM_CH; i++){
+    for (int i = 0; i < data.NUM_CH; i++) {
         SettingsMenu.addItem("CH: ", NULL, lilka::display.color565(255, 255, 255), String(i));
     }
 
     SettingsMenu.addItem("<< Назад");
 
-    while(1){
+    while (1) {
         while (!SettingsMenu.isFinished()) {
             SettingsMenu.update();
             SettingsMenu.draw(canvas);
             queueDraw();
         }
-        if(SettingsMenu.getCursor() == 4){
+        if (SettingsMenu.getCursor() == 4) {
             break;
-        }
-        else{
-
-            while(1){
+        } else {
+            while (1) {
                 CHSettingsMenu.clearItems();
-                CHSettingsMenu.addItem("MIN: ", NULL, lilka::display.color565(255, 255, 255), String(data.ch[SettingsMenu.getCursor()].min_value));
-                CHSettingsMenu.addItem("MAX: ", NULL, lilka::display.color565(255, 255, 255), String(data.ch[SettingsMenu.getCursor()].max_value));
-                CHSettingsMenu.addItem("MID: ", NULL, lilka::display.color565(255, 255, 255), String(data.ch[SettingsMenu.getCursor()].mid_value));
+                CHSettingsMenu.addItem(
+                    "MIN: ",
+                    NULL,
+                    lilka::display.color565(255, 255, 255),
+                    String(data.ch[SettingsMenu.getCursor()].min_value)
+                );
+                CHSettingsMenu.addItem(
+                    "MAX: ",
+                    NULL,
+                    lilka::display.color565(255, 255, 255),
+                    String(data.ch[SettingsMenu.getCursor()].max_value)
+                );
+                CHSettingsMenu.addItem(
+                    "MID: ",
+                    NULL,
+                    lilka::display.color565(255, 255, 255),
+                    String(data.ch[SettingsMenu.getCursor()].mid_value)
+                );
                 CHSettingsMenu.addItem("<< Назад");
-                
-                while(!CHSettingsMenu.isFinished()){
+
+                while (!CHSettingsMenu.isFinished()) {
                     CHSettingsMenu.update();
                     CHSettingsMenu.draw(canvas);
-                    queueDraw();  
+                    queueDraw();
                 }
-                if(CHSettingsMenu.getCursor() == 3){
+                if (CHSettingsMenu.getCursor() == 3) {
                     break;
-                }
-                else{
-                    while(1){
+                } else {
+                    while (1) {
                         lilka::InputDialog GetValue("Введіть значення");
                         while (!GetValue.isFinished()) {
                             GetValue.update();
@@ -157,25 +167,23 @@ void RadioControllApp::SettingsMenu(){
                             queueDraw();
                         }
                         String value = GetValue.getValue();
-                        if(isNumeric(value)){
-                            if(value.toInt() >= -100 && value.toInt() <= 100){
-                                switch (CHSettingsMenu.getCursor())
-                                {
-                                case 0:
-                                    data.ch[SettingsMenu.getCursor()].min_value = value.toInt();
-                                    break;
-                                case 1:
-                                    data.ch[SettingsMenu.getCursor()].max_value = value.toInt();
-                                    break;
-                                case 2:
-                                    data.ch[SettingsMenu.getCursor()].mid_value = value.toInt();
-                                    break;
-                                default:
-                                    break;
+                        if (isNumeric(value)) {
+                            if (value.toInt() >= -100 && value.toInt() <= 100) {
+                                switch (CHSettingsMenu.getCursor()) {
+                                    case 0:
+                                        data.ch[SettingsMenu.getCursor()].min_value = value.toInt();
+                                        break;
+                                    case 1:
+                                        data.ch[SettingsMenu.getCursor()].max_value = value.toInt();
+                                        break;
+                                    case 2:
+                                        data.ch[SettingsMenu.getCursor()].mid_value = value.toInt();
+                                        break;
+                                    default:
+                                        break;
                                 }
                                 break;
-                            }
-                            else{
+                            } else {
                                 lilka::Alert alert("Увага", "Значення мають бути від -100 до 100");
                                 alert.draw(canvas);
                                 queueDraw();
@@ -183,8 +191,7 @@ void RadioControllApp::SettingsMenu(){
                                     alert.update();
                                 }
                             }
-                        }
-                        else{
+                        } else {
                             lilka::Alert alert("Увага", "ВВедіть число, не текст");
                             alert.draw(canvas);
                             queueDraw();
@@ -204,7 +211,7 @@ void RadioControllApp::run() {
     // sbus_tx.Begin();
     time_t timePressMenu;
 
-    if(!this->readSettings()){
+    if (!this->readSettings()) {
         // CHDataArray new_data;
         // data = new_data;
         this->saveSetting();
@@ -217,17 +224,15 @@ void RadioControllApp::run() {
             data.ch[0].current_value = data.ch[0].max_value;
         } else if (state.down.pressed) {
             data.ch[0].current_value = data.ch[0].min_value;
-        }
-        else{
+        } else {
             data.ch[0].current_value = data.ch[0].mid_value;
         }
-    
+
         if (state.left.pressed) {
             data.ch[1].current_value = data.ch[1].min_value;
         } else if (state.right.pressed) {
             data.ch[1].current_value = data.ch[1].max_value;
-        }
-        else{
+        } else {
             data.ch[1].current_value = data.ch[1].mid_value;
         }
 
@@ -235,21 +240,20 @@ void RadioControllApp::run() {
             data.ch[2].current_value = data.ch[2].max_value;
         } else if (state.b.pressed) {
             data.ch[2].current_value = data.ch[2].min_value;
-        }
-        else{
+        } else {
             data.ch[2].current_value = data.ch[2].mid_value;
         }
-    
+
         if (state.d.pressed) {
             data.ch[3].current_value = data.ch[3].min_value;
         } else if (state.a.pressed) {
             data.ch[3].current_value = data.ch[3].max_value;
-        }
-        else{
+        } else {
             data.ch[3].current_value = data.ch[3].mid_value;
         }
 
-        if(state.left.pressed && state.right.pressed && state.up.pressed && state.down.pressed && state.select.pressed){
+        if (state.left.pressed && state.right.pressed && state.up.pressed && state.down.pressed &&
+            state.select.pressed) {
             return;
         }
 
@@ -292,12 +296,11 @@ void RadioControllApp::run() {
         sbus_tx.data(_data);
         sbus_tx.Write();
 
-        if(state.select.pressed && state.start.pressed){
-            if(millis() - timePressMenu > 1000){
+        if (state.select.pressed && state.start.pressed) {
+            if (millis() - timePressMenu > 1000) {
                 this->SettingsMenu();
             }
-        }
-        else{
+        } else {
             timePressMenu = millis();
         }
 
