@@ -12,6 +12,8 @@ public:
     void setPanel(App* app);
     void runApp(App* app);
     void loop();
+    void renderToCanvas(lilka::Canvas* canvas);
+    void startToast(String message, uint64_t duration = 2000);
 
     static AppManager* getInstance();
 
@@ -23,6 +25,9 @@ private:
     std::vector<App*> apps;
     static AppManager* instance;
     SemaphoreHandle_t mutex;
+
+    String toastMessage;
+    uint64_t toastEndTime;
 };
 
 #endif // MAIN_APPMANAGER_H

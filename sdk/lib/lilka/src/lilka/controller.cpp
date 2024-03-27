@@ -108,6 +108,13 @@ State Controller::getState() {
     return _current;
 }
 
+State Controller::peekState() {
+    xSemaphoreTake(semaphore, portMAX_DELAY);
+    State _current = state;
+    xSemaphoreGive(semaphore);
+    return _current;
+}
+
 void Controller::_resetState() {
     for (int i = 0; i < Button::COUNT; i++) {
         _StateButtons& buttons = *reinterpret_cast<_StateButtons*>(&state);
