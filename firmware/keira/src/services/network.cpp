@@ -24,7 +24,7 @@ void NetworkService::run() {
     // and append MAC to it
     // This value should be guaranted random enough
     // to avoid potential conflicts
-    byte mac[6];
+    uint8_t mac[6];
     WiFi.macAddress(mac);
     char cstrMac[50];
     sprintf(cstrMac, LILKA_HOSTNAME_PREFIX "%06X", mac);
