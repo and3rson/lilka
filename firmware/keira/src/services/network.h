@@ -2,7 +2,10 @@
 
 #include <WiFi.h>
 #include "service.h"
-
+// Macro magic used to convert decimal constant to char[] constant
+#define STRX(x)               #x
+#define STR(x)                STRX(x)
+#define LILKA_HOSTNAME_PREFIX "LilkaV"
 enum NetworkState {
     NETWORK_STATE_OFFLINE,
     NETWORK_STATE_CONNECTING,
