@@ -395,12 +395,12 @@ uint16_t RLEDecoder::next() {
         // Read the next value from the RLE stream
         if (pos >= length) {
             // End of stream
-            return display.color565(255, 255, 0);
+            return lilka::colors::Yellow;
         }
         count = data[pos++];
         if (count == 0) {
             // This is bullshit. The count should never be zero. The user has messed up the data. I don't want to deal with this. /AD
-            return display.color565(255, 255, 255);
+            return lilka::colors::Black;
         }
         uint8_t lo = data[pos++];
         uint8_t hi = data[pos++];

@@ -22,7 +22,7 @@ public:
     /// Приклад:
     ///
     /// \code
-    /// lilka::Image *image = lilka::resources.loadImage("image.bmp", lilka::display.color565(255, 255, 0)); //
+    /// lilka::Image *image = lilka::resources.loadImage("image.bmp", lilka::colors::Yellow); //
     /// Жовтий колір буде прозорим if (!image) {
     ///     Serial.println("Failed to load image");
     ///     return;

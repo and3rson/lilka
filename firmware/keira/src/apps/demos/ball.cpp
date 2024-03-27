@@ -41,7 +41,7 @@ void BallApp::run() {
         }
 
         canvas->fillScreen(lilka::colors::Black);
-        canvas->fillCircle(x, y, radius, canvas->color565(255, 200, 0));
+        canvas->fillCircle(x, y, radius, lilka::colors::Chrome_yellow);
         // Calculate FPS
         canvas->setCursor(16, 32);
         canvas->println("FPS: " + String(1000 / (millis() - prevRenderTime)));

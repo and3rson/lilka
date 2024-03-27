@@ -45,9 +45,9 @@ typedef struct int_vector_t {
 /// }
 ///
 /// void loop() {
-///    lilka::display.fillScreen(lilka::display.color565(255, 0, 0)); // Заповнити екран червоним кольором
+///    lilka::display.fillScreen(lilka::colors::Red); // Заповнити екран червоним кольором
 ///    lilka::display.setCursor(32, 32);
-///    lilka::display.setTextColor(lilka::display.color565(0, 255, 0)); // Зелений текст
+///    lilka::display.setTextColor(lilka::colors::Green); // Зелений текст
 ///    lilka::display.print("Привіт, Лілка!");
 /// }
 /// @endcode
@@ -125,7 +125,7 @@ public:
     /// Наприклад:
     /// @code
     /// lilka::display.setCursor(0, 32);
-    /// lilka::display.setTextColor(lilka::colors::Black); // Білий текст
+    /// lilka::display.setTextColor(lilka::colors::Black); // Чорний текст
     /// lilka::display.print("Привіт,j ");
     /// lilka::display.print(String("Лілка!\n"));
     /// lilka::display.print(42);
@@ -281,7 +281,7 @@ private:
 ///     while (1) {
 ///         canvas.fillScreen(lilka::colors::Black); // Заповнити буфер чорним кольором
 ///         canvas.setCursor(32, y);
-///         canvas.setTextColor(lilka::colors::Black); // Білий текст
+///         canvas.setTextColor(lilka::colors::Black); // Чорний текст
 ///         canvas.print("Привіт, Лілка!");
 ///         lilka::display.renderCanvas(&canvas); // Відобразити буфер на екрані - жодного мерехтіння!
 ///         y++;

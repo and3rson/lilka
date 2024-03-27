@@ -379,7 +379,7 @@ void LuaLiveRunnerApp::run() {
             //     canvas->print(String("Зчитано: ") + code.length() + " Б");
             // }
             if (line.length() == 0) {
-                canvas->fillScreen(canvas->color565(0, 128, 0));
+                canvas->fillScreen(lilka::colors::Green);
                 canvas->print("Запуск...");
                 queueDraw();
                 break;

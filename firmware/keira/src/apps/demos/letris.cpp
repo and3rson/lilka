@@ -215,10 +215,10 @@ void LetrisApp::run() {
     }
 
     // Очищаємо екран
-    canvas->fillScreen(canvas->color565(32, 32, 32));
+    canvas->fillScreen(lilka::colors::Graygrey);
     queueDraw();
     // Ми робимо це двічі, щоб очистити обидва буфери (основний та задній)
-    canvas->fillScreen(canvas->color565(32, 32, 32));
+    canvas->fillScreen(lilka::colors::Graygrey);
     queueDraw();
 
     // Головний цикл гри

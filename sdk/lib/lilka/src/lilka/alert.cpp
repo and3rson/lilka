@@ -43,7 +43,7 @@ void Alert::draw(Arduino_GFX* canvas) {
 
     canvas->setTextColor(lilka::colors::White);
 
-    canvas->fillRect(left, top, width, mid - top, canvas->color565(32, 32, 128));
+    canvas->fillRect(left, top, width, mid - top, lilka::colors::Midnight_blue);
     canvas->setFont(FONT_6x13);
     canvas->setTextSize(2);
     canvas->setTextBound(left + xMargin, top, width - xMargin * 2, mid - top);
