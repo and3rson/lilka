@@ -163,8 +163,8 @@ void Display::draw16bitRGBBitmapWithTranColor(
     Arduino_ST7789::draw16bitRGBBitmapWithTranColor(x, y, const_cast<uint16_t*>(bitmap), transparent_color, w, h);
 }
 
-void Display::renderCanvas(Canvas* canvas) {
-    draw16bitRGBBitmap(0, 0, canvas->getFramebuffer(), canvas->width(), canvas->height());
+void Display::drawCanvas(Canvas* canvas) {
+    draw16bitRGBBitmap(canvas->x(), canvas->y(), canvas->getFramebuffer(), canvas->width(), canvas->height());
 }
 
 Canvas::Canvas() : Arduino_Canvas(LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, NULL) {
@@ -256,7 +256,7 @@ void Canvas::draw16bitRGBBitmapWithTranColor(
 }
 
 void Canvas::drawCanvas(Canvas* canvas) {
-    draw16bitRGBBitmap(0, 0, canvas->getFramebuffer(), canvas->width(), canvas->height());
+    draw16bitRGBBitmap(canvas->x(), canvas->y(), canvas->getFramebuffer(), canvas->width(), canvas->height());
 }
 
 int16_t Canvas::x() {

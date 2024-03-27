@@ -254,7 +254,7 @@ int AbstractLuaRunnerApp::execute() {
 
             lua_gc(L, LUA_GCCOLLECT, 0); // TODO: Use LUA_GCSTEP?
 
-            // display.renderCanvas(canvas);
+            // display.drawCanvas(canvas);
 
             // Calculate time spent in update & gargage collection
             // TODO: Split time spent in update, time spent in draw, time spent in GC?

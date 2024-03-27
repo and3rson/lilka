@@ -244,7 +244,7 @@ public:
         int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
     );
     /// Відобразити буфер на екрані (див. `lilka::Canvas`).
-    void renderCanvas(Canvas* canvas);
+    void drawCanvas(Canvas* canvas);
 
 private:
     const void* splash;
@@ -258,7 +258,7 @@ private:
 /// то текст буде мерехтіти.
 ///
 /// Щоб уникнути цього, можна використовувати буфер. Цей клас дозволяє малювати графічні об'єкти на буфері,
-/// а потім відобразити його на екрані за допомогою методу `lilka::display.renderCanvas`.
+/// а потім відобразити його на екрані за допомогою методу `lilka::display.drawCanvas`.
 ///
 /// Такий підхід дозволяє зменшити мерехтіння, але збільшує використання пам'яті. Він називається "буферизація",
 /// оскільки ми спершу малюємо на буфері, а тоді відображаємо буфер на екрані.
@@ -283,7 +283,7 @@ private:
 ///         canvas.setCursor(32, y);
 ///         canvas.setTextColor(lilka::colors::Black); // Чорний текст
 ///         canvas.print("Привіт, Лілка!");
-///         lilka::display.renderCanvas(&canvas); // Відобразити буфер на екрані - жодного мерехтіння!
+///         lilka::display.drawCanvas(&canvas); // Відобразити буфер на екрані - жодного мерехтіння!
 ///         y++;
 ///         if (y > 200) {
 ///             y = 100;

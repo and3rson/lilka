@@ -3,7 +3,8 @@
 
 AppManager* AppManager::instance = NULL;
 
-AppManager::AppManager() : mutex(xSemaphoreCreateMutex()), panel(NULL), toastMessage(""), toastEndTime(0) {
+AppManager::AppManager() :
+    mutex(xSemaphoreCreateMutex()), panel(NULL), toastMessage(""), toastStartTime(0), toastEndTime(0) {
 }
 
 AppManager::~AppManager() {
@@ -86,6 +87,10 @@ void AppManager::loop() {
             }
         }
         app->acquireBackCanvas();
+        // Draw toast message on app's canvas to prevent flickering
+        if (millis() < toastEndTime) {
+            renderToast(topApp->backCanvas);
+        }
         if (app->needsRedraw()) {
             lilka::display.draw16bitRGBBitmap(
                 app->backCanvas->x(),
@@ -99,23 +104,41 @@ void AppManager::loop() {
         app->releaseBackCanvas();
     }
 
-    // Draw toast message
-    if (millis() < toastEndTime) {
-        int16_t x, y;
-        uint16_t w, h;
-        lilka::display.setFont(FONT_8x13);
-        lilka::display.getTextBounds(toastMessage.c_str(), 0, 0, &x, &y, &w, &h);
-        int16_t cx = lilka::display.width() / 2;
-        int16_t cy = lilka::display.height() / 7 * 6;
-        lilka::display.fillRect(cx - w / 2 - 5, cy - h - 5, w + 10, h + 10, lilka::display.color565(0, 0, 0));
-        lilka::display.setTextColor(lilka::display.color565(255, 255, 255));
-        lilka::display.setCursor(cx - w / 2, cy + h / 2);
-        lilka::display.print(toastMessage.c_str());
-    }
-
     xSemaphoreGive(mutex);
 
     taskYIELD();
+}
+
+void AppManager::renderToast(lilka::Canvas* canvas) {
+    int16_t x, y;
+    uint16_t w, h;
+    lilka::display.setFont(FONT_8x13);
+    lilka::display.getTextBounds(toastMessage.c_str(), 0, 0, &x, &y, &w, &h);
+    int16_t cx = lilka::display.width() / 2;
+    int16_t cy = lilka::display.height() / 7 * 6;
+    int16_t yOffset = 0;
+    uint64_t time = millis();
+    if (time < toastStartTime + 300) {
+        // Phase 1: Fade in
+        // Offset goes from 100 to 0
+        yOffset = 50 - (time - toastStartTime) * 50 / 300;
+    } else if (time < toastEndTime - 300) {
+        // Phase 2: Fully visible
+        yOffset = 0;
+    } else {
+        // Phase 3: Fade out
+        // Offset goes from 0 to 100
+        yOffset = (time - toastEndTime + 300) * 50 / 300;
+    }
+
+    lilka::Canvas toastCanvas(cx - w / 2 - 5, cy - h - 5 + yOffset, w + 10, h + 10);
+
+    toastCanvas.setFont(FONT_8x13);
+    toastCanvas.fillScreen(lilka::colors::Dark_sienna);
+    toastCanvas.setTextColor(lilka::colors::White);
+    toastCanvas.setCursor(2, h + 2);
+    toastCanvas.print(toastMessage.c_str());
+    canvas->drawCanvas(&toastCanvas);
 }
 
 /// Render panel and top app to the given canvas.
@@ -126,13 +149,7 @@ void AppManager::renderToCanvas(lilka::Canvas* canvas) {
     // Draw panel and top app
     for (App* app : {panel, apps.back()}) {
         app->acquireBackCanvas();
-        canvas->draw16bitRGBBitmap(
-            app->backCanvas->x(),
-            app->backCanvas->y(),
-            app->backCanvas->getFramebuffer(),
-            app->backCanvas->width(),
-            app->backCanvas->height()
-        );
+        canvas->drawCanvas(app->backCanvas);
         app->releaseBackCanvas();
     }
 
@@ -143,6 +160,7 @@ void AppManager::renderToCanvas(lilka::Canvas* canvas) {
 void AppManager::startToast(String message, uint64_t duration) {
     xSemaphoreTake(mutex, portMAX_DELAY);
     toastMessage = message;
+    toastStartTime = millis();
     toastEndTime = millis() + duration;
     xSemaphoreGive(mutex);
 }

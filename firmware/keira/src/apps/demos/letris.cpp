@@ -271,7 +271,7 @@ void LetrisApp::run() {
                 nextShape.draw(canvas, true);
                 queueDraw();
                 // Відображаємо зміни на екрані
-                // lilka::display.renderCanvas(canvas);
+                // lilka::display.drawCanvas(canvas);
             }
 
             // Перевіряємо, чи може фігура рухатися вниз

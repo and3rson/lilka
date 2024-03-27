@@ -192,11 +192,13 @@ String NetworkService::getIpAddr() {
 
 void NetworkService::setNetworkState(NetworkState state) {
     // xSemaphoreTake(mutex, portMAX_DELAY);
-    this->state = state;
-    if (state == NETWORK_STATE_OFFLINE) {
-        AppManager::getInstance()->startToast("WiFi втрачено", 2000);
-    } else if (state == NETWORK_STATE_ONLINE) {
-        AppManager::getInstance()->startToast("Приєднано до WiFi", 2000);
+    if (this->state != state) {
+        this->state = state;
+        if (state == NETWORK_STATE_OFFLINE) {
+            AppManager::getInstance()->startToast("WiFi втрачено", 2000);
+        } else if (state == NETWORK_STATE_ONLINE) {
+            AppManager::getInstance()->startToast("Приєднано до WiFi", 2000);
+        }
     }
     // xSemaphoreGive(mutex);
 }
