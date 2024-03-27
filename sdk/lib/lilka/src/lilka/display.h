@@ -125,7 +125,7 @@ public:
     /// Наприклад:
     /// @code
     /// lilka::display.setCursor(0, 32);
-    /// lilka::display.setTextColor(lilka::colors::RGB565_Black); // Білий текст
+    /// lilka::display.setTextColor(lilka::colors::Black); // Білий текст
     /// lilka::display.print("Привіт,j ");
     /// lilka::display.print(String("Лілка!\n"));
     /// lilka::display.print(42);
@@ -230,7 +230,7 @@ public:
     /// Приклад використання:
     /// @code
     /// // Завантажити зображення з файлу "image.bmp", використовуючи білий колір як прозорий.
-    /// lilka::Image *image = lilka::resources.loadImage("image.bmp", lilka::display.color565(255, 255, 255));
+    /// lilka::Image *image = lilka::resources.loadImage("image.bmp", lilka::colors::White);
     /// lilka::display.draw16bitRGBBitmapWithTranColor(
     ///     0, 0, image->pixels, image->transparentColor, image->width, image->height
     /// );
@@ -279,9 +279,9 @@ private:
 ///     lilka::Canvas canvas; // Створити новий Canvas зі стандартним розміром (розмір дисплею)
 ///     int y = 100;
 ///     while (1) {
-///         canvas.fillScreen(lilka::colors::RGB565_Black); // Заповнити буфер чорним кольором
+///         canvas.fillScreen(lilka::colors::Black); // Заповнити буфер чорним кольором
 ///         canvas.setCursor(32, y);
-///         canvas.setTextColor(lilka::colors::RGB565_Black); // Білий текст
+///         canvas.setTextColor(lilka::colors::Black); // Білий текст
 ///         canvas.print("Привіт, Лілка!");
 ///         lilka::display.renderCanvas(&canvas); // Відобразити буфер на екрані - жодного мерехтіння!
 ///         y++;
@@ -343,7 +343,7 @@ public:
     /// }
     /// lilka::Image *rotatedImage = new lilka::Image(image->width, image->height);
     /// // Повертаємо на 30 градусів, заповнюючи пікселі, які виходять за межі зображення, білим кольором:
-    /// image->rotate(30, rotatedImage, lilka::display.color565(255, 255, 255));
+    /// image->rotate(30, rotatedImage, lilka::colors::White);
     /// // Звільнюємо пам'ять
     /// delete image;
     /// delete rotatedImage;

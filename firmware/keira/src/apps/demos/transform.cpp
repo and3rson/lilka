@@ -6,7 +6,7 @@ TransformApp::TransformApp() : App("Transform") {
 }
 
 void TransformApp::run() {
-    lilka::Image* face = lilka::resources.loadImage("/sd/face.bmp", lilka::colors::RGB565_Black, 32, 32);
+    lilka::Image* face = lilka::resources.loadImage("/sd/face.bmp", lilka::colors::Black, 32, 32);
 
     if (!face) {
         lilka::Alert alert("Помилка", "Не вдалось завантажити face.bmp з SD-карти.");

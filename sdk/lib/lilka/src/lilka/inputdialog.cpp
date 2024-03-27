@@ -125,8 +125,8 @@ void InputDialog::draw(Arduino_GFX* canvas) {
     int16_t kbHeight = canvas->height() / 2;
     int16_t kbWidth = canvas->width();
 
-    canvas->fillRect(0, 0, canvas->width(), canvas->height(), lilka::colors::RGB565_Black);
-    canvas->setTextColor(lilka::colors::RGB565_White);
+    canvas->fillRect(0, 0, canvas->width(), canvas->height(), lilka::colors::Black);
+    canvas->setTextColor(lilka::colors::White);
     canvas->setFont(FONT_10x20);
 
     canvas->setTextBound(4, 4, canvas->width() - 8, canvas->height() - 8);
@@ -183,7 +183,7 @@ void InputDialog::draw(Arduino_GFX* canvas) {
                             x * buttonWidth + (buttonWidth / 2) - iconWidth / 2,
                             kbTop + y * buttonHeight + (buttonHeight / 2) - iconHeight / 2,
                             const_cast<uint16_t*>(icon),
-                            lilka::colors::RGB565_Black,
+                            lilka::colors::Black,
                             iconWidth,
                             iconHeight
                         );

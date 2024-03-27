@@ -347,7 +347,7 @@ void LuaLiveRunnerApp::run() {
         }
         canvas->setFont(FONT_10x20);
         canvas->setCursor(8, 48);
-        canvas->fillScreen(lilka::colors::RGB565_Black);
+        canvas->fillScreen(lilka::colors::Black);
         canvas->setTextBound(8, 0, canvas->width() - 16, canvas->height());
         canvas->print("Очікування коду\nз UART...\n\n");
         canvas->print("Натисніть [A]\n");
@@ -454,7 +454,7 @@ void LuaReplApp::run() {
 
     canvas->setFont(FONT_10x20);
     canvas->setCursor(8, 48);
-    canvas->fillScreen(lilka::colors::RGB565_Black);
+    canvas->fillScreen(lilka::colors::Black);
     canvas->setTextBound(8, 0, canvas->width() - 16, canvas->height());
     canvas->print("Lua REPL\n\n");
     canvas->print("Під'єднайтесь до\nЛілки через серійний\nтермінал та починайте\nвводити команди!");

@@ -34,7 +34,7 @@ void ProgressDialog::draw(Arduino_GFX* canvas) {
     int width = right - left;
     int xMargin = 4;
 
-    canvas->setTextColor(lilka::colors::RGB565_White);
+    canvas->setTextColor(lilka::colors::White);
 
     canvas->fillRect(left, top, width, mid - top, canvas->color565(32, 32, 128));
     canvas->setFont(FONT_6x13);
@@ -56,7 +56,7 @@ void ProgressDialog::draw(Arduino_GFX* canvas) {
 
     sprintf(buf, "%d%%", progress);
     canvas->getTextBounds(buf, 0, 0, &x, &y, &w, &h);
-    // canvas->fillRect(x, y, w, h, lilka::colors::RGB565_Black);
+    // canvas->fillRect(x, y, w, h, lilka::colors::Black);
     // canvas->println(buf);
 
     int barMargin = 8;

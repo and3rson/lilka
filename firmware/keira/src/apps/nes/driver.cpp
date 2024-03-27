@@ -95,10 +95,10 @@ void Driver::customBlit(bitmap_t* bmp, int numDirties, rect_t* dirtyRects) {
     // Serial.println("Draw 1 took " + String(micros() - last_render) + "us");
 
     if (last_frame_duration > 0) {
-        canvas->fillRect(80, canvas->height() - 20, 80, 20, lilka::colors::RGB565_Black);
+        canvas->fillRect(80, canvas->height() - 20, 80, 20, lilka::colors::Black);
         canvas->setCursor(80, canvas->height() - 4);
         canvas->setTextSize(1);
-        canvas->setTextColor(lilka::colors::RGB565_Graygrey);
+        canvas->setTextColor(lilka::colors::Graygrey);
         canvas->print("FPS: ");
         canvas->print(1000000 / last_frame_duration);
     }

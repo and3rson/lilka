@@ -40,7 +40,7 @@ void BallApp::run() {
             xVelo = 500;
         }
 
-        canvas->fillScreen(lilka::colors::RGB565_Black);
+        canvas->fillScreen(lilka::colors::Black);
         canvas->fillCircle(x, y, radius, canvas->color565(255, 200, 0));
         // Calculate FPS
         canvas->setCursor(16, 32);

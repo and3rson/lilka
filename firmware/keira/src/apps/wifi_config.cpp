@@ -83,8 +83,7 @@ void WiFiConfigApp::run() {
         menu.addItem(
             networks[i],
             icons[signalStrength],
-            networkService->getPassword(networks[i]).length() ? lilka::colors::RGB565_Green
-                                                              : lilka::colors::RGB565_White
+            networkService->getPassword(networks[i]).length() ? lilka::colors::Green : lilka::colors::White
         );
     }
     menu.addItem("<< Назад");
