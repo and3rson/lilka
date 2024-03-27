@@ -53,9 +53,9 @@ int16_t StatusBarApp::drawIcons(lilka::Canvas* iconCanvas) {
     // Draw RAM usage
     uint32_t freeRAM = ESP.getFreeHeap();
     uint32_t totalRAM = ESP.getHeapSize();
-    int16_t padding = 1;
+    int16_t padding = 2;
     int16_t barWidth = 24 - padding * 2;
-    int16_t barHeight = barWidth;
+    int16_t barHeight = 10;
     int16_t barWidthUsed = barWidth * (totalRAM - freeRAM) / totalRAM;
     iconCanvas->fillRect(xOffset + padding, padding, barWidthUsed, barHeight, lilka::colors::Red);
     iconCanvas->draw16bitRGBBitmapWithTranColor(xOffset, 0, ram, lilka::colors::Black, 24, 24);
