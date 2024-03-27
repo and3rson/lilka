@@ -21,6 +21,8 @@
 #include "mjs/mjsrunner.h"
 #include "nes/nesapp.h"
 #include "ftp/ftp_server.h"
+#include "radioController/RadioControll.h"
+
 
 #include "icons/demos.h"
 #include "icons/sdcard.h"
@@ -71,6 +73,7 @@ void LauncherApp::run() {
 
 void LauncherApp::appsMenu() {
     APP_ITEM_LIST app_items = {
+        APP_ITEM("RC", RadioControllApp),
         APP_ITEM("Лінії", DemoLines),
         APP_ITEM("Диск", DiskApp),
         APP_ITEM("Перетворення", TransformApp),
