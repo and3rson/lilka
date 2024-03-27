@@ -2,7 +2,7 @@
 #define LILKA_DISPLAY_H
 
 #include "config.h"
-
+#include "colors565.h"
 #include <Arduino_GFX_Library.h>
 #include <U8g2lib.h>
 
@@ -125,7 +125,7 @@ public:
     /// Наприклад:
     /// @code
     /// lilka::display.setCursor(0, 32);
-    /// lilka::display.setTextColor(lilka::display.color565(0, 0, 0)); // Білий текст
+    /// lilka::display.setTextColor(lilka::colors::RGB565_Black); // Білий текст
     /// lilka::display.print("Привіт,j ");
     /// lilka::display.print(String("Лілка!\n"));
     /// lilka::display.print(42);
@@ -279,9 +279,9 @@ private:
 ///     lilka::Canvas canvas; // Створити новий Canvas зі стандартним розміром (розмір дисплею)
 ///     int y = 100;
 ///     while (1) {
-///         canvas.fillScreen(lilka::display.color565(0, 0, 0)); // Заповнити буфер чорним кольором
+///         canvas.fillScreen(lilka::colors::RGB565_Black); // Заповнити буфер чорним кольором
 ///         canvas.setCursor(32, y);
-///         canvas.setTextColor(lilka::display.color565(0, 0, 0)); // Білий текст
+///         canvas.setTextColor(lilka::colors::RGB565_Black); // Білий текст
 ///         canvas.print("Привіт, Лілка!");
 ///         lilka::display.renderCanvas(&canvas); // Відобразити буфер на екрані - жодного мерехтіння!
 ///         y++;
