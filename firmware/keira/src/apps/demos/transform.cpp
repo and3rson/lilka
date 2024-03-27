@@ -6,7 +6,7 @@ TransformApp::TransformApp() : App("Transform") {
 }
 
 void TransformApp::run() {
-    lilka::Image* face = lilka::resources.loadImage("/sd/face.bmp", canvas->color565(0, 0, 0), 32, 32);
+    lilka::Image* face = lilka::resources.loadImage("/sd/face.bmp", lilka::colors::Black, 32, 32);
 
     if (!face) {
         lilka::Alert alert("Помилка", "Не вдалось завантажити face.bmp з SD-карти.");
@@ -26,7 +26,7 @@ void TransformApp::run() {
     int angle = 0;
 
     while (1) {
-        canvas->fillScreen(canvas->color565(0, 64, 0));
+        canvas->fillScreen(lilka::colors::Myrtle_green);
         // canvas->drawImage(face, x, y);
         lilka::Transform transform = lilka::Transform().rotate(angle).scale(sin(angle / 24.0), cos(angle / 50.0));
         // lilka::Transform transform = lilka::Transform().rotate(30).scale(1.5, 1);

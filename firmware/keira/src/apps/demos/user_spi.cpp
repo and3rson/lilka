@@ -10,7 +10,7 @@ void UserSPIApp::run() {
     buffer.fillScreen(0);
     buffer.setFont(FONT_9x15);
 
-    buffer.fillScreen(buffer.color565(0, 0, 0));
+    buffer.fillScreen(lilka::colors::Black);
     buffer.setTextBound(4, 0, canvas->width() - 8, canvas->height());
     buffer.setCursor(4, 20);
     buffer.println("SPI2 begin");

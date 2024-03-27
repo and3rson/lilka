@@ -41,11 +41,11 @@ LauncherApp::LauncherApp() : App("Menu") {
 
 void LauncherApp::run() {
     lilka::Menu menu("Головне меню");
-    menu.addItem("Додатки", &demos, lilka::display.color565(255, 200, 200));
-    menu.addItem("Браузер SD-карти", &sdcard, lilka::display.color565(255, 255, 200));
-    menu.addItem("Браузер SPIFFS", &memory, lilka::display.color565(200, 255, 200));
-    menu.addItem("Розробка", &dev, lilka::display.color565(255, 224, 128));
-    menu.addItem("Налаштування", &settings, lilka::display.color565(255, 200, 224));
+    menu.addItem("Додатки", &demos, lilka::colors::Pink);
+    menu.addItem("Браузер SD-карти", &sdcard, lilka::colors::Arylide_yellow);
+    menu.addItem("Браузер SPIFFS", &memory, lilka::colors::Dark_sea_green);
+    menu.addItem("Розробка", &dev, lilka::colors::Jasmine);
+    menu.addItem("Налаштування", &settings, lilka::colors::Orchid);
 
     while (1) {
         while (!menu.isFinished()) {
@@ -122,15 +122,15 @@ const uint16_t get_file_color(const String& filename) {
     String lowerCasedFileName = filename;
     lowerCasedFileName.toLowerCase();
     if (lowerCasedFileName.endsWith(".rom") || lowerCasedFileName.endsWith(".nes")) {
-        return lilka::display.color565(255, 128, 128);
+        return lilka::colors::Candy_pink;
     } else if (lowerCasedFileName.endsWith(".bin")) {
-        return lilka::display.color565(128, 255, 128);
+        return lilka::colors::Mint_green;
     } else if (lowerCasedFileName.endsWith(".lua")) {
-        return lilka::display.color565(128, 128, 255);
+        return lilka::colors::Maya_blue;
     } else if (lowerCasedFileName.endsWith(".js")) {
-        return lilka::display.color565(255, 200, 128);
+        return lilka::colors::Butterscotch;
     } else {
-        return lilka::display.color565(200, 200, 200);
+        return lilka::colors::Light_gray;
     }
 }
 
@@ -161,7 +161,7 @@ void LauncherApp::sdBrowserMenu(String path) {
         String filename = entries[i].name;
         const menu_icon_t* icon =
             entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(filename);
-        uint16_t color = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? lilka::display.color565(255, 255, 200)
+        uint16_t color = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? lilka::colors::Arylide_yellow
                                                                             : get_file_color(filename);
         menu.addItem(filename, icon, color);
     }

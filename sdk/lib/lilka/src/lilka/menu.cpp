@@ -11,7 +11,7 @@ Menu::Menu(String title) {
     this->scroll = 0;
     this->setCursor(0);
     this->done = false;
-    this->iconImage = new Image(24, 24, display.color565(0, 0, 0), 12, 12);
+    this->iconImage = new Image(24, 24, colors::Black, 12, 12);
     this->iconCanvas = new Canvas(24, 24);
     this->lastCursorMove = millis();
     this->button = Button::COUNT;
@@ -82,10 +82,10 @@ void Menu::update() {
 
 void Menu::draw(Arduino_GFX* canvas) {
     // uint8_t desiredCursorY = cursor * 24 + 96 - 20;
-    canvas->fillScreen(canvas->color565(0, 0, 0));
+    canvas->fillScreen(lilka::colors::Black);
     int8_t angleShift = sin(millis() / 1000.0) * 16;
     // Draw triangle in top-left
-    canvas->fillTriangle(0, 0, 48 - angleShift, 0, 0, 48 + angleShift, canvas->color565(0, 0, 255));
+    canvas->fillTriangle(0, 0, 48 - angleShift, 0, 0, 48 + angleShift, lilka::colors::Blue);
     // Draw triangle in top-right
     canvas->fillTriangle(
         canvas->width(),
@@ -94,11 +94,11 @@ void Menu::draw(Arduino_GFX* canvas) {
         0,
         canvas->width(),
         48 - angleShift,
-        canvas->color565(255, 255, 0)
+        lilka::colors::Yellow
     );
     canvas->setCursor(32, 40);
     canvas->setTextBound(0, 0, canvas->width(), canvas->height());
-    canvas->setTextColor(canvas->color565(255, 255, 255));
+    canvas->setTextColor(lilka::colors::White);
     canvas->setFont(FONT_6x13);
     canvas->setTextSize(2);
     canvas->println(title);
@@ -106,12 +106,12 @@ void Menu::draw(Arduino_GFX* canvas) {
     canvas->setTextSize(1);
     canvas->setFont(FONT_10x20);
 
-    canvas->fillRect(0, (cursor * 24 + 80 - 20) - scroll * 24, canvas->width(), 24, canvas->color565(255, 64, 0));
+    canvas->fillRect(0, (cursor * 24 + 80 - 20) - scroll * 24, canvas->width(), 24, lilka::colors::Orange_red);
 
     uint16_t menu_size = items.size();
     for (int i = scroll; i < MIN(scroll + MENU_HEIGHT, menu_size); i++) {
-        // canvas->fillRect(0, 96 + i * 24 - 20, LILKA_DISPLAY_WIDTH, 24, i == cursor ? canvas->color565(255, 64, 0) :
-        // canvas->color565(0, 0, 0));
+        // canvas->fillRect(0, 96 + i * 24 - 20, LILKA_DISPLAY_WIDTH, 24, i == cursor ? lilka::colors::Orange_red :
+        // lilka::colors::Black);
         int16_t screenI = i - scroll;
         const menu_icon_t* icon = items[i].icon;
         canvas->setTextBound(0, 80 + screenI * 24 - 20, canvas->width(), 24);
@@ -130,14 +130,14 @@ void Menu::draw(Arduino_GFX* canvas) {
                 memcpy(iconImage->pixels, *icon, sizeof(menu_icon_t));
                 // Transform t = Transform().rotate(millis() * 30);
                 Transform t = Transform().rotate(sin((millis() - lastCursorMove) * PI / 1000) * 30);
-                iconCanvas->fillScreen(canvas->color565(0, 0, 0));
+                iconCanvas->fillScreen(lilka::colors::Black);
                 iconCanvas->drawImageTransformed(iconImage, 12, 12, t);
                 canvas->draw16bitRGBBitmapWithTranColor(
-                    0, 80 + screenI * 24 - 20, iconCanvas->getFramebuffer(), canvas->color565(0, 0, 0), 24, 24
+                    0, 80 + screenI * 24 - 20, iconCanvas->getFramebuffer(), lilka::colors::Black, 24, 24
                 );
             } else {
                 canvas->draw16bitRGBBitmapWithTranColor(
-                    0, 80 + screenI * 24 - 20, const_cast<uint16_t*>(*icon), canvas->color565(0, 0, 0), 24, 24
+                    0, 80 + screenI * 24 - 20, const_cast<uint16_t*>(*icon), lilka::colors::Black, 24, 24
                 );
             }
         }
@@ -145,7 +145,7 @@ void Menu::draw(Arduino_GFX* canvas) {
         if (items[i].color && cursor != i) {
             canvas->setTextColor(items[i].color);
         } else {
-            canvas->setTextColor(canvas->color565(255, 255, 255));
+            canvas->setTextColor(lilka::colors::White);
         }
         // gfx->print(i == cursor ? "> " : "  ");
         canvas->println(items[i].title);
@@ -170,7 +170,7 @@ void Menu::draw(Arduino_GFX* canvas) {
         canvas->fillRect(canvas->width() - 8, top, 8, height, canvas->color565(96, 96, 96));
         int barHeight = height * MENU_HEIGHT / menu_size;
         int barTop = top + scroll * height / menu_size;
-        canvas->fillRect(canvas->width() - 8, barTop, 8, barHeight, canvas->color565(255, 255, 255));
+        canvas->fillRect(canvas->width() - 8, barTop, 8, barHeight, lilka::colors::White);
     }
 }
 
