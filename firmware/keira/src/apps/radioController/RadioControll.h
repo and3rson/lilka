@@ -17,7 +17,6 @@ struct CHDataArray {
 class RadioControllApp : public App {
 public:
     RadioControllApp();
-
 private:
     void run() override;
     void SettingsMenu();

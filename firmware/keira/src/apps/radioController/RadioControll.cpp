@@ -2,7 +2,7 @@
 #include <sbus.h>
 #include "app.h"
 
-RadioControllApp::RadioControllApp() : App("Ball") {
+RadioControllApp::RadioControllApp() : App("RadioControll") {
 }
 
 // TODO: add support for ibus, CRSF and other
@@ -218,7 +218,6 @@ void RadioControllApp::run() {
     }
 
     while (1) {
-        int leftX, leftY, rightX, rightY;
         lilka::State state = lilka::controller.getState();
         if (state.up.pressed) {
             data.ch[0].current_value = data.ch[0].max_value;
