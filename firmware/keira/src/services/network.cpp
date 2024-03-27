@@ -27,7 +27,7 @@ void NetworkService::run() {
     uint8_t mac[6];
     WiFi.macAddress(mac);
     char cstrMac[50];
-    sprintf(cstrMac, LILKA_HOSTNAME_PREFIX "%06X", mac);
+    sprintf(cstrMac, LILKA_HOSTNAME_PREFIX STR(LILKA_VERSION) "_%06X", mac);
     WiFi.setHostname(cstrMac);
     WiFi.mode(WIFI_STA);
 
