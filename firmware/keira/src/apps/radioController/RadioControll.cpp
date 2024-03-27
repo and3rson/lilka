@@ -255,6 +255,8 @@ void RadioControllApp::run() {
 
         canvas->fillScreen(canvas->color565(0, 0, 0));
 
+        canvas->setFont(FONT_9x15);
+
         canvas->setCursor(10, 20);
         canvas->print("LX");
         canvas->setCursor(10, 50);
@@ -275,6 +277,11 @@ void RadioControllApp::run() {
         canvas->setCursor(160, 50);
         canvas->print(data.ch[3].current_value);
 
+        canvas->setFont(FONT_4x6);
+        canvas->setCursor(0, 80);
+        canvas->print("PRESS(1s) SELECT AND START FOR SETTING MENU");
+        canvas->setCursor(0, 90);
+        canvas->print("PRESS ALL LEFT BUTTONS AND SELECT FOR LEAVE");
         bfs::SbusData _data;
 
         _data.ch[0] = data.ch[0].current_value;
