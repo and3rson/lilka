@@ -249,6 +249,7 @@ void soundTask(void* param) {
         // Serial.print(written);
         // Serial.println(" bytes");
         xSemaphoreGive(soundMutexHandle);
+        taskYIELD();
         samplesWritten += (written + 3) / 4; // Round up
     }
 
