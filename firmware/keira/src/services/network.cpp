@@ -42,12 +42,12 @@ void NetworkService::run() {
         switch (event) {
             case ARDUINO_EVENT_WIFI_STA_START: {
                 Serial.println("NetworkService: connecting to WiFi");
-                state = NETWORK_STATE_CONNECTING;
+                setNetworkState(NETWORK_STATE_CONNECTING);
                 break;
             }
             case ARDUINO_EVENT_WIFI_STA_CONNECTED: {
                 Serial.println("NetworkService: connected to WiFi");
-                state = NETWORK_STATE_ONLINE;
+                setNetworkState(NETWORK_STATE_ONLINE);
                 Preferences prefs;
                 String connectedSSID = String(info.wifi_sta_connected.ssid, info.wifi_sta_connected.ssid_len);
                 prefs.begin("network", false);
@@ -72,7 +72,7 @@ void NetworkService::run() {
                 Serial.println(
                     "NetworkService: disconnected from WiFi, reason " + String(info.wifi_sta_disconnected.reason)
                 );
-                state = NETWORK_STATE_OFFLINE;
+                setNetworkState(NETWORK_STATE_OFFLINE);
                 reason = info.wifi_sta_disconnected.reason;
                 break;
             }
@@ -81,13 +81,13 @@ void NetworkService::run() {
                 IPAddress ip = WiFi.localIP();
                 ipAddr = ip.toString();
                 Serial.println("NetworkService: got IP address: " + ipAddr);
-                state = NETWORK_STATE_ONLINE;
+                setNetworkState(NETWORK_STATE_ONLINE);
                 break;
             }
             case ARDUINO_EVENT_WIFI_STA_LOST_IP: {
                 Serial.println("NetworkService: lost IP address");
                 ipAddr = "";
-                state = NETWORK_STATE_OFFLINE;
+                setNetworkState(NETWORK_STATE_OFFLINE);
                 break;
             }
             default:
@@ -188,4 +188,15 @@ String NetworkService::hash(String input) {
 
 String NetworkService::getIpAddr() {
     return ipAddr;
+}
+
+void NetworkService::setNetworkState(NetworkState state) {
+    // xSemaphoreTake(mutex, portMAX_DELAY);
+    this->state = state;
+    if (state == NETWORK_STATE_OFFLINE) {
+        AppManager::getInstance()->startToast("WiFi втрачено", 2000);
+    } else if (state == NETWORK_STATE_ONLINE) {
+        AppManager::getInstance()->startToast("Приєднано до WiFi", 2000);
+    }
+    // xSemaphoreGive(mutex);
 }

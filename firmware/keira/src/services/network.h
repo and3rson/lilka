@@ -24,6 +24,7 @@ public:
 private:
     void run() override;
     String hash(String input);
+    void setNetworkState(NetworkState state);
 
     SemaphoreHandle_t mutex;
     NetworkState state;

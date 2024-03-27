@@ -3,7 +3,7 @@
 
 AppManager* AppManager::instance = NULL;
 
-AppManager::AppManager() : mutex(xSemaphoreCreateMutex()), panel(NULL) {
+AppManager::AppManager() : mutex(xSemaphoreCreateMutex()), panel(NULL), toastMessage(""), toastEndTime(0) {
 }
 
 AppManager::~AppManager() {
@@ -99,7 +99,50 @@ void AppManager::loop() {
         app->releaseBackCanvas();
     }
 
+    // Draw toast message
+    if (millis() < toastEndTime) {
+        int16_t x, y;
+        uint16_t w, h;
+        lilka::display.setFont(FONT_8x13);
+        lilka::display.getTextBounds(toastMessage.c_str(), 0, 0, &x, &y, &w, &h);
+        int16_t cx = lilka::display.width() / 2;
+        int16_t cy = lilka::display.height() / 7 * 6;
+        lilka::display.fillRect(cx - w / 2 - 5, cy - h - 5, w + 10, h + 10, lilka::display.color565(0, 0, 0));
+        lilka::display.setTextColor(lilka::display.color565(255, 255, 255));
+        lilka::display.setCursor(cx - w / 2, cy + h / 2);
+        lilka::display.print(toastMessage.c_str());
+    }
+
     xSemaphoreGive(mutex);
 
     taskYIELD();
+}
+
+/// Render panel and top app to the given canvas.
+/// Useful for taking screenshots.
+void AppManager::renderToCanvas(lilka::Canvas* canvas) {
+    xSemaphoreTake(mutex, portMAX_DELAY);
+
+    // Draw panel and top app
+    for (App* app : {panel, apps.back()}) {
+        app->acquireBackCanvas();
+        canvas->draw16bitRGBBitmap(
+            app->backCanvas->x(),
+            app->backCanvas->y(),
+            app->backCanvas->getFramebuffer(),
+            app->backCanvas->width(),
+            app->backCanvas->height()
+        );
+        app->releaseBackCanvas();
+    }
+
+    xSemaphoreGive(mutex);
+}
+
+/// Display a toast message.
+void AppManager::startToast(String message, uint64_t duration) {
+    xSemaphoreTake(mutex, portMAX_DELAY);
+    toastMessage = message;
+    toastEndTime = millis() + duration;
+    xSemaphoreGive(mutex);
 }

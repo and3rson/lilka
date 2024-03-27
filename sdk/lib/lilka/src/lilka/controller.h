@@ -86,8 +86,10 @@ public:
     /// Почати вимірювання стану кнопок.
     /// \warning Цей метод викликається автоматично при виклику `lilka::begin()`.
     void begin();
-    /// Прочитати стан кнопок.
+    /// Прочитати стан кнопок та скинути прапорці `justPressed` та `justReleased`.
     State getState();
+    /// Прочитати стан кнопок, не скидаючи прапорців `justPressed` та `justReleased`.
+    State peekState();
     void resetState();
     /// Встановити глобальний обробник подій, який буде викликатися при натисненні або відпусканні будь-якої кнопки.
     void setGlobalHandler(void (*handler)(Button, bool));
