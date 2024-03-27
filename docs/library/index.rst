@@ -109,4 +109,5 @@
     spi
     ui
     fmath
+    colors
     build_flags
