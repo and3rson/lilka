@@ -30,8 +30,8 @@ void ping_task(void* arg) {
     const int16_t* ping = reinterpret_cast<const int16_t*>(ping_raw);
 
     for (int i = 0; i < ping_raw_size / 2; i++) {
-        I2S.write(ping[i]);
-        I2S.write(ping[i]);
+        I2S.write(ping[i] >> 2);
+        I2S.write(ping[i] >> 2);
     }
 
     I2S.end();
