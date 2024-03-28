@@ -320,6 +320,8 @@ void LauncherApp::settingsMenu() {
         "Інфо про пристрій",
         "Таблиця розділів",
         "Форматування SD-карти",
+        "Light sleep",
+        "Deep sleep",
         "Перезавантаження",
         "<< Назад",
     };
@@ -424,8 +426,11 @@ void LauncherApp::settingsMenu() {
                 continue;
             }
             this->alert("Форматування", "Форматування SD-карти завершено!");
-
         } else if (index == 5) {
+            esp_light_sleep_start();
+        } else if (index == 6) {
+            ESP.deepSleep(0xFFFFFFFF);
+        } else if (index == 7) {
             esp_restart();
         }
     }
