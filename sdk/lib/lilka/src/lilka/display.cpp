@@ -167,7 +167,7 @@ void Display::drawCanvas(Canvas* canvas) {
     draw16bitRGBBitmap(canvas->x(), canvas->y(), canvas->getFramebuffer(), canvas->width(), canvas->height());
 }
 
-Canvas::Canvas() : Arduino_Canvas(LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT, NULL) {
+Canvas::Canvas() : Arduino_Canvas(display.width(), display.height(), NULL) {
     setFont(u8g2_font_10x20_t_cyrillic);
     setUTF8Print(true);
     begin();

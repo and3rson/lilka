@@ -1,8 +1,13 @@
+#ifndef D_ALLOC_H
+#define D_ALLOC_H
+
 #include <stdlib.h>
 #include "d_log.h"
 
 extern void D_AllocBuffers(void);
 extern void D_FreeBuffers(void);
+
+#ifndef MALLOC_CAP_EXEC
 
 #define MALLOC_CAP_EXEC   (1 << 0) ///< Memory must be able to run executable code
 #define MALLOC_CAP_32BIT  (1 << 1) ///< Memory must allow for aligned 32-bit data accesses
@@ -25,6 +30,10 @@ extern void D_FreeBuffers(void);
 
 #define MALLOC_CAP_INVALID   (1 << 31) ///< Memory can't be used / list end marker
 
+#endif
+
 // Including <esp_heap_caps.h> breaks some literals (like "false")
 extern void* heap_caps_malloc(size_t size, uint32_t caps);
 extern void* ps_malloc(size_t size);
+
+#endif // D_ALLOC_H
