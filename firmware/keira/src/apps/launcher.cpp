@@ -14,6 +14,7 @@
 #include "demos/cube.h"
 #include "demos/epilepsy.h"
 #include "demos/letris.h"
+#include "tamagotchi/tamagotchi.h"
 #include "demos/keyboard.h"
 #include "demos/user_spi.h"
 #include "demos/scan_i2c.h"
@@ -78,6 +79,7 @@ void LauncherApp::appsMenu() {
         APP_ITEM("Куб", CubeApp),
         APP_ITEM("Епілепсія", EpilepsyApp),
         APP_ITEM("Летріс", LetrisApp),
+        APP_ITEM("Тамагочі", TamagotchiApp),
         APP_ITEM("Клавіатура", KeyboardApp),
         APP_ITEM("Тест SPI", UserSPIApp),
         APP_ITEM("I2C-сканер", ScanI2CApp),
