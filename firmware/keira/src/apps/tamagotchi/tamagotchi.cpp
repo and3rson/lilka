@@ -1,6 +1,9 @@
+#include <Preferences.h>
 #include "tamagotchi.h"
 #include "tamalib.h"
 #include "bitmaps.h"
+#include "cpu.h"
+#include "savestate.h"
 
 static uint8_t matrix_buffer[LCD_HEIGHT][LCD_WIDTH] = {0};
 static uint8_t icon_buffer[ICON_NUM] = {0};
@@ -14,21 +17,11 @@ TamagotchiApp::TamagotchiApp() : App("Tamagotchi") {
 
 void TamagotchiApp::drawTriangle(uint8_t x, uint8_t y) {
     // display.drawLine(x,y,x+6,y);
-    canvas->drawLine(x + 1, y + 1, x + 5, y + 1, lilka::colors::White);
-    canvas->drawLine(x + 2, y + 2, x + 4, y + 2, lilka::colors::White);
-    canvas->drawLine(x + 3, y + 3, x + 3, y + 3, lilka::colors::White);
+    canvas->fillTriangle(x, y, x + 6, y, x + 3, y + 3, lilka::colors::White);
+    // canvas->drawLine(x + 1, y + 1, x + 5 * 2, y + 1, lilka::colors::White);
+    // canvas->drawLine(x + 2 * 2, y + 2 * 2, x + 4 * 2, y + 2, lilka::colors::White);
+    // canvas->drawLine(x + 3 * 2, y + 3 * 2, x + 3 * 2, y + 3, lilka::colors::White);
 }
-
-// void TamagotchiApp::drawTamaRow(uint8_t tamaLCD_y, uint8_t ActualLCD_y, uint8_t thick) {
-//     uint8_t i;
-//     for (i = 0; i < LCD_WIDTH; i++) {
-//         uint8_t mask = 0b10000000;
-//         mask = mask >> (i % 8);
-//         if ((matrix_buffer[tamaLCD_y][i / 8] & mask) != 0) {
-//             canvas->drawRect(i + i + i + 16, ActualLCD_y, 2, thick, lilka::colors::White);
-//         }
-//     }
-// }
 
 void hal_log(log_level_t level, char* buf, ...) {
     char buffer[1024];
@@ -43,11 +36,11 @@ void hal_log(log_level_t level, char* buf, ...) {
 void TamagotchiApp::drawTamaSelection(uint8_t y) {
     uint8_t i;
     for (i = 0; i < 7; i++) {
-        if (icon_buffer[i]) drawTriangle(i * 16 * 2 + 18, y);
+        if (icon_buffer[i]) drawTriangle(i * 16 * 2 + 23, y);
         canvas->drawXBitmap(i * 16 * 2 + 18, y + 6, bitmaps + i * 18 * 4, 16 * 2, 9 * 2, lilka::colors::White);
     }
     if (icon_buffer[7]) {
-        drawTriangle(7 * 16 * 2 + 18, y);
+        drawTriangle(7 * 16 * 2 + 23, y);
         canvas->drawXBitmap(7 * 16 * 2 + 18, y + 6, bitmaps + 7 * 18 * 4, 16 * 2, 9 * 2, lilka::colors::White);
     }
 }
@@ -69,11 +62,11 @@ void TamagotchiApp::run() {
                 // }
                 for (uint16_t x = 0; x < LCD_WIDTH; x++) {
                     if (matrix_buffer[y][x]) {
-                        canvas->fillRect(x * 8, y * 8, 7, 7, lilka::colors::White);
+                        canvas->fillRect(x * 8, y * 8 + 24, 7, 7, lilka::colors::White);
                     }
                 }
             }
-            instance->drawTamaSelection(150);
+            instance->drawTamaSelection(176);
             instance->queueDraw();
         },
         .set_lcd_matrix = [](uint8_t x, uint8_t y, uint8_t value) -> void { matrix_buffer[y][x] = value; },
@@ -100,12 +93,32 @@ void TamagotchiApp::run() {
     tamalib_set_framerate(5);
     tamalib_init(1000000);
 
+    loadState();
+
+    int64_t select_press_started = 0;
+
+    while (lilka::controller.getState().any.pressed) {
+    }
+
     while (1) {
-        if (lilka::controller.getState().b.pressed) {
-            // TODO - save state?
+        lilka::State state = lilka::controller.getState();
+        if (state.b.pressed) {
+            // Save state & exit
+            saveState();
             break;
         }
-        // TODO: Allow to reset state
+
+        if (state.select.justPressed) {
+            select_press_started = millis();
+        } else if (state.select.justReleased) {
+            select_press_started = 0;
+        }
+
+        if (select_press_started && millis() - select_press_started > 1000) {
+            // Reset state
+            resetState();
+            break;
+        }
 
         tamalib_mainloop_step_by_step();
     }
