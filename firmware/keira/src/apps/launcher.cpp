@@ -30,6 +30,8 @@
 #include "icons/settings.h"
 #include "icons/info.h"
 
+#include "icons/app_group.h"
+#include "icons/app.h"
 #include "icons/normalfile.h"
 #include "icons/folder.h"
 #include "icons/nes.h"
@@ -39,6 +41,36 @@
 
 LauncherApp::LauncherApp() : App("Menu") {
 }
+
+ITEM_LIST app_items = {
+    ITEM_SUBMENU(
+        "Демо",
+        {
+            ITEM_APP("Лінії", DemoLines),
+            ITEM_APP("Диск", DiskApp),
+            ITEM_APP("Перетворення", TransformApp),
+            ITEM_APP("М'ячик", BallApp),
+            ITEM_APP("Куб", CubeApp),
+            ITEM_APP("Епілепсія", EpilepsyApp),
+        }
+    ),
+    ITEM_SUBMENU(
+        "Тести",
+        {
+            ITEM_APP("Клавіатура", KeyboardApp),
+            ITEM_APP("Тест SPI", UserSPIApp),
+            ITEM_APP("I2C-сканер", ScanI2CApp),
+        },
+    ),
+    ITEM_APP("Летріс", LetrisApp),
+    ITEM_APP("Тамагочі", TamagotchiApp),
+};
+
+ITEM_LIST dev_items = {
+    ITEM_APP("Live Lua", LuaLiveRunnerApp),
+    ITEM_APP("Lua REPL", LuaReplApp),
+    ITEM_APP("FTP сервер", FTPServerApp),
+};
 
 void LauncherApp::run() {
     lilka::Menu menu("Головне меню");
@@ -56,38 +88,24 @@ void LauncherApp::run() {
         }
         int16_t index = menu.getCursor();
         if (index == 0) {
-            appsMenu();
+            appsMenu("Додатки", app_items);
         } else if (index == 1) {
             sdBrowserMenu("/");
         } else if (index == 2) {
             spiffsBrowserMenu();
         } else if (index == 3) {
-            // dev_menu();
-            devMenu();
+            appsMenu("Розробка", dev_items);
         } else if (index == 4) {
             settingsMenu();
         }
     }
 }
 
-void LauncherApp::appsMenu() {
-    APP_ITEM_LIST app_items = {
-        APP_ITEM("Лінії", DemoLines),
-        APP_ITEM("Диск", DiskApp),
-        APP_ITEM("Перетворення", TransformApp),
-        APP_ITEM("М'ячик", BallApp),
-        APP_ITEM("Куб", CubeApp),
-        APP_ITEM("Епілепсія", EpilepsyApp),
-        APP_ITEM("Летріс", LetrisApp),
-        APP_ITEM("Тамагочі", TamagotchiApp),
-        APP_ITEM("Клавіатура", KeyboardApp),
-        APP_ITEM("Тест SPI", UserSPIApp),
-        APP_ITEM("I2C-сканер", ScanI2CApp),
-    };
-    int appCount = app_items.size();
-    lilka::Menu menu("Демо");
-    for (int i = 0; i < app_items.size(); i++) {
-        menu.addItem(app_items[i].name);
+void LauncherApp::appsMenu(const char* title, ITEM_LIST& list) {
+    int itemCount = list.size();
+    lilka::Menu menu(title);
+    for (int i = 0; i < list.size(); i++) {
+        menu.addItem(list[i].name, list[i].type == APP_ITEM_TYPE_SUBMENU ? &app_group : &app);
     }
     menu.addItem("<< Назад");
     while (1) {
@@ -97,10 +115,15 @@ void LauncherApp::appsMenu() {
             queueDraw();
         }
         int16_t index = menu.getCursor();
-        if (index == appCount) {
+        if (index == itemCount) {
             break;
         }
-        AppManager::getInstance()->runApp(app_items[index].construct());
+        item_t item = list[index];
+        if (item.type == APP_ITEM_TYPE_SUBMENU) {
+            appsMenu(item.name, item.submenu);
+        } else {
+            AppManager::getInstance()->runApp(list[index].construct());
+        }
     }
 }
 
@@ -286,32 +309,6 @@ void LauncherApp::selectFile(String path) {
         long size = ftell(file);
         fclose(file);
         alert(path, String("Розмір:\n") + size + " байт");
-    }
-}
-
-void LauncherApp::devMenu() {
-    APP_ITEM_LIST app_items = {
-        APP_ITEM("Live Lua", LuaLiveRunnerApp),
-        APP_ITEM("Lua REPL", LuaReplApp),
-        APP_ITEM("FTP сервер", FTPServerApp),
-    };
-    int appCount = app_items.size();
-    lilka::Menu menu("Розробка");
-    for (int i = 0; i < app_items.size(); i++) {
-        menu.addItem(app_items[i].name);
-    }
-    menu.addItem("<< Назад");
-    while (1) {
-        while (!menu.isFinished()) {
-            menu.update();
-            menu.draw(canvas);
-            queueDraw();
-        }
-        int16_t index = menu.getCursor();
-        if (index == appCount) {
-            return;
-        }
-        AppManager::getInstance()->runApp(app_items[index].construct());
     }
 }
 
