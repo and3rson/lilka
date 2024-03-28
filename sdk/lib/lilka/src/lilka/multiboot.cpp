@@ -226,7 +226,7 @@ int MultiBoot::finishAndReboot() {
 
 String MultiBoot::getFirmwarePath() {
     Preferences prefs;
-    prefs.begin("lilka", true);
+    prefs.begin("lilka", false);
     String arg = "";
     if (prefs.isKey(MULTIBOOT_PATH_KEY)) {
         arg = prefs.getString(MULTIBOOT_PATH_KEY);

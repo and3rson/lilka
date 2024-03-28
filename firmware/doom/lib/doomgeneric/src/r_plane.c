@@ -25,6 +25,7 @@
 #include "i_system.h"
 #include "z_zone.h"
 #include "w_wad.h"
+#include "d_alloc.h"
 
 #include "doomdef.h"
 #include "doomstat.h"
@@ -109,7 +110,8 @@ int R_AllocPlanes (void)
     //     return -1;
     // }
     int openings_size = sizeof(short) * MAXOPENINGS;
-    openings = malloc (openings_size);
+    // openings = malloc(openings_size);
+    openings = ps_malloc(openings_size);
     if (openings == NULL)
     {
         // free (visplanes);
