@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <vector> // Include vector header
 
 namespace lilka {
 
@@ -19,23 +20,24 @@ struct Configuration {
     Language_Code language;
 };
 
-// Array of full language names
-extern const char* Language_FullName[static_cast<int>(Language_Code::NumLanguages)];
+// Vector of full language names
+extern const std::vector<std::string> Language_FullName;
 
-// Array of native full language names
-extern const char* Language_FullNameNative[static_cast<int>(Language_Code::NumLanguages)];
+// Vector of native full language names
+extern const std::vector<std::string> Language_FullNameNative;
 
-// Array of short language names
-extern const char* Language_ShortName[static_cast<int>(Language_Code::NumLanguages)];
+// Vector of short language names
+extern const std::vector<std::string> Language_ShortName;
 
 class Localization {
 public:
-    void addString(const std::string& language, const std::string& key, const std::string& value);
-    std::string getString(const std::string& language, const std::string& key) const;
+    void addString(Language_Code language, const std::string& key, const std::string& value);
+    std::string getString(Language_Code language, const std::string& key) const;
 
 private:
-    std::map<std::string, std::map<std::string, std::string>> languages;
+    std::map<Language_Code, std::map<std::string, std::string>> languages;
 };
+
 } // namespace lilka
 
 #endif // LILKA_LOCALIZATION_H
