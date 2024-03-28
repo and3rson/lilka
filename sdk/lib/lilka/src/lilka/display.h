@@ -2,7 +2,7 @@
 #define LILKA_DISPLAY_H
 
 #include "config.h"
-
+#include "colors565.h"
 #include <Arduino_GFX_Library.h>
 #include <U8g2lib.h>
 
@@ -45,9 +45,9 @@ typedef struct int_vector_t {
 /// }
 ///
 /// void loop() {
-///    lilka::display.fillScreen(lilka::display.color565(255, 0, 0)); // Заповнити екран червоним кольором
+///    lilka::display.fillScreen(lilka::colors::Red); // Заповнити екран червоним кольором
 ///    lilka::display.setCursor(32, 32);
-///    lilka::display.setTextColor(lilka::display.color565(0, 255, 0)); // Зелений текст
+///    lilka::display.setTextColor(lilka::colors::Green); // Зелений текст
 ///    lilka::display.print("Привіт, Лілка!");
 /// }
 /// @endcode
@@ -125,7 +125,7 @@ public:
     /// Наприклад:
     /// @code
     /// lilka::display.setCursor(0, 32);
-    /// lilka::display.setTextColor(lilka::display.color565(0, 0, 0)); // Білий текст
+    /// lilka::display.setTextColor(lilka::colors::Black); // Чорний текст
     /// lilka::display.print("Привіт,j ");
     /// lilka::display.print(String("Лілка!\n"));
     /// lilka::display.print(42);
@@ -230,7 +230,7 @@ public:
     /// Приклад використання:
     /// @code
     /// // Завантажити зображення з файлу "image.bmp", використовуючи білий колір як прозорий.
-    /// lilka::Image *image = lilka::resources.loadImage("image.bmp", lilka::display.color565(255, 255, 255));
+    /// lilka::Image *image = lilka::resources.loadImage("image.bmp", lilka::colors::White);
     /// lilka::display.draw16bitRGBBitmapWithTranColor(
     ///     0, 0, image->pixels, image->transparentColor, image->width, image->height
     /// );
@@ -244,7 +244,7 @@ public:
         int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
     );
     /// Відобразити буфер на екрані (див. `lilka::Canvas`).
-    void renderCanvas(Canvas* canvas);
+    void drawCanvas(Canvas* canvas);
 
 private:
     const void* splash;
@@ -258,7 +258,7 @@ private:
 /// то текст буде мерехтіти.
 ///
 /// Щоб уникнути цього, можна використовувати буфер. Цей клас дозволяє малювати графічні об'єкти на буфері,
-/// а потім відобразити його на екрані за допомогою методу `lilka::display.renderCanvas`.
+/// а потім відобразити його на екрані за допомогою методу `lilka::display.drawCanvas`.
 ///
 /// Такий підхід дозволяє зменшити мерехтіння, але збільшує використання пам'яті. Він називається "буферизація",
 /// оскільки ми спершу малюємо на буфері, а тоді відображаємо буфер на екрані.
@@ -279,11 +279,11 @@ private:
 ///     lilka::Canvas canvas; // Створити новий Canvas зі стандартним розміром (розмір дисплею)
 ///     int y = 100;
 ///     while (1) {
-///         canvas.fillScreen(lilka::display.color565(0, 0, 0)); // Заповнити буфер чорним кольором
+///         canvas.fillScreen(lilka::colors::Black); // Заповнити буфер чорним кольором
 ///         canvas.setCursor(32, y);
-///         canvas.setTextColor(lilka::display.color565(0, 0, 0)); // Білий текст
+///         canvas.setTextColor(lilka::colors::Black); // Чорний текст
 ///         canvas.print("Привіт, Лілка!");
-///         lilka::display.renderCanvas(&canvas); // Відобразити буфер на екрані - жодного мерехтіння!
+///         lilka::display.drawCanvas(&canvas); // Відобразити буфер на екрані - жодного мерехтіння!
 ///         y++;
 ///         if (y > 200) {
 ///             y = 100;
@@ -343,7 +343,7 @@ public:
     /// }
     /// lilka::Image *rotatedImage = new lilka::Image(image->width, image->height);
     /// // Повертаємо на 30 градусів, заповнюючи пікселі, які виходять за межі зображення, білим кольором:
-    /// image->rotate(30, rotatedImage, lilka::display.color565(255, 255, 255));
+    /// image->rotate(30, rotatedImage, lilka::colors::White);
     /// // Звільнюємо пам'ять
     /// delete image;
     /// delete rotatedImage;

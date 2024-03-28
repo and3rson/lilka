@@ -21,7 +21,7 @@ void WiFiConfigApp::run() {
         static_cast<NetworkService*>(ServiceManager::getInstance()->getService<NetworkService>("network"));
     // TODO: use dynamic_cast and assert networkService != nullptr
 
-    buffer.fillScreen(buffer.color565(0, 0, 0));
+    buffer.fillScreen(lilka::colors::Black);
     buffer.setCursor(8, 24);
     canvas->drawCanvas(&buffer);
     queueDraw();
@@ -83,8 +83,7 @@ void WiFiConfigApp::run() {
         menu.addItem(
             networks[i],
             icons[signalStrength],
-            networkService->getPassword(networks[i]).length() ? lilka::display.color565(0, 255, 0)
-                                                              : lilka::display.color565(255, 255, 255)
+            networkService->getPassword(networks[i]).length() ? lilka::colors::Green : lilka::colors::White
         );
     }
     menu.addItem("<< Назад");
@@ -134,7 +133,7 @@ void WiFiConfigApp::run() {
         }
         networkService->connect(ssid, password);
 
-        buffer.fillScreen(buffer.color565(0, 0, 0));
+        buffer.fillScreen(lilka::colors::Black);
         buffer.setCursor(8, 24);
         buffer.println("Під'єднуємось...");
         canvas->drawCanvas(&buffer);

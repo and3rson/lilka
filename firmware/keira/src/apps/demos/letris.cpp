@@ -16,13 +16,13 @@ const bool shapesData[7][4][4] = {
 };
 
 const uint16_t colors[7] = {
-    lilka::display.color565(255, 0, 0),
-    lilka::display.color565(0, 255, 0),
-    lilka::display.color565(0, 0, 255),
-    lilka::display.color565(255, 255, 0),
-    lilka::display.color565(255, 0, 255),
-    lilka::display.color565(0, 255, 255),
-    lilka::display.color565(200, 200, 200),
+    lilka::colors::Red,
+    lilka::colors::Green,
+    lilka::colors::Blue,
+    lilka::colors::Yellow,
+    lilka::colors::Fuchsia,
+    lilka::colors::Aqua,
+    lilka::colors::Light_gray,
 };
 const uint8_t colorCount = sizeof(colors) / sizeof(colors[0]);
 
@@ -71,7 +71,7 @@ public:
                         (this->y + yy) * BLOCK_SIZE + 2,
                         BLOCK_SIZE - 4,
                         BLOCK_SIZE - 4,
-                        lilka::display.color565(0, 0, 0)
+                        lilka::colors::Black
                     );
                 } else if (drawEmptyBlocks) {
                     canvas->fillRect(
@@ -79,7 +79,7 @@ public:
                         (this->y + yy) * BLOCK_SIZE,
                         BLOCK_SIZE,
                         BLOCK_SIZE,
-                        lilka::display.color565(0, 0, 0)
+                        lilka::colors::Black
                     );
                 }
             }
@@ -196,7 +196,7 @@ void LetrisApp::run() {
     int16_t xMargin = (canvas->width() - letris_splash_width) / 2;
     while (!lilka::controller.getState().a.justPressed) {
         float time = millis() / 1000.0;
-        canvas->fillScreen(canvas->color565(0, 0, 0));
+        canvas->fillScreen(lilka::colors::Black);
         float yShifts[letris_splash_width];
         for (uint16_t x = 0; x < letris_splash_width; x++) {
             yShifts[x] = cos(time + ((float)x) / 32.0) * 8;
@@ -215,10 +215,10 @@ void LetrisApp::run() {
     }
 
     // Очищаємо екран
-    canvas->fillScreen(canvas->color565(32, 32, 32));
+    canvas->fillScreen(lilka::colors::Graygrey);
     queueDraw();
     // Ми робимо це двічі, щоб очистити обидва буфери (основний та задній)
-    canvas->fillScreen(canvas->color565(32, 32, 32));
+    canvas->fillScreen(lilka::colors::Graygrey);
     queueDraw();
 
     // Головний цикл гри
@@ -271,7 +271,7 @@ void LetrisApp::run() {
                 nextShape.draw(canvas, true);
                 queueDraw();
                 // Відображаємо зміни на екрані
-                // lilka::display.renderCanvas(canvas);
+                // lilka::display.drawCanvas(canvas);
             }
 
             // Перевіряємо, чи може фігура рухатися вниз

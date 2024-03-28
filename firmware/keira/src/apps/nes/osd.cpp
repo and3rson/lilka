@@ -164,13 +164,13 @@ int osd_init_sound() {
         .use_apll = false,
     };
     i2s_driver_install(esp_i2s::I2S_NUM_0, &cfg, 2, &queue);
-    esp_i2s::i2s_pin_config_t pins = {
-        .bck_io_num = LILKA_I2S_BCLK,
-        .ws_io_num = LILKA_I2S_LRCK,
-        .data_out_num = LILKA_I2S_DOUT,
-        .data_in_num = -1,
-    };
-    i2s_set_pin(esp_i2s::I2S_NUM_0, &pins);
+    // esp_i2s::i2s_pin_config_t pins = {
+    //     .bck_io_num = LILKA_I2S_BCLK,
+    //     .ws_io_num = LILKA_I2S_LRCK,
+    //     .data_out_num = LILKA_I2S_DOUT,
+    //     .data_in_num = -1,
+    // };
+    // i2s_set_pin(esp_i2s::I2S_NUM_0, &pins);
     i2s_zero_dma_buffer(esp_i2s::I2S_NUM_0);
     audio_callback = 0;
     return OSD_OK;

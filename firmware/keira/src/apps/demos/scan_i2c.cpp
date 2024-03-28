@@ -13,7 +13,7 @@ void ScanI2CApp::run() {
     buffer.fillScreen(0);
     buffer.setFont(FONT_9x15);
 
-    buffer.fillScreen(canvas->color565(0, 0, 0));
+    buffer.fillScreen(lilka::colors::Black);
     buffer.setTextBound(4, 0, canvas->width() - 8, canvas->height());
     buffer.setCursor(4, 20);
     buffer.println("I2C init: SDA=" + String(LILKA_P3) + ", SCL=" + String(LILKA_P4));

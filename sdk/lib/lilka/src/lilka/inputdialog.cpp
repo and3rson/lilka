@@ -125,8 +125,8 @@ void InputDialog::draw(Arduino_GFX* canvas) {
     int16_t kbHeight = canvas->height() / 2;
     int16_t kbWidth = canvas->width();
 
-    canvas->fillRect(0, 0, canvas->width(), canvas->height(), canvas->color565(0, 0, 0));
-    canvas->setTextColor(canvas->color565(255, 255, 255));
+    canvas->fillRect(0, 0, canvas->width(), canvas->height(), lilka::colors::Black);
+    canvas->setTextColor(lilka::colors::White);
     canvas->setFont(FONT_10x20);
 
     canvas->setTextBound(4, 4, canvas->width() - 8, canvas->height() - 8);
@@ -160,7 +160,7 @@ void InputDialog::draw(Arduino_GFX* canvas) {
             // Draw rect if key is focused
             if (y == cy && x == cx) {
                 canvas->fillRect(
-                    x * buttonWidth, kbTop + y * buttonHeight, buttonWidth, buttonHeight, canvas->color565(255, 64, 0)
+                    x * buttonWidth, kbTop + y * buttonHeight, buttonWidth, buttonHeight, lilka::colors::Orange_red
                 );
             }
             uint8_t key = layerKeys[y * LILKA_KB_COLS + x];
@@ -183,7 +183,7 @@ void InputDialog::draw(Arduino_GFX* canvas) {
                             x * buttonWidth + (buttonWidth / 2) - iconWidth / 2,
                             kbTop + y * buttonHeight + (buttonHeight / 2) - iconHeight / 2,
                             const_cast<uint16_t*>(icon),
-                            canvas->color565(0, 0, 0),
+                            lilka::colors::Black,
                             iconWidth,
                             iconHeight
                         );
