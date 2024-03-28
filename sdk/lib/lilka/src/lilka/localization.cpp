@@ -5,7 +5,7 @@ namespace lilka {
 // Vector of full language names
 const std::vector<std::string> Language_FullName = {
     "English",
-    "Ukraine"
+    "Ukrainian"
     // Add more full language names as needed
 };
 
