@@ -30,7 +30,7 @@ elif len(sys.argv) == 3:
     name = sys.argv[2]
     path_to_template = templates_path +"/"+what_to
     if not os.path.isdir(path_to_template):
-        print("Generator {} doesn't exist. ")
+        print("Generator {} doesn't exist. ".format(what_to))
         help()
     else:
         for filename in os.listdir(path_to_template):
