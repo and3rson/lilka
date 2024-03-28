@@ -35,7 +35,8 @@ std::string Localization::getString(Language_Code language, const std::string& k
         if (keyIt != languageStrings.end()) {
             return keyIt->second;
         }
-        return "Localization not found for key: " + Language_FullName[static_cast<int>(language)] + " in language: " + key;
+        return "Localization not found for key: " + Language_FullName[static_cast<int>(language)] +
+               " in language: " + key;
     }
     return "Language not supported: " + Language_FullName[static_cast<int>(language)];
 }
