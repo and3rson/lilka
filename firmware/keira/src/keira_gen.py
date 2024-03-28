@@ -34,7 +34,7 @@ elif len(sys.argv) == 3:
         help()
     else:
         for filename in os.listdir(path_to_template):
-            new_filename = what_to+"s/"+filename.replace("$NAME$", name)
+            new_filename = source_path+"/"+ what_to+"s/"+filename.replace("$NAME$", name)
             if (os.path.exists(new_filename)):
                 print("Can't generate source file cuz it allready exists")
                 sys.exit()            
