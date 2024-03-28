@@ -43,12 +43,12 @@ void hal_log(log_level_t level, char* buf, ...) {
 void TamagotchiApp::drawTamaSelection(uint8_t y) {
     uint8_t i;
     for (i = 0; i < 7; i++) {
-        if (icon_buffer[i]) drawTriangle(i * 16 + 5, y);
-        canvas->drawXBitmap(i * 16 + 4, y + 6, bitmaps + i * 18, 16, 9, lilka::colors::White);
+        if (icon_buffer[i]) drawTriangle(i * 16 * 2 + 18, y);
+        canvas->drawXBitmap(i * 16 * 2 + 18, y + 6, bitmaps + i * 18 * 4, 16 * 2, 9 * 2, lilka::colors::White);
     }
     if (icon_buffer[7]) {
-        drawTriangle(7 * 16 + 5, y);
-        canvas->drawXBitmap(7 * 16 + 4, y + 6, bitmaps + 7 * 18, 16, 9, lilka::colors::White);
+        drawTriangle(7 * 16 * 2 + 18, y);
+        canvas->drawXBitmap(7 * 16 * 2 + 18, y + 6, bitmaps + 7 * 18 * 4, 16 * 2, 9 * 2, lilka::colors::White);
     }
 }
 
@@ -68,12 +68,13 @@ void TamagotchiApp::run() {
                 //     instance->drawTamaRow(j, j + j + j + 1, 1);
                 // }
                 for (uint16_t x = 0; x < LCD_WIDTH; x++) {
-                    if (matrix_buffer[y][x / 8] & (0x80 >> (x % 8))) {
-                        canvas->drawPixel(x, y, lilka::colors::White);
+                    if (matrix_buffer[y][x]) {
+                        canvas->fillRect(x * 8, y * 8, 7, 7, lilka::colors::White);
                     }
                 }
             }
-            instance->drawTamaSelection(49);
+            instance->drawTamaSelection(150);
+            instance->queueDraw();
         },
         .set_lcd_matrix = [](uint8_t x, uint8_t y, uint8_t value) -> void { matrix_buffer[y][x] = value; },
         .set_lcd_icon = [](uint8_t icon_id, uint8_t value) -> void { icon_buffer[icon_id] = value; },
@@ -96,15 +97,18 @@ void TamagotchiApp::run() {
     };
 
     tamalib_register_hal(&hal);
-    tamalib_set_framerate(3);
+    tamalib_set_framerate(5);
     tamalib_init(1000000);
 
     while (1) {
         if (lilka::controller.getState().b.pressed) {
             // TODO - save state?
-            return;
+            break;
         }
+        // TODO: Allow to reset state
 
         tamalib_mainloop_step_by_step();
     }
+
+    lilka::buzzer.stop();
 }
