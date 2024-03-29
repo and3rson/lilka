@@ -158,5 +158,50 @@ String FileSystem::getRelativePath(const String& path) {
 bool FileSystem::sdAvailable() {
     return (sdfs->cardType() == CARD_NONE || sdfs->cardType() == CARD_UNKNOWN);
 }
+
+File FileSystem::open(const char* path, const char* mode, const bool create) {
+    return getFSClassByPath(path)->open(getRelativePath(path), mode, create);
+}
+File FileSystem::open(const String& path, const char* mode, const bool create) {
+    return getFSClassByPath(path)->open(getRelativePath(path), mode, create);
+}
+
+bool FileSystem::exists(const char* path) {
+    return getFSClassByPath(path)->exists(getRelativePath(path));
+}
+bool FileSystem::exists(const String& path) {
+    return getFSClassByPath(path)->exists(getRelativePath(path));
+}
+
+bool FileSystem::remove(const char* path) {
+    return getFSClassByPath(path)->remove(getRelativePath(path));
+}
+bool FileSystem::remove(const String& path) {
+    return getFSClassByPath(path)->remove(getRelativePath(path));
+}
+
+bool FileSystem::rename(const char* pathFrom, const char* pathTo) {
+    // TODO : move file between filesystems
+    return getFSClassByPath(pathFrom)->rename(getRelativePath(pathFrom), getRelativePath(pathTo));
+}
+bool FileSystem::rename(const String& pathFrom, const String& pathTo) {
+    return getFSClassByPath(pathFrom)->rename(getRelativePath(pathFrom), getRelativePath(pathTo));
+}
+
+bool FileSystem::mkdir(const char* path) {
+    return getFSClassByPath(path)->mkdir(getRelativePath(path));
+}
+bool FileSystem::mkdir(const String& path) {
+    return getFSClassByPath(path)->mkdir(getRelativePath(path));
+}
+
+bool FileSystem::rmdir(const char* path) {
+    return getFSClassByPath(path)->rmdir(getRelativePath(path));
+}
+bool FileSystem::rmdir(const String& path) {
+    return getFSClassByPath(path)->rmdir(getRelativePath(path));
+}
+
 FileSystem filesystem;
+
 } // namespace lilka
