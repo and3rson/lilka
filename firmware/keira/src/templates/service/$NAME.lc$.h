@@ -1,4 +1,5 @@
 #pragma once
+#include "service.h"
 
 class $NAME$Service : public Service {
 public:

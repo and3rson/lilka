@@ -1,4 +1,5 @@
 #pragma once
+#include "app.h"
 
 class $NAME$App : public App {
 public:
