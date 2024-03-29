@@ -1,8 +1,12 @@
 #include <ff.h>
+#include <esp_vfs_fat.h>
+#include <sd_diskio.h>
 
+#include "driver/sdspi_host.h"
 #include "launcher.h"
 #include "appmanager.h"
 
+#include "lilka/config.h"
 #include "servicemanager.h"
 #include "services/network.h"
 
@@ -312,6 +316,53 @@ void LauncherApp::selectFile(String path) {
     }
 }
 
+// #define SECTOR_SIZE    512
+// #define NUM_SECTORS    128 // Total number of sectors in the memory array
+// #define NUM_PARTITIONS 4 // Number of partitions in MBR
+//
+// // Define MBR entry structure
+// struct MBR_Entry {
+//     uint8_t boot_indicator; // Boot indicator (0x80 if bootable)
+//     uint8_t starting_head;
+//     uint8_t starting_sector_cylinder;
+//     uint8_t system_id; // File system type (0x0B for FAT32)
+//     uint8_t ending_head;
+//     uint8_t ending_sector_cylinder;
+//     uint32_t starting_sector;
+//     uint32_t total_sectors;
+// };
+//
+// // Define MBR structure
+// struct MBR {
+//     uint8_t bootstrap_code[446]; // Bootstrap code
+//     struct MBR_Entry entries[NUM_PARTITIONS]; // Partition entries
+//     uint16_t signature; // MBR signature (0xAA55)
+// };
+//
+// // Function to initialize MBR and vFAT partition
+// void initialize_MBR_and_partition(uint8_t* memory) {
+//     // Initialize MBR
+//     struct MBR mbr = {0};
+//     mbr.signature = 0xAA55;
+//
+//     // Initialize vFAT partition
+//     struct MBR_Entry partition = {0};
+//     partition.boot_indicator = 0x00; // Non-bootable partition
+//     partition.starting_head = 0x00;
+//     partition.starting_sector_cylinder = 0x00;
+//     partition.system_id = 0x0B; // FAT32
+//     partition.ending_head = 0x00;
+//     partition.ending_sector_cylinder = 0x00;
+//     partition.starting_sector = 1; // Start from the second sector (first sector reserved for MBR)
+//     partition.total_sectors = NUM_SECTORS - 1; // Use all remaining sectors for the partition
+//
+//     // Copy partition entry to MBR
+//     memcpy(&mbr.entries[0], &partition, sizeof(struct MBR_Entry));
+//
+//     // Copy MBR to memory array
+//     memcpy(memory, &mbr, sizeof(struct MBR));
+// }
+
 void LauncherApp::settingsMenu() {
     String titles[] = {
         "WiFi",
@@ -394,10 +445,41 @@ void LauncherApp::settingsMenu() {
                 );
             }
         } else if (index == 4) {
-            if (!lilka::sdcard.available()) {
-                alert("Помилка", "SD-карта не знайдена");
+            // if (!lilka::sdcard.available()) {
+            //     alert("Помилка", "SD-карта не знайдена");
+            //     continue;
+            // }
+            // if (SD.cardType() == CARD_NONE) {
+            //     alert("Помилка", "SD-карта не знайдена");
+            //     continue;
+            // }
+
+            // lilka::SPI1.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0));
+            // uint8_t pdrv = sdcard_init(LILKA_SDCARD_CS, &lilka::SPI1, 4000000);
+            // lilka::SPI1.endTransaction();
+            // if (pdrv == 0xFF) {
+            //     alert("Помилка", "Не вдалося ініціалізувати SD-карту");
+            //     continue;
+            // }
+            // uint8_t* memory = new uint8_t[NUM_SECTORS * SECTOR_SIZE];
+            // initialize_MBR_and_partition(memory);
+            // for (int i = 0; i < NUM_SECTORS; i++) {
+            //     sd_write_raw(pdrv, memory + i * SECTOR_SIZE, i);
+            //     // SD.writeRAW(memory + i * SECTOR_SIZE, i);
+            // }
+            // lilka::SPI1.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0));
+            // sdcard_uninit(pdrv);
+            // lilka::SPI1.endTransaction();
+            // return;
+
+            lilka::SPI1.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0));
+            uint8_t pdrv = sdcard_init(LILKA_SDCARD_CS, &lilka::SPI1, 4000000);
+            lilka::SPI1.endTransaction();
+            if (pdrv == 0xFF) {
+                alert("Помилка", "Не вдалося ініціалізувати SD-карту");
                 continue;
             }
+
             lilka::Alert confirm(
                 "Форматування",
                 "УВАГА: Це очистить ВСІ дані з SD-карти!\n\nПродовжити?\n\nSTART - продовжити\nA - скасувати"
@@ -410,6 +492,18 @@ void LauncherApp::settingsMenu() {
                 taskYIELD();
             }
             if (confirm.getButton() != lilka::Button::START) {
+                lilka::SPI1.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0));
+                sdcard_uninit(pdrv);
+                lilka::SPI1.endTransaction();
+                continue;
+            }
+
+            uint8_t* workbuf = new uint8_t[FF_MAX_SS];
+            std::unique_ptr<uint8_t[]> workbufPtr(workbuf);
+            DWORD plist[] = {100, 0, 0, 0};
+            FRESULT res = f_fdisk(pdrv, plist, workbuf);
+            if (res != FR_OK) {
+                this->alert("Помилка", "Не вдалося записати таблицю розділів, код помилки: " + String(res));
                 continue;
             }
             lilka::ProgressDialog dialog("Форматування", "Будь ласка, зачекайте...");
