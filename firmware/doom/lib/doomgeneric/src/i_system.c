@@ -45,6 +45,7 @@
 #include "i_sound.h"
 #include "i_timer.h"
 #include "i_video.h"
+#include "d_alloc.h"
 
 #include "i_system.h"
 
@@ -57,7 +58,6 @@
 
 #define DEFAULT_RAM 6 /* MiB */
 #define MIN_RAM     6  /* MiB */
-
 
 typedef struct atexit_listentry_s atexit_listentry_t;
 
@@ -116,7 +116,8 @@ static byte *AutoAllocMemory(int *size, int default_ram, int min_ram)
 
         *size = default_ram * 1024 * 1024;
 
-        zonemem = malloc(*size);
+        // zonemem = malloc(*size);
+        zonemem = ps_malloc(*size);
 
         // Failed to allocate?  Reduce zone size until we reach a size
         // that is acceptable.
@@ -157,7 +158,7 @@ byte *I_ZoneBase (int *size)
 
     zonemem = AutoAllocMemory(size, default_ram, min_ram);
 
-    DG_printf("zone memory: %p, %x allocated for zone\n", 
+    DG_printf("zone memory: %p, %x allocated for zone\n",
            zonemem, *size);
 
     return zonemem;
@@ -191,7 +192,7 @@ void I_PrintStartupBanner(char *gamedescription)
     I_PrintDivider();
     I_PrintBanner(gamedescription);
     I_PrintDivider();
-    
+
     DG_printf(
     " " PACKAGE_NAME " is free software, covered by the GNU General Public\n"
     " License.  There is NO warranty; not even for MERCHANTABILITY or FITNESS\n"
@@ -201,7 +202,7 @@ void I_PrintStartupBanner(char *gamedescription)
     I_PrintDivider();
 }
 
-// 
+//
 // I_ConsoleStdout
 //
 // Returns true if stdout is a real console, false if it is a file
@@ -248,8 +249,8 @@ void I_Quit (void)
     atexit_listentry_t *entry;
 
     // Run through all exit functions
- 
-    entry = exit_funcs; 
+
+    entry = exit_funcs;
 
     while (entry != NULL)
     {

@@ -30,6 +30,7 @@
 #include "i_system.h"
 #include "z_zone.h"
 #include "w_wad.h"
+#include "d_alloc.h"
 
 #include "r_local.h"
 
@@ -93,7 +94,7 @@ char*		spritename;
 int R_AllocThings (void)
 {
     int vissprites_size = MAXVISSPRITES * sizeof(vissprite_t);
-    vissprites = malloc (vissprites_size);
+    vissprites = ps_malloc (vissprites_size);
     if (vissprites == NULL)
     {
         return -1;

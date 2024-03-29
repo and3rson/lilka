@@ -3,8 +3,8 @@
 #include "doom_splash.h"
 
 extern "C" {
+#include "i_sound.h"
 #include "doomkeys.h"
-#include "m_argv.h"
 #include "doomgeneric.h"
 #include "d_alloc.h"
 }
@@ -29,6 +29,13 @@ TaskHandle_t gameTaskHandle;
 TaskHandle_t drawTaskHandle;
 
 uint32_t* backBuffer = NULL;
+
+sound_module_t DG_sound_module;
+extern sound_module_t sound_module_I2S;
+extern sound_module_t sound_module_Buzzer;
+extern sound_module_t sound_module_NoSound;
+int use_libsamplerate = 0;
+float libsamplerate_scale = 0.65f;
 
 void gameTask(void* arg);
 void drawTask(void* arg);
@@ -153,6 +160,32 @@ void setup() {
     }
     char* argv[3] = {arg, arg2, arg3};
 
+    // Select sound device
+    lilka::Menu soundMenu("Звуковий пристрій");
+    soundMenu.addItem("I2S DAC");
+    soundMenu.addItem("П'єзо-динамік");
+    soundMenu.addItem("Без звуку");
+    lilka::Canvas canvas;
+    while (!soundMenu.isFinished()) {
+        soundMenu.update();
+        soundMenu.draw(&canvas);
+        lilka::display.drawCanvas(&canvas);
+    }
+    int soundDevice = soundMenu.getCursor();
+
+    if (soundDevice == 0) {
+        // I2S DAC
+        DG_sound_module = sound_module_I2S;
+    } else if (soundDevice == 1) {
+        // Buzzer
+        DG_sound_module = sound_module_Buzzer;
+    } else {
+        // No sound
+        DG_sound_module = sound_module_NoSound;
+    }
+
+    lilka::display.fillScreen(lilka::colors::Black);
+
     DG_printf("Doomgeneric starting, WAD file: %s\n", arg3);
 
     D_AllocBuffers();
@@ -185,6 +218,13 @@ void gameTask(void* arg) {
     while (1) {
         doomgeneric_Tick();
         taskYIELD();
+        // Print free memory
+        // Serial.print("Free heap: ");
+        // Serial.print(ESP.getFreeHeap());
+
+        // Print free stack
+        // Serial.print("  |  Game task free stack: ");
+        // Serial.println(uxTaskGetStackHighWaterMark(NULL));
     }
 }
 
@@ -217,6 +257,7 @@ void drawTask(void* arg) {
         lilka::display.setTextBound(0, 0, LILKA_DISPLAY_WIDTH, LILKA_DISPLAY_HEIGHT);
         lilka::display.setCursor(32, 16);
         lilka::display.setTextColor(lilka::colors::White, lilka::colors::Black);
+        lilka::display.fillRect(32, 0, 64, 20, lilka::colors::Black);
         lilka::display.setFont(FONT_6x12);
         lilka::display.print(" FPS: ");
         lilka::display.print(1000 / delta);
@@ -275,6 +316,7 @@ bool hadNewLine = true;
 
 extern "C" void DG_printf(const char* format, ...) {
     // Save string to buffer
+    xSemaphoreTake(backBufferMutex, portMAX_DELAY);
     char buffer[256];
     va_list args;
     va_start(args, format);
@@ -295,6 +337,7 @@ extern "C" void DG_printf(const char* format, ...) {
             hadNewLine = true;
         }
     }
+    xSemaphoreGive(backBufferMutex);
 }
 
 void loop() {

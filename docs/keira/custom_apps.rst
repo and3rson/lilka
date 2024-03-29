@@ -155,25 +155,36 @@ Keira написана на C++, і вона містить ряд вбудов�
 
 .. code-block:: cpp
     :linenos:
-    :emphasize-lines: 1, 7
+    :emphasize-lines: 1, 27
     :caption: launcher.cpp
 
     #include "myapp.h"  // <--- підключаємо вашу програму
 
     // ...
 
-        // всередині функції appsMenu:
-        APP_ITEM_LIST app_items = {
-            APP_ITEM("Моя програма", MyApp),  // <--- ваша програма
-            APP_ITEM("Лінії", DemoLines),
-            APP_ITEM("Диск", DiskApp),
-            APP_ITEM("Перетворення", TransformApp),
-            APP_ITEM("М'ячик", BallApp),
-            APP_ITEM("Епілепсія", EpilepsyApp),
-            APP_ITEM("Летріс", LetrisApp),
-            APP_ITEM("Клавіатура", KeyboardApp),
-            APP_ITEM("Тест SPI", UserSPIApp),
-            APP_ITEM("I2C-сканер", ScanI2CApp),
-        };
+    ITEM_LIST app_items = {
+        ITEM_SUBMENU(
+            "Демо",
+            {
+                ITEM_APP("Лінії", DemoLines),
+                ITEM_APP("Диск", DiskApp),
+                ITEM_APP("Перетворення", TransformApp),
+                ITEM_APP("М'ячик", BallApp),
+                ITEM_APP("Куб", CubeApp),
+                ITEM_APP("Епілепсія", EpilepsyApp),
+            }
+        ),
+        ITEM_SUBMENU(
+            "Тести",
+            {
+                ITEM_APP("Клавіатура", KeyboardApp),
+                ITEM_APP("Тест SPI", UserSPIApp),
+                ITEM_APP("I2C-сканер", ScanI2CApp),
+            },
+        ),
+        ITEM_APP("Летріс", LetrisApp),
+        ITEM_APP("Тамагочі", TamagotchiApp),
+        ITEM_APP("Моя програма", MyApp),  // <--- додаємо вашу програму
+    };
 
 Після цього перепрошийте Лілку, і ваша програма з'явиться в меню програм.
