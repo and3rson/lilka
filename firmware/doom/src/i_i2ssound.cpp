@@ -83,7 +83,6 @@ static void I_I2S_ShutdownSound(void) {
     xSemaphoreTake(soundMutexHandle, portMAX_DELAY);
     vTaskDelete(soundTaskHandle);
     i2s_driver_uninstall(esp_i2s::I2S_NUM_0);
-    // free(soundTaskStack);
     free(mixerBuffer);
     xSemaphoreGive(soundMutexHandle);
     vSemaphoreDelete(soundMutexHandle);
@@ -167,26 +166,45 @@ static int I_I2S_StartSound(sfxinfo_t* sfxinfo, int channel, int vol, int sep) {
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
+// Mix sound data into the ring buffer
 void queueSound(const uint8_t* data, uint32_t length, uint32_t sample_rate, uint8_t vol) {
+    // Here comes the fun part! /AD
     xSemaphoreTake(soundMutexHandle, portMAX_DELAY);
+
+    // TODO: Resample to 11025 if needed? Most sounds are 11025, but not all...
+
+    // Number of samples to mix with buffered samples
+    int mixedLength;
+    if (mixerBufferStart <= mixerBufferEnd) {
+        // Buffer is contiguous
+        mixedLength = mixerBufferEnd - mixerBufferStart;
+    } else {
+        // Buffer is split
+        mixedLength = 65536 - mixerBufferStart;
+    }
+    mixedLength = MIN(mixedLength, length);
+    // Number of samples to add unmixed beyond buffered samples
+    int unmixedLength = length - mixedLength;
+
     uint32_t pos = mixerBufferStart;
-    // lilka::serial_log("Buffer: %d -> %d", mixerBufferStart, mixerBufferEnd);
-    bool mixing = true;
-    for (int i = 0; i < length; i++) {
-        uint16_t sample = (data[i] << 6) * vol / 127;
-        if (pos == mixerBufferEnd) {
-            mixing = false;
-        }
-        mixerBuffer[pos] =
-            mixing ? (mixerBuffer[pos] * (127 - vol) / 127 + sample * vol / 127) / 2 : sample * vol / 127;
+    for (int i = 0; i < mixedLength; i++) {
+        uint16_t sample = data[i] << 7; // Beef up the sample to 16-bit (minus 1 bit to avoid clipping)
+        mixerBuffer[pos] = (mixerBuffer[pos] * ((127 - vol) >> 7) + ((sample * vol) >> 7)) / 2;
         pos++;
         if (pos == 65536) {
             pos = 0;
         }
     }
-    if (!mixing) {
+    for (int i = 0; i < unmixedLength; i++) {
+        uint16_t sample = data[mixedLength + i] << 7; // ditto
+        mixerBuffer[pos] = (sample * vol) >> 7; // div 128
+        pos++;
+        if (pos == 65536) {
+            pos = 0;
+        }
+    }
+    if (unmixedLength > 0) {
         mixerBufferEnd = pos;
-        // lilka::serial_log("New end: %d", mixerBufferEnd);
     }
     xSemaphoreGive(soundMutexHandle);
 }
@@ -197,13 +215,16 @@ void soundTask(void* param) {
             xSemaphoreTake(soundMutexHandle, portMAX_DELAY);
             size_t written = 0;
             TickType_t xLastWakeTime = xTaskGetTickCount();
-            esp_i2s::i2s_write(
-                esp_i2s::I2S_NUM_0,
-                mixerBuffer + mixerBufferStart,
-                MIN(mixerBufferEnd - mixerBufferStart, 512) * 2,
-                &written,
-                portMAX_DELAY
-            );
+            uint32_t chunkSize;
+            if (mixerBufferStart < mixerBufferEnd) {
+                // Buffer is contiguous
+                chunkSize = mixerBufferEnd - mixerBufferStart;
+            } else {
+                // Buffer is split
+                chunkSize = 65536 - mixerBufferStart;
+            }
+            chunkSize = MIN(chunkSize, 512) * 2; // 512 samples. Multiply by 2 because i2s_write expects bytes.
+            esp_i2s::i2s_write(esp_i2s::I2S_NUM_0, mixerBuffer + mixerBufferStart, chunkSize, &written, portMAX_DELAY);
             mixerBufferStart += written / 2;
             if (mixerBufferStart >= 65536) {
                 mixerBufferStart = 0;
@@ -214,8 +235,8 @@ void soundTask(void* param) {
             // This is done by calculating delay from sample rate & bytes written.
             // TODO: BTW - ring buffer mixing sucks with variable sample rates... /AD
             vTaskDelayUntil(
-                &xLastWakeTime, written / 2 * 1000 / 11025 / portTICK_PERIOD_MS * 4 / 5
-            ); // Wait 4/5 of the time to prevent buffer underrun. Not the best solution, but works for now.
+                &xLastWakeTime, written / 2 * 1000 / 11025 / portTICK_PERIOD_MS * 7 / 8
+            ); // Wait 7/8 of the time to prevent buffer underrun. Not the best solution, but works for now.
         }
         taskYIELD();
     }
