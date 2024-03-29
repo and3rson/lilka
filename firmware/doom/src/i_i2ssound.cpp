@@ -234,9 +234,13 @@ void soundTask(void* param) {
             // We do this to prevent blocking in i2s_write and thus acquiring the mutex for too long.
             // This is done by calculating delay from sample rate & bytes written.
             // TODO: BTW - ring buffer mixing sucks with variable sample rates... /AD
-            vTaskDelayUntil(
-                &xLastWakeTime, written / 2 * 1000 / 11025 / portTICK_PERIOD_MS * 7 / 8
-            ); // Wait 7/8 of the time to prevent buffer underrun. Not the best solution, but works for now.
+            uint64_t delay = written / 2 * 1000 / 11025 / portTICK_PERIOD_MS;
+            // Wait 7/8 of the time to prevent buffer underrun. Not the best solution, but works for now.
+            delay = delay * 7 / 8;
+            if (delay) {
+                // vTaskDelayUntil doesn't like zero delays
+                vTaskDelayUntil(&xLastWakeTime, delay);
+            }
         }
         taskYIELD();
     }
