@@ -18,7 +18,7 @@ SemaphoreHandle_t soundMutexHandle = NULL;
 
 // Звук - це складно! :D /AD
 // Ring buffer for mixing sound
-uint16_t* mixerBuffer;
+int16_t* mixerBuffer;
 uint32_t mixerBufferStart = 0;
 uint32_t mixerBufferEnd = 0;
 
@@ -41,7 +41,7 @@ static boolean I_I2S_InitSound(bool _use_sfx_prefix) {
     use_sfx_prefix = _use_sfx_prefix;
     soundMutexHandle = xSemaphoreCreateMutex();
 
-    mixerBuffer = static_cast<uint16_t*>(ps_malloc(65536 * sizeof(uint16_t)));
+    mixerBuffer = static_cast<int16_t*>(ps_malloc(65536 * sizeof(int16_t)));
 
     xSemaphoreTake(
         backBufferMutex, portMAX_DELAY
@@ -188,16 +188,19 @@ void queueSound(const uint8_t* data, uint32_t length, uint32_t sample_rate, uint
 
     uint32_t pos = mixerBufferStart;
     for (int i = 0; i < mixedLength; i++) {
-        uint16_t sample = data[i] << 7; // Beef up the sample to 16-bit (minus 1 bit to avoid clipping)
-        mixerBuffer[pos] = (mixerBuffer[pos] * ((127 - vol) >> 7) + ((sample * vol) >> 7)) / 2;
+        uint16_t rawSample =
+            data[i] << 6; // Beef up the sample to 16-bit (minus 2 bits to avoid clipping), range will be [0;16384]
+        int16_t sample = rawSample - 8192; // Center the sample around 0, range will be [-8192;8192]
+        mixerBuffer[pos] = ((mixerBuffer[pos] * (64 - vol)) >> 6) + ((sample * vol) >> 6); // vol is [0;64]
         pos++;
         if (pos == 65536) {
             pos = 0;
         }
     }
     for (int i = 0; i < unmixedLength; i++) {
-        uint16_t sample = data[mixedLength + i] << 7; // ditto
-        mixerBuffer[pos] = (sample * vol) >> 7; // div 128
+        uint16_t rawSample = data[mixedLength + i] << 6; // ditto
+        int16_t sample = rawSample - 8192; // ditto
+        mixerBuffer[pos] = (sample * vol) >> 6; // ditto
         pos++;
         if (pos == 65536) {
             pos = 0;
