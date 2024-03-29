@@ -4,7 +4,7 @@
 static int lualilka_create_object_file(lua_State* L) {
     String path = luaL_checkstring(L, 1);
     String mode = luaL_checkstring(L, 2);
-    *reinterpret_cast<FILE**>(lua_newuserdata(L, sizeof(FILE*))) = fopen((LILKA_SDROOT + path).c_str(), mode.c_str());
+    *reinterpret_cast<FILE**>(lua_newuserdata(L, sizeof(FILE*))) = fopen((path).c_str(), mode.c_str());
     luaL_setmetatable(L, FILE_OBJECT);
     return 1;
 }
