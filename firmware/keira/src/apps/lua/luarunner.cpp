@@ -15,7 +15,7 @@
 #include "lualilka_util.h"
 #include "lualilka_buzzer.h"
 #include "lualilka_state.h"
-#include "lualilka_filesystem.h"
+#include "lualilka_fileutils.h"
 #include "lualilka_wifi.h"
 #include "lualilka_imageTransform.h"
 
@@ -158,7 +158,7 @@ void AbstractLuaRunnerApp::luaSetup(const char* dir) {
     lualilka_gpio_register(L);
     lualilka_util_register(L);
     lualilka_buzzer_register(L);
-    lualilka_sdcard_register(L);
+    lualilka_fileutils_register(L);
     lualilka_wifi_register(L);
     lualilka_imageTransform_register(L);
 

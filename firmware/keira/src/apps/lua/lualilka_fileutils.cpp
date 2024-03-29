@@ -1,4 +1,4 @@
-#include "lualilka_filesystem.h"
+#include "lualilka_fileutils.h"
 #include "lilka.h"
 
 static int lualilka_create_object_file(lua_State* L) {
@@ -72,7 +72,7 @@ static int lualilka_file_write(lua_State* L) {
     return luaL_error(L, "write error");
 }
 
-int lualilka_sdcard_list_dir(lua_State* L) {
+int lualilka_list_dir(lua_State* L) {
     int n = lua_gettop(L);
 
     if (n != 1) {
@@ -147,13 +147,13 @@ int lualilka_rename(lua_State* L) {
 }
 
 static const luaL_Reg lualilka_sdcard[] = {
-    {"ls", lualilka_sdcard_list_dir},
+    {"ls", lualilka_list_dir},
     {"remove", lualilka_remove},
     {"rename", lualilka_rename},
     {NULL, NULL},
 };
 
-int lualilka_sdcard_register(lua_State* L) {
+int lualilka_fileutils_register(lua_State* L) {
     lua_register(L, FILE_OBJECT, lualilka_create_object_file);
     luaL_newmetatable(L, FILE_OBJECT);
     lua_pushcfunction(L, lualilka_delete_object_file);
@@ -173,7 +173,7 @@ int lualilka_sdcard_register(lua_State* L) {
     lua_pop(L, 1);
 
     luaL_newlib(L, lualilka_sdcard);
-    lua_setglobal(L, "sdcard");
+    lua_setglobal(L, "fileutils");
 
     return 0;
 }
