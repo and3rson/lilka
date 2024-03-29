@@ -160,21 +160,21 @@ bool FileSystem::sdAvailable() {
 }
 
 File FileSystem::open(const char* path, const char* mode, const bool create) {
-    return getFSClassByPath(path)->open(getRelativePath(path), mode, create);
+    return getFSClassByPath(String(path))->open(getRelativePath(String(path)), mode, create);
 }
 File FileSystem::open(const String& path, const char* mode, const bool create) {
     return getFSClassByPath(path)->open(getRelativePath(path), mode, create);
 }
 
 bool FileSystem::exists(const char* path) {
-    return getFSClassByPath(path)->exists(getRelativePath(path));
+    return getFSClassByPath(String(path))->exists(getRelativePath(path));
 }
 bool FileSystem::exists(const String& path) {
     return getFSClassByPath(path)->exists(getRelativePath(path));
 }
 
 bool FileSystem::remove(const char* path) {
-    return getFSClassByPath(path)->remove(getRelativePath(path));
+    return getFSClassByPath(String(path))->remove(getRelativePath(path));
 }
 bool FileSystem::remove(const String& path) {
     return getFSClassByPath(path)->remove(getRelativePath(path));
@@ -182,21 +182,22 @@ bool FileSystem::remove(const String& path) {
 
 bool FileSystem::rename(const char* pathFrom, const char* pathTo) {
     // TODO : move file between filesystems
-    return getFSClassByPath(pathFrom)->rename(getRelativePath(pathFrom), getRelativePath(pathTo));
+    return getFSClassByPath(String(pathFrom))
+        ->rename(getRelativePath(String(pathFrom)), getRelativePath(String(pathTo)));
 }
 bool FileSystem::rename(const String& pathFrom, const String& pathTo) {
     return getFSClassByPath(pathFrom)->rename(getRelativePath(pathFrom), getRelativePath(pathTo));
 }
 
 bool FileSystem::mkdir(const char* path) {
-    return getFSClassByPath(path)->mkdir(getRelativePath(path));
+    return getFSClassByPath(String(path))->mkdir(getRelativePath(String(path)));
 }
 bool FileSystem::mkdir(const String& path) {
     return getFSClassByPath(path)->mkdir(getRelativePath(path));
 }
 
 bool FileSystem::rmdir(const char* path) {
-    return getFSClassByPath(path)->rmdir(getRelativePath(path));
+    return getFSClassByPath(String(path))->rmdir(getRelativePath(String(path)));
 }
 bool FileSystem::rmdir(const String& path) {
     return getFSClassByPath(path)->rmdir(getRelativePath(path));
