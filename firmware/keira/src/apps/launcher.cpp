@@ -1,5 +1,7 @@
 #include <ff.h>
-
+#include <FS.h>
+#include <SD.h>
+#include <SPIFFS.h>
 #include "launcher.h"
 #include "appmanager.h"
 
@@ -90,9 +92,9 @@ void LauncherApp::run() {
         if (index == 0) {
             appsMenu("Додатки", app_items);
         } else if (index == 1) {
-            sdBrowserMenu("/sd");
+            sdBrowserMenu(static_cast<FS*>(&SD), "/");
         } else if (index == 2) {
-            sdBrowserMenu("/fs");
+            sdBrowserMenu(static_cast<FS*>(&SPIFFS), "/");
         } else if (index == 3) {
             appsMenu("Розробка", dev_items);
         } else if (index == 4) {
@@ -159,8 +161,9 @@ const uint16_t get_file_color(const String& filename) {
     }
 }
 
-void LauncherApp::sdBrowserMenu(String path) {
-    size_t _numEntries = lilka::filesystem.getEntryCount(path);
+void LauncherApp::sdBrowserMenu(FS* fSysDriver, String path) {
+    String currentPath = lilka::fileutils.stripPath(path);
+    size_t _numEntries = lilka::fileutils.getEntryCount(fSysDriver, currentPath);
     if (_numEntries == 0) {
         alert("Помилка", "Директорія пуста або сталася помилка читання директорії");
         return;
@@ -168,7 +171,7 @@ void LauncherApp::sdBrowserMenu(String path) {
 
     lilka::Entry* entries = new lilka::Entry[_numEntries];
 
-    int numEntries = lilka::filesystem.listDir(path, entries);
+    int numEntries = lilka::fileutils.listDir(fSysDriver, currentPath, entries);
     std::unique_ptr<lilka::Entry[]> entriesPtr(entries);
 
     // Так як listDir має повертати -1 в разі помилки
@@ -177,8 +180,8 @@ void LauncherApp::sdBrowserMenu(String path) {
         alert("Помилка", "Не вдалося прочитати директорію");
         return;
     }
-
-    lilka::Menu menu("SD: " + path);
+    String menuTitle = (fSysDriver == &SD ? "SD: " : (fSysDriver == &SPIFFS ? "SPIFFS: " : "?")) + currentPath;
+    lilka::Menu menu(menuTitle);
     for (int i = 0; i < numEntries; i++) {
         String filename = entries[i].name;
         const menu_icon_t* icon =
@@ -198,9 +201,12 @@ void LauncherApp::sdBrowserMenu(String path) {
         int16_t index = menu.getCursor();
         if (index == numEntries) break;
         if (entries[index].type == lilka::EntryType::ENT_DIRECTORY) {
-            sdBrowserMenu(path + "/" + entries[index].name + "/");
+            if (currentPath == "/") sdBrowserMenu(fSysDriver, currentPath + entries[index].name);
+            else sdBrowserMenu(fSysDriver, currentPath + "/" + entries[index].name);
         } else {
-            selectFile(path + "/" + entries[index].name);
+            if (currentPath == "/")
+                selectFile(lilka::fileutils.getFullPath(fSysDriver, currentPath + entries[index].name));
+            else selectFile(lilka::fileutils.getFullPath(fSysDriver, currentPath + "/" + entries[index].name));
         }
     }
 
@@ -350,7 +356,7 @@ void LauncherApp::settingsMenu() {
                 );
             }
         } else if (index == 4) {
-            if (!lilka::filesystem.sdAvailable()) {
+            if (!lilka::fileutils.isSDAvailable()) {
                 alert("Помилка", "SD-карта не знайдена");
                 continue;
             }

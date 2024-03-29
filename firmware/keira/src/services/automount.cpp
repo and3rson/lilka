@@ -1,13 +1,13 @@
 #include "automount.h"
 void AutoMountService::SDInit() {
-    lilka::filesystem.initSD();
+    lilka::fileutils.initSD();
 }
 
 void AutoMountService::run() {
     while (1) {
         // if sdType == CARD_UNKNOWN
         // probably sd has a wrong filesystem type...
-        if (lilka::filesystem.sdAvailable()) {
+        if (lilka::fileutils.isSDAvailable()) {
             // try to mount if no card present
             SDInit();
         }

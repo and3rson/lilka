@@ -1,27 +1,28 @@
-#include "filesystem.h"
+#include "fileutils.h"
 #include "serial.h"
 #include "spi.h"
 namespace lilka {
-FileSystem::FileSystem() {
+FileUtils::FileUtils() {
     sdfs = &SD;
     spiffs = &SPIFFS;
 }
 
-void FileSystem::init() {
+void FileUtils::init() {
     initSD();
     initSPIFFS();
 }
 
-void FileSystem::initSPIFFS() {
+void FileUtils::initSPIFFS() {
     serial_log("initializing SPIFFS");
     if (!SPIFFS.begin(false, LILKA_SPIFFS_ROOT)) {
         serial_err("failed to initialize SPIFFS");
     } else {
         serial_log("SPIFFS ok");
+        spiffsAvailable = true;
     }
 }
 
-void FileSystem::initSD() {
+void FileUtils::initSD() {
     // check if LILKA_SDROOT pathable, if not perform init
 
     serial_log("initializing SD card");
@@ -47,8 +48,8 @@ void FileSystem::initSD() {
 #endif
 }
 
-uint32_t FileSystem::getEntryCount(const String& path) {
-    FS* fs = getFSClassByPath(path);
+uint32_t FileUtils::getEntryCount(FS* fSysDriver, const String& path) {
+    FS* fs = fSysDriver;
 
     if (fs == NULL) {
         serial_err("Path (%s) reffers to unknown filesystem type", path.c_str());
@@ -79,7 +80,8 @@ uint32_t FileSystem::getEntryCount(const String& path) {
 
     return countFiles;
 }
-String FileSystem::stripPath(const String& path) {
+
+const String FileUtils::stripPath(const String& path) {
     String striped_path = path;
     while (!striped_path.equals("/") && striped_path.endsWith("/")) {
         // Strip trailing slashes, unless it's the root directory
@@ -88,15 +90,15 @@ String FileSystem::stripPath(const String& path) {
     return striped_path;
 }
 
-size_t FileSystem::listDir(const String& path, Entry entries[]) {
-    FS* fs = getFSClassByPath(path);
+size_t FileUtils::listDir(FS* fSysDriver, const String& path, Entry entries[]) {
+    FS* fs = fSysDriver;
 
     if (fs == NULL) {
         serial_err("Path (%s) reffers to unknown filesystem type", path.c_str());
         return 0;
     }
 
-    File root = fs->open(getRelativePath(stripPath(path)));
+    File root = fs->open(stripPath(path));
     if (!root) {
         serial_err("listDir: failed to open directory: %s", path.c_str());
         return -1;
@@ -135,7 +137,7 @@ size_t FileSystem::listDir(const String& path, Entry entries[]) {
     return i;
 }
 
-FS* FileSystem::getFSClassByPath(const String& path) {
+FS* FileUtils::getFSysDriverByFullPath(const String& path) {
     FS* fs = NULL;
     if (path.startsWith(LILKA_SDROOT)) {
         fs = static_cast<FS*>(sdfs);
@@ -144,7 +146,20 @@ FS* FileSystem::getFSClassByPath(const String& path) {
     }
     return fs;
 }
-String FileSystem::getRelativePath(const String& path) {
+const String FileUtils::getFullPath(FS* fSysDriver, const String& path) {
+    // Allready okay
+    if (path.startsWith(LILKA_SDROOT) || path.startsWith(LILKA_SPIFFS_ROOT)) return path;
+
+    if (fSysDriver == sdfs) {
+        return String(LILKA_SDROOT) + path;
+    } else if (fSysDriver == spiffs) {
+        return String(LILKA_SPIFFS_ROOT) + path;
+    }
+    serial_err("Unknown fSysDriver provided");
+    return path;
+}
+
+const String FileUtils::getRelativePath(const String& path) {
     String relativePath;
     if (path.startsWith(LILKA_SDROOT)) {
         relativePath = "/" + path.substring(LILKA_SDROOT_LEN);
@@ -155,54 +170,23 @@ String FileSystem::getRelativePath(const String& path) {
         relativePath = path;
     return relativePath;
 }
-bool FileSystem::sdAvailable() {
+
+bool FileUtils::isSDAvailable() {
     return (sdfs->cardType() == CARD_NONE || sdfs->cardType() == CARD_UNKNOWN);
 }
 
-File FileSystem::open(const char* path, const char* mode, const bool create) {
-    return getFSClassByPath(String(path))->open(getRelativePath(String(path)), mode, create);
-}
-File FileSystem::open(const String& path, const char* mode, const bool create) {
-    return getFSClassByPath(path)->open(getRelativePath(path), mode, create);
+bool FileUtils::isSPIFFSAvailable() {
+    return spiffsAvailable;
 }
 
-bool FileSystem::exists(const char* path) {
-    return getFSClassByPath(String(path))->exists(getRelativePath(path));
-}
-bool FileSystem::exists(const String& path) {
-    return getFSClassByPath(path)->exists(getRelativePath(path));
+const String FileUtils::getSDRoot() {
+    return LILKA_SDROOT;
 }
 
-bool FileSystem::remove(const char* path) {
-    return getFSClassByPath(String(path))->remove(getRelativePath(path));
-}
-bool FileSystem::remove(const String& path) {
-    return getFSClassByPath(path)->remove(getRelativePath(path));
+const String FileUtils::getSPIFFSRoot() {
+    return LILKA_SPIFFS_ROOT;
 }
 
-bool FileSystem::rename(const char* pathFrom, const char* pathTo) {
-    // TODO : move file between filesystems
-    return getFSClassByPath(String(pathFrom))
-        ->rename(getRelativePath(String(pathFrom)), getRelativePath(String(pathTo)));
-}
-bool FileSystem::rename(const String& pathFrom, const String& pathTo) {
-    return getFSClassByPath(pathFrom)->rename(getRelativePath(pathFrom), getRelativePath(pathTo));
-}
-
-bool FileSystem::mkdir(const char* path) {
-    return getFSClassByPath(String(path))->mkdir(getRelativePath(String(path)));
-}
-bool FileSystem::mkdir(const String& path) {
-    return getFSClassByPath(path)->mkdir(getRelativePath(path));
-}
-
-bool FileSystem::rmdir(const char* path) {
-    return getFSClassByPath(String(path))->rmdir(getRelativePath(String(path)));
-}
-bool FileSystem::rmdir(const String& path) {
-    return getFSClassByPath(path)->rmdir(getRelativePath(path));
-}
-
-FileSystem filesystem;
+FileUtils fileutils;
 
 } // namespace lilka

@@ -5,7 +5,7 @@
 #include "lilka/spi.h"
 #include "lilka/controller.h"
 #include "lilka/display.h"
-#include "lilka/filesystem.h"
+#include "lilka/fileutils.h"
 #include "lilka/battery.h"
 #include "lilka/buzzer.h"
 #include "lilka/ui.h"

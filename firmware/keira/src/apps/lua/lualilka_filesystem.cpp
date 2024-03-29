@@ -81,14 +81,18 @@ int lualilka_sdcard_list_dir(lua_State* L) {
 
     String path = lua_tostring(L, 1);
 
-    size_t _numEntries = lilka::filesystem.getEntryCount(path);
+    size_t _numEntries = lilka::fileutils.getEntryCount(
+        lilka::fileutils.getFSysDriverByFullPath(path), lilka::fileutils.getRelativePath(path)
+    );
     if (_numEntries == 0) {
         return luaL_error(L, "Директорія порожня, або сталася помилка читання директорії");
     }
 
     lilka::Entry* entries = new lilka::Entry[_numEntries];
 
-    int numEntries = lilka::filesystem.listDir(path, entries);
+    int numEntries = lilka::fileutils.listDir(
+        lilka::fileutils.getFSysDriverByFullPath(path), lilka::fileutils.getRelativePath(path), entries
+    );
     std::unique_ptr<lilka::Entry[]> entriesPtr(entries);
 
     if (_numEntries != numEntries) {
