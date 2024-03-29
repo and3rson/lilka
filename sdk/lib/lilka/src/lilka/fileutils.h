@@ -39,7 +39,7 @@ public:
     bool isSDAvailable();
     bool isSPIFFSAvailable();
     // Helper functions for path
-    const String getFullPath(FS* fSysDriver, const String& path);
+    const String getFullPath(const FS* fSysDriver, const String& path);
     const String getRelativePath(const String& path);
     const String stripPath(const String& path);
     // Get lilka::Entry[] for dir

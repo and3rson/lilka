@@ -161,7 +161,7 @@ const uint16_t get_file_color(const String& filename) {
     }
 }
 
-void LauncherApp::sdBrowserMenu(FS* fSysDriver, String path) {
+void LauncherApp::sdBrowserMenu(FS* fSysDriver, const String& path) {
     String currentPath = lilka::fileutils.stripPath(path);
     size_t _numEntries = lilka::fileutils.getEntryCount(fSysDriver, currentPath);
     if (_numEntries == 0) {

@@ -146,7 +146,7 @@ FS* FileUtils::getFSysDriverByFullPath(const String& path) {
     }
     return fs;
 }
-const String FileUtils::getFullPath(FS* fSysDriver, const String& path) {
+const String FileUtils::getFullPath(const FS* fSysDriver, const String& path) {
     // Allready okay
     if (path.startsWith(LILKA_SDROOT) || path.startsWith(LILKA_SPIFFS_ROOT)) return path;
 
