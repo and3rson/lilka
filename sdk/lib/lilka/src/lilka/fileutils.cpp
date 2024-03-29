@@ -13,6 +13,12 @@ void FileUtils::init() {
 }
 
 void FileUtils::initSPIFFS() {
+    File spiffsRoot = spiffs->open("/");
+    if (spiffsRoot) {
+        // Allready initialized
+        spiffsRoot.close();
+        return;
+    }
     serial_log("initializing SPIFFS");
     if (!SPIFFS.begin(false, LILKA_SPIFFS_ROOT)) {
         serial_err("failed to initialize SPIFFS");
@@ -24,7 +30,12 @@ void FileUtils::initSPIFFS() {
 
 void FileUtils::initSD() {
     // check if LILKA_SDROOT pathable, if not perform init
-
+    File sdRoot = sdfs->open("/");
+    if (sdRoot) {
+        // Allready initialized
+        sdRoot.close();
+        return;
+    }
     serial_log("initializing SD card");
 
 #if LILKA_SDCARD_CS < 0
@@ -56,7 +67,7 @@ uint32_t FileUtils::getEntryCount(FS* fSysDriver, const String& path) {
         return 0;
     }
 
-    File root = fs->open(getRelativePath(stripPath(path)));
+    File root = fs->open(stripPath(path));
     // Below we assume if folder can't be open then it has zero files
     // Btw we will show this error using serial
     if (!root) {
