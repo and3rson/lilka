@@ -15,7 +15,7 @@
 #include "lualilka_util.h"
 #include "lualilka_buzzer.h"
 #include "lualilka_state.h"
-#include "lualilka_sdcard.h"
+#include "lualilka_filesystem.h"
 #include "lualilka_wifi.h"
 #include "lualilka_imageTransform.h"
 
@@ -408,7 +408,6 @@ void LuaLiveRunnerApp::run() {
         }
 
         // TODO: This is a temporary fix: https://github.com/espressif/arduino-esp32/issues/9221
-        lilka::sdcard.available();
 
         execSource(code);
 
@@ -463,7 +462,6 @@ void LuaReplApp::run() {
     lilka::serial_log("lua: start REPL");
 
     // TODO: This is a temporary fix: https://github.com/espressif/arduino-esp32/issues/9221
-    lilka::sdcard.available();
 
     bool quit = false;
     while (!quit) {

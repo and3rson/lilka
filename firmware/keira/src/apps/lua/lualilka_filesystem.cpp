@@ -1,7 +1,5 @@
-#include "lualilka_sdcard.h"
+#include "lualilka_filesystem.h"
 #include "lilka.h"
-
-#define LILKA_SDROOT "/sd"
 
 static int lualilka_create_object_file(lua_State* L) {
     String path = luaL_checkstring(L, 1);
@@ -81,20 +79,16 @@ int lualilka_sdcard_list_dir(lua_State* L) {
         return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
 
-    if (!lilka::sdcard.available()) {
-        return luaL_error(L, "SD card not found");
-    }
-
     String path = lua_tostring(L, 1);
 
-    size_t _numEntries = lilka::sdcard.getEntryCount(path);
+    size_t _numEntries = lilka::filesystem.getEntryCount(path);
     if (_numEntries == 0) {
         return luaL_error(L, "Директорія порожня, або сталася помилка читання директорії");
     }
 
     lilka::Entry* entries = new lilka::Entry[_numEntries];
 
-    int numEntries = lilka::sdcard.listDir(path, entries);
+    int numEntries = lilka::filesystem.listDir(path, entries);
     std::unique_ptr<lilka::Entry[]> entriesPtr(entries);
 
     if (_numEntries != numEntries) {
@@ -111,20 +105,16 @@ int lualilka_sdcard_list_dir(lua_State* L) {
     return 1;
 }
 
-int lualilka_sdcard_remove(lua_State* L) {
+int lualilka_remove(lua_State* L) {
     int n = lua_gettop(L);
 
     if (n != 1) {
         return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
 
-    if (!lilka::sdcard.available()) {
-        return luaL_error(L, "SD card not found");
-    }
-
     String path = lua_tostring(L, 1);
 
-    int ret = remove((LILKA_SDROOT + path).c_str());
+    int ret = remove(path.c_str());
 
     if (ret != 0) {
         return luaL_error(L, "Error remove file: %d", ret);
@@ -133,21 +123,17 @@ int lualilka_sdcard_remove(lua_State* L) {
     return 0;
 }
 
-int lualilka_sdcard_rename(lua_State* L) {
+int lualilka_rename(lua_State* L) {
     int n = lua_gettop(L);
 
     if (n != 2) {
         return luaL_error(L, "Очікується 1 аргумент, отримано %d", n);
     }
 
-    if (!lilka::sdcard.available()) {
-        return luaL_error(L, "SD card not found");
-    }
-
     String old_name = lua_tostring(L, 1);
     String new_name = lua_tostring(L, 2);
 
-    int ret = rename((LILKA_SDROOT + old_name).c_str(), (LILKA_SDROOT + new_name).c_str());
+    int ret = rename((old_name).c_str(), (new_name).c_str());
 
     if (ret != 0) {
         return luaL_error(L, "Error renaming file: %d", ret);
@@ -158,8 +144,8 @@ int lualilka_sdcard_rename(lua_State* L) {
 
 static const luaL_Reg lualilka_sdcard[] = {
     {"ls", lualilka_sdcard_list_dir},
-    {"remove", lualilka_sdcard_remove},
-    {"rename", lualilka_sdcard_rename},
+    {"remove", lualilka_remove},
+    {"rename", lualilka_rename},
     {NULL, NULL},
 };
 

@@ -38,7 +38,6 @@ private:
     void appsMenu(const char* title, ITEM_LIST& menu);
     void demosMenu();
     void sdBrowserMenu(String path);
-    void spiffsBrowserMenu();
     void devMenu();
     void settingsMenu();
 

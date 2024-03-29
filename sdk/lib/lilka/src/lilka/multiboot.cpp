@@ -2,7 +2,7 @@
 #include <Preferences.h>
 
 #include "multiboot.h"
-#include "sdcard.h"
+#include "filesystem.h"
 #include "serial.h"
 
 extern "C" bool verifyRollbackLater() {
@@ -11,7 +11,7 @@ extern "C" bool verifyRollbackLater() {
 
 namespace lilka {
 
-extern SDCard sdcard;
+extern FileSystem filesystem;
 
 #define MULTIBOOT_PATH_KEY "multiboot_path"
 
@@ -93,7 +93,7 @@ int MultiBoot::start(String path) {
     // Завантаження прошивки з microSD-картки.
     this->path = path;
 
-    if (!sdcard.available()) {
+    if (!filesystem.sdAvailable()) {
         serial_err("SD card not available");
         return -1;
     }

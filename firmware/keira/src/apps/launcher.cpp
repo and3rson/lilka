@@ -90,9 +90,9 @@ void LauncherApp::run() {
         if (index == 0) {
             appsMenu("Додатки", app_items);
         } else if (index == 1) {
-            sdBrowserMenu("/");
+            sdBrowserMenu("/sd");
         } else if (index == 2) {
-            spiffsBrowserMenu();
+            sdBrowserMenu("/fs");
         } else if (index == 3) {
             appsMenu("Розробка", dev_items);
         } else if (index == 4) {
@@ -160,10 +160,7 @@ const uint16_t get_file_color(const String& filename) {
 }
 
 void LauncherApp::sdBrowserMenu(String path) {
-    if (!lilka::sdcard.available()) {
-        alert("Помилка", "SD-карта не знайдена");
-    }
-    size_t _numEntries = lilka::sdcard.getEntryCount(path);
+    size_t _numEntries = lilka::filesystem.getEntryCount(path);
     if (_numEntries == 0) {
         alert("Помилка", "Директорія пуста або сталася помилка читання директорії");
         return;
@@ -171,7 +168,7 @@ void LauncherApp::sdBrowserMenu(String path) {
 
     lilka::Entry* entries = new lilka::Entry[_numEntries];
 
-    int numEntries = lilka::sdcard.listDir(path, entries);
+    int numEntries = lilka::filesystem.listDir(path, entries);
     std::unique_ptr<lilka::Entry[]> entriesPtr(entries);
 
     // Так як listDir має повертати -1 в разі помилки
@@ -201,58 +198,18 @@ void LauncherApp::sdBrowserMenu(String path) {
         int16_t index = menu.getCursor();
         if (index == numEntries) break;
         if (entries[index].type == lilka::EntryType::ENT_DIRECTORY) {
-            sdBrowserMenu(path + entries[index].name + "/");
+            sdBrowserMenu(path + "/" + entries[index].name + "/");
         } else {
-            selectFile(lilka::sdcard.abspath(path + entries[index].name));
+            selectFile(path + "/" + entries[index].name);
         }
     }
 
     return;
 }
 
-void LauncherApp::spiffsBrowserMenu() {
-    if (!lilka::filesystem.available()) {
-        alert("Помилка", "SPIFFS не підтримується");
-        return;
-    }
-
-    String filenames
-        [32]; // TODO - allocate dynamically (increasing to 64 causes task stack overflow which is limited by ARDUINO_LOOP_STACK_SIZE)
-    int numEntries = lilka::filesystem.readdir(filenames);
-
-    if (numEntries == -1) {
-        alert("Помилка", "Не вдалося прочитати корінь SPIFFS");
-        return;
-    }
-    const menu_icon_t* icons[32];
-    uint16_t colors[32];
-    for (int i = 0; i < numEntries; i++) {
-        icons[i] = get_file_icon(filenames[i]);
-        colors[i] = get_file_color(filenames[i]);
-    }
-    filenames[numEntries++] = "<< Назад";
-    icons[numEntries - 1] = 0;
-    colors[numEntries - 1] = 0;
-
-    lilka::Menu menu("SPIFFS");
-    for (int i = 0; i < numEntries; i++) {
-        menu.addItem(filenames[i], icons[i], colors[i]);
-    }
-    while (1) {
-        while (!menu.isFinished()) {
-            menu.update();
-            menu.draw(canvas);
-            queueDraw();
-        }
-        int16_t index = menu.getCursor();
-        if (index == numEntries - 1) {
-            return;
-        }
-        selectFile(lilka::filesystem.abspath(filenames[index]));
-    }
-}
-
 void LauncherApp::selectFile(String path) {
+    lilka::serial_log("Launcher is trying to open %s\n", path.c_str());
+    lilka::filesystem.init();
     String lowerCasedPath = path;
     lowerCasedPath.toLowerCase();
     if (lowerCasedPath.endsWith(".rom") || lowerCasedPath.endsWith(".nes")) {
@@ -300,6 +257,7 @@ void LauncherApp::selectFile(String path) {
         AppManager::getInstance()->runApp(new MJSApp(path));
     } else {
         // Get file size
+        // lilka::serial_log(path.c_str());
         FILE* file = fopen(path.c_str(), "r");
         if (!file) {
             alert("Помилка", "Не вдалося відкрити файл");
@@ -394,7 +352,7 @@ void LauncherApp::settingsMenu() {
                 );
             }
         } else if (index == 4) {
-            if (!lilka::sdcard.available()) {
+            if (!lilka::filesystem.sdAvailable()) {
                 alert("Помилка", "SD-карта не знайдена");
                 continue;
             }

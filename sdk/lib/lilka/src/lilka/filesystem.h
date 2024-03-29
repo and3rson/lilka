@@ -1,26 +1,49 @@
-#ifndef LILKA_FILESYSTEM_H
-#define LILKA_FILESYSTEM_H
+#pragma once
 
 #include <SPIFFS.h>
+#include <SD.h>
+#include "config.h"
+#define LILKA_SDROOT          "/sd"
+#define LILKA_SPIFFS_ROOT     "/fs"
+#define LILKA_SDROOT_LEN      3
+#define LILKA_SPIFFS_ROOT_LEN 3
 
 namespace lilka {
 
-class Filesystem {
+typedef enum {
+    ENT_FILE,
+    ENT_DIRECTORY,
+} EntryType;
+
+typedef struct {
+    String name;
+    EntryType type;
+    size_t size;
+} Entry;
+
+class FileSystem {
 public:
-    Filesystem();
-    void begin();
-    bool available();
-    int readdir(String filenames[]);
-    int readdir(String filenames[], String extension);
-    String abspath(String filename);
+    FileSystem();
+    // This function tries to init both SD and SPIFFS
+    // Filesystems.
+    void init();
+    // Tries to init SD if it's not initialized yet
+    void initSD();
+    // Tries to init SPIFFS if it's not initialized yet
+    void initSPIFFS();
+    uint32_t getEntryCount(const String& path);
+    String stripPath(const String& path);
+    size_t listDir(const String& path, Entry entries[]);
+    bool sdAvailable();
 
 private:
-    FS* _filesystem;
+    FS* getFSClassByPath(const String& path);
+    String getRelativePath(const String& path);
+    FS* spiffs;
+    SDFS* sdfs;
     bool _available;
 };
 
-extern Filesystem filesystem;
+extern FileSystem filesystem;
 
 } // namespace lilka
-
-#endif // LILKA_FILESYSTEM_H
