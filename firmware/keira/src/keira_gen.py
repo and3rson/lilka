@@ -4,14 +4,13 @@
 #   for keiraOS classes
 #       It takes files from KEIRA_TEMPLATES_PATH for templates
 #   and KEIRA_SOURCE_PATH for output files
-#       KEIRA_TEMPLATES_PATH consists from directories, each one
-#   of them called a Generator, which store template files to be used
-#   to generate output source files.
+#       KEIRA_TEMPLATES_PATH consists from directories, each one 
+#   represents a single template that could be used to produce source files
 #       Currently keira_gen supports $NAME$ and $DATE$ macro which will be replaced in 
 #   output filename, and template file to produce source.
 #   $NAME.lc$ and $NAME.uc$ versions could be used to generate lower cased or upper cased
 #   values.
-#       Output will be saved in "$KEIRA_TEMPLATES_PATH/Generator" "s/" directory
+#       Output will be saved in "$KEIRA_TEMPLATES_PATH/<template_name>" "s/" directory
 
 
 import os, sys, datetime
@@ -36,8 +35,8 @@ def apply_macro(in_str:str) -> str:
     return out_str
     
 def help():
-    print("Usage: keira_gen <generator> <name>\n")
-    print("Available generators:")
+    print("Usage: keira_gen <template> <name>\n")
+    print("Available templates:")
     what_could_gen = []
     for filename in template_filenames:
         if os.path.isdir(filename):
@@ -61,7 +60,7 @@ elif len(sys.argv) == 3:
     name = sys.argv[2]
     path_to_template = templates_path +"/"+what_to
     if not os.path.isdir(path_to_template):
-        print("ERROR: Generator {} doesn't exist. ".format(what_to))
+        print("ERROR: Template {} doesn't exist. ".format(what_to))
         help()
     else:
         for filename in os.listdir(path_to_template):
