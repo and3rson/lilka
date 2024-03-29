@@ -33,12 +33,26 @@ std::string Localization::getString(Language_Code language, const std::string& k
         const auto& languageStrings = languageIt->second;
         auto keyIt = languageStrings.find(key);
         if (keyIt != languageStrings.end()) {
-            return keyIt->second;
+            return keyIt->second; // Return localized string for the key
+        } else {
+            // If the key is not found in the requested language, return English variant
+            const auto& englishStrings = languages.at(Language_Code::EN);
+            auto englishKeyIt = englishStrings.find(key);
+            if (englishKeyIt != englishStrings.end()) {
+                return englishKeyIt->second; // Return English version for the key
+            } else {
+                return "English version not found for key: " + key;
+            }
         }
-        return "Localization not found for key: " + Language_FullName[static_cast<int>(language)] +
-               " in language: " + key;
+    } else {
+        // If the requested language is not supported, return English variant
+        const auto& englishStrings = languages.at(Language_Code::EN);
+        auto englishKeyIt = englishStrings.find(key);
+        if (englishKeyIt != englishStrings.end()) {
+            return englishKeyIt->second; // Return English version for the key
+        } else {
+            return "Language not supported and English version not found for key: " + key;
+        }
     }
-    return "Language not supported: " + Language_FullName[static_cast<int>(language)];
 }
-
 } // namespace lilka
