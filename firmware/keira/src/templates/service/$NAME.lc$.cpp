@@ -1,4 +1,4 @@
-#include "$NAME$.h"
+#include "$NAME.lc$.h"
 
 $NAME$Service::$NAME$Service() : Service("$NAME$") {
 }
