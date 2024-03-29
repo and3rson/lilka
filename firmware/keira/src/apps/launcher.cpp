@@ -208,8 +208,6 @@ void LauncherApp::sdBrowserMenu(String path) {
 }
 
 void LauncherApp::selectFile(String path) {
-    lilka::serial_log("Launcher is trying to open %s\n", path.c_str());
-    lilka::filesystem.init();
     String lowerCasedPath = path;
     lowerCasedPath.toLowerCase();
     if (lowerCasedPath.endsWith(".rom") || lowerCasedPath.endsWith(".nes")) {
