@@ -7,7 +7,7 @@
 #define LILKA_SPIFFS_ROOT     "/fs"
 #define LILKA_SDROOT_LEN      3
 #define LILKA_SPIFFS_ROOT_LEN 3
-
+#define H_FILE_SIZE           6
 namespace lilka {
 
 typedef enum {
@@ -46,6 +46,8 @@ public:
     size_t listDir(FS* fSysDriver, const String& path, Entry entries[]);
     // Get FS* for a full path
     FS* getFSysDriverByFullPath(const String& path);
+    // Misc:
+    const String getHumanFriendlySize(const size_t size);
 
 private:
     bool spiffsAvailable = false;

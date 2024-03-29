@@ -197,6 +197,30 @@ const String FileUtils::getSDRoot() {
 const String FileUtils::getSPIFFSRoot() {
     return LILKA_SPIFFS_ROOT;
 }
+const String FileUtils::getHumanFriendlySize(const size_t size) {
+    // Max length of file size
+
+    const char* suffixes[] = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
+    const int numSuffixes = sizeof(suffixes) / sizeof(suffixes[0]);
+    if (size == 0) return "0B";
+
+    int exp = 0;
+    double dsize = (double)(size);
+
+    while (dsize >= 1024 && exp < numSuffixes - 1) {
+        dsize /= 1024;
+        exp++;
+    }
+
+    char buffer[50];
+    snprintf(buffer, sizeof(buffer), "%.0f%s", dsize, suffixes[exp]);
+    String hFileSize(buffer);
+    while (hFileSize.length() != H_FILE_SIZE) {
+        hFileSize = hFileSize + " ";
+    }
+
+    return hFileSize;
+}
 
 FileUtils fileutils;
 
