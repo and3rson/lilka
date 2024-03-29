@@ -41,7 +41,6 @@ private:
     String getRelativePath(const String& path);
     FS* spiffs;
     SDFS* sdfs;
-    bool _available;
 };
 
 extern FileSystem filesystem;

@@ -16,10 +16,8 @@ void FileSystem::initSPIFFS() {
     serial_log("initializing SPIFFS");
     if (!SPIFFS.begin(false, LILKA_SPIFFS_ROOT)) {
         serial_err("failed to initialize SPIFFS");
-        _available = false;
     } else {
         serial_log("SPIFFS ok");
-        _available = true;
     }
 }
 
@@ -140,9 +138,9 @@ size_t FileSystem::listDir(const String& path, Entry entries[]) {
 FS* FileSystem::getFSClassByPath(const String& path) {
     FS* fs = NULL;
     if (path.startsWith(LILKA_SDROOT)) {
-        fs = (FS*)sdfs;
+        fs = static_cast<FS*>(sdfs);
     } else if (path.startsWith(LILKA_SPIFFS_ROOT)) {
-        fs = (FS*)spiffs;
+        fs = static_cast<FS*>(spiffs);
     }
     return fs;
 }
