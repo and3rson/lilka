@@ -218,6 +218,7 @@ void LauncherApp::sdBrowserMenu(FS* fSysDriver, const String& path) {
 void LauncherApp::selectFile(String path) {
     String lowerCasedPath = path;
     lowerCasedPath.toLowerCase();
+    //lilka::serial_log("FileBrowser : Selected path %s", path.c_str());
     if (lowerCasedPath.endsWith(".rom") || lowerCasedPath.endsWith(".nes")) {
         AppManager::getInstance()->runApp(new NesApp(path));
     } else if (lowerCasedPath.endsWith(".bin")) {
@@ -382,7 +383,8 @@ void LauncherApp::settingsMenu() {
             const uint32_t workSize = FF_MAX_SS * 4;
             void* work = ps_malloc(workSize
             ); // Buffer (4 sectors), otherwise f_mkfs tries to allocate in stack and fails due to task stack size
-            FRESULT result = f_mkfs("/sd", FM_ANY, 0, work, workSize); // TODO - hardcoded mountpoint
+            FRESULT result =
+                f_mkfs(lilka::fileutils.getSDRoot().c_str(), FM_ANY, 0, work, workSize); // TODO - hardcoded mountpoint
             free(work);
             if (result != FR_OK) {
                 this->alert("Помилка", "Не вдалося сформатувати SD-карту, код помилки: " + String(result));

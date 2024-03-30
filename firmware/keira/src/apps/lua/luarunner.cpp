@@ -15,7 +15,7 @@
 #include "lualilka_util.h"
 #include "lualilka_buzzer.h"
 #include "lualilka_state.h"
-#include "lualilka_fileutils.h"
+#include "lualilka_sdcard.h"
 #include "lualilka_wifi.h"
 #include "lualilka_imageTransform.h"
 
@@ -158,7 +158,7 @@ void AbstractLuaRunnerApp::luaSetup(const char* dir) {
     lualilka_gpio_register(L);
     lualilka_util_register(L);
     lualilka_buzzer_register(L);
-    lualilka_fileutils_register(L);
+    lualilka_sdcard_register(L);
     lualilka_wifi_register(L);
     lualilka_imageTransform_register(L);
 
@@ -285,7 +285,7 @@ LuaFileRunnerApp::LuaFileRunnerApp(String path) : AbstractLuaRunnerApp("Lua file
 void LuaFileRunnerApp::run() {
 #ifndef LILKA_NO_LUA
     // Get dir name from path (without the trailing slash)
-    String dir = path.substring(0, path.lastIndexOf('/'));
+    String dir = lilka::fileutils.stripPath(path);
 
     luaSetup(dir.c_str());
 
@@ -408,6 +408,7 @@ void LuaLiveRunnerApp::run() {
         }
 
         // TODO: This is a temporary fix: https://github.com/espressif/arduino-esp32/issues/9221
+        lilka::fileutils.isSDAvailable();
 
         execSource(code);
 
@@ -423,7 +424,7 @@ void LuaLiveRunnerApp::run() {
 
 void LuaLiveRunnerApp::execSource(String source) {
 #ifndef LILKA_NO_LUA
-    luaSetup("/sd"); // TODO: hard-coded
+    luaSetup(lilka::fileutils.getSDRoot().c_str());
 
     lilka::serial_log("lua: run source");
 
@@ -449,7 +450,7 @@ LuaReplApp::LuaReplApp() : AbstractLuaRunnerApp("Lua REPL") {
 
 void LuaReplApp::run() {
 #ifndef LILKA_NO_LUA
-    luaSetup("/sd"); // TODO: hard-coded
+    luaSetup(lilka::fileutils.getSDRoot().c_str()); // TODO: hard-coded
 
     canvas->setFont(FONT_10x20);
     canvas->setCursor(8, 48);
@@ -462,6 +463,7 @@ void LuaReplApp::run() {
     lilka::serial_log("lua: start REPL");
 
     // TODO: This is a temporary fix: https://github.com/espressif/arduino-esp32/issues/9221
+    lilka::fileutils.initSD();
 
     bool quit = false;
     while (!quit) {

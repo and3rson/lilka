@@ -141,7 +141,7 @@ void setup() {
         name.toLowerCase();
         lilka::serial_log("Checking file: %s\n", name.c_str());
         if (name.startsWith("doom") && name.endsWith(".wad")) {
-            strcpy(arg3, (String("/sd") + firmwareDir + "/" + file.name()).c_str());
+            strcpy(arg3, (lilka::fileutils.getSDRoot() + firmwareDir + "/" + file.name()).c_str());
             lilka::serial_log("Found .WAD file: %s\n", arg3);
             found = true;
             file.close();

@@ -150,16 +150,16 @@ size_t FileUtils::listDir(FS* fSysDriver, const String& path, Entry entries[]) {
 
 FS* FileUtils::getFSysDriverByFullPath(const String& path) {
     FS* fs = NULL;
-    if (path.startsWith(LILKA_SDROOT)) {
+    if (path.startsWith(LILKA_SDROOT LILKA_SLASH)) {
         fs = static_cast<FS*>(sdfs);
-    } else if (path.startsWith(LILKA_SPIFFS_ROOT)) {
+    } else if (path.startsWith(LILKA_SPIFFS_ROOT LILKA_SLASH)) {
         fs = static_cast<FS*>(spiffs);
     }
     return fs;
 }
 const String FileUtils::getFullPath(const FS* fSysDriver, const String& path) {
     // Allready okay
-    if (path.startsWith(LILKA_SDROOT) || path.startsWith(LILKA_SPIFFS_ROOT)) return path;
+    if (path.startsWith(LILKA_SDROOT LILKA_SLASH) || path.startsWith(LILKA_SPIFFS_ROOT LILKA_SLASH)) return path;
 
     if (fSysDriver == sdfs) {
         return String(LILKA_SDROOT) + path;
@@ -172,9 +172,9 @@ const String FileUtils::getFullPath(const FS* fSysDriver, const String& path) {
 
 const String FileUtils::getRelativePath(const String& path) {
     String relativePath;
-    if (path.startsWith(LILKA_SDROOT)) {
+    if (path.startsWith(LILKA_SDROOT LILKA_SLASH)) {
         relativePath = "/" + path.substring(LILKA_SDROOT_LEN);
-    } else if (path.startsWith(LILKA_SPIFFS_ROOT)) {
+    } else if (path.startsWith(LILKA_SPIFFS_ROOT LILKA_SLASH)) {
         relativePath = "/" + path.substring(LILKA_SPIFFS_ROOT_LEN);
     } else
         // Maybe path is allready relative?
@@ -183,7 +183,7 @@ const String FileUtils::getRelativePath(const String& path) {
 }
 
 bool FileUtils::isSDAvailable() {
-    return (sdfs->cardType() == CARD_NONE || sdfs->cardType() == CARD_UNKNOWN);
+    return !(sdfs->cardType() == CARD_NONE || sdfs->cardType() == CARD_UNKNOWN);
 }
 
 bool FileUtils::isSPIFFSAvailable() {

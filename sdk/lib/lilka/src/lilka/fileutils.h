@@ -5,6 +5,7 @@
 #include "config.h"
 #define LILKA_SDROOT          "/sd"
 #define LILKA_SPIFFS_ROOT     "/fs"
+#define LILKA_SLASH           "/"
 #define LILKA_SDROOT_LEN      3
 #define LILKA_SPIFFS_ROOT_LEN 3
 #define H_FILE_SIZE           6
