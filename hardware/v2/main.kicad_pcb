@@ -337,6 +337,17 @@
 			(pintype "passive")
 			(uuid "d0877e75-fec3-44ab-85e2-84cecde024dc")
 		)
+		(model "${KICAD8_3DMODEL_DIR}/Buzzer_Beeper.3dshapes/Buzzer_TDK_PS1240P02BT_D12.2mm_H6.5mm.step"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "Display:TFT_240x280_2pads"
 		(layer "F.Cu")
@@ -4460,6 +4471,17 @@
 			)
 			(rotate
 				(xyz 0 0 0)
+			)
+		)
+		(model "${KICAD8_3DMODEL_DIR}/Button_Switch_THT.3dshapes/SW_CuK_JS202011AQN_DPDT_Angled.wrl"
+			(offset
+				(xyz 5 -3 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 180)
 			)
 		)
 	)
