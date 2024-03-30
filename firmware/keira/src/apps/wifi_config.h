@@ -7,5 +7,6 @@ public:
     WiFiConfigApp();
 
 private:
+    String getEncryptionTypeStr(uint8_t encryptionType);
     void run() override;
 };
