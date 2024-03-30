@@ -2,5 +2,5 @@
 
 $NAME$App::$NAME$App() : App("$NAME$") {
 }
-$NAME$App::run() {
+void $NAME$App::run() {
 }
