@@ -1,8 +1,11 @@
 #pragma once
-
+#include <ff.h>
+#include "config.h"
 #include <SPIFFS.h>
 #include <SD.h>
 #include "config.h"
+#include <sd_diskio.h>
+
 #define LILKA_SDROOT          "/sd"
 #define LILKA_SPIFFS_ROOT     "/fs"
 #define LILKA_SLASH           "/"
@@ -47,10 +50,14 @@ public:
     size_t listDir(FS* fSysDriver, const String& path, Entry entries[]);
     // Get FS* for a full path
     FS* getFSysDriverByFullPath(const String& path);
+    // SD Utils:
+    bool createSDPartTable();
+    bool formatSD();
     // Misc:
     const String getHumanFriendlySize(const size_t size);
 
 private:
+    bool sdMountLocked = false;
     bool spiffsAvailable = false;
     FS* spiffs;
     SDFS* sdfs;
