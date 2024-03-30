@@ -19,10 +19,10 @@ import os, sys, datetime
 templates_path = os.getenv("KEIRA_TEMPLATES_PATH")
 source_path = os.getenv("KEIRA_SOURCE_PATH")
 
-if templates_path == None:
-    templates_path = "templates"
-if source_path == None:
-    source_path = ""
+if templates_path == None or source_path == None:
+    print("Env variables not set. Exiting")
+    exit(-1)
+    
 date = datetime.datetime.now().ctime()
 name = ""
 what_to = ""
