@@ -231,6 +231,7 @@ bool FileUtils::createSDPartTable() {
     SD.end();
     constexpr uint32_t workbufSize = FF_MAX_SS * 4;
     uint8_t* workbuf = new uint8_t[workbufSize];
+    std::unique_ptr<uint8_t[]> workbufPtr(workbuf);
 
     // mount without init
     SPI1.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
