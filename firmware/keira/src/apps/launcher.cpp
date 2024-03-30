@@ -375,19 +375,6 @@ void LauncherApp::settingsMenu() {
                 continue;
             }
 
-            // Allocate work buffer for FatFS library (4 sectors)
-            // Otherwise f_mkfs tries to allocate in stack and fails due to task stack size
-            constexpr uint32_t workbufSize = FF_MAX_SS * 4;
-            uint8_t* workbuf = new uint8_t[workbufSize];
-            std::unique_ptr<uint8_t[]> workbufPtr(workbuf);
-
-            // Create partition table
-            DWORD plist[] = {100, 0, 0, 0};
-            FRESULT res = f_fdisk(pdrv, plist, workbuf);
-            if (res != FR_OK) {
-                this->alert("Помилка", "Не вдалося записати таблицю розділів, код помилки: " + String(res));
-                continue;
-            }
             lilka::ProgressDialog dialog("Форматування", "Будь ласка, зачекайте...");
             dialog.draw(canvas);
             queueDraw();
@@ -399,15 +386,6 @@ void LauncherApp::settingsMenu() {
                 this->alert("Помилка", "Не вдалося форматувати SD-карту");
                 continue;
             }
-
-            // This code does not work since f_setlabel is not implemented.
-            // Keeping it here for future reference.
-            // char label[16];
-            // sprintf(label, "%d:Keira", pdrv);
-            // if (f_setlabel(const_cast<char*>(label)) != FR_OK) {
-            //     this->alert("Помилка", "Не вдалося встановити мітку розділу");
-            //     continue;
-            // }
 
             this->alert("Форматування", "Форматування SD-карти завершено!");
         } else if (index == 5) {
