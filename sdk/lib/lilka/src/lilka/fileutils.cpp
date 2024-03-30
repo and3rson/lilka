@@ -226,11 +226,15 @@ const String FileUtils::getHumanFriendlySize(const size_t size) {
 bool FileUtils::createSDPartTable() {
     sdMountLocked = true;
     // Unmount sd
-    // We could have some io problems here, but should be okay if no
-    // files opened
+    // We could have some io problems here, but user actually want to destroy all io
+    // results, seems to be okay :)
     SD.end();
-    SPI1.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0));
-    uint8_t pdrv = sdcard_init(LILKA_SDCARD_CS, &SPI1, 4000000);
+    constexpr uint32_t workbufSize = FF_MAX_SS * 4;
+    uint8_t* workbuf = new uint8_t[workbufSize];
+
+    // mount without init
+    SPI1.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
+    uint8_t pdrv = sdcard_init(LILKA_SDCARD_CS, &SPI1, 2000000);
     SPI1.endTransaction();
     if (pdrv == 0xFF) {
         sdMountLocked = false;
@@ -240,17 +244,28 @@ bool FileUtils::createSDPartTable() {
     // SD card uninitializer (RAII)
     std::unique_ptr<void, void (*)(void*)> sdcardUninit(nullptr, [](void* pdrv) {
         // C++ is beautiful and ugly at the same time
-        SPI1.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0));
+        SPI1.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
         sdcard_uninit(*static_cast<uint8_t*>(pdrv));
         SPI1.endTransaction();
     });
+
+    // Create partition table
+
+    DWORD plist[] = {100, 0, 0, 0};
+    FRESULT res = f_fdisk(pdrv, plist, workbuf);
+    if (res != FR_OK) {
+        sdMountLocked = false;
+        return false;
+    }
     sdMountLocked = false;
+
     return true;
 }
 
 bool FileUtils::formatSD() {
     sdMountLocked = true;
     SD.end();
+
     constexpr uint32_t workbufSize = FF_MAX_SS * 4;
     uint8_t* workbuf = new uint8_t[workbufSize];
 

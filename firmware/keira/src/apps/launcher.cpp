@@ -359,10 +359,6 @@ void LauncherApp::settingsMenu() {
                 );
             }
         } else if (index == 4) {
-            if (!lilka::fileutils.isSDAvailable()) {
-                alert("Помилка", "SD-карта не знайдена");
-                continue;
-            }
             lilka::Alert confirm(
                 "Форматування",
                 "УВАГА: Це очистить ВСІ дані з SD-карти!\n\nПродовжити?\n\nSTART - продовжити\nA - скасувати"
@@ -380,14 +376,12 @@ void LauncherApp::settingsMenu() {
             lilka::ProgressDialog dialog("Форматування", "Будь ласка, зачекайте...");
             dialog.draw(canvas);
             queueDraw();
-            const uint32_t workSize = FF_MAX_SS * 4;
-            void* work = ps_malloc(workSize
-            ); // Buffer (4 sectors), otherwise f_mkfs tries to allocate in stack and fails due to task stack size
-            FRESULT result =
-                f_mkfs(lilka::fileutils.getSDRoot().c_str(), FM_ANY, 0, work, workSize); // TODO - hardcoded mountpoint
-            free(work);
-            if (result != FR_OK) {
-                this->alert("Помилка", "Не вдалося сформатувати SD-карту, код помилки: " + String(result));
+            if (!lilka::fileutils.createSDPartTable()) {
+                alert("Помилка", "Не вдалось створити нову таблицю розділів. Можливо відсутня карта");
+                continue;
+            }
+            if (!lilka::fileutils.formatSD()) {
+                this->alert("Помилка", "Не вдалося форматувати SD-карту");
                 continue;
             }
             this->alert("Форматування", "Форматування SD-карти завершено!");
