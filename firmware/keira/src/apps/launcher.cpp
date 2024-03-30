@@ -1,8 +1,10 @@
 #include <ff.h>
+#include <sd_diskio.h>
 
 #include "launcher.h"
 #include "appmanager.h"
 
+#include "lilka/config.h"
 #include "servicemanager.h"
 #include "services/network.h"
 
@@ -394,10 +396,24 @@ void LauncherApp::settingsMenu() {
                 );
             }
         } else if (index == 4) {
-            if (!lilka::sdcard.available()) {
-                alert("Помилка", "SD-карта не знайдена");
+            // Init card in VFS without actually mounting it
+            lilka::SPI1.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0));
+            uint8_t pdrv = sdcard_init(LILKA_SDCARD_CS, &lilka::SPI1, 4000000);
+            lilka::SPI1.endTransaction();
+            if (pdrv == 0xFF) {
+                alert("Помилка", "Не вдалося ініціалізувати SD-карту");
                 continue;
             }
+
+            // SD card uninitializer (RAII)
+            std::unique_ptr<void, void (*)(void*)> sdcardUninit(nullptr, [](void* pdrv) {
+                // C++ is beautiful and ugly at the same time
+                lilka::SPI1.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0));
+                sdcard_uninit(*static_cast<uint8_t*>(pdrv));
+                lilka::SPI1.endTransaction();
+            });
+
+            // Check if the user is just messing around
             lilka::Alert confirm(
                 "Форматування",
                 "УВАГА: Це очистить ВСІ дані з SD-карти!\n\nПродовжити?\n\nSTART - продовжити\nA - скасувати"
@@ -412,18 +428,40 @@ void LauncherApp::settingsMenu() {
             if (confirm.getButton() != lilka::Button::START) {
                 continue;
             }
+
+            // Allocate work buffer for FatFS library (4 sectors)
+            // Otherwise f_mkfs tries to allocate in stack and fails due to task stack size
+            constexpr uint32_t workbufSize = FF_MAX_SS * 4;
+            uint8_t* workbuf = new uint8_t[workbufSize];
+            std::unique_ptr<uint8_t[]> workbufPtr(workbuf);
+
+            // Create partition table
+            DWORD plist[] = {100, 0, 0, 0};
+            FRESULT res = f_fdisk(pdrv, plist, workbuf);
+            if (res != FR_OK) {
+                this->alert("Помилка", "Не вдалося записати таблицю розділів, код помилки: " + String(res));
+                continue;
+            }
             lilka::ProgressDialog dialog("Форматування", "Будь ласка, зачекайте...");
             dialog.draw(canvas);
             queueDraw();
-            const uint32_t workSize = FF_MAX_SS * 4;
-            void* work = ps_malloc(workSize
-            ); // Buffer (4 sectors), otherwise f_mkfs tries to allocate in stack and fails due to task stack size
-            FRESULT result = f_mkfs("/sd", FM_ANY, 0, work, workSize); // TODO - hardcoded mountpoint
-            free(work);
-            if (result != FR_OK) {
-                this->alert("Помилка", "Не вдалося сформатувати SD-карту, код помилки: " + String(result));
+
+            // Format the partition
+            res = f_mkfs("/sd", FM_ANY, 0, workbuf, workbufSize);
+            if (res != FR_OK) {
+                this->alert("Помилка", "Не вдалося сформатувати SD-карту, код помилки: " + String(res));
                 continue;
             }
+
+            // This code does not work since f_setlabel is not implemented.
+            // Keeping it here for future reference.
+            // char label[16];
+            // sprintf(label, "%d:Keira", pdrv);
+            // if (f_setlabel(const_cast<char*>(label)) != FR_OK) {
+            //     this->alert("Помилка", "Не вдалося встановити мітку розділу");
+            //     continue;
+            // }
+
             this->alert("Форматування", "Форматування SD-карти завершено!");
         } else if (index == 5) {
             esp_light_sleep_start();
