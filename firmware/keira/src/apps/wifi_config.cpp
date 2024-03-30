@@ -11,6 +11,40 @@
 
 WiFiConfigApp::WiFiConfigApp() : App("WiFi") {
 }
+String WiFiConfigApp::getEncryptionTypeStr(uint8_t encryptionType) {
+    switch (encryptionType) {
+        case 0:
+            return "Open";
+        case 1:
+            return "WEP";
+        case 2:
+            return "WPA PSK";
+        case 3:
+            return "WPA2 PSK";
+        case 4:
+            return "WPA WPA2 PSK";
+        case 5:
+            return "ENTERPRISE";
+        case 6:
+            return "ENTERPRISE";
+        case 7:
+            return "WPA3 PSK";
+        case 8:
+            return "WPA2 WPA3 PSK";
+        case 9:
+            return "WAPI PSK";
+        case 10:
+            return "OWE";
+        case 11:
+            return "WPA3 ENT 192";
+        case 12:
+            return "WPA3 EXT PSK";
+        case 13:
+            return "WPA3 EXT PSK MIXED MODE";
+        default:
+            return "Unknown";
+    }
+}
 
 void WiFiConfigApp::run() {
     lilka::Canvas buffer(canvas->width(), canvas->height());
@@ -87,6 +121,7 @@ void WiFiConfigApp::run() {
         );
     }
     menu.addItem("<< Назад");
+    menu.addActivationButton(lilka::Button::C);
     count++;
     while (1) {
         while (!menu.isFinished()) {
@@ -98,7 +133,20 @@ void WiFiConfigApp::run() {
         if (cursor == count - 1) {
             return;
         }
-
+        if (menu.getButton() == lilka::Button::C) {
+            int16_t index = menu.getCursor();
+            String networkInfo = "Канал: " + String(WiFi.channel(index)) + "\n";
+            networkInfo += "Сила сигналу: " + String(WiFi.RSSI(index)) + "db\n";
+            networkInfo += "MAC: " + WiFi.BSSIDstr(index) + "\n";
+            networkInfo += "Захист: " + getEncryptionTypeStr(WiFi.encryptionType(index)) + "\n";
+            lilka::Alert info(networks[menu.getCursor()], networkInfo);
+            while (!info.isFinished()) {
+                info.update();
+                info.draw(canvas);
+                queueDraw();
+            }
+            continue;
+        }
         String ssid = networks[cursor];
 
         String password = "";
