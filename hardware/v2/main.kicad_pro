@@ -449,7 +449,8 @@
     ],
     "pinned_symbol_libs": [
       "display",
-      "connector"
+      "connector",
+      "regulators"
     ]
   },
   "meta": {

@@ -80,6 +80,7 @@
 #    define LILKA_DISPLAY_ROTATION       3
 #    define LILKA_DISPLAY_WIDTH          240 // Display dimensions in unrotated state
 #    define LILKA_DISPLAY_HEIGHT         280 // (will be adjusted by rotation inside Arduino_GFX)
+#    define LILKA_DISPLAY_BL             46
 // uSD-карта
 #    define LILKA_SDCARD_CS              16
 // Рівень батареї

@@ -36,6 +36,10 @@ void Display::begin() {
 #else
     Arduino_ST7789::begin(80000000);
 #endif
+#if LILKA_VERSION >= 2
+    pinMode(LILKA_DISPLAY_BL, OUTPUT);
+    setBacklight(true);
+#endif
     setFont(FONT_10x20);
     setUTF8Print(true);
     if (splash != NULL) {
@@ -165,6 +169,12 @@ void Display::draw16bitRGBBitmapWithTranColor(
 
 void Display::drawCanvas(Canvas* canvas) {
     draw16bitRGBBitmap(canvas->x(), canvas->y(), canvas->getFramebuffer(), canvas->width(), canvas->height());
+}
+
+void Display::setBacklight(bool enabled) {
+#if LILKA_VERSION >= 2
+    digitalWrite(LILKA_DISPLAY_BL, enabled ? HIGH : LOW);
+#endif
 }
 
 Canvas::Canvas() : Arduino_Canvas(display.width(), display.height(), NULL) {
