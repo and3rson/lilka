@@ -13,34 +13,24 @@ WiFiConfigApp::WiFiConfigApp() : App("WiFi") {
 }
 String WiFiConfigApp::getEncryptionTypeStr(uint8_t encryptionType) {
     switch (encryptionType) {
-        case 0:
+        case WIFI_AUTH_OPEN:
             return "Open";
-        case 1:
+        case WIFI_AUTH_WEP:
             return "WEP";
-        case 2:
+        case WIFI_AUTH_WPA_PSK:
             return "WPA PSK";
-        case 3:
+        case WIFI_AUTH_WPA2_PSK:
             return "WPA2 PSK";
-        case 4:
+        case WIFI_AUTH_WPA_WPA2_PSK:
             return "WPA WPA2 PSK";
-        case 5:
+        case WIFI_AUTH_WPA2_ENTERPRISE:
             return "ENTERPRISE";
-        case 6:
-            return "ENTERPRISE";
-        case 7:
+        case WIFI_AUTH_WPA3_PSK:
             return "WPA3 PSK";
-        case 8:
+        case WIFI_AUTH_WPA2_WPA3_PSK:
             return "WPA2 WPA3 PSK";
-        case 9:
+        case WIFI_AUTH_WAPI_PSK:
             return "WAPI PSK";
-        case 10:
-            return "OWE";
-        case 11:
-            return "WPA3 ENT 192";
-        case 12:
-            return "WPA3 EXT PSK";
-        case 13:
-            return "WPA3 EXT PSK MIXED MODE";
         default:
             return "Unknown";
     }
