@@ -1,5 +1,6 @@
 #pragma once
 #include "service.h"
+#include "appmanager.h"
 //#include "serial.h"
 
 // This service should auto mount any avaliable media

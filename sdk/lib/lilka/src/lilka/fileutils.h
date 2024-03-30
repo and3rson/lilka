@@ -32,7 +32,7 @@ public:
     // Filesystems.
     void init();
     // Tries to init SD if it's not initialized yet
-    void initSD();
+    bool initSD();
     // Tries to init SPIFFS if it's not initialized yet
     void initSPIFFS();
     uint32_t getEntryCount(FS* fSysDriver, const String& path);

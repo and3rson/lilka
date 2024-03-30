@@ -28,14 +28,14 @@ void FileUtils::initSPIFFS() {
     }
 }
 
-void FileUtils::initSD() {
-    if (sdMountLocked) return;
+bool FileUtils::initSD() {
+    if (sdMountLocked) return false;
     // check if LILKA_SDROOT pathable, if not perform init
     File sdRoot = sdfs->open("/");
     if (sdRoot) {
         // Allready initialized
         sdRoot.close();
-        return;
+        return false;
     }
     serial_log("initializing SD card");
 
@@ -47,17 +47,19 @@ void FileUtils::initSD() {
 
     if (cardType == CARD_NONE) {
         serial_err("no SD card found");
-        return;
+        return false;
     }
 
     if (cardType == CARD_SD || cardType == CARD_SDHC) {
         serial_log(
             "card type: %s, card size: %ld MB", cardType == CARD_SD ? "SD" : "SDHC", sdfs->totalBytes() / (1024 * 1024)
         );
+        return true;
     } else {
         serial_err("unknown SD card type: %d", cardType);
     }
 #endif
+    return false;
 }
 
 uint32_t FileUtils::getEntryCount(FS* fSysDriver, const String& path) {
