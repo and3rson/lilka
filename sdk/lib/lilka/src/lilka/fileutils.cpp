@@ -29,39 +29,31 @@ void FileUtils::initSPIFFS() {
 }
 
 bool FileUtils::initSD() {
+    // Most likely we're trying to format card,
+    // please standby
     if (sdMountLocked) return false;
     // check if LILKA_SDROOT pathable, if not perform init
-    File sdRoot = sdfs->open("/");
-
-    if (sdRoot) {
-        // Allready initialized
-        sdRoot.close();
-        return false;
-    } else {
-        sdfs->end();
-    }
     serial_log("initializing SD card");
 
 #if LILKA_SDCARD_CS < 0
     serial_err("SD init failed: no CS pin");
 #else
-    bool init_result = sdfs->begin(LILKA_SDCARD_CS, SPI1, 20000000, LILKA_SDROOT); // TODO: is 20 MHz OK for all cards?
+    bool init_result = sdfs->begin(
+        LILKA_SDCARD_CS, SPI1, LILKA_SD_FREQUENCY, LILKA_SDROOT
+    ); // TODO: is 20 MHz OK for all cards? // TODO: is 20 MHz OK for all cards?
+
     sdcard_type_t cardType = sdfs->cardType();
-    if (!init_result || !isSDAvailable()) {
+    if (!init_result) {
         // Can't init -> should end or we'll mess
         // with internal implemenation of sdfs
         sdfs->end();
-    }
-    if (cardType == CARD_NONE) {
-        serial_err("no SD card found");
-        sdfs->end();
         return false;
     }
-
     if (cardType == CARD_SD || cardType == CARD_SDHC) {
         serial_log(
             "card type: %s, card size: %ld MB", cardType == CARD_SD ? "SD" : "SDHC", sdfs->totalBytes() / (1024 * 1024)
         );
+        // ALL OKAY!
         return true;
     } else {
         serial_err("unknown SD card type: %d", cardType);
@@ -194,17 +186,15 @@ const String FileUtils::getRelativePath(const String& path) {
 }
 
 bool FileUtils::isSDAvailable() {
-    File sdRoot = sdfs->open("/");
-
-    if (sdRoot) {
-        // Allready initialized
-        sdRoot.close();
-        return true;
-    } else {
-        sdfs->end();
-        return false;
-    }
-    return !(sdfs->cardType() == CARD_NONE || sdfs->cardType() == CARD_UNKNOWN);
+    // init could be run any count of times
+    // cuz SD.begin() anyway checks if
+    // sd allready mounted, btw it will not answer on a
+    // card presence question
+    // for this purpose we need to digitalRead CardDetect pin which we
+    // do not have.
+    // File Open\Close from sd card will try to use spi
+    // which is really bad for display, so this is it
+    return initSD();
 }
 
 bool FileUtils::isSPIFFSAvailable() {
@@ -254,8 +244,8 @@ bool FileUtils::createSDPartTable() {
     std::unique_ptr<uint8_t[]> workbufPtr(workbuf);
 
     // init without mount
-    SPI1.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
-    uint8_t pdrv = sdcard_init(LILKA_SDCARD_CS, &SPI1, 2000000);
+    SPI1.beginTransaction(SPISettings(LILKA_SD_FREQUENCY, MSBFIRST, SPI_MODE0));
+    uint8_t pdrv = sdcard_init(LILKA_SDCARD_CS, &SPI1, LILKA_SD_FREQUENCY);
     SPI1.endTransaction();
     if (pdrv == 0xFF) {
         sdMountLocked = false;
@@ -265,7 +255,7 @@ bool FileUtils::createSDPartTable() {
     // SD card uninitializer (RAII)
     std::unique_ptr<void, void (*)(void*)> sdcardUninit(nullptr, [](void* pdrv) {
         // C++ is beautiful and ugly at the same time
-        SPI1.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
+        SPI1.beginTransaction(SPISettings(LILKA_SD_FREQUENCY, MSBFIRST, SPI_MODE0));
         sdcard_uninit(*static_cast<uint8_t*>(pdrv));
         SPI1.endTransaction();
     });

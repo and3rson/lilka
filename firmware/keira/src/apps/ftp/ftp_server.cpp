@@ -13,6 +13,8 @@ void FTPServerApp::run() {
         password = createPassword();
     }
 
+    lilka::fileutils.initSD();
+
     FtpServer ftpSrv;
     ftpSrv.begin("lilka", password.c_str());
 

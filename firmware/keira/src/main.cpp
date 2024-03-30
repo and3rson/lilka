@@ -8,7 +8,6 @@
 #include "services/clock.h"
 #include "services/network.h"
 #include "services/screenshot.h"
-#include "services/automount.h"
 #include "apps/statusbar.h"
 #include "apps/launcher.h"
 
@@ -20,7 +19,6 @@ void setup() {
     lilka::begin();
     serviceManager->addService(new NetworkService());
     serviceManager->addService(new ClockService());
-    serviceManager->addService(new AutoMountService());
     serviceManager->addService(new ScreenshotService());
     appManager->setPanel(new StatusBarApp());
     appManager->runApp(new LauncherApp());

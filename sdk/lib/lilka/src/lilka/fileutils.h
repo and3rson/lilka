@@ -4,6 +4,7 @@
 #include <SPIFFS.h>
 #include <SD.h>
 #include "config.h"
+#include <dirent.h>
 #include <sd_diskio.h>
 
 #define LILKA_SDROOT          "/sd"
@@ -12,6 +13,8 @@
 #define LILKA_SDROOT_LEN      3
 #define LILKA_SPIFFS_ROOT_LEN 3
 #define H_FILE_SIZE           6
+#define LILKA_SD_FREQUENCY    25000000
+
 namespace lilka {
 
 typedef enum {
