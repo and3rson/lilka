@@ -72,10 +72,8 @@ void Menu::update() {
     if (cursorLastPos != cursor) lastCursorMove = millis();
     if (cursor < scroll) {
         scroll = cursor;
-        // cursorY = cursor * 24 + 96 - 20;
     } else if (cursor > scroll + MENU_HEIGHT - 1) {
         scroll = cursor - MENU_HEIGHT + 1;
-        // cursorY = cursor * 24 + 96 - 20;
     }
 
     for (Button activationButton : activationButtons) {
@@ -88,7 +86,6 @@ void Menu::update() {
 }
 
 void Menu::draw(Arduino_GFX* canvas) {
-    // uint8_t desiredCursorY = cursor * 24 + 96 - 20;
     canvas->fillScreen(lilka::colors::Black);
     int8_t angleShift = sin(millis() / 1000.0) * 16;
     // Draw triangle in top-left
@@ -104,7 +101,7 @@ void Menu::draw(Arduino_GFX* canvas) {
         lilka::colors::Yellow
     );
     canvas->setCursor(32, 40);
-    canvas->setTextBound(0, 0, canvas->width(), canvas->height());
+    canvas->setTextBound(32, 8, canvas->width() - 64, 32);
     canvas->setTextColor(lilka::colors::White);
     canvas->setFont(FONT_6x13);
     canvas->setTextSize(2);
@@ -117,22 +114,10 @@ void Menu::draw(Arduino_GFX* canvas) {
 
     uint16_t menu_size = items.size();
     for (int i = scroll; i < MIN(scroll + MENU_HEIGHT, menu_size); i++) {
-        // canvas->fillRect(0, 96 + i * 24 - 20, LILKA_DISPLAY_WIDTH, 24, i == cursor ? lilka::colors::Orange_red :
-        // lilka::colors::Black);
         int16_t screenI = i - scroll;
         const menu_icon_t* icon = items[i].icon;
         canvas->setTextBound(0, 80 + screenI * 24 - 20, canvas->width(), 24);
         if (icon) {
-            // const uint16_t *icon = *icons[i];
-            // Cast icon to non-const uint16_t * to avoid warning
-            // TODO: Had to do this because I switched to canvas (FreeRTOS experiment)
-            // uint16_t *icon2 = (uint16_t *)icon;
-            // int16_t dx = 0;
-            // int16_t dy = 0;
-            // if (cursor == i) {
-            //     dx = random(0, 3) - 1;
-            //     dy = random(0, 3) - 1;
-            // }
             if (cursor == i) {
                 memcpy(iconImage->pixels, *icon, sizeof(menu_icon_t));
                 // Transform t = Transform().rotate(millis() * 30);
@@ -148,25 +133,50 @@ void Menu::draw(Arduino_GFX* canvas) {
                 );
             }
         }
-        canvas->setCursor(32, 80 + screenI * 24);
-        if (items[i].color && cursor != i) {
-            canvas->setTextColor(items[i].color);
-        } else {
-            canvas->setTextColor(lilka::colors::White);
-        }
-        // gfx->print(i == cursor ? "> " : "  ");
-        canvas->println(items[i].title);
 
+        uint16_t postfixWidth = 0;
         if (items[i].postfix.length()) {
             // Calculate postfix width
             int16_t x1, y1;
-            uint16_t w, h;
-            canvas->getTextBounds(items[i].postfix, 0, 0, &x1, &y1, &w, &h);
+            uint16_t h;
+            canvas->getTextBounds(items[i].postfix, 0, 0, &x1, &y1, &postfixWidth, &h);
             (void)x1;
             (void)y1;
             (void)h;
-            canvas->setCursor(canvas->width() - w - 8, 80 + screenI * 24);
+            canvas->setCursor(canvas->width() - postfixWidth - 8, 80 + screenI * 24);
             canvas->println(items[i].postfix);
+        }
+
+        int16_t widthAvailable = canvas->width() - 32 - postfixWidth - 8;
+        if (widthAvailable < 0) {
+            // No space for title
+            continue;
+        }
+
+        uint16_t titleWidth = getTextWidth(FONT_10x20, items[i].title.c_str());
+        if (titleWidth > widthAvailable && cursor == i) {
+            // Marquee
+            uint32_t spacesWidth = getTextWidth(FONT_10x20, "   ");
+            titleWidth += spacesWidth;
+            Canvas marquee(widthAvailable, 24);
+            marquee.fillScreen(lilka::colors::Black);
+            marquee.setFont(FONT_10x20);
+            int16_t shift = MIN(((lastCursorMove + 500) - millis()) / 30, 0) % titleWidth;
+            marquee.setCursor(shift, 20);
+            marquee.println(items[i].title + "   " + items[i].title);
+            canvas->draw16bitRGBBitmapWithTranColor(
+                32, 80 + screenI * 24 - 20, marquee.getFramebuffer(), lilka::colors::Black, widthAvailable, 24
+            );
+        } else {
+            // Text fits
+            canvas->setCursor(32, 80 + screenI * 24);
+            canvas->setTextBound(32, 80 + screenI * 24 - 20, widthAvailable, 24);
+            if (items[i].color && cursor != i) {
+                canvas->setTextColor(items[i].color);
+            } else {
+                canvas->setTextColor(lilka::colors::White);
+            }
+            canvas->println(items[i].title);
         }
     }
 
