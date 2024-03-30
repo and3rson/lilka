@@ -32,21 +32,29 @@ bool FileUtils::initSD() {
     if (sdMountLocked) return false;
     // check if LILKA_SDROOT pathable, if not perform init
     File sdRoot = sdfs->open("/");
+
     if (sdRoot) {
         // Allready initialized
         sdRoot.close();
         return false;
+    } else {
+        sdfs->end();
     }
     serial_log("initializing SD card");
 
 #if LILKA_SDCARD_CS < 0
     serial_err("SD init failed: no CS pin");
 #else
-    sdfs->begin(LILKA_SDCARD_CS, SPI1, 20000000, LILKA_SDROOT); // TODO: is 20 MHz OK for all cards?
+    bool init_result = sdfs->begin(LILKA_SDCARD_CS, SPI1, 20000000, LILKA_SDROOT); // TODO: is 20 MHz OK for all cards?
     sdcard_type_t cardType = sdfs->cardType();
-
+    if (!init_result || !isSDAvailable()) {
+        // Can't init -> should end or we'll mess
+        // with internal implemenation of sdfs
+        sdfs->end();
+    }
     if (cardType == CARD_NONE) {
         serial_err("no SD card found");
+        sdfs->end();
         return false;
     }
 
@@ -186,6 +194,16 @@ const String FileUtils::getRelativePath(const String& path) {
 }
 
 bool FileUtils::isSDAvailable() {
+    File sdRoot = sdfs->open("/");
+
+    if (sdRoot) {
+        // Allready initialized
+        sdRoot.close();
+        return true;
+    } else {
+        sdfs->end();
+        return false;
+    }
     return !(sdfs->cardType() == CARD_NONE || sdfs->cardType() == CARD_UNKNOWN);
 }
 
@@ -235,7 +253,7 @@ bool FileUtils::createSDPartTable() {
     uint8_t* workbuf = new uint8_t[workbufSize];
     std::unique_ptr<uint8_t[]> workbufPtr(workbuf);
 
-    // mount without init
+    // init without mount
     SPI1.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
     uint8_t pdrv = sdcard_init(LILKA_SDCARD_CS, &SPI1, 2000000);
     SPI1.endTransaction();
