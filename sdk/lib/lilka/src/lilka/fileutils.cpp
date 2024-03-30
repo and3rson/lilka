@@ -173,9 +173,9 @@ const String FileUtils::getFullPath(const FS* fSysDriver, const String& path) {
 const String FileUtils::getRelativePath(const String& path) {
     String relativePath;
     if (path.startsWith(LILKA_SDROOT LILKA_SLASH)) {
-        relativePath = "/" + path.substring(LILKA_SDROOT_LEN);
+        relativePath = path.substring(LILKA_SDROOT_LEN);
     } else if (path.startsWith(LILKA_SPIFFS_ROOT LILKA_SLASH)) {
-        relativePath = "/" + path.substring(LILKA_SPIFFS_ROOT_LEN);
+        relativePath = path.substring(LILKA_SPIFFS_ROOT_LEN);
     } else
         // Maybe path is allready relative?
         relativePath = path;
