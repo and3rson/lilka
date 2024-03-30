@@ -2549,145 +2549,6 @@
 				)
 			)
 		)
-		(symbol "Regulator_Linear:TLV1117-33"
-			(pin_names
-				(offset 0.254)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "U"
-				(at -3.81 3.175 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "TLV1117-33"
-				(at 0 3.175 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "http://www.ti.com/lit/ds/symlink/tlv1117.pdf"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "800mA Low-Dropout Linear Regulator, 3.3V fixed output, TO-220/TO-252/TO-263/SOT-223"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "linear regulator ldo fixed positive"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "SOT?223* TO?263* TO?252* TO?220*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "TLV1117-33_0_1"
-				(rectangle
-					(start -5.08 -5.08)
-					(end 5.08 1.905)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-			)
-			(symbol "TLV1117-33_1_1"
-				(pin power_in line
-					(at 0 -7.62 90)
-					(length 2.54)
-					(name "GND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_out line
-					(at 7.62 0 180)
-					(length 2.54)
-					(name "VO"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin power_in line
-					(at -7.62 0 0)
-					(length 2.54)
-					(name "VI"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-		)
 		(symbol "Switch:SW_DPDT_x2"
 			(pin_names
 				(offset 0) hide)
@@ -4919,6 +4780,141 @@
 				)
 			)
 		)
+		(symbol "regulators:TLV1117LV33DCYR"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 -1.27 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" ""
+				(at 0 -1.27 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "Package_TO_SOT_SMD:SOT-223"
+				(at 0 -1.27 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tlv1117lv.pdf"
+				(at 0 -1.27 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "LDO linear regulator"
+				(at 0 -1.27 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "TLV1117LV33DCYR_0_1"
+				(rectangle
+					(start -5.08 1.905)
+					(end 5.08 -5.08)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "TLV1117LV33DCYR_1_1"
+				(pin power_in line
+					(at 0 -7.62 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_out line
+					(at 7.62 0 180)
+					(length 2.54)
+					(name "VO"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -7.62 0 0)
+					(length 2.54)
+					(name "VI"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_out line
+					(at 7.62 0 180)
+					(length 2.54) hide
+					(name "VO"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 	)
 	(junction
 		(at 134.62 165.1)
@@ -5053,12 +5049,6 @@
 		(uuid "9692f66e-53d4-4229-8b97-dbe0bb131151")
 	)
 	(junction
-		(at 139.7 124.46)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "988384b7-3a2a-47b6-8226-073781f8413e")
-	)
-	(junction
 		(at 120.65 81.28)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5125,10 +5115,6 @@
 		(uuid "b2d417a4-521c-4af1-ba97-a713d1ab3531")
 	)
 	(no_connect
-		(at 345.44 72.39)
-		(uuid "d611ca23-c977-435a-861b-c6a163780251")
-	)
-	(no_connect
 		(at 336.55 43.18)
 		(uuid "df3c13f2-56d5-40b2-ac06-7f98d6f8fa96")
 	)
@@ -5138,7 +5124,7 @@
 	)
 	(wire
 		(pts
-			(xy 129.54 144.78) (xy 132.08 144.78)
+			(xy 127 144.78) (xy 132.08 144.78)
 		)
 		(stroke
 			(width 0)
@@ -5705,16 +5691,6 @@
 			(type default)
 		)
 		(uuid "678a42f6-ae89-40e0-ba72-5bfef1444711")
-	)
-	(wire
-		(pts
-			(xy 129.54 124.46) (xy 129.54 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "679f88d2-e92e-4af3-8bc7-509f1abdb13e")
 	)
 	(wire
 		(pts
@@ -6308,16 +6284,6 @@
 	)
 	(wire
 		(pts
-			(xy 129.54 124.46) (xy 139.7 124.46)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b2d7a41a-bcbc-4f55-b85a-e938f1e96f3d")
-	)
-	(wire
-		(pts
 			(xy 335.28 62.23) (xy 330.2 62.23)
 		)
 		(stroke
@@ -6418,7 +6384,7 @@
 	)
 	(wire
 		(pts
-			(xy 345.44 72.39) (xy 330.2 72.39)
+			(xy 335.28 72.39) (xy 330.2 72.39)
 		)
 		(stroke
 			(width 0)
@@ -7574,6 +7540,29 @@
 			)
 		)
 	)
+	(global_label "DISP_BL"
+		(shape input)
+		(at 127 144.78 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 255 151 1 1)
+			)
+			(justify right)
+		)
+		(uuid "4c43e7cb-366c-4de4-9a8c-4815c741ab0e")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 116.3948 144.78 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "~{SD_CS}"
 		(shape output)
 		(at 335.28 97.79 0)
@@ -7846,6 +7835,29 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "DISP_BL"
+		(shape output)
+		(at 335.28 72.39 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(color 255 151 1 1)
+			)
+			(justify left)
+		)
+		(uuid "70d1579c-5bda-4994-a03f-9549a357c73b")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 345.8852 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -9571,7 +9583,7 @@
 		)
 	)
 	(symbol
-		(lib_id "Regulator_Linear:TLV1117-33")
+		(lib_id "regulators:TLV1117LV33DCYR")
 		(at 175.26 60.96 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -9579,9 +9591,9 @@
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "1ea3a542-20d5-477f-aab4-db9b440d8ac4")
+		(uuid "1e934b92-3f8e-437d-a122-45e84d541ec0")
 		(property "Reference" "U3"
-			(at 175.26 54.61 0)
+			(at 175.26 52.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9589,7 +9601,7 @@
 			)
 		)
 		(property "Value" "TLV1117LV33"
-			(at 175.26 57.15 0)
+			(at 175.26 54.61 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9597,7 +9609,7 @@
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-223"
-			(at 175.26 60.96 0)
+			(at 175.26 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9605,8 +9617,8 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/tlv1117.pdf"
-			(at 175.26 60.96 0)
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/tlv1117lv.pdf"
+			(at 175.26 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9614,8 +9626,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 175.26 60.96 0)
+		(property "Description" "LDO linear regulator"
+			(at 175.26 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9624,7 +9636,7 @@
 			)
 		)
 		(property "LCSC" "C15578"
-			(at 175.26 52.07 0)
+			(at 175.26 57.15 0)
 			(show_name yes)
 			(effects
 				(font
@@ -9634,14 +9646,17 @@
 				)
 			)
 		)
-		(pin "2"
-			(uuid "872a0fe9-a718-4ca3-85d2-f9f8f6a5370a")
+		(pin "3"
+			(uuid "f6e7db4b-6174-4d5d-8491-7d51db1fb9e5")
+		)
+		(pin "4"
+			(uuid "783ab87a-8097-466e-8adf-cd661cf31c6f")
 		)
 		(pin "1"
-			(uuid "126f248a-d853-4692-bc6a-c7ce49b49c86")
+			(uuid "9e95cb1a-2d00-4875-8ddd-bb52af22e573")
 		)
-		(pin "3"
-			(uuid "08286519-97c1-431c-b8b7-9a4ef8523289")
+		(pin "2"
+			(uuid "0d0a2aa4-0efb-4bc4-aa31-f5a2929acac8")
 		)
 		(instances
 			(project "main"
