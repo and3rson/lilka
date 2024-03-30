@@ -13,7 +13,7 @@
 #define LILKA_SDROOT_LEN      3
 #define LILKA_SPIFFS_ROOT_LEN 3
 #define H_FILE_SIZE           6
-#define LILKA_SD_FREQUENCY    25000000
+#define LILKA_SD_FREQUENCY    20000000
 
 namespace lilka {
 
