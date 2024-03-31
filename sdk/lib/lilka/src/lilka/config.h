@@ -1,6 +1,8 @@
 #ifndef LILKA_CONFIG_H
 #define LILKA_CONFIG_H
 
+#include <stdint.h>
+
 #if LILKA_VERSION == -1
 
 // Lilka on a breadboard (C3)
@@ -69,6 +71,8 @@
 #    define LILKA_GPIO_B                 6
 #    define LILKA_GPIO_C                 10
 #    define LILKA_GPIO_D                 9
+// Сон
+#    define LILKA_SLEEP                  46
 // SPI
 #    define LILKA_SPI_SCK                18
 #    define LILKA_SPI_MOSI               17
@@ -80,7 +84,6 @@
 #    define LILKA_DISPLAY_ROTATION       3
 #    define LILKA_DISPLAY_WIDTH          240 // Display dimensions in unrotated state
 #    define LILKA_DISPLAY_HEIGHT         280 // (will be adjusted by rotation inside Arduino_GFX)
-#    define LILKA_DISPLAY_BL             46
 // uSD-карта
 #    define LILKA_SDCARD_CS              16
 // Рівень батареї
@@ -100,8 +103,7 @@
 #    define LILKA_P6                     14 // ADC2, CH3
 #    define LILKA_P7                     13 // ADC2, CH2
 #    define LILKA_P8                     12 // ADC2, CH1
-#    define LILKA_EXT_PINS \
-        { LILKA_P3, LILKA_P4, LILKA_P5, LILKA_P6, LILKA_P7, LILKA_P8 }
+const uint8_t LILKA_EXT_PINS[] = {LILKA_P3, LILKA_P4, LILKA_P5, LILKA_P6, LILKA_P7, LILKA_P8};
 
 #else
 #    error "LILKA_VERSION is not defined - did you forget to set board to lilka_v2 in your platformio.ini?"
