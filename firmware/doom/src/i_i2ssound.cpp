@@ -227,7 +227,7 @@ void soundTask(void* param) {
                 chunkSize = 65536 - mixerBufferStart;
             }
             chunkSize = MIN(chunkSize, 512) * 2; // 512 samples. Multiply by 2 because i2s_write expects bytes.
-            esp_i2s::i2s_write(esp_i2s::I2S_NUM_0, mixerBuffer + mixerBufferStart, chunkSize, &written, portMAX_DELAY);
+            esp_i2s::i2s_write(esp_i2s::I2S_NUM_0, mixerBuffer + mixerBufferStart, chunkSize, &written, 0);
             mixerBufferStart += written / 2;
             if (mixerBufferStart >= 65536) {
                 mixerBufferStart = 0;

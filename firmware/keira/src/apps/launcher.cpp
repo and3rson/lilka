@@ -464,13 +464,11 @@ void LauncherApp::settingsMenu() {
 
             this->alert("Форматування", "Форматування SD-карти завершено!");
         } else if (index == 5) {
-            lilka::display.displayOff();
-            lilka::display.setBacklight(false);
+            lilka::board.enablePowerSavingMode();
             esp_light_sleep_start();
         } else if (index == 6) {
-            lilka::display.displayOff();
-            lilka::display.setBacklight(false);
-            ESP.deepSleep(0xFFFFFFFF);
+            lilka::board.enablePowerSavingMode();
+            esp_deep_sleep_start();
         } else if (index == 7) {
             esp_restart();
         }
