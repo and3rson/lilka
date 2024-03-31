@@ -32,6 +32,8 @@ bool FileUtils::initSD() {
     // Most likely we're trying to format card,
     // please standby
     if (sdMountLocked) return false;
+    // Allready mounted
+    if (isSDAvailable()) return false;
     // check if LILKA_SDROOT pathable, if not perform init
     serial_log("initializing SD card");
 
@@ -194,7 +196,8 @@ bool FileUtils::isSDAvailable() {
     // do not have.
     // File Open\Close from sd card will try to use spi
     // which is really bad for display, so this is it
-    return initSD();
+    sdcard_type_t sdType = sdfs->cardType();
+    return (sdType == CARD_SD || sdType == CARD_SDHC);
 }
 
 bool FileUtils::isSPIFFSAvailable() {

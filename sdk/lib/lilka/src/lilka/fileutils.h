@@ -54,6 +54,9 @@ public:
     // Get FS* for a full path
     FS* getFSysDriverByFullPath(const String& path);
     // SD Utils:
+    // SD Card format
+    // Note: system should be rebooted anyway, after call
+    // to any of these methods
     bool createSDPartTable();
     bool formatSD();
     // Misc:

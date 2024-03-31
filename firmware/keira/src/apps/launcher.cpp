@@ -362,7 +362,9 @@ void LauncherApp::settingsMenu() {
         } else if (index == 4) {
             lilka::Alert confirm(
                 "Форматування",
-                "УВАГА: Це очистить ВСІ дані з SD-карти!\n\nПродовжити?\n\nSTART - продовжити\nA - скасувати"
+                "УВАГА: Це очистить ВСІ дані з SD-карти!\n"
+                "Систему буде перезавантажено\n"
+                "\nПродовжити?\n\nSTART - продовжити\nA - скасувати"
             );
             confirm.addActivationButton(lilka::Button::START);
             confirm.draw(canvas);
@@ -379,15 +381,28 @@ void LauncherApp::settingsMenu() {
             dialog.draw(canvas);
             queueDraw();
             if (!lilka::fileutils.createSDPartTable()) {
-                alert("Помилка", "Не вдалось створити нову таблицю розділів. Можливо відсутня карта");
-                continue;
+                alert(
+                    "Помилка",
+                    "Не вдалося створити нову таблицю розділів. "
+                    "Можливо відсутня карта\n\n"
+                    "Систему буде перезавантажено"
+                );
+                esp_restart();
             }
             if (!lilka::fileutils.formatSD()) {
-                this->alert("Помилка", "Не вдалося форматувати SD-карту");
-                continue;
+                this->alert(
+                    "Помилка",
+                    "Не вдалося форматувати SD-карту\n\n"
+                    "Систему буде перезавантажено"
+                );
+                esp_restart();
             }
-
-            this->alert("Форматування", "Форматування SD-карти завершено!");
+            this->alert(
+                "Форматування",
+                "Форматування SD-карти завершено!\n\n"
+                "Систему буде перезавантажено"
+            );
+            esp_restart();
         } else if (index == 5) {
             esp_light_sleep_start();
         } else if (index == 6) {
