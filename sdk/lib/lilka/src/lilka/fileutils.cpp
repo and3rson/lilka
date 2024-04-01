@@ -300,7 +300,7 @@ const String FileUtils::joinPath(const String& lPath, const String& rPath) {
 
     // Remove any leading "/" from rPath
     size_t pos = 0;
-    while (rPath[pos] == '/' && pos < rPath.length())
+    while (rPath.c_str()[pos] == '/' && pos < rPath.length())
         pos++;
     path += rPath.substring(pos);
 
