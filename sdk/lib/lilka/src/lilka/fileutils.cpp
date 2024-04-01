@@ -293,6 +293,19 @@ bool FileUtils::formatSD() {
 
     return true;
 }
+const String FileUtils::joinPath(const String& lPath, const String& rPath) {
+    String path = lPath;
+    // Ensure lPath ends with "/" if not empty
+    if (path != "" && path.c_str()[path.length() - 1] != '/') path += '/';
+
+    // Remove any leading "/" from rPath
+    size_t pos = 0;
+    while (rPath[pos] == '/' && pos < rPath.length())
+        pos++;
+    path += rPath.substring(pos);
+
+    return path;
+}
 
 FileUtils fileutils;
 } // namespace lilka

@@ -60,6 +60,7 @@ public:
     bool formatSD();
     // Misc:
     const String getHumanFriendlySize(const size_t size);
+    const String joinPath(const String& lPath, const String& rPath);
 
 private:
     bool sdMountLocked = false;
