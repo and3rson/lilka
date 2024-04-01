@@ -24,6 +24,7 @@
 #include "mjs/mjsrunner.h"
 #include "nes/nesapp.h"
 #include "ftp/ftp_server.h"
+#include "weather/weather.h"
 
 #include "icons/demos.h"
 #include "icons/sdcard.h"
@@ -66,6 +67,7 @@ ITEM_LIST app_items = {
     ),
     ITEM_APP("Летріс", LetrisApp),
     ITEM_APP("Тамагочі", TamagotchiApp),
+    ITEM_APP("Погода", WeatherApp),
 };
 
 ITEM_LIST dev_items = {
