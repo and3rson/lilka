@@ -41,7 +41,7 @@ bool FileUtils::initSD() {
     serial_err("SD init failed: no CS pin");
 #else
     bool init_result = sdfs->begin(
-        LILKA_SDCARD_CS, SPI1, LILKA_SD_FREQUENCY, LILKA_SDROOT
+        LILKA_SDCARD_CS, SPI1, LILKA_SD_FREQUENCY, LILKA_SD_ROOT
     ); // TODO: is 20 MHz OK for all cards? // TODO: is 20 MHz OK for all cards?
 
     sdcard_type_t cardType = sdfs->cardType();
@@ -64,23 +64,23 @@ bool FileUtils::initSD() {
     return false;
 }
 
-uint32_t FileUtils::getEntryCount(FS* fSysDriver, const String& path) {
+uint32_t FileUtils::getEntryCount(FS* fSysDriver, const String& relPath) {
     FS* fs = fSysDriver;
 
     if (fs == NULL) {
-        serial_err("Path (%s) reffers to unknown filesystem type", path.c_str());
+        serial_err("Path (%s) reffers to unknown filesystem type", relPath.c_str());
         return 0;
     }
 
-    File root = fs->open(stripPath(path));
+    File root = fs->open(stripPath(relPath));
     // Below we assume if folder can't be open then it has zero files
     // Btw we will show this error using serial
     if (!root) {
-        serial_err("getEntryCount: failed to open directory: %s", path.c_str());
+        serial_err("getEntryCount: failed to open directory: %s", relPath.c_str());
         return 0;
     }
     if (!root.isDirectory()) {
-        serial_err("getEntryCount: not a directory: %s", path.c_str());
+        serial_err("getEntryCount: not a directory: %s", relPath.c_str());
         return 0;
     }
 
@@ -106,21 +106,21 @@ const String FileUtils::stripPath(const String& path) {
     return striped_path;
 }
 
-size_t FileUtils::listDir(FS* fSysDriver, const String& path, Entry entries[]) {
+size_t FileUtils::listDir(FS* fSysDriver, const String& relPath, Entry entries[]) {
     FS* fs = fSysDriver;
 
     if (fs == NULL) {
-        serial_err("Path (%s) reffers to unknown filesystem type", path.c_str());
+        serial_err("Path (%s) reffers to unknown filesystem type", relPath.c_str());
         return 0;
     }
 
-    File root = fs->open(stripPath(path));
+    File root = fs->open(stripPath(relPath));
     if (!root) {
-        serial_err("listDir: failed to open directory: %s", path.c_str());
+        serial_err("listDir: failed to open directory: %s", relPath.c_str());
         return -1;
     }
     if (!root.isDirectory()) {
-        serial_err("listDir: not a directory: %s", path.c_str());
+        serial_err("listDir: not a directory: %s", relPath.c_str());
         return -1;
     }
 
@@ -153,38 +153,37 @@ size_t FileUtils::listDir(FS* fSysDriver, const String& path, Entry entries[]) {
     return i;
 }
 
-FS* FileUtils::getFSysDriverByFullPath(const String& path) {
-    FS* fs = NULL;
-    if (path.startsWith(LILKA_SDROOT LILKA_SLASH)) {
-        fs = static_cast<FS*>(sdfs);
-    } else if (path.startsWith(LILKA_SPIFFS_ROOT LILKA_SLASH)) {
-        fs = static_cast<FS*>(spiffs);
-    }
-    return fs;
-}
-const String FileUtils::getFullPath(const FS* fSysDriver, const String& path) {
+const String FileUtils::getFullPath(const FS* fSysDriver, const String& relPath) {
     // Allready okay
-    if (path.startsWith(LILKA_SDROOT LILKA_SLASH) || path.startsWith(LILKA_SPIFFS_ROOT LILKA_SLASH)) return path;
+    if (relPath.startsWith(LILKA_SD_ROOT LILKA_SLASH) || relPath.startsWith(LILKA_SPIFFS_ROOT LILKA_SLASH))
+        return relPath;
 
     if (fSysDriver == sdfs) {
-        return String(LILKA_SDROOT) + path;
+        return String(LILKA_SD_ROOT) + relPath;
     } else if (fSysDriver == spiffs) {
-        return String(LILKA_SPIFFS_ROOT) + path;
+        return String(LILKA_SPIFFS_ROOT) + relPath;
     }
     serial_err("Unknown fSysDriver provided");
-    return path;
+    return relPath;
 }
 
-const String FileUtils::getRelativePath(const String& path) {
-    String relativePath;
-    if (path.startsWith(LILKA_SDROOT LILKA_SLASH)) {
-        relativePath = path.substring(LILKA_SDROOT_LEN);
-    } else if (path.startsWith(LILKA_SPIFFS_ROOT LILKA_SLASH)) {
-        relativePath = path.substring(LILKA_SPIFFS_ROOT_LEN);
+const PathInfo FileUtils::getRelativePathInfo(const String& absPath) {
+    PathInfo pathInfo;
+    if (absPath.startsWith(LILKA_SD_ROOT LILKA_SLASH)) {
+        pathInfo.path = absPath.substring(sizeof(LILKA_SD_ROOT) - 1);
+        pathInfo.fSysDriver = sdfs;
+    } else if (absPath.startsWith(LILKA_SPIFFS_ROOT LILKA_SLASH)) {
+        pathInfo.path = absPath.substring(sizeof(LILKA_SPIFFS_ROOT) - 1);
+        pathInfo.fSysDriver = spiffs;
     } else
-        // Maybe path is allready relative?
-        relativePath = path;
-    return relativePath;
+    // Maybe path is allready relative?
+    {
+        pathInfo.path = absPath;
+        // Can't determine fSysDriver from
+        // given path
+        pathInfo.fSysDriver = NULL;
+    }
+    return pathInfo;
 }
 
 bool FileUtils::isSDAvailable() {
@@ -205,7 +204,7 @@ bool FileUtils::isSPIFFSAvailable() {
 }
 
 const String FileUtils::getSDRoot() {
-    return LILKA_SDROOT;
+    return LILKA_SD_ROOT;
 }
 
 const String FileUtils::getSPIFFSRoot() {
@@ -285,7 +284,7 @@ bool FileUtils::formatSD() {
 
     std::unique_ptr<uint8_t[]> workbufPtr(workbuf);
 
-    FRESULT res = f_mkfs(LILKA_SDROOT, FM_ANY, 0, workbuf, workbufSize);
+    FRESULT res = f_mkfs(LILKA_SD_ROOT, FM_ANY, 0, workbuf, workbufSize);
     if (res != FR_OK) {
         sdMountLocked = false;
         return false;

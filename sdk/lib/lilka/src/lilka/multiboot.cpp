@@ -150,7 +150,7 @@ int MultiBoot::start(String path) {
     // Remove "/sd" prefix
     // TODO: Maybe we should use absolute path (including "/sd")?
     // TODO: Store arg in RAM?
-    arg = lilka::fileutils.getRelativePath(arg);
+    arg = lilka::fileutils.getRelativePathInfo(arg).path;
 
     prefs.putString(MULTIBOOT_PATH_KEY, arg);
     prefs.end();
