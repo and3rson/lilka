@@ -67,14 +67,17 @@ public:
     /// @param relPath  відносний шлях
     /// @returns структуру PathInfo
     const PathInfo getRelativePathInfo(const String& absPath);
-    // ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ?
-    const String stripPath(const String& path);
     /// Отримати елементи в директорії за відносним шляхом
     /// @param fSysDriver драйвер файлової системи
     /// @param relPath відносний шлях
     /// @param entries вказівник за яким буде записано елементи
     /// @returns кількість записаних елементів
     size_t listDir(FS* fSysDriver, const String& relPath, Entry entries[]);
+    /// Об'єднує шляхи
+    /// @param lPath ліва половина шляху
+    /// @param rPath права половина шляху
+    /// @returns повний шлях
+    const String joinPath(const String& lPath, const String& rPath);
     /// Створити нову таблицю розділів на SD картці
     /// УВАГА: після виклику цієї функції необхідно перезавантажити систему
     /// @returns true у разі успіху
@@ -84,12 +87,9 @@ public:
     /// @returns true у разі успіху
     bool formatSD();
     // ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ?
+    const String stripPath(const String& path);
+    // ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ?
     const String getHumanFriendlySize(const size_t size);
-    /// Об'єднує шляхи
-    /// @param lPath ліва половина шляху
-    /// @param rPath права половина шляху
-    /// @returns повний шлях
-    const String joinPath(const String& lPath, const String& rPath);
 
 private:
     bool sdMountLocked = false;
