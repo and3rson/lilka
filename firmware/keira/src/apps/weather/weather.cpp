@@ -169,6 +169,7 @@ void WeatherApp::run() {
         canvas->setTextBound(32, 32, canvas->width() - 64, canvas->height() - 64);
         canvas->setTextColor(lilka::colors::White);
         canvas->setCursor(32, 32 + 15);
+        uint32_t wait = 60000;
         if (settings.isConfigured) {
             canvas->println("Отримання даних...");
             queueDraw();
@@ -182,8 +183,6 @@ void WeatherApp::run() {
             http.begin(client, url);
             int httpCode = http.GET();
 
-            lilka::serial_err("HTTP GET: %s, code: %d", url, httpCode);
-
             const icon_data_t* iconData = 0;
             const char* title = 0;
             float temp, wind;
@@ -195,6 +194,7 @@ void WeatherApp::run() {
                     canvas->fillScreen(lilka::colors::Black);
                     canvas->setCursor(32, 32 + 15);
                     canvas->println("Помилка десеріалізації");
+                    wait = 5000;
                     queueDraw();
                 } else {
                     // Extract data
@@ -218,6 +218,7 @@ void WeatherApp::run() {
                 canvas->setCursor(32, 32 + 15);
                 canvas->println("Помилка отримання даних:");
                 canvas->println("Код відповіді: " + String(httpCode));
+                wait = 1000;
                 queueDraw();
             }
             if (iconData && title) {
@@ -250,7 +251,7 @@ void WeatherApp::run() {
             canvas->println("[A] - вихід");
             queueDraw();
         }
-        uint64_t waitUntil = millis() + 60000;
+        uint64_t waitUntil = millis() + wait;
         while (millis() < waitUntil) {
             lilka::State state = lilka::controller.getState();
             if (state.a.justPressed) {
