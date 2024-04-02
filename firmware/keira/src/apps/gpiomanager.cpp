@@ -11,10 +11,28 @@ GPIOManagerApp::GPIOManagerApp() : App("GPIOManager") {
     // Change pin mode
     menu.addActivationButton(lilka::Button::B);
 }
-void GPIOManagerApp::readPinData() {
-    for (int i = 0; i < PIN_COUNT; i++) {
-        pinData[i] = digitalRead(pinNo[i]);
+String GPIOManagerApp::getStrBits(uint32_t num) {
+    String bitStr = "";
+    for (int i = 0; i < 32; i++) {
+        if (i % 4 == 0) bitStr += " ";
+        bitStr += ((num >> i) & 1 ? "1" : "0");
     }
+    return bitStr;
+}
+void GPIOManagerApp::readPinData() {
+    uint32_t gpioValue = (REG_READ(GPIO_IN_REG));
+    uint32_t gpio1Value = (REG_READ(GPIO_IN1_REG));
+    // lilka::serial_log("Pin data : %s %s", getStrBits(gpioValue).c_str(), getStrBits(gpio1Value).c_str());
+    for (int i = 0; i < PIN_COUNT; i++) {
+        if (pinNo[i] < 32) {
+            pinData[i] = GET_BIT(gpioValue, pinNo[i]);
+        } else {
+            pinData[i] = GET_BIT(gpio1Value, pinNo[i] - 32);
+        }
+    }
+    // for (int i = 0; i < PIN_COUNT; i++) {
+    //     if (pinData[i] != digitalRead(pinNo[i])) lilka::serial_err("Pin validation failed");
+    // }
 }
 void GPIOManagerApp::run() {
     while (1) {

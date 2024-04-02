@@ -1,6 +1,8 @@
 #pragma once
 #include "app.h"
-#define PIN_COUNT 6
+#define PIN_COUNT             6
+#define GET_BIT(data, bit_no) (data >> bit_no) & 0b1
+
 class GPIOManagerApp : public App {
 public:
     GPIOManagerApp();
@@ -10,6 +12,7 @@ private:
     uint8_t pinData[PIN_COUNT] = {LOW, LOW, LOW, LOW, LOW, LOW};
     uint8_t pinM[PIN_COUNT] = {INPUT, INPUT, INPUT, INPUT, INPUT, INPUT};
     lilka::Menu menu;
+    String getStrBits(uint32_t num);
     void readPinData();
     void run() override;
 };
