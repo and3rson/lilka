@@ -277,6 +277,18 @@ Image::~Image() {
     delete[] pixels;
 }
 
+Image* Image::newFromRLE(
+    const uint8_t* data, uint32_t length, uint32_t width, uint32_t height, int32_t transparentColor, int16_t pivotX,
+    int16_t pivotY
+) {
+    Image* image = new Image(width, height, transparentColor, width / 2, height / 2);
+    RLEDecoder decoder(data, length);
+    for (uint32_t i = 0; i < width * height; i++) {
+        image->pixels[i] = decoder.next();
+    }
+    return image;
+}
+
 void Image::rotate(int16_t angle, Image* dest, int32_t blankColor) {
     // Rotate the image clockwise (Y-axis points down)
     int cx = width / 2;

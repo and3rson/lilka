@@ -1,6 +1,10 @@
 #include <map>
 #include <HTTPClient.h>
+#include <lilka/config.h>
 
+#include "Preferences.h"
+#include "servicemanager.h"
+#include "services/clock.h"
 #include "utils/json.h"
 #include "weather.h"
 #include "icons/weather_icons.h"
@@ -51,6 +55,9 @@ const icon_t mist = {
     {mist_d_length, mist_d},
     {mist_n_length, mist_n},
 };
+#define STR_HELPER(x) #x
+#define STR(x)        STR_HELPER(x)
+const char* userAgent = "Lilka/" STR(LILKA_VERSION);
 
 // WMO weather code to icon mapping (https://open-meteo.com/en/docs/#hourly=temperature_2m,weather_code)
 static std::map<uint8_t, const icon_t*> icons = {
@@ -95,10 +102,47 @@ static std::map<uint8_t, const icon_t*> icons = {
     {99, &thunderstorm},
 };
 
-// const uint8_t icons[] = {1, 2, 3, 4, 9, 10, 11, 13, 50};
-// Lviv geo coordinates
-const float lat = 49.8397;
-const float lon = 24.0297;
+static std::map<uint8_t, const char*> titles = {
+    {0, "Чисте небо"},
+    //
+    {1, "Переважно ясно"},
+    {2, "Частково хмарно"},
+    {3, "Хмарно"},
+    //
+    {45, "Туман"},
+    {48, "Паморозь"},
+    //
+    {51, "Легка мжичка"},
+    {53, "Мжичка"},
+    {55, "Сильна мжичка"},
+    //
+    {56, "Легка мжичка"},
+    {57, "Сильна мжичка"},
+    //
+    {61, "Легкий дощ"},
+    {63, "Дощ"},
+    {65, "Сильний дощ"},
+    //
+    {66, "Дощ"},
+    {67, "Сильний дощ"},
+    //
+    {71, "Легкий сніг"},
+    {73, "Сніг"},
+    {75, "Сильний сніг"},
+    //
+    {77, "Сніжинки"},
+    //
+    {80, "Легка злива"},
+    {81, "Злива"},
+    {82, "Сильна злива"},
+    //
+    {85, "Дощ зі снігом"},
+    {86, "Сильний дощ зі снігом"},
+    //
+    {95, "Легка гроза"},
+    {96, "Гроза"},
+    {99, "Сильна гроза"},
+};
 
 const char* urlTemplate = "https://api.open-meteo.com/v1/forecast"
                           "?latitude=%.4f"
@@ -114,31 +158,175 @@ void WeatherApp::run() {
     HTTPClient http;
 
     while (1) {
-        // Get weather data
-        char url[strlen(urlTemplate) + 32];
-        snprintf(url, sizeof(url), urlTemplate, lat, lon);
-        // Disable SSL verification
-        client.setInsecure();
-        // Perform GET request
-        http.begin(client, url);
-        int httpCode = http.GET();
+        Preferences prefs;
+        // Lviv geo coordinates
+        // float lat = 49.8397;
+        // float lon = 24.0297;
+        settings_t settings = getSettings();
 
-        if (httpCode == HTTP_CODE_OK) {
-            // Parse JSON
-            DeserializationError error = deserializeJson(data, http.getStream());
-            if (error) {
-                Serial.printf("deserializeJson() failed: %s\n", error.c_str());
+        canvas->fillScreen(lilka::colors::Black);
+        canvas->setFont(FONT_9x15);
+        canvas->setTextBound(32, 32, canvas->width() - 64, canvas->height() - 64);
+        canvas->setTextColor(lilka::colors::White);
+        canvas->setCursor(32, 32 + 15);
+        if (settings.isConfigured) {
+            canvas->println("Отримання даних...");
+            queueDraw();
+            // Get weather data
+            char url[strlen(urlTemplate) + 32];
+            snprintf(url, sizeof(url), urlTemplate, settings.lat, settings.lon);
+            // Disable SSL verification
+            client.setInsecure();
+            // Perform GET request
+            http.setUserAgent(userAgent);
+            http.begin(client, url);
+            int httpCode = http.GET();
+
+            lilka::serial_err("HTTP GET: %s, code: %d", url, httpCode);
+
+            const icon_data_t* iconData = 0;
+            const char* title = 0;
+            float temp, wind;
+            if (httpCode == HTTP_CODE_OK) {
+                // Parse JSON
+                DeserializationError error = deserializeJson(data, http.getString());
+                if (error) {
+                    lilka::serial_err("deserializeJson() failed: %s", error.c_str());
+                    canvas->fillScreen(lilka::colors::Black);
+                    canvas->setCursor(32, 32 + 15);
+                    canvas->println("Помилка десеріалізації");
+                    queueDraw();
+                } else {
+                    // Extract data
+                    temp = data["current"]["temperature_2m"];
+                    wind = data["current"]["wind_speed_10m"];
+                    uint8_t code = data["current"]["weather_code"];
+                    const icon_t* icon = icons[code];
+                    ClockService* clockService = ServiceManager::getInstance()->getService<ClockService>("clock");
+                    struct tm time = clockService->getTime();
+                    if (time.tm_hour >= 6 && time.tm_hour < 18) {
+                        iconData = &icon->day;
+                    } else {
+                        iconData = &icon->night;
+                    }
+                    title = titles[code];
+                    lilka::serial_log("Temperature: %.1f, Wind: %.1f, Code: %d", temp, wind, code);
+                }
             } else {
-                // Extract data
-                float temp = data["current"]["temperature_2m"];
-                float wind = data["current"]["wind_speed_10m"];
-                uint8_t code = data["current"]["weather_code"];
-                const icon_t* icon = icons[code];
-                Serial.printf("Temperature: %.1f, Wind: %.1f, Code: %d\r\n", temp, wind, code);
+                lilka::serial_log("HTTP GET failed, error: %s", http.errorToString(httpCode).c_str());
+                canvas->fillScreen(lilka::colors::Black);
+                canvas->setCursor(32, 32 + 15);
+                canvas->println("Помилка отримання даних:");
+                canvas->println("Код відповіді: " + String(httpCode));
+                queueDraw();
+            }
+            if (iconData && title) {
+                lilka::Image* img =
+                    lilka::Image::newFromRLE(iconData->data, iconData->len, 200, 200, lilka::colors::Black, 100, 100);
+                std::unique_ptr<lilka::Image> imgPtr(img);
+                canvas->fillScreen(lilka::colors::Black);
+                canvas->drawImage(img, canvas->width() / 4, canvas->height() / 2);
+                uint16_t titleW;
+                {
+                    uint16_t h;
+                    int16_t x, y;
+                    canvas->getTextBounds(title, 0, 0, &x, &y, &titleW, &h);
+                }
+                canvas->setTextBound(0, 0, canvas->width(), canvas->height());
+                canvas->setCursor(canvas->width() / 2 - titleW / 2, canvas->height() - 16);
+                canvas->setTextColor(lilka::colors::White);
+                canvas->print(title);
+                canvas->setFont(u8g2_font_10x20_te); // FONT_10x20 does not have degree symbol
+                canvas->setCursor(canvas->width() / 2, canvas->height() / 2 + 20 / 2 - 20);
+                canvas->print(String(temp, 1) + " °C");
+                canvas->setFont(FONT_10x20);
+                canvas->setCursor(canvas->width() / 2, canvas->height() / 2 + 20 / 2 + 10);
+                canvas->print(String(wind, 1) + " м/с");
+                queueDraw();
             }
         } else {
-            Serial.printf("HTTP GET failed, error: %s\n", http.errorToString(httpCode).c_str());
+            canvas->println("Локацію не налаштовано");
+            canvas->println("[SELECT] - налаштування");
+            canvas->println("[A] - вихід");
+            queueDraw();
         }
-        vTaskDelay(10000 / portTICK_PERIOD_MS);
+        uint64_t waitUntil = millis() + 60000;
+        while (millis() < waitUntil) {
+            lilka::State state = lilka::controller.getState();
+            if (state.a.justPressed) {
+                return;
+            } else if (state.select.justPressed) {
+                runSettings();
+                break;
+            }
+            taskYIELD();
+        }
     }
+}
+
+// Show settings menu
+// Returns true if settings were saved, false if exited without saving
+bool WeatherApp::runSettings() {
+    settings_t settings = getSettings();
+    bool saveSettings = false;
+    bool exitSettings = false;
+    while (!saveSettings && !exitSettings) {
+        lilka::Menu settingsMenu("Налаштування");
+        settingsMenu.addActivationButton(lilka::Button::B);
+        settingsMenu.addItem("Широта", 0, 0, String(settings.lat));
+        settingsMenu.addItem("Довгота", 0, 0, String(settings.lon));
+        settingsMenu.addItem("Зберегти", 0, 0, "");
+        settingsMenu.addItem("Скасувати", 0, 0, "");
+        while (!settingsMenu.isFinished()) {
+            settingsMenu.update();
+            settingsMenu.draw(canvas);
+            queueDraw();
+        }
+        if (settingsMenu.getButton() == lilka::Button::B) {
+            exitSettings = true;
+        } else {
+            if (settingsMenu.getCursor() == 0 || settingsMenu.getCursor() == 1) {
+                lilka::InputDialog inputDialog(
+                    String("Введіть ") + (settingsMenu.getCursor() == 0 ? "широту" : "довготу")
+                );
+                inputDialog.setValue(String(settingsMenu.getCursor() == 0 ? settings.lat : settings.lon));
+                while (!inputDialog.isFinished()) {
+                    inputDialog.update();
+                    inputDialog.draw(canvas);
+                    queueDraw();
+                }
+                if (settingsMenu.getCursor() == 0) {
+                    settings.lat = inputDialog.getValue().toFloat();
+                } else {
+                    settings.lon = inputDialog.getValue().toFloat();
+                }
+            } else if (settingsMenu.getCursor() == 2) {
+                saveSettings = true;
+            } else if (settingsMenu.getCursor() == 3) {
+                exitSettings = true;
+            }
+        }
+    }
+    if (saveSettings) {
+        Preferences prefs;
+        prefs.begin("weather", false);
+        prefs.putFloat("lat", settings.lat);
+        prefs.putFloat("lon", settings.lon);
+        prefs.end();
+        return true;
+    }
+    return false;
+}
+
+settings_t WeatherApp::getSettings() {
+    Preferences prefs;
+    settings_t settings = {false, 0, 0};
+    prefs.begin("weather", false);
+    if (prefs.isKey("lat") && prefs.isKey("lon")) {
+        settings.lat = prefs.getFloat("lat", settings.lat);
+        settings.lon = prefs.getFloat("lon", settings.lon);
+        settings.isConfigured = true;
+    }
+    prefs.end();
+    return settings;
 }
