@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Load image from file
 
+import re
 import sys
 
 from PIL import Image
@@ -28,7 +29,9 @@ for fname in sys.argv[1:]:
     print(f"Розмір: {img.width}x{img.height}")
 
     out = fname.rpartition(".")[0] + ".h"
-    var_name = fname.rpartition(".")[0].rpartition("/")[2]
+    var_name = re.sub(
+        r"[^a-zA-Z0-9_]", "_", fname.rpartition(".")[0].rpartition("/")[2]
+    )
 
     pixels = []
 

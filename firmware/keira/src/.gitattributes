@@ -1,2 +1,3 @@
 keira_splash.h linguist-generated
 apps/icons/*.h linguist-generated
+apps/weather/icons/*.h linguist-generated
