@@ -1638,7 +1638,7 @@
 					(justify left)
 				)
 			)
-			(property "Footprint" "PCM_Espressif:ESP32-S3-WROOM-1_nognd"
+			(property "Footprint" "PCM_Espressif:ESP32-S3-WROOM-1"
 				(at 2.54 -48.26 0)
 				(effects
 					(font
@@ -2207,6 +2207,24 @@
 						)
 					)
 					(number "40"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -40.64 90)
+					(length 2.54) hide
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "41"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -12096,7 +12114,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "PCM_Espressif:ESP32-S3-WROOM-1_nognd"
+		(property "Footprint" "PCM_Espressif:ESP32-S3-WROOM-1"
 			(at 288.29 128.27 0)
 			(effects
 				(font
@@ -12114,7 +12132,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
+		(property "Description" "2.4 GHz WiFi (802.11 b/g/n) and Bluetooth ® 5 (LE) module Built around ESP32S3 series of SoCs, Xtensa ® dualcore 32bit LX7 microprocessor Flash up to 16 MB, PSRAM up to 8 MB 36 GPIOs, rich set of peripherals Onboard PCB antenna"
 			(at 285.75 80.01 0)
 			(effects
 				(font
@@ -12254,6 +12272,9 @@
 		)
 		(pin "33"
 			(uuid "5ce52139-ba5c-43ca-8281-2aa99b0043ac")
+		)
+		(pin "41"
+			(uuid "e7419bf6-40cf-4122-baec-e80890175900")
 		)
 		(instances
 			(project "main"
