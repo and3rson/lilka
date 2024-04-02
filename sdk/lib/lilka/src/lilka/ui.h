@@ -50,7 +50,7 @@ public:
     /// Конструктор класу.
     ///
     /// @param title Заголовок меню.
-    explicit Menu(String title);
+    explicit Menu(String title = "Меню");
     ~Menu();
     /// Встановити новий заголовок меню
     ///
