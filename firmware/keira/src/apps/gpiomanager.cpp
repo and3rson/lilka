@@ -6,6 +6,8 @@ GPIOManagerApp::GPIOManagerApp() : App("GPIOManager") {
     for (int i = 0; i < PIN_COUNT; i++) {
         pinMode(pinNo[i], pinM[i]);
     }
+    // Back button
+    menu.addActivationButton(lilka::Button::D);
     // Change pin value
     menu.addActivationButton(lilka::Button::A);
     // Change pin mode
