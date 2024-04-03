@@ -87,22 +87,22 @@ char			chat_char; // remove later.
 static player_t*	plr;
 patch_t*		hu_font[HU_FONTSIZE];
 static hu_textline_t	w_title;
-boolean			chat_on;
+boolean32			chat_on;
 static hu_itext_t	w_chat;
-static boolean		always_off = false;
+static boolean32		always_off = false;
 static char		chat_dest[MAXPLAYERS];
 static hu_itext_t w_inputbuffer[MAXPLAYERS];
 
-static boolean		message_on;
-boolean			message_dontfuckwithme;
-static boolean		message_nottobefuckedwith;
+static boolean32		message_on;
+boolean32			message_dontfuckwithme;
+static boolean32		message_nottobefuckedwith;
 
 static hu_stext_t	w_message;
 static int		message_counter;
 
 extern int		showMessages;
 
-static boolean		headsupactive = false;
+static boolean32		headsupactive = false;
 
 //
 // Builtin map names.
@@ -509,13 +509,13 @@ char HU_dequeueChatChar(void)
     return c;
 }
 
-boolean HU_Responder(event_t *ev)
+boolean32 HU_Responder(event_t *ev)
 {
 
     static char		lastmessage[HU_MAXLINELENGTH+1];
     char*		macromessage;
-    boolean		eatkey = false;
-    static boolean	altdown = false;
+    boolean32		eatkey = false;
+    static boolean32	altdown = false;
     unsigned char 	c;
     int			i;
     int			numplayers;

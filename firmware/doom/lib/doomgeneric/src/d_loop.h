@@ -26,7 +26,7 @@
 // The callback is invoked when new players are ready. The callback
 // should return true, or return false to abort startup.
 
-typedef boolean (*netgame_startup_callback_t)(int ready_players,
+typedef boolean32 (*netgame_startup_callback_t)(int ready_players,
                                               int num_players);
 
 typedef struct
@@ -42,7 +42,7 @@ typedef struct
 
     // Advance the game forward one tic, using the specified player input.
 
-    void (*RunTic)(ticcmd_t *cmds, boolean *ingame);
+    void (*RunTic)(ticcmd_t *cmds, boolean32 *ingame);
 
     // Run the menu (runs independently of the game).
 
@@ -67,7 +67,7 @@ void D_StartGameLoop(void);
 
 // Initialize networking code and connect to server.
 
-boolean D_InitNetGame(net_connect_data_t *connect_data);
+boolean32 D_InitNetGame(net_connect_data_t *connect_data);
 
 // Start game with specified settings. The structure will be updated
 // with the actual settings for the game.
@@ -75,7 +75,7 @@ boolean D_InitNetGame(net_connect_data_t *connect_data);
 void D_StartNetGame(net_gamesettings_t *settings,
                     netgame_startup_callback_t callback);
 
-extern boolean singletics;
+extern boolean32 singletics;
 extern int gametic, ticdup;
 
 #endif

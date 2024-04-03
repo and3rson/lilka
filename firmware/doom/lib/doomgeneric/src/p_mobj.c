@@ -44,7 +44,7 @@ void P_SpawnMapThing (mapthing_t*	mthing);
 //
 int test;
 
-boolean
+boolean32
 P_SetMobjState
 ( mobj_t*	mobj,
   statenum_t	state )

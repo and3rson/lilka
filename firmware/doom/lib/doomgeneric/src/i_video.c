@@ -92,12 +92,12 @@ byte *I_VideoBuffer = NULL;
 
 // If true, game is running as a screensaver
 
-boolean screensaver_mode = false;
+boolean32 screensaver_mode = false;
 
 // Flag indicating whether the screen is currently visible:
 // when the screen isnt visible, don't render the screen
 
-boolean screenvisible;
+boolean32 screenvisible;
 
 // Mouse acceleration
 //
@@ -405,7 +405,7 @@ void I_BindVideoVariables (void)
 {
 }
 
-void I_DisplayFPSDots (boolean dots_on)
+void I_DisplayFPSDots (boolean32 dots_on)
 {
 }
 

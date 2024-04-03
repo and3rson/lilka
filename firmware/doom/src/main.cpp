@@ -7,6 +7,7 @@ extern "C" {
 #include "doomkeys.h"
 #include "doomgeneric.h"
 #include "d_alloc.h"
+#include "doomstat.h"
 }
 
 extern void doomgeneric_Create(int argc, char** argv);
@@ -40,6 +41,8 @@ float libsamplerate_scale = 0.65f;
 void gameTask(void* arg);
 void drawTask(void* arg);
 
+char nextWeaponKey = '2';
+
 void buttonHandler(lilka::Button button, bool pressed) {
     xSemaphoreTake(inputMutex, portMAX_DELAY);
     doomkey_t* key = &keyqueue[keyqueueWrite];
@@ -66,7 +69,10 @@ void buttonHandler(lilka::Button button, bool pressed) {
         case lilka::Button::C:
             key->key = KEY_TAB;
             break;
-        // TODO: Weapon switch
+        case lilka::Button::D:
+            // Cycle weapons
+            key->key = nextWeaponKey;
+            break;
         // Strafing experiment
         // case lilka::Button::A:
         //     key->key = KEY_STRAFE_R;
@@ -115,7 +121,7 @@ void setup() {
 
     // Get firmware arg
     String firmwareFile = lilka::multiboot.getFirmwarePath();
-    lilka::serial_log("Firmware file: %s\n", firmwareFile.c_str());
+    lilka::serial_log("Firmware file: %s", firmwareFile.c_str());
     String firmwareDir;
     if (firmwareFile.length()) {
         // Get directory from firmware file
@@ -139,13 +145,13 @@ void setup() {
         }
         String name(file.name());
         name.toLowerCase();
-        lilka::serial_log("Checking file: %s\n", name.c_str());
+        lilka::serial_log("Checking file: %s", name.c_str());
         if (name.startsWith("doom") && name.endsWith(".wad")) {
             if (firmwareDir.endsWith("/")) {
                 firmwareDir = firmwareDir.substring(0, firmwareDir.length() - 1);
             }
             strcpy(arg3, (String("/sd") + firmwareDir + "/" + file.name()).c_str());
-            lilka::serial_log("Found .WAD file: %s\n", arg3);
+            lilka::serial_log("Found .WAD file: %s", arg3);
             found = true;
             file.close();
             break;
@@ -189,7 +195,7 @@ void setup() {
 
     lilka::display.fillScreen(lilka::colors::Black);
 
-    DG_printf("Doomgeneric starting, WAD file: %s\n", arg3);
+    DG_printf("Doomgeneric starting, WAD file: %s", arg3);
 
     D_AllocBuffers();
     // Back buffer must be allocated before doomgeneric_Create since it calls DG_DrawFrame
@@ -220,7 +226,7 @@ void setup() {
 void gameTask(void* arg) {
     while (1) {
         doomgeneric_Tick();
-        taskYIELD();
+
         // Print free memory
         // Serial.print("Free heap: ");
         // Serial.print(ESP.getFreeHeap());
@@ -228,6 +234,50 @@ void gameTask(void* arg) {
         // Print free stack
         // Serial.print("  |  Game task free stack: ");
         // Serial.println(uxTaskGetStackHighWaterMark(NULL));
+
+        if (playeringame[consoleplayer]) {
+            // We have a player (TODO: might be demo)
+            const player_t* plyr = &players[consoleplayer];
+            const weapontype_t weapons[NUMWEAPONS] = {
+                wp_fist,
+                wp_chainsaw,
+                wp_pistol,
+                wp_shotgun,
+                wp_supershotgun,
+                wp_chaingun,
+                wp_missile,
+                wp_plasma,
+                wp_bfg,
+            };
+            const int weaponKeys[NUMWEAPONS] = {'1', '1', '2', '3', '3', '4', '5', '6', '7'};
+            int currentWeaponIndex;
+            for (int i = 0; i < NUMWEAPONS; i++) {
+                if (plyr->readyweapon == weapons[i]) {
+                    currentWeaponIndex = i;
+                    break;
+                }
+            }
+            nextWeaponKey = weaponKeys[plyr->readyweapon];
+            for (int i = 1; i < NUMWEAPONS; i++) {
+                int candidate = (currentWeaponIndex + i) % NUMWEAPONS;
+                if (plyr->weaponowned[weapons[candidate]] && plyr->ammo[weaponinfo[weapons[candidate]].ammo]) {
+                    nextWeaponKey = weaponKeys[candidate];
+                    break;
+                }
+            }
+            // Print player position
+            // Serial.printf(
+            //     "Player health: %d, armor: %d, ammo: %d\r\n",
+            //     plyr->health,
+            //     plyr->armorpoints,
+            //     plyr->ammo[weaponinfo[plyr->readyweapon].ammo]
+            // );
+            // if (plyr->mo) {
+            //     Serial.printf("Player position: %d, %d, %d\r\n", plyr->mo->x, plyr->mo->y, plyr->mo->z);
+            // }
+        }
+
+        taskYIELD();
     }
 }
 

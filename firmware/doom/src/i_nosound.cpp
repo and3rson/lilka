@@ -2,7 +2,7 @@
 
 static snddevice_t sound_devices[] = {};
 
-static boolean I_NoSound_InitSound(bool _use_sfx_prefix) {
+static boolean32 I_NoSound_InitSound(boolean32 _use_sfx_prefix) {
     return false;
 }
 
