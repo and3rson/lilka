@@ -39,7 +39,7 @@ void GPIOManagerApp::run() {
             readPinData();
             for (int i = 0; i < PIN_COUNT; i++) {
                 menu.addItem(
-                    String("Pin ") + (pinM[i] == INPUT ? "I " : "O ") + String(pinNo[i]) + ": " +
+                    String("GPIO ") + (pinM[i] == INPUT ? " -> IN  " : " <- OUT ") + String(pinNo[i]) + " " +
                     (pinData[i] == HIGH ? "HIGH" : "LOW")
                 );
             }
