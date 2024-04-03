@@ -2,10 +2,9 @@
 #include "serial.h"
 #include "spi.h"
 namespace lilka {
-FileUtils::FileUtils() {
+FileUtils::FileUtils() : sdMutex(xSemaphoreCreateMutex()) {
     sdfs = &SD;
     spiffs = &SPIFFS;
-    sdMutex = xSemaphoreCreateMutex();
 }
 
 void FileUtils::begin() {
