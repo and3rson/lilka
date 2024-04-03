@@ -140,6 +140,7 @@ void Menu::draw(Arduino_GFX* canvas) {
         marquee.setFont(FONT_6x13);
         marquee.setTextSize(2);
         marquee.setCursor(calculateMarqueeShift(millis() - firstRender, titleWidth - titleWidthAvailable, 50), 40);
+        marquee.setTextColor(lilka::colors::White);
         marquee.println(title);
         canvas->draw16bitRGBBitmapWithTranColor(
             32, 0, marquee.getFramebuffer(), lilka::colors::Black, titleWidthAvailable, 40
@@ -149,6 +150,7 @@ void Menu::draw(Arduino_GFX* canvas) {
         canvas->setFont(FONT_6x13);
         canvas->setTextSize(2);
         canvas->setCursor(32, 40);
+        canvas->setTextColor(lilka::colors::White);
         canvas->setTextBound(32, 8, titleWidthAvailable, 32);
         canvas->println(title);
     }
@@ -203,6 +205,7 @@ void Menu::draw(Arduino_GFX* canvas) {
             marquee.fillScreen(lilka::colors::Black);
             marquee.setFont(FONT_10x20);
             marquee.setCursor(calculateMarqueeShift(millis() - lastCursorMove, nameWidth - widthAvailable, 50), 20);
+            marquee.setTextColor(lilka::colors::White);
             marquee.println(items[i].title);
             canvas->draw16bitRGBBitmapWithTranColor(
                 32, 80 + screenI * 24 - 20, marquee.getFramebuffer(), lilka::colors::Black, widthAvailable, 24
