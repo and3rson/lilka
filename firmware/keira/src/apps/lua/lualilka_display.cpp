@@ -273,9 +273,9 @@ int lualilka_display_drawImageTransformed(lua_State* L) {
     int16_t x = luaL_checknumber(L, 2);
     int16_t y = luaL_checknumber(L, 3);
 
-    lilka::Transform* transform = static_cast<lilka::Transform*>(luaL_checkudata(L, 4, IMAGE_TRANSFORM));
+    lilka::Transform** transform = static_cast<lilka::Transform**>(luaL_checkudata(L, 4, IMAGE_TRANSFORM));
 
-    getDrawable(L)->drawImageTransformed(image, x, y, *transform);
+    getDrawable(L)->drawImageTransformed(image, x, y, **transform);
 
     return 0;
 }
