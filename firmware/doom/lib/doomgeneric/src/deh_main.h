@@ -32,17 +32,17 @@
 
 void DEH_ParseCommandLine(void);
 int DEH_LoadFile(char *filename);
-int DEH_LoadLump(int lumpnum, boolean allow_long, boolean allow_error);
-int DEH_LoadLumpByName(char *name, boolean allow_long, boolean allow_error);
+int DEH_LoadLump(int lumpnum, boolean32 allow_long, boolean32 allow_error);
+int DEH_LoadLumpByName(char *name, boolean32 allow_long, boolean32 allow_error);
 
-boolean DEH_ParseAssignment(char *line, char **variable_name, char **value);
+boolean32 DEH_ParseAssignment(char *line, char **variable_name, char **value);
 
 void DEH_Checksum(sha1_digest_t digest);
 
-extern boolean deh_allow_extended_strings;
-extern boolean deh_allow_long_strings;
-extern boolean deh_allow_long_cheats;
-extern boolean deh_apply_cheats;
+extern boolean32 deh_allow_extended_strings;
+extern boolean32 deh_allow_long_strings;
+extern boolean32 deh_allow_long_cheats;
+extern boolean32 deh_apply_cheats;
 
 #endif /* #ifndef DEH_MAIN_H */
 

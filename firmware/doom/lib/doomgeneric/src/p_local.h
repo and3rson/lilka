@@ -112,7 +112,7 @@ P_SpawnMobj
 
 void 	P_RemoveMobj (mobj_t* th);
 mobj_t* P_SubstNullMobj (mobj_t* th);
-boolean	P_SetMobjState (mobj_t* mobj, statenum_t state);
+boolean32	P_SetMobjState (mobj_t* mobj, statenum_t state);
 void 	P_MobjThinker (mobj_t* mobj);
 
 void	P_SpawnPuff (fixed_t x, fixed_t y, fixed_t z);
@@ -142,7 +142,7 @@ typedef struct
 typedef struct
 {
     fixed_t	frac;		// along trace line
-    boolean	isaline;
+    boolean32	isaline;
     union {
 	mobj_t*	thing;
 	line_t*	line;
@@ -157,7 +157,7 @@ typedef struct
 extern intercept_t	intercepts[MAXINTERCEPTS];
 extern intercept_t*	intercept_p;
 
-typedef boolean (*traverser_t) (intercept_t *in);
+typedef boolean32 (*traverser_t) (intercept_t *in);
 
 fixed_t P_AproxDistance (fixed_t dx, fixed_t dy);
 int 	P_PointOnLineSide (fixed_t x, fixed_t y, line_t* line);
@@ -173,8 +173,8 @@ extern fixed_t		lowfloor;
 
 void 	P_LineOpening (line_t* linedef);
 
-boolean P_BlockLinesIterator (int x, int y, boolean(*func)(line_t*) );
-boolean P_BlockThingsIterator (int x, int y, boolean(*func)(mobj_t*) );
+boolean32 P_BlockLinesIterator (int x, int y, boolean32(*func)(line_t*) );
+boolean32 P_BlockThingsIterator (int x, int y, boolean32(*func)(mobj_t*) );
 
 #define PT_ADDLINES		1
 #define PT_ADDTHINGS	2
@@ -182,14 +182,14 @@ boolean P_BlockThingsIterator (int x, int y, boolean(*func)(mobj_t*) );
 
 extern divline_t	trace;
 
-boolean
+boolean32
 P_PathTraverse
 ( fixed_t	x1,
   fixed_t	y1,
   fixed_t	x2,
   fixed_t	y2,
   int		flags,
-  boolean	(*trav) (intercept_t *));
+  boolean32	(*trav) (intercept_t *));
 
 void P_UnsetThingPosition (mobj_t* thing);
 void P_SetThingPosition (mobj_t* thing);
@@ -201,7 +201,7 @@ void P_SetThingPosition (mobj_t* thing);
 
 // If "floatok" true, move would be ok
 // if within "tmfloorz - tmceilingz".
-extern boolean		floatok;
+extern boolean32		floatok;
 extern fixed_t		tmfloorz;
 extern fixed_t		tmceilingz;
 
@@ -222,14 +222,14 @@ extern	line_t*		ceilingline;
 extern	line_t*	spechit[MAXSPECIALCROSS];
 extern	int	numspechit;
 
-boolean P_CheckPosition (mobj_t *thing, fixed_t x, fixed_t y);
-boolean P_TryMove (mobj_t* thing, fixed_t x, fixed_t y);
-boolean P_TeleportMove (mobj_t* thing, fixed_t x, fixed_t y);
+boolean32 P_CheckPosition (mobj_t *thing, fixed_t x, fixed_t y);
+boolean32 P_TryMove (mobj_t* thing, fixed_t x, fixed_t y);
+boolean32 P_TeleportMove (mobj_t* thing, fixed_t x, fixed_t y);
 void	P_SlideMove (mobj_t* mo);
-boolean P_CheckSight (mobj_t* t1, mobj_t* t2);
+boolean32 P_CheckSight (mobj_t* t1, mobj_t* t2);
 void 	P_UseLines (player_t* player);
 
-boolean P_ChangeSector (sector_t* sector, boolean crunch);
+boolean32 P_ChangeSector (sector_t* sector, boolean32 crunch);
 
 extern mobj_t*	linetarget;	// who got hit (or NULL)
 

@@ -11,14 +11,14 @@ static snddevice_t music_devices[] = {
     // SNDDEVICE_AWE32,
 };
 
-static boolean I_Default_InitMusic(void) {
+static boolean32 I_Default_InitMusic(void) {
     return false;
 }
 static void I_Default_ShutdownMusic(void) {
 }
 static void I_Default_SetMusicVolume(int volume) {
 }
-static void I_Default_PlaySong(void* handle, boolean looping) {
+static void I_Default_PlaySong(void* handle, boolean32 looping) {
 }
 static void I_Default_PauseSong(void) {
 }
@@ -31,7 +31,7 @@ static void* I_Default_RegisterSong(void* data, int len) {
 }
 static void I_Default_UnRegisterSong(void* handle) {
 }
-static boolean I_Default_MusicIsPlaying(void) {
+static boolean32 I_Default_MusicIsPlaying(void) {
     return false;
 }
 static void I_Default_PollMusic(void) {
