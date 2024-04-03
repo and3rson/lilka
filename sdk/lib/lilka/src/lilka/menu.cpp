@@ -181,24 +181,28 @@ void Menu::draw(Arduino_GFX* canvas) {
 
         uint16_t postfixWidth = 0;
         if (items[i].postfix.length()) {
+            canvas->setTextSize(1);
+            canvas->setFont(FONT_10x20);
+            canvas->setTextColor(lilka::colors::White);
             // Calculate postfix width
             int16_t x1, y1;
             uint16_t h;
-            canvas->getTextBounds(items[i].postfix, 0, 0, &x1, &y1, &postfixWidth, &h);
             (void)x1;
             (void)y1;
             (void)h;
+            canvas->setTextBound(0, 0, canvas->width(), canvas->height());
+            canvas->getTextBounds(items[i].postfix, 0, 0, &x1, &y1, &postfixWidth, &h);
             canvas->setCursor(canvas->width() - postfixWidth - 8, 80 + screenI * 24);
             canvas->println(items[i].postfix);
         }
 
-        int16_t widthAvailable = canvas->width() - 32 - postfixWidth - 8;
+        int16_t widthAvailable = canvas->width() - 32 - postfixWidth - 8 - 8; // 8 pixels for scrollbar, 8 more for padding
         if (widthAvailable < 0) {
             // No space for title
             continue;
         }
 
-        uint16_t nameWidth = getTextWidth(FONT_10x20, items[i].title.c_str());
+        uint16_t nameWidth = getTextWidth(FONT_10x20, items[i].title.c_str()) + 1;
         if (nameWidth > widthAvailable && cursor == i) {
             // Marquee
             Canvas marquee(widthAvailable, 24);
