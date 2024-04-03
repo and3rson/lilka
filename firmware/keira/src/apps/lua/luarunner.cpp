@@ -285,7 +285,7 @@ LuaFileRunnerApp::LuaFileRunnerApp(String path) : AbstractLuaRunnerApp("Lua file
 void LuaFileRunnerApp::run() {
 #ifndef LILKA_NO_LUA
     // Get dir name from path (without the trailing slash)
-    String dir = lilka::fileutils.stripPath(path);
+    String dir = path.substring(0, path.lastIndexOf('/'));
 
     luaSetup(dir.c_str());
 
