@@ -14,14 +14,23 @@ int lualilka_resources_loadImage(lua_State* L) {
             transparencyColor = lua_tointeger(L, 2);
         }
     }
+    int32_t pivotX = 0;
+    int32_t pivotY = 0;
+    if (lua_gettop(L) > 3) {
+        // Pivot X/Y
+        pivotX = luaL_checkinteger(L, 3);
+        pivotY = luaL_checkinteger(L, 4);
+    }
 
-    lilka::Image* image = lilka::resources.loadImage(fullPath, transparencyColor);
+    lilka::Image* image = lilka::resources.loadImage(fullPath, transparencyColor, pivotX, pivotY);
 
     if (!image) {
         return luaL_error(L, "Не вдалося завантажити зображення %s", fullPath.c_str());
     }
 
-    lilka::serial_log("lua: loaded image %s, width: %d, height: %d", path, image->width, image->height);
+    lilka::serial_log(
+        "lua: loaded image %s, size: %d x %d, pivot: %d,%d", path, image->width, image->height, pivotX, pivotY
+    );
 
     // Append image to images table in registry
     lua_getfield(L, LUA_REGISTRYINDEX, "images");

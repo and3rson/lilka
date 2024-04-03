@@ -196,7 +196,8 @@ void Menu::draw(Arduino_GFX* canvas) {
             canvas->println(items[i].postfix);
         }
 
-        int16_t widthAvailable = canvas->width() - 32 - postfixWidth - 8 - 8; // 8 pixels for scrollbar, 8 more for padding
+        int16_t widthAvailable =
+            canvas->width() - 32 - postfixWidth - 8 - 8; // 8 pixels for scrollbar, 8 more for padding
         if (widthAvailable < 0) {
             // No space for title
             continue;
