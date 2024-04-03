@@ -45,7 +45,7 @@
 typedef struct
 {
     ticcmd_t cmds[NET_MAXPLAYERS];
-    boolean ingame[NET_MAXPLAYERS];
+    boolean32 ingame[NET_MAXPLAYERS];
 } ticcmd_set_t;
 
 //
@@ -74,7 +74,7 @@ int gametic;
 // When set to true, a single tic is run each time TryRunTics() is called.
 // This is used for -timedemo mode.
 
-boolean singletics = false;
+boolean32 singletics = false;
 
 // Index of the local player.
 
@@ -95,7 +95,7 @@ fixed_t         offsetms;
 
 // Use new client syncronisation code
 
-static boolean  new_sync = true;
+static boolean32  new_sync = true;
 
 // Callback functions for loop code.
 
@@ -105,7 +105,7 @@ static loop_interface_t *loop_interface = NULL;
 // This is distinct from playeringame[] used by the game code, which may
 // modify playeringame[] when playing back multiplayer demos.
 
-static boolean local_playeringame[NET_MAXPLAYERS];
+static boolean32 local_playeringame[NET_MAXPLAYERS];
 
 // Requested player class "sent" to the server on connect.
 // If we are only doing a single player game then this needs to be remembered
@@ -133,7 +133,7 @@ static int GetAdjustedTime(void)
     return (time_ms * TICRATE) / 1000;
 }
 
-static boolean BuildNewTic(void)
+static boolean32 BuildNewTic(void)
 {
     int	gameticdiv;
     ticcmd_t cmd;
@@ -268,7 +268,7 @@ static void D_Disconnected(void)
 // available.
 //
 
-void D_ReceiveTic(ticcmd_t *ticcmds, boolean *players_mask)
+void D_ReceiveTic(ticcmd_t *ticcmds, boolean32 *players_mask)
 {
     int i;
 
@@ -449,9 +449,9 @@ void D_StartNetGame(net_gamesettings_t *settings,
 #endif
 }
 
-boolean D_InitNetGame(net_connect_data_t *connect_data)
+boolean32 D_InitNetGame(net_connect_data_t *connect_data)
 {
-    boolean result = false;
+    boolean32 result = false;
 #ifdef FEATURE_MULTIPLAYER
     net_addr_t *addr = NULL;
     int i;
@@ -639,9 +639,9 @@ static void OldNetSync(void)
 
 // Returns true if there are players in the game:
 
-static boolean PlayersInGame(void)
+static boolean32 PlayersInGame(void)
 {
-    boolean result = false;
+    boolean32 result = false;
     unsigned int i;
 
     // If we are connected to a server, check if there are any players

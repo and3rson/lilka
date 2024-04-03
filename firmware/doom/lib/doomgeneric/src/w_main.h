@@ -20,7 +20,7 @@
 
 #include "d_log.h"
 
-boolean W_ParseCommandLine(void);
+boolean32 W_ParseCommandLine(void);
 
 #endif /* #ifndef W_MAIN_H */
 

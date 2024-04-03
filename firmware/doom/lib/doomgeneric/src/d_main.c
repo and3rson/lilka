@@ -94,33 +94,33 @@ char *          savegamedir;
 char *          iwadfile;
 
 
-boolean		devparm;	// started game with -devparm
-boolean         nomonsters;	// checkparm of -nomonsters
-boolean         respawnparm;	// checkparm of -respawn
-boolean         fastparm;	// checkparm of -fast
+boolean32		devparm;	// started game with -devparm
+boolean32         nomonsters;	// checkparm of -nomonsters
+boolean32         respawnparm;	// checkparm of -respawn
+boolean32         fastparm;	// checkparm of -fast
 
 //extern int soundVolume;
 //extern  int	sfxVolume;
 //extern  int	musicVolume;
 
-extern  boolean	inhelpscreens;
+extern  boolean32	inhelpscreens;
 
 skill_t		startskill;
 int             startepisode;
 int		startmap;
-boolean		autostart;
+boolean32		autostart;
 int             startloadgame;
 
-boolean		advancedemo;
+boolean32		advancedemo;
 
 // Store demo, do not accept any inputs
-boolean         storedemo;
+boolean32         storedemo;
 
 // "BFG Edition" version of doom2.wad does not include TITLEPIC.
-boolean         bfgedition;
+boolean32         bfgedition;
 
 // If true, the main game loop has started.
-boolean         main_loop_started = false;
+boolean32         main_loop_started = false;
 
 char		wadfile[1024];		// primary wad file
 char		mapdir[1024];           // directory of development maps
@@ -162,25 +162,25 @@ void D_ProcessEvents (void)
 
 // wipegamestate can be set to -1 to force a wipe on the next draw
 gamestate_t     wipegamestate = GS_DEMOSCREEN;
-extern  boolean setsizeneeded;
+extern  boolean32 setsizeneeded;
 extern  int             showMessages;
 void R_ExecuteSetViewSize (void);
 
 void D_Display (void)
 {
-    static  boolean		viewactivestate = false;
-    static  boolean		menuactivestate = false;
-    static  boolean		inhelpscreensstate = false;
-    static  boolean		fullscreen = false;
+    static  boolean32		viewactivestate = false;
+    static  boolean32		menuactivestate = false;
+    static  boolean32		inhelpscreensstate = false;
+    static  boolean32		fullscreen = false;
     static  gamestate_t		oldgamestate = -1;
     static  int			borderdrawcount;
     int				nowtime;
     int				tics;
     int				wipestart;
     int				y;
-    boolean			done;
-    boolean			wipe;
-    boolean			redrawsbar;
+    boolean32			done;
+    boolean32			wipe;
+    boolean32			redrawsbar;
 
     if (nodrawers)
     	return;                    // for comparative timing / profiling
@@ -385,7 +385,7 @@ void D_BindVariables(void)
 // Called to determine whether to grab the mouse pointer
 //
 
-boolean D_GrabMouseCallback(void)
+boolean32 D_GrabMouseCallback(void)
 {
     // Drone players don't need mouse focus
 
@@ -804,7 +804,7 @@ void D_IdentifyVersion(void)
 
 void D_SetGameDescription(void)
 {
-    boolean is_freedoom = W_CheckNumForName("FREEDOOM") >= 0,
+    boolean32 is_freedoom = W_CheckNumForName("FREEDOOM") >= 0,
             is_freedm = W_CheckNumForName("FREEDM") >= 0;
 
     gamedescription = "Unknown";
@@ -865,7 +865,7 @@ void D_SetGameDescription(void)
 //      print title for every printed line
 char            title[128];
 
-static boolean D_AddFile(char *filename)
+static boolean32 D_AddFile(char *filename)
 {
     wad_file_t *handle;
 

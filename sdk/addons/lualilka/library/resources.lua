@@ -13,12 +13,14 @@ resources = {}
 ---
 ---@param filename string шлях до файлу зображення .BMP (відносно місця знаходження скрипта, що виконується)
 ---@param transparent_color? integer колір, який буде використаний для прозорості (5-6-5). Якщо цей параметр не вказаний, зображення буде виводитись без прозорості
+---@param pivotX? integer X-координата центру зображення (за замовчуванням це середина зображення)
+---@param pivotY? integer Y-координата центру зображення (за замовчуванням це середина зображення)
 ---@return table
 ---@usage
 --- local face = resources.load_image("face.bmp", display.color565(0, 0, 0))
 --- print(face.width, face.height) -- Виведе розміри зображення
 --- display.draw_image(face, 50, 80) -- Виведе зображення на екран у позицію (50, 80)
-function resources.load_image(filename, transparent_color) end
+function resources.load_image(filename, transparent_color, pivotX, pivotY) end
 
 ---Повертає зображення на певну кількість градусів за годинниковою стрілкою навколо його центру.
 ---

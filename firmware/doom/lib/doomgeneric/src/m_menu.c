@@ -60,9 +60,9 @@
 
 
 extern patch_t*		hu_font[HU_FONTSIZE];
-extern boolean		message_dontfuckwithme;
+extern boolean32		message_dontfuckwithme;
 
-extern boolean		chat_on;		// in heads-up code
+extern boolean32		chat_on;		// in heads-up code
 
 //
 // defaulted values
@@ -94,7 +94,7 @@ int			messy;
 int			messageLastMenuActive;
 
 // timed message = no input from user
-boolean			messageNeedsInput;
+boolean32			messageNeedsInput;
 
 void    (*messageRoutine)(int response);
 
@@ -114,18 +114,18 @@ int			saveCharIndex;	// which char we're editing
 // old save description before edit
 char			saveOldString[SAVESTRINGSIZE];  
 
-boolean			inhelpscreens;
-boolean			menuactive;
+boolean32			inhelpscreens;
+boolean32			menuactive;
 
 #define SKULLXOFF		-32
 #define LINEHEIGHT		16
 
-extern boolean		sendpause;
+extern boolean32		sendpause;
 char			savegamestrings[10][SAVESTRINGSIZE];
 
 char	endstring[160];
 
-//static boolean opldev;
+//static boolean32 opldev;
 
 //
 // MENU TYPEDEFS
@@ -218,7 +218,7 @@ void M_DrawSelCell(menu_t *menu,int item);
 void M_WriteText(int x, int y, char *string);
 int  M_StringWidth(char *string);
 int  M_StringHeight(char *string);
-void M_StartMessage(char *string,void *routine,boolean input);
+void M_StartMessage(char *string,void *routine,boolean32 input);
 void M_StopMessage(void);
 void M_ClearMenus (void);
 
@@ -1289,7 +1289,7 @@ void
 M_StartMessage
 ( char*		string,
   void*		routine,
-  boolean	input )
+  boolean32	input )
 {
     messageLastMenuActive = menuactive;
     messageToPrint = 1;
@@ -1400,7 +1400,7 @@ M_WriteText
 // These keys evaluate to a "null" key in Vanilla Doom that allows weird
 // jumping in the menus. Preserve this behavior for accuracy.
 
-static boolean IsNullKey(int key)
+static boolean32 IsNullKey(int key)
 {
     return key == KEY_PAUSE || key == KEY_CAPSLOCK
         || key == KEY_SCRLCK || key == KEY_NUMLOCK;
@@ -1413,7 +1413,7 @@ static boolean IsNullKey(int key)
 //
 // M_Responder
 //
-boolean M_Responder (event_t* ev)
+boolean32 M_Responder (event_t* ev)
 {
     int             ch;
     int             key;

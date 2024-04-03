@@ -10,7 +10,7 @@ extern "C" {
 #include "z_zone.h"
 }
 
-static boolean use_sfx_prefix;
+static boolean32 use_sfx_prefix;
 
 void soundTask(void* param);
 void queueSound(uint8_t* data, uint32_t length, uint32_t sample_rate, uint8_t vol);
@@ -127,7 +127,7 @@ const float doomNoteToFreq[] = {
 
 };
 
-static boolean I_Buzzer_InitSound(bool _use_sfx_prefix) {
+static boolean32 I_Buzzer_InitSound(boolean32 _use_sfx_prefix) {
     lilka::serial_log("I_Buzzer_InitSound");
     use_sfx_prefix = _use_sfx_prefix;
     return true;
@@ -216,7 +216,7 @@ static void I_Buzzer_StopSound(int handle) {
     // Nothing to do here.
 }
 
-static boolean I_Buzzer_SoundIsPlaying(int handle) {
+static boolean32 I_Buzzer_SoundIsPlaying(int handle) {
     return false; // TODO
 }
 
