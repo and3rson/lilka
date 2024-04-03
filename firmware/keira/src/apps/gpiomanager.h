@@ -12,8 +12,9 @@ private:
     uint8_t pinData[PIN_COUNT] = {LOW, LOW, LOW, LOW, LOW, LOW};
     uint8_t pinM[PIN_COUNT] = {INPUT, INPUT, INPUT, INPUT, INPUT, INPUT};
     lilka::Menu menu;
-    String getStrBits(uint32_t num);
-    void readSpeedCompare();
     void readPinData();
     void run() override;
+    // Testing
+    String getStrBits(uint32_t num);
+    void readSpeedCompare();
 };
