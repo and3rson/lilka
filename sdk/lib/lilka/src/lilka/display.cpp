@@ -379,6 +379,11 @@ Transform Transform::rotate(int16_t angle) {
 
 Transform Transform::scale(float sx, float sy) {
     // Scale this transform by sx and sy. Do this by multiplying with a scaling matrix.
+    if (sx == 0 || sy == 0) {
+        // Scaling by zero is not allowed
+        serial_err("Scaling by zero is not allowed, attempted to scale by %f, %f", sx, sy);
+        return *this;
+    }
     Transform t;
     t.matrix[0][0] = sx;
     t.matrix[0][1] = 0;
