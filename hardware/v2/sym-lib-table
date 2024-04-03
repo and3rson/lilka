@@ -4,4 +4,5 @@
   (lib (name "display")(type "KiCad")(uri "${KIPRJMOD}/symbols/display.kicad_sym")(options "")(descr ""))
   (lib (name "connector")(type "KiCad")(uri "${KIPRJMOD}/symbols/connector.kicad_sym")(options "")(descr ""))
   (lib (name "my")(type "KiCad")(uri "${KIPRJMOD}/symbols/my.kicad_sym")(options "")(descr ""))
+  (lib (name "regulators")(type "KiCad")(uri "${KIPRJMOD}/symbols/regulators.kicad_sym")(options "")(descr ""))
 )

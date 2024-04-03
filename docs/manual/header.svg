@@ -1,0 +1,73 @@
+<svg id="ext-header" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 300" style="width: 100%; max-width: 800px" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <rect x="0" y="0" width="1400" height="300" fill="#1144AA" />
+    <defs>
+        <style type="text/css">
+            <![CDATA[
+                #ext-header text {
+                    font-family: sans-serif;
+                    fill: #00FF00;
+                    text-anchor: middle;
+                    dominant-baseline: middle;
+                    font-size: 2.5em;
+                }
+
+                #ext-header text.gnd {
+                    fill: #AAAAAA;
+                    font-size: 2em;
+                }
+
+                #ext-header text.vcc {
+                    fill: #FF4444;
+                    font-size: 2em;
+                }
+
+                #ext-header text.neutral {
+                    fill: #FFFFFF;
+                    font-size: 2em;
+                }
+                ]]>
+        </style>
+        <g id="pin">
+            <circle r="35" fill="#FFCC00" />
+            <circle r="20" fill="black" />
+            <circle r="40" fill="none" stroke="#FFCC00" stroke-width="2" />
+        </g>
+        <g id="square">
+            <rect x="-35" y="-35" width="70" height="70" fill="#FFCC00" />
+            <circle r="20" fill="black" />
+            <rect x="-40" y="-40" fill="none" width="80" height="80" stroke="#FFCC00" stroke-width="2" />
+        </g>
+    </defs>
+    <rect fill="none" stroke="#FFFFAA" stroke-width="4" x="100" y="100" width="1200" height="100" />
+
+    <rect fill="#00FF0030" stroke="#00AA00" stroke-width="4" x="300" y="30" width="800" height="220" stroke-dasharray="5,5" />
+    <text x="700" y="280">GPIO</text>
+
+    <use xlink:href="#square" x="150" y="150" />
+    <use xlink:href="#pin" x="250" y="150" />
+    <use xlink:href="#pin" x="350" y="150" />
+    <use xlink:href="#pin" x="450" y="150" />
+    <use xlink:href="#pin" x="550" y="150" />
+    <use xlink:href="#pin" x="650" y="150" />
+    <use xlink:href="#pin" x="750" y="150" />
+    <use xlink:href="#pin" x="850" y="150" />
+    <use xlink:href="#pin" x="950" y="150" />
+    <use xlink:href="#pin" x="1050" y="150" />
+    <use xlink:href="#pin" x="1150" y="150" />
+    <use xlink:href="#pin" x="1250" y="150" />
+
+    <text x="150" y="70" class="gnd">GND</text>
+    <text x="250" y="70" class="vcc">3.3V</text>
+    <text x="350" y="70">44</text>
+    <text x="450" y="70">43</text>
+    <text x="350" y="230" class="neutral">RX</text>
+    <text x="450" y="230" class="neutral">TX</text>
+    <text x="550" y="70">48</text>
+    <text x="650" y="70">47</text>
+    <text x="750" y="70">21</text>
+    <text x="850" y="70">14</text>
+    <text x="950" y="70">13</text>
+    <text x="1050" y="70">12</text>
+    <text x="1150" y="70" class="vcc">3.3V</text>
+    <text x="1250" y="70" class="gnd">GND</text>
+</svg>

@@ -11,6 +11,30 @@
 
 WiFiConfigApp::WiFiConfigApp() : App("WiFi") {
 }
+String WiFiConfigApp::getEncryptionTypeStr(uint8_t encryptionType) {
+    switch (encryptionType) {
+        case WIFI_AUTH_OPEN:
+            return "Open";
+        case WIFI_AUTH_WEP:
+            return "WEP";
+        case WIFI_AUTH_WPA_PSK:
+            return "WPA PSK";
+        case WIFI_AUTH_WPA2_PSK:
+            return "WPA2 PSK";
+        case WIFI_AUTH_WPA_WPA2_PSK:
+            return "WPA WPA2 PSK";
+        case WIFI_AUTH_WPA2_ENTERPRISE:
+            return "ENTERPRISE";
+        case WIFI_AUTH_WPA3_PSK:
+            return "WPA3 PSK";
+        case WIFI_AUTH_WPA2_WPA3_PSK:
+            return "WPA2 WPA3 PSK";
+        case WIFI_AUTH_WAPI_PSK:
+            return "WAPI PSK";
+        default:
+            return "Unknown";
+    }
+}
 
 void WiFiConfigApp::run() {
     lilka::Canvas buffer(canvas->width(), canvas->height());
@@ -87,6 +111,7 @@ void WiFiConfigApp::run() {
         );
     }
     menu.addItem("<< Назад");
+    menu.addActivationButton(lilka::Button::C);
     count++;
     while (1) {
         while (!menu.isFinished()) {
@@ -98,7 +123,20 @@ void WiFiConfigApp::run() {
         if (cursor == count - 1) {
             return;
         }
-
+        if (menu.getButton() == lilka::Button::C) {
+            int16_t index = menu.getCursor();
+            String networkInfo = "Канал: " + String(WiFi.channel(index)) + "\n";
+            networkInfo += "Сила сигналу: " + String(WiFi.RSSI(index)) + "db\n";
+            networkInfo += "MAC: " + WiFi.BSSIDstr(index) + "\n";
+            networkInfo += "Захист: " + getEncryptionTypeStr(WiFi.encryptionType(index)) + "\n";
+            lilka::Alert info(networks[menu.getCursor()], networkInfo);
+            while (!info.isFinished()) {
+                info.update();
+                info.draw(canvas);
+                queueDraw();
+            }
+            continue;
+        }
         String ssid = networks[cursor];
 
         String password = "";

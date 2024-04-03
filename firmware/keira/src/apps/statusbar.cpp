@@ -16,7 +16,7 @@
 StatusBarApp::StatusBarApp() : App("StatusBar", 0, 0, lilka::display.width(), 24) {
 }
 
-const uint16_t* icons[] = {wifi_offline, wifi_0, wifi_1, wifi_2, wifi_3};
+const uint16_t* icons[] = {wifi_0, wifi_1, wifi_2, wifi_3};
 
 void StatusBarApp::run() {
     lilka::Canvas iconCanvas(240, 24);

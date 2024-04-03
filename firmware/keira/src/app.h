@@ -99,7 +99,6 @@ private:
     }
 
     const char* name;
-    uint16_t x, y, w, h;
     SemaphoreHandle_t backCanvasMutex;
     bool isDrawQueued;
     AppFlags flags;

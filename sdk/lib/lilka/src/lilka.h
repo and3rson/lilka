@@ -1,6 +1,7 @@
 #ifndef LILKA_H
 #define LILKA_H
 
+#include "lilka/board.h"
 #include "lilka/serial.h"
 #include "lilka/spi.h"
 #include "lilka/controller.h"
@@ -15,7 +16,6 @@
 #include "lilka/resources.h"
 #include "lilka/fmath.h"
 #include "lilka/audio.h"
-#include "lilka/ext.h"
 
 namespace lilka {
 /// Ініціалізація Лілки
