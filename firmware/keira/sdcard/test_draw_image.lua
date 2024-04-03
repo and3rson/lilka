@@ -23,12 +23,12 @@ for i = 10, 1, -1 do
     display.set_cursor(64, 64)
     display.print("Start in " .. i .. "...")
 
-    local x = math.random(240 )
+    local x = math.random(240)
     local y = math.random(280 - 64)
     local rot = math.random(360)
 
-    local scaleX = math.random()
-    local scaleY = math.random()
+    local scaleX = math.min({ math.random(), 0.1 })
+    local scaleY = math.min({ math.random(), 0.1 })
 
     local transform = imageTransform()
 
