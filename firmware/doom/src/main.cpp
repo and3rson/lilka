@@ -237,8 +237,8 @@ void gameTask(void* arg) {
 
         if (playeringame[consoleplayer]) {
             // We have a player (TODO: might be demo)
-            player_t* plyr = &players[consoleplayer];
-            weapontype_t weapons[NUMWEAPONS] = {
+            const player_t* plyr = &players[consoleplayer];
+            const weapontype_t weapons[NUMWEAPONS] = {
                 wp_fist,
                 wp_chainsaw,
                 wp_pistol,
@@ -249,7 +249,7 @@ void gameTask(void* arg) {
                 wp_plasma,
                 wp_bfg,
             };
-            int weaponKeys[NUMWEAPONS] = {'1', '1', '2', '3', '3', '4', '5', '6', '7'};
+            const int weaponKeys[NUMWEAPONS] = {'1', '1', '2', '3', '3', '4', '5', '6', '7'};
             int currentWeaponIndex;
             for (int i = 0; i < NUMWEAPONS; i++) {
                 if (plyr->readyweapon == weapons[i]) {
