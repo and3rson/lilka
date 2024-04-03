@@ -311,6 +311,7 @@ public:
 };
 
 // Dirty (and painfully slow!) workaround to calculate text width (since getTextBounds clips result to canvas width)
+// Will be superseded by https://github.com/moononournation/Arduino_GFX/pull/460
 int16_t getTextWidth(const uint8_t* font, const char* text);
 
 /// Зображення
