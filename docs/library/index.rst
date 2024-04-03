@@ -101,6 +101,7 @@
 
     audio
     battery
+    board
     buzzer
     controller
     display

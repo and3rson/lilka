@@ -449,7 +449,8 @@
     ],
     "pinned_symbol_libs": [
       "display",
-      "connector"
+      "connector",
+      "regulators"
     ]
   },
   "meta": {
@@ -519,8 +520,8 @@
     "last_paths": {
       "gencad": "",
       "idf": "",
-      "netlist": "",
-      "plot": "v21/",
+      "netlist": "./",
+      "plot": "v22/",
       "pos_files": "",
       "specctra_dsn": "",
       "step": "main.step",

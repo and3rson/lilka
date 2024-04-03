@@ -25,6 +25,7 @@
 #include "mjs/mjsrunner.h"
 #include "nes/nesapp.h"
 #include "ftp/ftp_server.h"
+#include "weather/weather.h"
 
 #include "icons/demos.h"
 #include "icons/sdcard.h"
@@ -67,6 +68,7 @@ ITEM_LIST app_items = {
     ),
     ITEM_APP("Летріс", LetrisApp),
     ITEM_APP("Тамагочі", TamagotchiApp),
+    ITEM_APP("Погода", WeatherApp),
 };
 
 ITEM_LIST dev_items = {
@@ -403,9 +405,11 @@ void LauncherApp::settingsMenu() {
             );
             esp_restart();
         } else if (index == 5) {
+            lilka::board.enablePowerSavingMode();
             esp_light_sleep_start();
         } else if (index == 6) {
-            ESP.deepSleep(0xFFFFFFFF);
+            lilka::board.enablePowerSavingMode();
+            esp_deep_sleep_start();
         } else if (index == 7) {
             esp_restart();
         }

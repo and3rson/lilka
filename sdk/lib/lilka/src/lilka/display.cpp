@@ -267,6 +267,15 @@ int16_t Canvas::y() {
     return _output_y;
 }
 
+int16_t getTextWidth(const uint8_t* font, const char* text) {
+    lilka::Canvas canvas(4096, 1);
+    canvas.setFont(font);
+    int16_t x1, y1;
+    uint16_t w, h;
+    canvas.getTextBounds(text, 0, 0, &x1, &y1, &w, &h);
+    return w;
+}
+
 Image::Image(uint32_t width, uint32_t height, int32_t transparentColor, int16_t pivotX, int16_t pivotY) :
     width(width), height(height), transparentColor(transparentColor), pivotX(pivotX), pivotY(pivotY) {
     // Allocate pixels in PSRAM
@@ -275,6 +284,18 @@ Image::Image(uint32_t width, uint32_t height, int32_t transparentColor, int16_t 
 
 Image::~Image() {
     delete[] pixels;
+}
+
+Image* Image::newFromRLE(
+    const uint8_t* data, uint32_t length, uint32_t width, uint32_t height, int32_t transparentColor, int16_t pivotX,
+    int16_t pivotY
+) {
+    Image* image = new Image(width, height, transparentColor, width / 2, height / 2);
+    RLEDecoder decoder(data, length);
+    for (uint32_t i = 0; i < width * height; i++) {
+        image->pixels[i] = decoder.next();
+    }
+    return image;
 }
 
 void Image::rotate(int16_t angle, Image* dest, int32_t blankColor) {

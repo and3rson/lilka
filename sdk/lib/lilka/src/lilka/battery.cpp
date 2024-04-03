@@ -50,6 +50,9 @@ int Battery::readLevel() {
 }
 
 uint16_t Battery::readRawValue() {
+#if LILKA_VERSION < 2
+    return 0;
+#else
     // Зчитуємо значення АЦП 32 рази, щоб вибрати медіану
     uint16_t count = 32;
     uint16_t values[count];
@@ -61,6 +64,7 @@ uint16_t Battery::readRawValue() {
     // Вибираємо медіану
     uint16_t value = values[count / 2];
     return value;
+#endif
 }
 
 void Battery::setEmptyVoltage(float voltage) {

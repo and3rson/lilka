@@ -497,9 +497,9 @@
 					)
 				)
 			)
-			(pin no_connect line
+			(pin output line
 				(at 8.89 1.27 180)
-				(length 2.54) hide
+				(length 2.54)
 				(name "OUT-"
 					(effects
 						(font
@@ -515,9 +515,9 @@
 					)
 				)
 			)
-			(pin no_connect line
+			(pin output line
 				(at 8.89 -1.27 180)
-				(length 2.54) hide
+				(length 2.54)
 				(name "OUT+"
 					(effects
 						(font
