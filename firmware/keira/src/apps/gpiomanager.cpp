@@ -12,6 +12,36 @@ GPIOManagerApp::GPIOManagerApp() : App("GPIOManager") {
     menu.addActivationButton(lilka::Button::A);
     // Change pin mode
     menu.addActivationButton(lilka::Button::B);
+    // For testing purposes
+    //readSpeedCompare();
+}
+void GPIOManagerApp::readSpeedCompare() {
+    lilka::serial_log("Reading pins using REG_READ");
+    uint8_t pinDataRegRead[64];
+    uint8_t pinDataDigitalRead[64];
+    auto time_begin = micros();
+    uint32_t gpioValue = (REG_READ(GPIO_IN_REG));
+    uint32_t gpio1Value = (REG_READ(GPIO_IN1_REG));
+    // lilka::serial_log("Pin data : %s %s", getStrBits(gpioValue).c_str(), getStrBits(gpio1Value).c_str());
+    for (int i = 0; i < 64; i++) {
+        uint8_t pinVal;
+        if (i < 32) {
+            pinDataRegRead[i] = GET_BIT(gpioValue, i);
+        } else {
+            pinDataRegRead[i] = GET_BIT(gpio1Value, i - 32);
+        }
+    }
+    lilka::serial_log("Elapsed time %d micros", micros() - time_begin);
+    lilka::serial_log("Using digitalRead");
+    time_begin = micros();
+    for (int i = 0; i < 64; i++) {
+        pinDataDigitalRead[i] = digitalRead(i);
+    }
+
+    lilka::serial_log("Elapsed time %d micros", micros() - time_begin);
+    for (int i = 0; i < 64; i++) {
+        lilka::serial_log("Pin data %d: %d %d", i, pinDataRegRead[i], pinDataDigitalRead[i]);
+    }
 }
 String GPIOManagerApp::getStrBits(uint32_t num) {
     String bitStr = "";
