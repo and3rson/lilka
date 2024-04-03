@@ -33,7 +33,7 @@ class FileUtils {
 public:
     FileUtils();
     /// Ініціалізує SPIFFS та SD
-    void init();
+    void begin();
     /// Ініціалізує лише SD
     bool initSD();
     /// Ініціалізує лише SPIFFS
@@ -66,7 +66,7 @@ public:
     /// @param fSysDriver драйвер файлової системи
     /// @param relPath  відносний шлях
     /// @returns структуру PathInfo
-    const PathInfo getRelativePathInfo(const String& absPath);
+    const PathInfo getRelativePathInfo(const String& canPath);
     /// Отримати елементи в директорії за відносним шляхом
     /// @param fSysDriver драйвер файлової системи
     /// @param relPath відносний шлях
@@ -102,8 +102,7 @@ public:
     const String getHumanFriendlySize(const size_t size);
 
 private:
-    bool sdMountLocked = false;
-    bool spiffsAvailable = false;
+    SemaphoreHandle_t sdMutex = NULL;
     FS* spiffs;
     SDFS* sdfs;
 };

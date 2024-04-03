@@ -95,9 +95,9 @@ void LauncherApp::run() {
         if (index == 0) {
             appsMenu("Додатки", app_items);
         } else if (index == 1) {
-            sdBrowserMenu(static_cast<FS*>(&SD), "/");
+            sdBrowserMenu(&SD, "/");
         } else if (index == 2) {
-            sdBrowserMenu(static_cast<FS*>(&SPIFFS), "/");
+            sdBrowserMenu(&SPIFFS, "/");
         } else if (index == 3) {
             appsMenu("Розробка", dev_items);
         } else if (index == 4) {

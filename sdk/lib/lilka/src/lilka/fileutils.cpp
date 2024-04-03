@@ -5,35 +5,28 @@ namespace lilka {
 FileUtils::FileUtils() {
     sdfs = &SD;
     spiffs = &SPIFFS;
+    sdMutex = xSemaphoreCreateMutex();
 }
 
-void FileUtils::init() {
+void FileUtils::begin() {
     initSD();
     initSPIFFS();
 }
 
 void FileUtils::initSPIFFS() {
-    File spiffsRoot = spiffs->open("/");
-    if (spiffsRoot) {
-        // Allready initialized
-        spiffsRoot.close();
-        return;
-    }
     serial_log("initializing SPIFFS");
     if (!SPIFFS.begin(false, LILKA_SPIFFS_ROOT)) {
         serial_err("failed to initialize SPIFFS");
     } else {
         serial_log("SPIFFS ok");
-        spiffsAvailable = true;
     }
 }
 
 bool FileUtils::initSD() {
     // Most likely we're trying to format card,
     // please standby
-    if (sdMountLocked) return false;
-    // Allready mounted
-    if (isSDAvailable()) return false;
+    xSemaphoreTake(sdMutex, portMAX_DELAY);
+
     // check if LILKA_SDROOT pathable, if not perform init
     serial_log("initializing SD card");
 
@@ -49,6 +42,7 @@ bool FileUtils::initSD() {
         // Can't init -> should end or we'll mess
         // with internal implemenation of sdfs
         sdfs->end();
+        xSemaphoreGive(sdMutex);
         return false;
     }
     if (cardType == CARD_SD || cardType == CARD_SDHC) {
@@ -56,11 +50,13 @@ bool FileUtils::initSD() {
             "card type: %s, card size: %ld MB", cardType == CARD_SD ? "SD" : "SDHC", sdfs->totalBytes() / (1024 * 1024)
         );
         // ALL OKAY!
+        xSemaphoreGive(sdMutex);
         return true;
     } else {
         serial_err("unknown SD card type: %d", cardType);
     }
 #endif
+    xSemaphoreGive(sdMutex);
     return false;
 }
 
@@ -108,7 +104,6 @@ const String FileUtils::stripPath(const String& path) {
 
 size_t FileUtils::listDir(FS* fSysDriver, const String& relPath, Entry entries[]) {
     FS* fs = fSysDriver;
-
     if (fs == NULL) {
         serial_err("Path (%s) reffers to unknown filesystem type", relPath.c_str());
         return 0;
@@ -167,18 +162,18 @@ const String FileUtils::getFullPath(const FS* fSysDriver, const String& relPath)
     return relPath;
 }
 
-const PathInfo FileUtils::getRelativePathInfo(const String& absPath) {
+const PathInfo FileUtils::getRelativePathInfo(const String& canPath) {
     PathInfo pathInfo;
-    if (absPath.startsWith(LILKA_SD_ROOT LILKA_SLASH)) {
-        pathInfo.path = absPath.substring(sizeof(LILKA_SD_ROOT) - 1);
+    if (canPath.startsWith(LILKA_SD_ROOT LILKA_SLASH)) {
+        pathInfo.path = canPath.substring(sizeof(LILKA_SD_ROOT) - 1);
         pathInfo.fSysDriver = sdfs;
-    } else if (absPath.startsWith(LILKA_SPIFFS_ROOT LILKA_SLASH)) {
-        pathInfo.path = absPath.substring(sizeof(LILKA_SPIFFS_ROOT) - 1);
+    } else if (canPath.startsWith(LILKA_SPIFFS_ROOT LILKA_SLASH)) {
+        pathInfo.path = canPath.substring(sizeof(LILKA_SPIFFS_ROOT) - 1);
         pathInfo.fSysDriver = spiffs;
     } else
     // Maybe path is allready relative?
     {
-        pathInfo.path = absPath;
+        pathInfo.path = canPath;
         // Can't determine fSysDriver from
         // given path
         pathInfo.fSysDriver = NULL;
@@ -200,7 +195,7 @@ bool FileUtils::isSDAvailable() {
 }
 
 bool FileUtils::isSPIFFSAvailable() {
-    return spiffsAvailable;
+    return SPIFFS.begin(false, LILKA_SPIFFS_ROOT);
 }
 
 const String FileUtils::getSDRoot() {
@@ -236,7 +231,7 @@ const String FileUtils::getHumanFriendlySize(const size_t size) {
 }
 
 bool FileUtils::createSDPartTable() {
-    sdMountLocked = true;
+    xSemaphoreTake(sdMutex, portMAX_DELAY);
     // Unmount sd
     // We could have some io problems here, but user actually want to destroy all io
     // results, seems to be okay :)
@@ -250,7 +245,7 @@ bool FileUtils::createSDPartTable() {
     uint8_t pdrv = sdcard_init(LILKA_SDCARD_CS, &SPI1, LILKA_SD_FREQUENCY);
     SPI1.endTransaction();
     if (pdrv == 0xFF) {
-        sdMountLocked = false;
+        xSemaphoreGive(sdMutex);
         return false;
     }
 
@@ -267,16 +262,16 @@ bool FileUtils::createSDPartTable() {
     DWORD plist[] = {100, 0, 0, 0};
     FRESULT res = f_fdisk(pdrv, plist, workbuf);
     if (res != FR_OK) {
-        sdMountLocked = false;
+        xSemaphoreGive(sdMutex);
         return false;
     }
-    sdMountLocked = false;
+    xSemaphoreGive(sdMutex);
 
     return true;
 }
 
 bool FileUtils::formatSD() {
-    sdMountLocked = true;
+    xSemaphoreTake(sdMutex, portMAX_DELAY);
     SD.end();
 
     constexpr uint32_t workbufSize = FF_MAX_SS * 4;
@@ -286,11 +281,10 @@ bool FileUtils::formatSD() {
 
     FRESULT res = f_mkfs(LILKA_SD_ROOT, FM_ANY, 0, workbuf, workbufSize);
     if (res != FR_OK) {
-        sdMountLocked = false;
+        xSemaphoreGive(sdMutex);
         return false;
     }
-    sdMountLocked = false;
-
+    xSemaphoreGive(sdMutex);
     return true;
 }
 const String FileUtils::joinPath(const String& lPath, const String& rPath) {

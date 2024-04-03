@@ -13,7 +13,7 @@ void begin() {
     buzzer.begin(); // Play notification sound
     audio.begin();
     display.begin(); // Must be initialized BEFORE SD card
-    fileutils.init();
+    fileutils.begin();
     controller.begin(); // Must be initialized AFTER SD card (since SD card somehow messes with GPIO)
 
     battery.begin();
