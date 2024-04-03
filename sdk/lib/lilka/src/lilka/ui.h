@@ -122,6 +122,7 @@ private:
     Image* iconImage;
     Canvas* iconCanvas;
     int64_t lastCursorMove;
+    int64_t firstRender;
     std::vector<Button> activationButtons;
     Button button;
 };
