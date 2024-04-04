@@ -1,5 +1,8 @@
 #include "gpiomanager.h"
 
+#include "icons/input.h"
+#include "icons/output.h"
+
 GPIOManagerApp::GPIOManagerApp() : App("GPIOManager") {
     menu.setTitle("GPIO");
     // Set default pin mode
@@ -39,8 +42,8 @@ void GPIOManagerApp::run() {
             readPinData();
             for (int i = 0; i < PIN_COUNT; i++) {
                 menu.addItem(
-                    String(pinNo[i]) + (pinM[i] == INPUT ? " <- IN  " : " -> OUT "),
-                    0,
+                    String(pinNo[i]) + (pinM[i] == INPUT ? " <- IN" : " -> OUT"),
+                    pinM[i] == INPUT ? &input : &output,
                     0,
                     pinData[i] == HIGH ? "HIGH" : "LOW"
                 );
@@ -55,7 +58,7 @@ void GPIOManagerApp::run() {
         lilka::serial_log("Menu finished");
         int16_t curPos = menu.getCursor();
         if (curPos == PIN_COUNT) break;
-        auto button = menu.getButton();
+        lilka::Button button = menu.getButton();
         if (button == lilka::Button::A) {
             if (pinM[curPos] == INPUT) {
                 // alert
@@ -76,7 +79,7 @@ void GPIOManagerApp::readSpeedCompare() {
     lilka::serial_log("Reading pins using REG_READ");
     uint8_t pinDataRegRead[64];
     uint8_t pinDataDigitalRead[64];
-    auto time_begin = micros();
+    uint64_t time_begin = micros();
     uint32_t gpioValue = (REG_READ(GPIO_IN_REG));
     uint32_t gpio1Value = (REG_READ(GPIO_IN1_REG));
     // lilka::serial_log("Pin data : %s %s", getStrBits(gpioValue).c_str(), getStrBits(gpio1Value).c_str());

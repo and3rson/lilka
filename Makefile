@@ -37,6 +37,7 @@ icons:
 		-not \( -name mJS -prune \) \
 		-not \( -name SimpleFTPServer -prune \) \
 		-not \( -name *splash* -prune \) \
+		-not \( -name *weather* -prune \) \
 		-iname *.png \
 		-exec $(IMAGE2CODE) {} \;
 

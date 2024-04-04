@@ -1,7 +1,7 @@
 #pragma once
 #include "app.h"
 #define PIN_COUNT             6
-#define GET_BIT(data, bit_no) (data >> bit_no) & 0b1
+#define GET_BIT(data, bit_no) ((data) >> (bit_no)) & 0b1
 
 class GPIOManagerApp : public App {
 public:
