@@ -124,6 +124,8 @@ void Menu::draw(Arduino_GFX* canvas) {
     constexpr int16_t titleTextHeight = 40;
     constexpr int16_t itemsY = 80;
     constexpr int16_t itemHeight = menu_icon_height;
+    uint16_t menu_size = items.size();
+    const bool needsScrollbar = menu_size > MENU_HEIGHT;
 
     canvas->fillScreen(lilka::colors::Black);
     int8_t angleShift = sin(millis() / 1000.0) * 16;
@@ -169,12 +171,11 @@ void Menu::draw(Arduino_GFX* canvas) {
     canvas->fillRect(
         0,
         (cursor * itemHeight + itemsY - 20) - scroll * itemHeight,
-        canvas->width(),
+        canvas->width() - (needsScrollbar ? scrollbarWidth : 0),
         itemHeight,
         lilka::colors::Orange_red
     );
 
-    uint16_t menu_size = items.size();
     for (int i = scroll; i < MIN(scroll + MENU_HEIGHT, menu_size); i++) {
         int16_t screenI = i - scroll;
         const menu_icon_t* icon = items[i].icon;
@@ -265,7 +266,7 @@ void Menu::draw(Arduino_GFX* canvas) {
     }
 
     // Draw scrollbar
-    if (menu_size > MENU_HEIGHT) {
+    if (needsScrollbar) {
         int top = itemsY - 20;
         int height = MENU_HEIGHT * itemHeight;
         canvas->fillRect(canvas->width() - 5, top, 2, height, lilka::colors::White);
