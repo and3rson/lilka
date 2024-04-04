@@ -11,8 +11,9 @@ Menu::Menu(String title) {
     this->scroll = 0;
     this->setCursor(0);
     this->done = false;
-    this->iconImage = new Image(24, 24, colors::Black, 12, 12);
-    this->iconCanvas = new Canvas(24, 24);
+    this->iconImage =
+        new Image(menu_icon_width, menu_icon_height, colors::Black, menu_icon_width / 2, menu_icon_height / 2);
+    this->iconCanvas = new Canvas(menu_icon_width, menu_icon_height);
     this->lastCursorMove = millis();
     this->button = Button::COUNT;
     this->activationButtons.push_back(Button::A);
@@ -116,6 +117,16 @@ void Menu::draw(Arduino_GFX* canvas) {
         this->firstRender = millis();
     }
 
+    constexpr int16_t scrollbarWidth = 8;
+    constexpr int16_t scrollbarLeftPadding = 4;
+    constexpr int16_t postfixLeftPadding = 4;
+    constexpr int16_t iconWidth = 32;
+    constexpr int16_t titleTextHeight = 40;
+    constexpr int16_t itemsY = 80;
+    constexpr int16_t itemHeight = menu_icon_height;
+    uint16_t menu_size = items.size();
+    const bool needsScrollbar = menu_size > MENU_HEIGHT;
+
     canvas->fillScreen(lilka::colors::Black);
     int8_t angleShift = sin(millis() / 1000.0) * 16;
     // Draw triangle in top-left
@@ -135,15 +146,17 @@ void Menu::draw(Arduino_GFX* canvas) {
     const uint16_t titleWidthAvailable = canvas->width() - 64;
     if (titleWidth > titleWidthAvailable) {
         // Marquee
-        Canvas marquee(titleWidthAvailable, 40);
+        Canvas marquee(titleWidthAvailable, titleTextHeight);
         marquee.fillScreen(lilka::colors::Black);
         marquee.setFont(FONT_6x13);
         marquee.setTextSize(2);
-        marquee.setCursor(calculateMarqueeShift(millis() - firstRender, titleWidth - titleWidthAvailable, 50), 40);
+        marquee.setCursor(
+            calculateMarqueeShift(millis() - firstRender, titleWidth - titleWidthAvailable, 50), titleTextHeight
+        );
         marquee.setTextColor(lilka::colors::White);
         marquee.println(title);
         canvas->draw16bitRGBBitmapWithTranColor(
-            32, 0, marquee.getFramebuffer(), lilka::colors::Black, titleWidthAvailable, 40
+            32, 0, marquee.getFramebuffer(), lilka::colors::Black, titleWidthAvailable, titleTextHeight
         );
     } else {
         // Text fits
@@ -155,13 +168,18 @@ void Menu::draw(Arduino_GFX* canvas) {
         canvas->println(title);
     }
 
-    canvas->fillRect(0, (cursor * 24 + 80 - 20) - scroll * 24, canvas->width(), 24, lilka::colors::Orange_red);
+    canvas->fillRect(
+        0,
+        (cursor * itemHeight + itemsY - 20) - scroll * itemHeight,
+        canvas->width() - (needsScrollbar ? scrollbarWidth : 0),
+        itemHeight,
+        lilka::colors::Orange_red
+    );
 
-    uint16_t menu_size = items.size();
     for (int i = scroll; i < MIN(scroll + MENU_HEIGHT, menu_size); i++) {
         int16_t screenI = i - scroll;
         const menu_icon_t* icon = items[i].icon;
-        canvas->setTextBound(0, 80 + screenI * 24 - 20, canvas->width(), 24);
+        canvas->setTextBound(0, itemsY + screenI * itemHeight - 20, canvas->width(), itemHeight);
         if (icon) {
             if (cursor == i) {
                 memcpy(iconImage->pixels, *icon, sizeof(menu_icon_t));
@@ -170,11 +188,21 @@ void Menu::draw(Arduino_GFX* canvas) {
                 iconCanvas->fillScreen(lilka::colors::Black);
                 iconCanvas->drawImageTransformed(iconImage, 12, 12, t);
                 canvas->draw16bitRGBBitmapWithTranColor(
-                    0, 80 + screenI * 24 - 20, iconCanvas->getFramebuffer(), lilka::colors::Black, 24, 24
+                    0,
+                    itemsY + screenI * itemHeight - 20,
+                    iconCanvas->getFramebuffer(),
+                    lilka::colors::Black,
+                    menu_icon_width,
+                    menu_icon_height
                 );
             } else {
                 canvas->draw16bitRGBBitmapWithTranColor(
-                    0, 80 + screenI * 24 - 20, const_cast<uint16_t*>(*icon), lilka::colors::Black, 24, 24
+                    0,
+                    itemsY + screenI * itemHeight - 20,
+                    const_cast<uint16_t*>(*icon),
+                    lilka::colors::Black,
+                    menu_icon_width,
+                    menu_icon_height
                 );
             }
         }
@@ -192,12 +220,14 @@ void Menu::draw(Arduino_GFX* canvas) {
             (void)h;
             canvas->setTextBound(0, 0, canvas->width(), canvas->height());
             canvas->getTextBounds(items[i].postfix, 0, 0, &x1, &y1, &postfixWidth, &h);
-            canvas->setCursor(canvas->width() - postfixWidth - 8, 80 + screenI * 24);
+            canvas->setCursor(
+                canvas->width() - postfixWidth - scrollbarWidth - scrollbarLeftPadding, itemsY + screenI * itemHeight
+            );
             canvas->println(items[i].postfix);
         }
 
         int16_t widthAvailable =
-            canvas->width() - 32 - postfixWidth - 8 - 8; // 8 pixels for scrollbar, 8 more for padding
+            canvas->width() - iconWidth - postfixWidth - scrollbarWidth - scrollbarLeftPadding - postfixLeftPadding;
         if (widthAvailable < 0) {
             // No space for title
             continue;
@@ -206,21 +236,26 @@ void Menu::draw(Arduino_GFX* canvas) {
         uint16_t nameWidth = getTextWidth(FONT_10x20, items[i].title.c_str()) + 1;
         if (nameWidth > widthAvailable && cursor == i) {
             // Marquee
-            Canvas marquee(widthAvailable, 24);
+            Canvas marquee(widthAvailable, itemHeight);
             marquee.fillScreen(lilka::colors::Black);
             marquee.setFont(FONT_10x20);
             marquee.setCursor(calculateMarqueeShift(millis() - lastCursorMove, nameWidth - widthAvailable, 50), 20);
             marquee.setTextColor(lilka::colors::White);
             marquee.println(items[i].title);
             canvas->draw16bitRGBBitmapWithTranColor(
-                32, 80 + screenI * 24 - 20, marquee.getFramebuffer(), lilka::colors::Black, widthAvailable, 24
+                iconWidth,
+                itemsY + screenI * itemHeight - 20,
+                marquee.getFramebuffer(),
+                lilka::colors::Black,
+                widthAvailable,
+                itemHeight
             );
         } else {
             // Text fits
             canvas->setTextSize(1);
             canvas->setFont(FONT_10x20);
-            canvas->setCursor(32, 80 + screenI * 24);
-            canvas->setTextBound(32, 80 + screenI * 24 - 20, widthAvailable, 24);
+            canvas->setCursor(iconWidth, itemsY + screenI * itemHeight);
+            canvas->setTextBound(iconWidth, itemsY + screenI * itemHeight - 20, widthAvailable, itemHeight);
             if (items[i].color && cursor != i) {
                 canvas->setTextColor(items[i].color);
             } else {
@@ -231,10 +266,12 @@ void Menu::draw(Arduino_GFX* canvas) {
     }
 
     // Draw scrollbar
-    if (menu_size > MENU_HEIGHT) {
-        int top = 80 - 20;
-        int height = MENU_HEIGHT * 24;
-        canvas->fillRect(canvas->width() - 8, top, 8, height, canvas->color565(96, 96, 96));
+    if (needsScrollbar) {
+        int top = itemsY - 20;
+        int height = MENU_HEIGHT * itemHeight;
+        canvas->fillRect(canvas->width() - 5, top, 2, height, lilka::colors::White);
+        canvas->fillRect(canvas->width() - 8, top, 8, 2, lilka::colors::White);
+        canvas->fillRect(canvas->width() - 8, top + height - 2, 8, 2, lilka::colors::White);
         int barHeight = height * MENU_HEIGHT / menu_size;
         int barTop = top + scroll * height / menu_size;
         canvas->fillRect(canvas->width() - 8, barTop, 8, barHeight, lilka::colors::White);

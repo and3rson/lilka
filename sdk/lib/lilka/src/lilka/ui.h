@@ -7,7 +7,9 @@
 #include "display.h"
 #include "controller.h"
 
-typedef uint16_t const menu_icon_t[576]; // 24x24px icon
+constexpr uint16_t menu_icon_width = 24;
+constexpr uint16_t menu_icon_height = 24;
+typedef uint16_t const menu_icon_t[menu_icon_width * menu_icon_height]; // 24x24px icon (576*2 bytes)
 
 namespace lilka {
 
@@ -50,7 +52,7 @@ public:
     /// Конструктор класу.
     ///
     /// @param title Заголовок меню.
-    explicit Menu(String title);
+    explicit Menu(String title = "Меню");
     ~Menu();
     /// Встановити новий заголовок меню
     ///

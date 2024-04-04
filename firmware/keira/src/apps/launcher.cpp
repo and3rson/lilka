@@ -16,10 +16,11 @@
 #include "demos/cube.h"
 #include "demos/epilepsy.h"
 #include "demos/letris.h"
-#include "tamagotchi/tamagotchi.h"
 #include "demos/keyboard.h"
 #include "demos/user_spi.h"
 #include "demos/scan_i2c.h"
+#include "gpiomanager.h"
+#include "tamagotchi/tamagotchi.h"
 #include "lua/luarunner.h"
 #include "mjs/mjsrunner.h"
 #include "nes/nesapp.h"
@@ -59,11 +60,10 @@ ITEM_LIST app_items = {
     ),
     ITEM_SUBMENU(
         "Тести",
-        {
-            ITEM_APP("Клавіатура", KeyboardApp),
-            ITEM_APP("Тест SPI", UserSPIApp),
-            ITEM_APP("I2C-сканер", ScanI2CApp),
-        },
+        {ITEM_APP("Клавіатура", KeyboardApp),
+         ITEM_APP("Тест SPI", UserSPIApp),
+         ITEM_APP("I2C-сканер", ScanI2CApp),
+         ITEM_APP("GPIO-мененджер", GPIOManagerApp)},
     ),
     ITEM_APP("Летріс", LetrisApp),
     ITEM_APP("Тамагочі", TamagotchiApp),
