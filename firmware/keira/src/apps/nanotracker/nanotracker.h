@@ -1,13 +1,13 @@
 #pragma once
 
 #include "app.h"
-#include "sequencer.h"
+#include "mixer.h"
 
 class NanoTrackerApp : public App {
 public:
     NanoTrackerApp();
 
 private:
-    Sequencer sequencer;
+    Mixer mixer;
     void run() override;
 };

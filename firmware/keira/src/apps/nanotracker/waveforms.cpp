@@ -1,5 +1,5 @@
 #include <math.h>
-#include "functions.h"
+#include "waveforms.h"
 
 // Triangle wave function
 float triangle(float time, float frequency, float amplitude, float phase) {
@@ -19,4 +19,9 @@ float square(float time, float frequency, float amplitude, float phase) {
 // Sawtooth wave function
 float sawtooth(float time, float frequency, float amplitude, float phase) {
     return 2.0f * amplitude * (fmodf(time * frequency + phase, 1.0f) - 0.5f);
+}
+
+// Noise wave function
+float noise(float time, float frequency, float amplitude, float phase) {
+    return 2.0f * amplitude * ((float)rand() / RAND_MAX - 0.5f);
 }
