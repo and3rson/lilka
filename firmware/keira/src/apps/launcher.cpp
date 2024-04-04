@@ -26,6 +26,7 @@
 #include "nes/nesapp.h"
 #include "ftp/ftp_server.h"
 #include "weather/weather.h"
+#include "nanotracker/nanotracker.h"
 
 #include "icons/demos.h"
 #include "icons/sdcard.h"
@@ -50,6 +51,7 @@ ITEM_LIST app_items = {
     ITEM_SUBMENU(
         "Демо",
         {
+            ITEM_APP("НаноТрекер", NanoTrackerApp),
             ITEM_APP("Лінії", DemoLines),
             ITEM_APP("Диск", DiskApp),
             ITEM_APP("Перетворення", TransformApp),
