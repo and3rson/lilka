@@ -5,10 +5,6 @@ App::App(const char* name) : App(name, 0, 24, lilka::display.width(), lilka::dis
 
 App::App(const char* name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) :
     name(name),
-    x(x),
-    y(y),
-    w(w),
-    h(h),
     flags(AppFlags::APP_FLAG_NONE),
     taskHandle(NULL),
     canvas(new lilka::Canvas(x, y, w, h)),

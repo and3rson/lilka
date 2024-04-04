@@ -26,6 +26,7 @@
 
 #include "config.h"
 
+#include "deh_str.h"
 #include "doomtype.h"
 #include "doomkeys.h"
 #include "doomfeatures.h"
@@ -39,7 +40,7 @@
 // DEFAULTS
 //
 
-// Location where all configuration data is stored - 
+// Location where all configuration data is stored -
 // default.cfg, savegames, etc.
 
 char *configdir;
@@ -49,7 +50,7 @@ char *configdir;
 static char *default_main_config;
 static char *default_extra_config;
 
-typedef enum 
+typedef enum
 {
     DEFAULT_INT,
     DEFAULT_INT_HEX,
@@ -74,7 +75,7 @@ typedef struct
     // If zero, we didn't read this value from a config file.
     int untranslated;
 
-    // The value we translated the scancode into when we read the 
+    // The value we translated the scancode into when we read the
     // config file on startup.  If the variable value is different from
     // this, it has been changed and needs to be converted; otherwise,
     // use the 'untranslated' value.
@@ -82,7 +83,7 @@ typedef struct
 
     // If true, this config variable has been bound to a variable
     // and is being used.
-    boolean bound;
+    boolean32 bound;
 } default_t;
 
 typedef struct
@@ -1564,7 +1565,7 @@ static default_t *SearchCollection(default_collection_t *collection, char *name)
 {
     int i;
 
-    for (i=0; i<collection->numdefaults; ++i) 
+    for (i=0; i<collection->numdefaults; ++i)
     {
         if (!strcmp(name, collection->defaults[i].name))
         {
@@ -1612,13 +1613,13 @@ static void SaveDefaultCollection(default_collection_t *collection)
     default_t *defaults;
     int i, v;
     FILE *f;
-	
+
     f = fopen (collection->filename, "w");
     if (!f)
 	return; // can't write the file, but don't complain
 
     defaults = collection->defaults;
-		
+
     for (i=0 ; i<collection->numdefaults ; i++)
     {
         int chars_written;
@@ -1639,14 +1640,14 @@ static void SaveDefaultCollection(default_collection_t *collection)
 
         // Print the value
 
-        switch (defaults[i].type) 
+        switch (defaults[i].type)
         {
             case DEFAULT_KEY:
 
                 // use the untranslated version if we can, to reduce
                 // the possibility of screwing up the user's config
                 // file
-                
+
                 v = * (int *) defaults[i].location;
 
                 if (v == KEY_RSHIFT)
@@ -1781,7 +1782,7 @@ static void LoadDefaultCollection(default_collection_t *collection)
 
     if (f == NULL)
     {
-        // File not opened, but don't complain. 
+        // File not opened, but don't complain.
         // It's probably just the first time they ran the game.
 
         return;
@@ -1881,7 +1882,7 @@ void M_SaveDefaultsAlternate(char *main, char *extra)
 void M_LoadDefaults (void)
 {
     int i;
- 
+
     // check for a custom default file
 
     //!
@@ -1919,7 +1920,7 @@ void M_LoadDefaults (void)
     if (i)
     {
         extra_defaults.filename = myargv[i+1];
-        DG_printf("        extra configuration file: %s\n", 
+        DG_printf("        extra configuration file: %s\n",
                extra_defaults.filename);
     }
     else
@@ -1974,7 +1975,7 @@ void M_BindVariable(char *name, void *location)
 // Set the value of a particular variable; an API function for other
 // parts of the program to assign values to config variables by name.
 
-boolean M_SetVariable(char *name, char *value)
+boolean32 M_SetVariable(char *name, char *value)
 {
     default_t *variable;
 
@@ -2042,14 +2043,33 @@ float M_GetFloatVariable(char *name)
 
 static char *GetDefaultConfigDir(void)
 {
-    char *result = (char *)malloc(2);
-    result[0] = '.';
-    result[1] = '\0';
+    // char *result = (char *)malloc(2);
+    // result[0] = '.';
+    // result[1] = '\0';
+    // return result;
 
-    return result;
+    // Update for Lilka: use IWAD directory as default config directory.
+    // This will also be used for game saves. /AD
+    int iwadparm = M_CheckParmWithArgs("-iwad", 1);
+
+    if (!iwadparm)
+    {
+        DEH_printf("No IWAD specified. Using /sd/ as default config directory.\n");
+        return strdup("/sd");
+    }
+
+    char* iwadfile = myargv[iwadparm + 1];
+
+    // Find the last directory separator in the IWAD filename
+    char *lastsep = strrchr(iwadfile, DIR_SEPARATOR);
+    // Trim iwadfile to the last directory separator (excluding the separator)
+    char *iwaddir = strdup(iwadfile);
+    iwaddir[lastsep - iwadfile] = '\0';
+
+    return iwaddir;
 }
 
-// 
+//
 // SetConfigDir:
 //
 // Sets the location of the configuration directory, where configuration
@@ -2115,7 +2135,8 @@ char *M_GetSaveGameDir(char *iwadname)
 
         free(topdir);
 #else
-        savegamedir = M_StringJoin(configdir, DIR_SEPARATOR_S, ".savegame/", NULL);
+        // savegamedir = M_StringJoin(configdir, DIR_SEPARATOR_S, ".savegame/", NULL);
+        savegamedir = M_StringJoin(configdir, DIR_SEPARATOR_S, NULL); // AD
 
         M_MakeDirectory(savegamedir);
 

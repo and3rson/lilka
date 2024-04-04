@@ -11,7 +11,7 @@ extern "C" {
 #include "z_zone.h"
 }
 
-static boolean use_sfx_prefix;
+static boolean32 use_sfx_prefix;
 
 TaskHandle_t soundTaskHandle = NULL;
 SemaphoreHandle_t soundMutexHandle = NULL;
@@ -36,7 +36,7 @@ static snddevice_t sound_devices[] = {
     SNDDEVICE_AWE32,
 };
 
-static boolean I_I2S_InitSound(bool _use_sfx_prefix) {
+static boolean32 I_I2S_InitSound(boolean32 _use_sfx_prefix) {
     lilka::serial_log("I_I2S_InitSound");
     use_sfx_prefix = _use_sfx_prefix;
     soundMutexHandle = xSemaphoreCreateMutex();
@@ -253,7 +253,7 @@ static void I_I2S_StopSound(int handle) {
     // Nothing to do here.
 }
 
-static boolean I_I2S_SoundIsPlaying(int handle) {
+static boolean32 I_I2S_SoundIsPlaying(int handle) {
     return false; // TODO
 }
 

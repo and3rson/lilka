@@ -152,7 +152,7 @@ void P_LoadVertexes (int lump)
 //
 sector_t* GetSectorAtNullAddress(void)
 {
-    static boolean null_sector_is_initialized = false;
+    static boolean32 null_sector_is_initialized = false;
     static sector_t null_sector;
 
     if (!null_sector_is_initialized)
@@ -339,7 +339,7 @@ void P_LoadThings (int lump)
     mapthing_t         *mt;
     mapthing_t          spawnthing;
     int			numthings;
-    boolean		spawn;
+    boolean32		spawn;
 
     data = W_CacheLumpNum (lump,PU_STATIC);
     numthings = W_LumpLength (lump) / sizeof(mapthing_t);

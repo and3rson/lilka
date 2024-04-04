@@ -182,6 +182,19 @@ function display.fill_arc(x, y, r1, r2, start_angle, end_angle, color) end
 --- display.draw_image(image, 50, 80) -- малює зображення в точці (50, 80)
 function display.draw_image(image, x, y) end
 
+---Малює зображення на екрані з перетворенням.
+---@param image table ідентифікатор зображення
+---@param x integer координата x лівого верхнього кута зображення
+---@param y integer координата y лівого верхнього кута зображення
+---@param transform userdata перетворення (TODO: додати опис модуля imageTransform)
+---@usage
+--- local image = resource.load_image("face.bmp", display.color565(0, 0, 0))
+--- local transform = imageTransform()
+--  transform = transform:scale(1.5, 0.5)
+--- transform = transform:rotate(45)
+--- display.draw_image(image, 50, 80, transform) -- малює зображення в точці (50, 80) з перетвореннями
+function display.draw_image_transformed(image, x, y, transform) end
+
 ---Примусово оновлює вміст екрану.
 ---
 ---.. warning:: Ми не радимо використовувати цю функцію. Вона викликається автоматично після кожного виконання ``lilka.draw()``. Вам слід писати весь код малювання всередині своєї функції ``lilka.draw()``, а цю функцію використовувати лише для тестування простих програм.
