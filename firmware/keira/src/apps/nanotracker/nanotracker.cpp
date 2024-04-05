@@ -172,14 +172,14 @@ void NanoTrackerApp::run() {
             if (y < scoreTop || y > scoreBottom) {
                 continue;
             }
+            if (eventIndex % 4 == 0) {
+                canvas->fillRect(0, y, canvas->width(), itemHeight, lilka::colors::Delft_blue);
+            }
             if (eventIndex == cursorY) {
                 canvas->drawRect(0, y, canvas->width(), itemHeight, lilka::colors::Blue);
             }
-            if (eventIndex % 4 == 0) {
-                canvas->fillRect(0, y, canvas->width(), itemHeight, lilka::colors::Umber);
-            }
             canvas->setCursor(24, y + 13);
-            canvas->printf("| %2d | ", eventIndex + 1);
+            canvas->printf("| %02X | ", eventIndex);
             for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
                 noteinfo_t noteinfo;
                 event_t event = pattern.getChannelEvent(channelIndex, eventIndex);
@@ -195,7 +195,7 @@ void NanoTrackerApp::run() {
                     strcpy(str, "???");
                 }
                 uint16_t textColor;
-                uint16_t bgColor;
+                int32_t bgColor;
                 if (cursorY == eventIndex && cursorX == channelIndex) {
                     if (isEditing) {
                         textColor = lilka::colors::Black;
@@ -210,10 +210,10 @@ void NanoTrackerApp::run() {
                     } else {
                         textColor = lilka::colors::Uranian_blue;
                     }
-                    bgColor = lilka::colors::Black;
+                    bgColor = -1;
                 }
                 canvas->setTextColor(textColor);
-                {
+                if (bgColor != -1) {
                     int16_t cx = canvas->getCursorX();
                     int16_t cy = canvas->getCursorY();
                     int16_t _x, _y;

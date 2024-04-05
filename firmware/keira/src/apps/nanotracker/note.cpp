@@ -4,9 +4,8 @@
 #include "note.h"
 
 const double A4_FREQUENCY = 440.0;
-const double SEMITONE_RATIO = pow(2.0, 1.0 / 12.0);
 
-const char* note_names[] = {"A-", "A#", "B-", "C-", "C#", "D-", "D#", "E-", "F-", "F#", "G-", "G#"};
+const char* note_names[] = {"C-", "C#", "D-", "D#", "E-", "F-", "F#", "G-", "G#", "A-", "A#", "B-"};
 
 // Function to convert frequency to the nearest musical note, starting from A0 and ending with B9
 #define A4_FREQUENCY 440.0
@@ -21,15 +20,18 @@ const char* note_names[] = {"A-", "A#", "B-", "C-", "C#", "D-", "D#", "E-", "F-"
 #define TOTAL_NOTES (NOTES_PER_OCTAVE * OCTAVES)
 
 noteinfo_t frequency_to_noteinfo(double frequency) {
-    double relative_pitch = log2(frequency / A4_FREQUENCY);
+    // 16.35 Hz is the lowest note, which is C0 (returned as octave 0, index 0)
+    int index = round(log2(frequency / A4_FREQUENCY) * NOTES_PER_OCTAVE) + 57;
 
-    // Calculate the note index and octave
-    int noteIndex = (int)round(NOTES_PER_OCTAVE * relative_pitch) % NOTES_PER_OCTAVE;
-    int octave = (int)floor(relative_pitch / NOTES_PER_OCTAVE) + 4; // A4 is in octave 4
-    if (noteIndex < 0) {
-        noteIndex += NOTES_PER_OCTAVE;
-        octave--;
+    if (index < 0) {
+        index = 0;
     }
+    if (index >= TOTAL_NOTES) {
+        index = TOTAL_NOTES - 1;
+    }
+
+    int noteIndex = index % NOTES_PER_OCTAVE;
+    int octave = index / NOTES_PER_OCTAVE;
 
     // Return the note
     return {noteIndex, octave};
@@ -37,13 +39,13 @@ noteinfo_t frequency_to_noteinfo(double frequency) {
 
 // Function to convert musical note to frequency
 float noteinfo_to_frequency(noteinfo_t noteinfo) {
-    // Calculate the relative pitch compared to A4
-    double relative_pitch = (noteinfo.index - 9.0) / NOTES_PER_OCTAVE + (noteinfo.octave - 4);
+    // C0 is the lowest note, which is index 0 (as opposed to MIDI's 12)
+    int32_t index = noteinfo.octave * NOTES_PER_OCTAVE + noteinfo.index;
+    if (index < 0) {
+        index = 0;
+    }
 
-    // Calculate the frequency
-    double frequency = A4_FREQUENCY * pow(2.0, relative_pitch);
-
-    return frequency;
+    return A4_FREQUENCY * pow(2, ((float)(index - 57)) / 12.0);
 }
 
 // Function to convert note to string
