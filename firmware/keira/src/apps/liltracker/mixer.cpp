@@ -87,7 +87,7 @@ void Mixer::stop() {
 void Mixer::mixerTask() {
     channel_state_t channelStates[CHANNEL_COUNT];
     for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-        channelStates[channelIndex] = {WAVEFORM_SILENCE, 0.0, 0.0, {EFFECT_TYPE_NONE, 0, 0, 0}};
+        channelStates[channelIndex] = {WAVEFORM_SILENCE, 0.0, 0.0, {EFFECT_TYPE_NONE, 0}};
     }
 
     int64_t time = 0;
@@ -113,8 +113,8 @@ void Mixer::mixerTask() {
                     float modVolume = channelState->volume;
                     float modPhase = 0.0;
                     effect_t effect = channelState->effect;
-                    effect_fn_t effect_fn = effect_functions[effect.effect];
-                    effect_fn(&modTimeSec, &modFrequency, &modVolume, &modPhase, effect);
+                    effect_fn_t effect_fn = effect_functions[effect.type];
+                    effect_fn(&modTimeSec, &modFrequency, &modVolume, &modPhase, effect.param);
                     float fValue =
                         waveform_fn(modTimeSec, modFrequency, modVolume, modPhase); // TODO: Amplitude = volume?
                     // TODO

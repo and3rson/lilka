@@ -3,7 +3,7 @@
 
 #include "note.h"
 
-const double A4_FREQUENCY = 440.0;
+const float A4_FREQUENCY = 440.0;
 
 const char* note_names[] = {"C-", "C#", "D-", "D#", "E-", "F-", "F#", "G-", "G#", "A-", "A#", "B-"};
 
@@ -47,10 +47,10 @@ float noteinfo_t::toFrequency() {
 
 float modulate_frequency(float frequency, int16_t semitoneCount) {
     // Calculate the frequency ratio for semitone modulation
-    double frequencyRatio = pow(2.0, (float)semitoneCount / 12.0);
+    float frequencyRatio = pow(2.0, (float)semitoneCount / 12.0);
 
     // Modulate the frequency
-    double modulatedFrequency = frequency * frequencyRatio;
+    float modulatedFrequency = frequency * frequencyRatio;
 
     return modulatedFrequency;
 }

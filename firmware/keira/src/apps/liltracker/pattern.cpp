@@ -23,9 +23,9 @@ Pattern::Pattern() : xMutex(xSemaphoreCreateMutex()) {
         channels[channelIndex].pitch = 1.0f;
         for (int32_t eventIndex = 0; eventIndex < CHANNEL_SIZE; eventIndex++) {
             channels[channelIndex].events[eventIndex].note = {0, 0};
-            channels[channelIndex].events[eventIndex].velocity = 1.0f;
+            channels[channelIndex].events[eventIndex].volume = 0xFF;
             channels[channelIndex].events[eventIndex].type = EVENT_TYPE_CONT;
-            channels[channelIndex].events[eventIndex].effect = {EFFECT_TYPE_NONE, 0, 0, 0};
+            channels[channelIndex].events[eventIndex].effect = {EFFECT_TYPE_NONE, 0};
         }
     }
 }

@@ -4,3 +4,4 @@
 #define BPM           400
 #define MS_PER_BEAT   60 * 1000 / BPM
 #define CHANNEL_SIZE  32
+#define MAX_VOLUME    127

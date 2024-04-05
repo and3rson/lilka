@@ -14,7 +14,7 @@ public:
     ~Mixer();
     void start(
         int32_t channelIndex, waveform_t waveforms, float pitch, float volume,
-        effect_t effect = {EFFECT_TYPE_NONE, 0, 0, 0}
+        effect_t effect = {EFFECT_TYPE_NONE, 0}
     );
     void stop();
 
