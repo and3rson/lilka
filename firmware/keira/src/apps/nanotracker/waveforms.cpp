@@ -1,6 +1,11 @@
 #include <math.h>
 #include "waveforms.h"
 
+// Silence wave function
+float silence(float time, float frequency, float amplitude, float phase) {
+    return 0.0f;
+}
+
 // Triangle wave function
 float triangle(float time, float frequency, float amplitude, float phase) {
     return 2.0f * amplitude * fabsf(2.0f * fmodf(time * frequency + phase, 1.0f) - 1.0f) - amplitude;

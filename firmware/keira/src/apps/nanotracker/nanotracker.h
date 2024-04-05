@@ -1,7 +1,7 @@
 #pragma once
 
 #include "app.h"
-#include "mixer.h"
+#include "sequencer.h"
 
 class NanoTrackerApp : public App {
 public:
@@ -9,5 +9,6 @@ public:
 
 private:
     Mixer mixer;
+    Sequencer sequencer;
     void run() override;
 };

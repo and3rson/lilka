@@ -11,8 +11,7 @@ class Mixer {
 public:
     Mixer();
     ~Mixer();
-    void play(Pattern* pattern, int32_t eventIndex);
-    void play(Pattern* pattern);
+    void start(int32_t channelIndex, waveform_t waveforms, float pitch, float volume);
     void stop();
 
 private:

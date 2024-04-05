@@ -2,27 +2,16 @@
 #include "mixer.h"
 #include "pattern.h"
 
-class Acquire {
-public:
-    Acquire(SemaphoreHandle_t xMutex) : xMutex(xMutex) {
-        xSemaphoreTake(xMutex, portMAX_DELAY);
-    }
-    ~Acquire() {
-        xSemaphoreGive(xMutex);
-    }
-
-private:
-    SemaphoreHandle_t xMutex;
-};
-
 typedef struct {
-    Pattern* pattern;
-    int32_t eventIndex;
-} play_request_t;
+    int32_t channelIndex;
+    waveform_t waveform;
+    float pitch;
+    float volume;
+} start_request_t;
 
 #define SAMPLE_RATE 8000
 
-Mixer::Mixer() : xMutex(xSemaphoreCreateMutex()), xQueue(xQueueCreate(1, sizeof(play_request_t))) {
+Mixer::Mixer() : xMutex(xSemaphoreCreateMutex()), xQueue(xQueueCreate(CHANNEL_COUNT, sizeof(start_request_t))) {
     constexpr uint8_t pinCount = 3;
     uint8_t pins[pinCount] = {LILKA_I2S_BCLK, LILKA_I2S_LRCK, LILKA_I2S_DOUT};
     uint8_t funcs[pinCount] = {I2S0O_BCK_OUT_IDX, I2S0O_WS_OUT_IDX, I2S0O_SD_OUT_IDX};
@@ -59,7 +48,7 @@ Mixer::Mixer() : xMutex(xSemaphoreCreateMutex()), xQueue(xQueueCreate(1, sizeof(
             static_cast<Mixer*>(pvParameters)->mixerTask();
             vTaskDelete(NULL);
         },
-        "sequencerTask",
+        "mixerTask",
         4096,
         this,
         1,
@@ -73,72 +62,65 @@ Mixer::~Mixer() {
     vSemaphoreDelete(xMutex);
 }
 
-void Mixer::play(Pattern* pattern, int32_t eventIndex) {
-    play_request_t request = {pattern, eventIndex};
+void Mixer::start(int32_t channelIndex, waveform_t waveform, float pitch, float volume) {
+    start_request_t request = {channelIndex, waveform, pitch, volume};
     xQueueSend(xQueue, &request, portMAX_DELAY);
 }
 
-void Mixer::play(Pattern* pattern) {
-    for (int32_t eventIndex = 0; eventIndex < CHANNEL_SIZE; eventIndex++) {
-        play(pattern, eventIndex);
-        vTaskDelay(1000 / 6 / portTICK_PERIOD_MS);
+void Mixer::stop() {
+    // start(NULL, 0);
+    for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
+        start_request_t request = {channelIndex, WAVEFORM_SILENCE, 0.0, 0.0};
+        xQueueSend(xQueue, &request, portMAX_DELAY);
     }
 }
 
-void Mixer::stop() {
-    play(NULL, 0);
-}
-
 void Mixer::mixerTask() {
-    bool playing = false;
-    event_t events[CHANNEL_COUNT];
-    waveform_t waveforms[CHANNEL_COUNT];
-    play_request_t request;
-    int32_t mix = 0;
+    waveform_t channelWaveforms[CHANNEL_COUNT];
+    float channelPitches[CHANNEL_COUNT];
+    float channelVolumes[CHANNEL_COUNT];
+    for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
+        channelWaveforms[channelIndex] = WAVEFORM_SILENCE;
+        channelPitches[channelIndex] = 0.0;
+        channelVolumes[channelIndex] = 0.0;
+    }
+
     int64_t time = 0;
     while (1) { // TODO: make this stoppable
         // TODO: Handle envelopes, effects and stuff in this loop
         // Check if queue has a new pattern and event index to play
-        if (xQueueReceive(xQueue, &request, 0) == pdTRUE) {
-            Pattern* pattern = request.pattern;
-            int32_t eventIndex = request.eventIndex;
-            if (pattern != NULL) {
-                // Play the pattern
-                for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-                    events[channelIndex] = pattern->getChannelEvent(channelIndex, eventIndex);
-                    waveforms[channelIndex] = pattern->getChannelWaveform(channelIndex);
-                }
-                playing = true;
-            } else {
-                // Stop playing
-                playing = false;
-            }
+        start_request_t request;
+        while (xQueueReceive(xQueue, &request, 0) == pdTRUE) {
+            channelWaveforms[request.channelIndex] = request.waveform;
+            channelPitches[request.channelIndex] = request.pitch;
+            channelVolumes[request.channelIndex] = request.volume;
         }
         // Mix the channels
-        if (playing) {
-            mix = 0;
-            for (int32_t i = 0; i < MIXER_BUFFER_SIZE; i++) {
-                float timeSec = ((float)time + i) / SAMPLE_RATE;
-                for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-                    event_t event = events[channelIndex];
-                    waveform_t waveform = waveforms[channelIndex];
-                    waveform_fn_t waveform_fn = waveform_functions[waveform];
-                    int16_t value = 0;
-                    if (event.pitch != 0) {
-                        float fValue = waveform_fn(timeSec, event.pitch, 1.0, 0.0);
-                        // TODO
-                        fValue *= 0.02; // Reduce volume - I don't want to wake up my family :D /AD
-                        value = fValue * 32767;
-                    }
-                    mix += value;
+        int32_t mix = 0;
+        for (int32_t i = 0; i < MIXER_BUFFER_SIZE; i++) {
+            float timeSec = ((float)time + i) / SAMPLE_RATE;
+            for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
+                // event_t event = events[channelIndex];
+                waveform_t waveform = channelWaveforms[channelIndex];
+                waveform_fn_t waveform_fn = waveform_functions[waveform];
+                int16_t value = 0;
+                if (channelPitches[channelIndex] != 0) {
+                    float fValue = waveform_fn(
+                        timeSec, channelPitches[channelIndex], channelVolumes[channelIndex], 0.0
+                    ); // TODO: Amplitude = volume?
+                    // TODO
+                    // fValue *= 0.02; // Reduce volume - I don't want to wake up my family :D /AD
+                    fValue *= 0.25; // Reduce volume - I don't want to wake up my family :D /AD
+                    value = fValue * 32767;
                 }
-                mix = mix / CHANNEL_COUNT;
-                audioBuffer[i] = mix;
+                mix += value;
             }
-            size_t bytesWritten = 0;
-            esp_i2s::i2s_write(esp_i2s::I2S_NUM_0, audioBuffer, MIXER_BUFFER_SIZE * 2, &bytesWritten, portMAX_DELAY);
-            time += bytesWritten / 2;
+            mix = mix / CHANNEL_COUNT;
+            audioBuffer[i] = mix;
         }
+        size_t bytesWritten = 0;
+        esp_i2s::i2s_write(esp_i2s::I2S_NUM_0, audioBuffer, MIXER_BUFFER_SIZE * 2, &bytesWritten, portMAX_DELAY);
+        time += bytesWritten / 2;
         taskYIELD();
     }
 

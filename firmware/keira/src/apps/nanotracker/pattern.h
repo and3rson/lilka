@@ -6,9 +6,17 @@
 #include "waveforms.h"
 #include "config.h"
 
-typedef struct {
+typedef enum {
+    EVENT_TYPE_CONT,
+    EVENT_TYPE_NORMAL,
+    EVENT_TYPE_STOP,
+    EVENT_TYPE_COUNT,
+} event_type_t;
+
+typedef struct event_t {
     int32_t pitch;
     float velocity;
+    event_type_t type;
 } event_t;
 
 typedef struct {
