@@ -3,6 +3,7 @@
 #include <FreeRTOS.h>
 #include <semphr.h>
 
+#include "note.h"
 #include "waveforms.h"
 #include "effects.h"
 #include "config.h"
@@ -15,7 +16,7 @@ typedef enum {
 } event_type_t;
 
 typedef struct event_t {
-    int32_t pitch;
+    noteinfo_t note;
     float velocity;
     event_type_t type;
     effect_t effect;

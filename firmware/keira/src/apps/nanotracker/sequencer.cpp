@@ -104,7 +104,7 @@ void Sequencer::sequencerTask() {
                         if (event.type == EVENT_TYPE_STOP) {
                             waveform = WAVEFORM_SILENCE;
                         }
-                        mixer->start(channelIndex, waveform, event.pitch, event.velocity, event.effect);
+                        mixer->start(channelIndex, waveform, event.note.toFrequency(), event.velocity, event.effect);
                     }
                 }
                 // mixer->start(playstate.pattern, playstate.eventIndex);

@@ -5,10 +5,18 @@
 typedef struct {
     int32_t channelIndex;
     waveform_t waveform;
-    float pitch;
+    float frequency;
     float volume;
     effect_t effect;
 } start_request_t;
+
+typedef struct {
+    waveform_t waveform;
+    float frequency;
+    float volume;
+    effect_t effect;
+    // float time; // TODO
+} channel_state_t;
 
 #define SAMPLE_RATE 8000
 
@@ -63,8 +71,8 @@ Mixer::~Mixer() {
     vSemaphoreDelete(xMutex);
 }
 
-void Mixer::start(int32_t channelIndex, waveform_t waveform, float pitch, float volume, effect_t effect) {
-    start_request_t request = {channelIndex, waveform, pitch, volume, effect};
+void Mixer::start(int32_t channelIndex, waveform_t waveform, float frequency, float volume, effect_t effect) {
+    start_request_t request = {channelIndex, waveform, frequency, volume, effect};
     xQueueSend(xQueue, &request, portMAX_DELAY);
 }
 
@@ -77,15 +85,9 @@ void Mixer::stop() {
 }
 
 void Mixer::mixerTask() {
-    waveform_t channelWaveforms[CHANNEL_COUNT];
-    float channelPitches[CHANNEL_COUNT];
-    float channelVolumes[CHANNEL_COUNT];
-    effect_t channelEffects[CHANNEL_COUNT];
+    channel_state_t channelStates[CHANNEL_COUNT];
     for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-        channelWaveforms[channelIndex] = WAVEFORM_SILENCE;
-        channelPitches[channelIndex] = 0.0;
-        channelVolumes[channelIndex] = 0.0;
-        channelEffects[channelIndex] = {EFFECT_TYPE_NONE, 0, 0, 0};
+        channelStates[channelIndex] = {WAVEFORM_SILENCE, 0.0, 0.0, {EFFECT_TYPE_NONE, 0, 0, 0}};
     }
 
     int64_t time = 0;
@@ -94,10 +96,7 @@ void Mixer::mixerTask() {
         // Check if queue has a new pattern and event index to play
         start_request_t request;
         while (xQueueReceive(xQueue, &request, 0) == pdTRUE) {
-            channelWaveforms[request.channelIndex] = request.waveform;
-            channelPitches[request.channelIndex] = request.pitch;
-            channelVolumes[request.channelIndex] = request.volume;
-            channelEffects[request.channelIndex] = request.effect;
+            channelStates[request.channelIndex] = {request.waveform, request.frequency, request.volume, request.effect};
         }
         // Mix the channels
         int32_t mix = 0;
@@ -105,18 +104,19 @@ void Mixer::mixerTask() {
             float timeSec = ((float)time + i) / SAMPLE_RATE;
             for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
                 // event_t event = events[channelIndex];
-                waveform_t waveform = channelWaveforms[channelIndex];
-                waveform_fn_t waveform_fn = waveform_functions[waveform];
+                const channel_state_t* channelState = &channelStates[channelIndex];
+                waveform_fn_t waveform_fn = waveform_functions[channelState->waveform];
                 int16_t value = 0;
-                if (channelPitches[channelIndex] != 0) {
+                if (channelState->waveform != WAVEFORM_SILENCE) {
                     float modTimeSec = timeSec;
-                    float modPitch = channelPitches[channelIndex];
-                    float modVolume = channelVolumes[channelIndex];
+                    float modFrequency = channelState->frequency;
+                    float modVolume = channelState->volume;
                     float modPhase = 0.0;
-                    effect_t effect = channelEffects[channelIndex];
+                    effect_t effect = channelState->effect;
                     effect_fn_t effect_fn = effect_functions[effect.effect];
-                    effect_fn(&modTimeSec, &modPitch, &modVolume, &modPhase, effect);
-                    float fValue = waveform_fn(modTimeSec, modPitch, modVolume, modPhase); // TODO: Amplitude = volume?
+                    effect_fn(&modTimeSec, &modFrequency, &modVolume, &modPhase, effect);
+                    float fValue =
+                        waveform_fn(modTimeSec, modFrequency, modVolume, modPhase); // TODO: Amplitude = volume?
                     // TODO
                     // fValue *= 0.02; // Reduce volume - I don't want to wake up my family :D /AD
                     fValue *= 0.25; // Reduce volume - I don't want to wake up my family :D /AD

@@ -16,127 +16,127 @@ xSemaphoreHandle xMutex;
 void NanoTrackerApp::run() {
     const effect_t arpeggio = {EFFECT_TYPE_ARPEGGIO, 3, 6, 20};
     event_t channel0[] = {
-        {lilka::NOTE_E4, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {lilka::NOTE_E4, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP},
+        {N_E4, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_E4, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
         //
-        {0, 1.0, EVENT_TYPE_STOP},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {lilka::NOTE_E4, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_E4, 1.0, EVENT_TYPE_NORMAL},
         //
-        {0, 1.0, EVENT_TYPE_STOP},
-        {lilka::NOTE_E4, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {lilka::NOTE_D4, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_E4, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_D4, 1.0, EVENT_TYPE_NORMAL},
         //
-        {lilka::NOTE_E4, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {lilka::NOTE_D4, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP},
+        {N_E4, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_D4, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
         //
-        {lilka::NOTE_C4, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {lilka::NOTE_C4, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP},
+        {N_C4, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_C4, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
         //
-        {0, 1.0, EVENT_TYPE_STOP},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {lilka::NOTE_A3, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_A3, 1.0, EVENT_TYPE_NORMAL},
         //
-        {0, 1.0, EVENT_TYPE_STOP},
-        {lilka::NOTE_B3, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {lilka::NOTE_A3, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_B3, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_A3, 1.0, EVENT_TYPE_NORMAL},
         //
-        {lilka::NOTE_C4, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {lilka::NOTE_B3, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP},
+        {N_C4, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_B3, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
     };
     event_t channel1[] = {
-        {lilka::NOTE_E2, 1.0, EVENT_TYPE_NORMAL},
-        {lilka::NOTE_G2, 1.0, EVENT_TYPE_NORMAL},
-        {lilka::NOTE_A2, 1.0, EVENT_TYPE_NORMAL},
-        {lilka::NOTE_B2, 1.0, EVENT_TYPE_NORMAL},
+        {N_E2, 1.0, EVENT_TYPE_NORMAL},
+        {N_G2, 1.0, EVENT_TYPE_NORMAL},
+        {N_A2, 1.0, EVENT_TYPE_NORMAL},
+        {N_B2, 1.0, EVENT_TYPE_NORMAL},
         //
-        {0, 1.0, EVENT_TYPE_STOP}, // {lilka::NOTE_E2, 1.0},
-        {lilka::NOTE_G2, 1.0, EVENT_TYPE_NORMAL},
-        {lilka::NOTE_A2, 1.0, EVENT_TYPE_NORMAL},
-        {lilka::NOTE_B2, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP}, // {N_E2, 1.0},
+        {N_G2, 1.0, EVENT_TYPE_NORMAL},
+        {N_A2, 1.0, EVENT_TYPE_NORMAL},
+        {N_B2, 1.0, EVENT_TYPE_NORMAL},
         //
-        {0, 1.0, EVENT_TYPE_STOP}, // {lilka::NOTE_E2, 1.0},
-        {lilka::NOTE_G2, 1.0, EVENT_TYPE_NORMAL},
-        {lilka::NOTE_A2, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP}, // {lilka::NOTE_B2, 1.0},
+        {N_C0, 1.0, EVENT_TYPE_STOP}, // {N_E2, 1.0},
+        {N_G2, 1.0, EVENT_TYPE_NORMAL},
+        {N_A2, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP}, // {N_B2, 1.0},
         //
-        {lilka::NOTE_E2, 1.0, EVENT_TYPE_NORMAL},
-        {lilka::NOTE_G2, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP}, // {lilka::NOTE_A2, 1.0},
-        {lilka::NOTE_B2, 1.0, EVENT_TYPE_NORMAL},
+        {N_E2, 1.0, EVENT_TYPE_NORMAL},
+        {N_G2, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP}, // {N_A2, 1.0},
+        {N_B2, 1.0, EVENT_TYPE_NORMAL},
         //
-        {lilka::NOTE_C2, 1.0, EVENT_TYPE_NORMAL},
-        {lilka::NOTE_E2, 1.0, EVENT_TYPE_NORMAL},
-        {lilka::NOTE_F2, 1.0, EVENT_TYPE_NORMAL},
-        {lilka::NOTE_G2, 1.0, EVENT_TYPE_NORMAL},
+        {N_C2, 1.0, EVENT_TYPE_NORMAL},
+        {N_E2, 1.0, EVENT_TYPE_NORMAL},
+        {N_F2, 1.0, EVENT_TYPE_NORMAL},
+        {N_G2, 1.0, EVENT_TYPE_NORMAL},
         //
-        {0, 1.0, EVENT_TYPE_STOP}, // {lilka::NOTE_C2, 1.0},
-        {lilka::NOTE_E2, 1.0, EVENT_TYPE_NORMAL},
-        {lilka::NOTE_F2, 1.0, EVENT_TYPE_NORMAL},
-        {lilka::NOTE_G2, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP}, // {N_C2, 1.0},
+        {N_E2, 1.0, EVENT_TYPE_NORMAL},
+        {N_F2, 1.0, EVENT_TYPE_NORMAL},
+        {N_G2, 1.0, EVENT_TYPE_NORMAL},
         //
-        {0, 1.0, EVENT_TYPE_STOP}, // {lilka::NOTE_C2, 1.0},
-        {lilka::NOTE_E2, 1.0, EVENT_TYPE_NORMAL},
-        {lilka::NOTE_F2, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP}, // {lilka::NOTE_G2, 1.0},
+        {N_C0, 1.0, EVENT_TYPE_STOP}, // {N_C2, 1.0},
+        {N_E2, 1.0, EVENT_TYPE_NORMAL},
+        {N_F2, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP}, // {N_G2, 1.0},
         //
-        {lilka::NOTE_C2, 1.0, EVENT_TYPE_NORMAL},
-        {lilka::NOTE_E2, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP}, // {lilka::NOTE_F2, 1.0},
-        {lilka::NOTE_G2, 1.0, EVENT_TYPE_NORMAL},
+        {N_C2, 1.0, EVENT_TYPE_NORMAL},
+        {N_E2, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP}, // {N_F2, 1.0},
+        {N_G2, 1.0, EVENT_TYPE_NORMAL},
     };
     event_t channel2[] = {
-        {lilka::NOTE_E6, 1.0, EVENT_TYPE_NORMAL, arpeggio},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {0, 1.0, EVENT_TYPE_STOP},
+        {N_E6, 1.0, EVENT_TYPE_NORMAL, arpeggio},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
         //
-        {lilka::NOTE_E6, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {lilka::NOTE_E6, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP},
+        {N_E6, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_E6, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
         //
-        {0, 1.0, EVENT_TYPE_STOP},
-        {lilka::NOTE_E6, 1.0, EVENT_TYPE_NORMAL, arpeggio},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {0, 1.0, EVENT_TYPE_STOP},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_E6, 1.0, EVENT_TYPE_NORMAL, arpeggio},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
         //
-        {lilka::NOTE_E6, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {0, 1.0, EVENT_TYPE_STOP},
+        {N_E6, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
         //
-        {lilka::NOTE_C6, 1.0, EVENT_TYPE_NORMAL, arpeggio},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {0, 1.0, EVENT_TYPE_STOP},
+        {N_C6, 1.0, EVENT_TYPE_NORMAL, arpeggio},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
         //
-        {lilka::NOTE_C6, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {lilka::NOTE_C6, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP},
+        {N_C6, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_C6, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
         //
-        {0, 1.0, EVENT_TYPE_STOP},
-        {lilka::NOTE_C6, 1.0, EVENT_TYPE_NORMAL, arpeggio},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {0, 1.0, EVENT_TYPE_STOP},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_C6, 1.0, EVENT_TYPE_NORMAL, arpeggio},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
         //
-        {lilka::NOTE_C6, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {0, 1.0, EVENT_TYPE_STOP},
+        {N_C6, 1.0, EVENT_TYPE_NORMAL},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
+        {N_C0, 1.0, EVENT_TYPE_STOP},
     };
 
     Pattern pattern;
@@ -182,14 +182,12 @@ void NanoTrackerApp::run() {
             canvas->setCursor(24, y + 13);
             canvas->printf("| %02X | ", eventIndex);
             for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-                noteinfo_t noteinfo;
                 event_t event = pattern.getChannelEvent(channelIndex, eventIndex);
                 char str[4];
                 if (event.type == EVENT_TYPE_CONT) {
                     strcpy(str, "...");
                 } else if (event.type == EVENT_TYPE_NORMAL) {
-                    noteinfo = frequency_to_noteinfo(event.pitch);
-                    strcpy(str, noteinfo.toStr());
+                    strcpy(str, event.note.toStr());
                 } else if (event.type == EVENT_TYPE_STOP) {
                     strcpy(str, "OFF");
                 } else {
@@ -240,37 +238,21 @@ void NanoTrackerApp::run() {
                 state.c.justPressed) {
                 // Adjust note
                 event_t event = pattern.getChannelEvent(cursorX, cursorY);
-                noteinfo_t noteinfo = frequency_to_noteinfo(event.pitch);
                 if (event.type == EVENT_TYPE_NORMAL) {
                     if (state.up.justPressed) {
-                        noteinfo.index++;
-                        if (noteinfo.index >= 12) {
-                            noteinfo.index = 0;
-                            noteinfo.octave++;
-                        }
+                        event.note.add(1);
                     } else if (state.down.justPressed) {
-                        noteinfo.index--;
-                        if (noteinfo.index < 0) {
-                            noteinfo.index = 11;
-                            noteinfo.octave--;
-                        }
+                        event.note.add(-1);
                     }
                     if (state.left.justPressed) {
-                        noteinfo.octave--;
-                        if (noteinfo.octave < 0) {
-                            noteinfo.octave = 0;
-                        }
+                        event.note.add(-12);
                     } else if (state.right.justPressed) {
-                        noteinfo.octave++;
-                        if (noteinfo.octave >= 9) {
-                            noteinfo.octave = 9;
-                        }
+                        event.note.add(12);
                     }
                 }
                 if (state.c.justPressed) {
                     event.type = static_cast<event_type_t>((event.type + 1) % EVENT_TYPE_COUNT);
                 }
-                event.pitch = noteinfo_to_frequency(noteinfo);
                 pattern.setChannelEvent(cursorX, cursorY, event);
             }
             if (state.b.justPressed) {
@@ -281,7 +263,7 @@ void NanoTrackerApp::run() {
                         mixer.start(
                             channelIndex,
                             pattern.getChannelWaveform(channelIndex),
-                            event.pitch,
+                            event.note.toFrequency(),
                             event.velocity,
                             event.effect
                         );
@@ -312,7 +294,7 @@ void NanoTrackerApp::run() {
                         if (event.type != EVENT_TYPE_NORMAL) {
                             waveform = WAVEFORM_SILENCE;
                         }
-                        mixer.start(channelIndex, waveform, event.pitch, event.velocity, event.effect);
+                        mixer.start(channelIndex, waveform, event.note.toFrequency(), event.velocity, event.effect);
                     }
                 } else if (state.b.justReleased) {
                     // Stop playing single event

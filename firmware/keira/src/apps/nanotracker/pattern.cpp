@@ -22,8 +22,10 @@ Pattern::Pattern() : xMutex(xSemaphoreCreateMutex()) {
         channels[channelIndex].volume = 1.0f;
         channels[channelIndex].pitch = 1.0f;
         for (int32_t eventIndex = 0; eventIndex < CHANNEL_SIZE; eventIndex++) {
-            channels[channelIndex].events[eventIndex].pitch = lilka::NOTE_E4;
+            channels[channelIndex].events[eventIndex].note = {0, 0};
             channels[channelIndex].events[eventIndex].velocity = 1.0f;
+            channels[channelIndex].events[eventIndex].type = EVENT_TYPE_CONT;
+            channels[channelIndex].events[eventIndex].effect = {EFFECT_TYPE_NONE, 0, 0, 0};
         }
     }
 }
@@ -56,10 +58,6 @@ void Pattern::setChannelEvents(int32_t channelIndex, const event_t* events) {
     AcquireMixer acquire(xMutex);
     for (int32_t eventIndex = 0; eventIndex < CHANNEL_SIZE; eventIndex++) {
         event_t event = events[eventIndex];
-        if (event.pitch == 0) {
-            // Disallow zero pitch for convenience
-            event.pitch = lilka::NOTE_E4;
-        }
         channels[channelIndex].events[eventIndex] = event;
     }
 }
@@ -75,12 +73,8 @@ int Pattern::writeToBuffer(uint8_t* buffer) {
         memcpy(offset, &channels[channelIndex].pitch, sizeof(float));
         offset += sizeof(float);
         for (int32_t eventIndex = 0; eventIndex < CHANNEL_SIZE; eventIndex++) {
-            memcpy(offset, &channels[channelIndex].events[eventIndex].pitch, sizeof(int32_t));
-            offset += sizeof(int32_t);
-            memcpy(offset, &channels[channelIndex].events[eventIndex].velocity, sizeof(float));
-            offset += sizeof(float);
-            memcpy(offset, &channels[channelIndex].events[eventIndex].type, sizeof(event_type_t));
-            offset += sizeof(event_type_t);
+            memcpy(offset, &channels[channelIndex].events[eventIndex], sizeof(event_t));
+            offset += sizeof(event_t);
         }
     }
     return offset - buffer;
@@ -97,12 +91,8 @@ int Pattern::readFromBuffer(const uint8_t* buffer) {
         memcpy(&channels[channelIndex].pitch, offset, sizeof(float));
         offset += sizeof(float);
         for (int32_t eventIndex = 0; eventIndex < CHANNEL_SIZE; eventIndex++) {
-            memcpy(&channels[channelIndex].events[eventIndex].pitch, offset, sizeof(int32_t));
-            offset += sizeof(int32_t);
-            memcpy(&channels[channelIndex].events[eventIndex].velocity, offset, sizeof(float));
-            offset += sizeof(float);
-            memcpy(&channels[channelIndex].events[eventIndex].type, offset, sizeof(event_type_t));
-            offset += sizeof(event_type_t);
+            memcpy(&channels[channelIndex].events[eventIndex], offset, sizeof(event_t));
+            offset += sizeof(event_t);
         }
     }
     return offset - buffer;
