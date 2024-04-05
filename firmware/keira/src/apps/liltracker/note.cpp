@@ -45,9 +45,9 @@ float noteinfo_t::toFrequency() {
     return A4_FREQUENCY * pow(2, ((float)(absIndex - 57)) / 12.0);
 }
 
-float modulate_frequency(float frequency, int16_t semitoneCount) {
+float modulate_frequency(float frequency, float semitoneCount) {
     // Calculate the frequency ratio for semitone modulation
-    float frequencyRatio = pow(2.0, (float)semitoneCount / 12.0);
+    float frequencyRatio = pow(2.0, semitoneCount / 12.0);
 
     // Modulate the frequency
     float modulatedFrequency = frequency * frequencyRatio;

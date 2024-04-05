@@ -11,7 +11,7 @@ typedef struct noteinfo_t {
     float toFrequency();
 } noteinfo_t;
 
-float modulate_frequency(float frequency, int16_t semitoneCount);
+float modulate_frequency(float frequency, float semitoneCount);
 
 #define N_C0 \
     { 0, 0 }

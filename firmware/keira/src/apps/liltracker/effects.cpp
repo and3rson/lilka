@@ -4,12 +4,12 @@
 #include "effects.h"
 #include "note.h"
 
-void effect_none(float* time, float* frequency, float* amplitude, float* phase, effect_t effect) {
+void effect_none(float* time, float* frequency, float* amplitude, float* phase, uint8_t param) {
     (void)time;
     (void)frequency;
     (void)amplitude;
     (void)phase;
-    (void)effect;
+    (void)param;
 }
 
 void effect_arpeggio(float* time, float* frequency, float* amplitude, float* phase, uint8_t param) {
@@ -18,8 +18,8 @@ void effect_arpeggio(float* time, float* frequency, float* amplitude, float* pha
 
     constexpr int8_t count = 3; // 3 notes
 
-    int8_t note2offset = (param & 0xF0) >> 4;
-    int8_t note3offset = (param & 0x0F);
+    uint8_t note2offset = (param & 0xF0) >> 4;
+    uint8_t note3offset = (param & 0x0F);
 
     // duration of each note in milliseconds is 1/60 of a second
     float stepDurationMs = 1000.0f / 60.0f;
@@ -39,17 +39,31 @@ void effect_arpeggio(float* time, float* frequency, float* amplitude, float* pha
 }
 
 void effect_vibrato(float* time, float* frequency, float* amplitude, float* phase, uint8_t param) {
-    (void)time;
-    (void)frequency;
-    (void)amplitude;
-    (void)phase;
-    (void)param;
+    // This effect modulates the frequency of the note with a sine wave.
+    // Upper nibble of the parameter is the speed of the vibrato (in Hz)
+    // Lower nibble of the parameter is the depth of the vibrato (in semitones?)
+
+    uint8_t vibratoFrequency = (param & 0xF0) >> 4;
+    uint8_t vibratoDepth = (param & 0x0F);
+
+    // Calculate the vibrato
+    float vibrato = sinf(*time * 2.0f * M_PI * vibratoFrequency) * vibratoDepth;
+
+    // Apply the vibrato
+    *frequency = modulate_frequency(*frequency, vibrato);
 }
 
 void effect_tremolo(float* time, float* frequency, float* amplitude, float* phase, uint8_t param) {
-    (void)time;
-    (void)frequency;
-    (void)amplitude;
-    (void)phase;
-    (void)param;
+    // This effect modulates the amplitude of the note with a sine wave.
+    // Upper nibble of the parameter is the speed of the tremolo (in Hz)
+    // Lower nibble of the parameter is the depth of the tremolo (0 to 15, 0 = no tremolo, 15 = max tremolo)
+
+    uint8_t tremoloFrequency = (param & 0xF0) >> 4;
+    uint8_t tremoloDepth = (param & 0x0F);
+
+    // Calculate the tremolo into a range of 0.0 to 1.0
+    float tremolo = (sinf(*time * 2.0f * M_PI * tremoloFrequency) + 1.0f) / 2.0f;
+
+    // Apply the tremolo
+    *amplitude = *amplitude * (1.0f - tremolo * tremoloDepth / 15.0f);
 }
