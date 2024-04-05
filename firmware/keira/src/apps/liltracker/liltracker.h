@@ -3,9 +3,9 @@
 #include "app.h"
 #include "sequencer.h"
 
-class NanoTrackerApp : public App {
+class LilTrackerApp : public App {
 public:
-    NanoTrackerApp();
+    LilTrackerApp();
 
 private:
     Mixer mixer;

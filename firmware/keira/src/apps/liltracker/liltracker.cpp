@@ -1,19 +1,19 @@
 #include <lilka.h>
 
-#include "nanotracker.h"
+#include "liltracker.h"
 #include "note.h"
 
 constexpr int32_t scoreTop = 0;
 const int32_t scoreBottom = lilka::display.height();
 
-NanoTrackerApp::NanoTrackerApp() :
-    App("NanoTracker", 0, 0, lilka::display.width(), lilka::display.height()), mixer(), sequencer(&mixer) {
+LilTrackerApp::LilTrackerApp() :
+    App("LilTracker", 0, 0, lilka::display.width(), lilka::display.height()), mixer(), sequencer(&mixer) {
     this->setFlags(APP_FLAG_FULLSCREEN);
 }
 
 xSemaphoreHandle xMutex;
 
-void NanoTrackerApp::run() {
+void LilTrackerApp::run() {
     const effect_t arpeggio = {EFFECT_TYPE_ARPEGGIO, 3, 6, 20};
     event_t channel0[] = {
         {N_E4, 1.0, EVENT_TYPE_NORMAL},
