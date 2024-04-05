@@ -4,6 +4,7 @@
 #include <semphr.h>
 
 #include "waveforms.h"
+#include "effects.h"
 #include "config.h"
 
 typedef enum {
@@ -17,6 +18,7 @@ typedef struct event_t {
     int32_t pitch;
     float velocity;
     event_type_t type;
+    effect_t effect;
 } event_t;
 
 typedef struct {

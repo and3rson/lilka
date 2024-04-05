@@ -14,6 +14,7 @@ NanoTrackerApp::NanoTrackerApp() :
 xSemaphoreHandle xMutex;
 
 void NanoTrackerApp::run() {
+    const effect_t arpeggio = {EFFECT_TYPE_ARPEGGIO, 3, 6, 20};
     event_t channel0[] = {
         {lilka::NOTE_E4, 1.0, EVENT_TYPE_NORMAL},
         {0, 1.0, EVENT_TYPE_STOP},
@@ -97,7 +98,7 @@ void NanoTrackerApp::run() {
         {lilka::NOTE_G2, 1.0, EVENT_TYPE_NORMAL},
     };
     event_t channel2[] = {
-        {lilka::NOTE_E6, 1.0, EVENT_TYPE_NORMAL},
+        {lilka::NOTE_E6, 1.0, EVENT_TYPE_NORMAL, arpeggio},
         {0, 1.0, EVENT_TYPE_STOP},
         {0, 1.0, EVENT_TYPE_STOP},
         {0, 1.0, EVENT_TYPE_STOP},
@@ -108,27 +109,27 @@ void NanoTrackerApp::run() {
         {0, 1.0, EVENT_TYPE_STOP},
         //
         {0, 1.0, EVENT_TYPE_STOP},
-        {lilka::NOTE_E6, 1.0, EVENT_TYPE_NORMAL},
+        {lilka::NOTE_E6, 1.0, EVENT_TYPE_NORMAL, arpeggio},
         {0, 1.0, EVENT_TYPE_STOP},
         {0, 1.0, EVENT_TYPE_STOP},
         //
         {lilka::NOTE_E6, 1.0, EVENT_TYPE_NORMAL},
+        {0, 1.0, EVENT_TYPE_STOP},
+        {0, 1.0, EVENT_TYPE_STOP},
+        {0, 1.0, EVENT_TYPE_STOP},
+        //
+        {lilka::NOTE_C6, 1.0, EVENT_TYPE_NORMAL, arpeggio},
         {0, 1.0, EVENT_TYPE_STOP},
         {0, 1.0, EVENT_TYPE_STOP},
         {0, 1.0, EVENT_TYPE_STOP},
         //
         {lilka::NOTE_C6, 1.0, EVENT_TYPE_NORMAL},
         {0, 1.0, EVENT_TYPE_STOP},
-        {0, 1.0, EVENT_TYPE_STOP},
-        {0, 1.0, EVENT_TYPE_STOP},
-        //
-        {lilka::NOTE_C6, 1.0, EVENT_TYPE_NORMAL},
-        {0, 1.0, EVENT_TYPE_STOP},
         {lilka::NOTE_C6, 1.0, EVENT_TYPE_NORMAL},
         {0, 1.0, EVENT_TYPE_STOP},
         //
         {0, 1.0, EVENT_TYPE_STOP},
-        {lilka::NOTE_C6, 1.0, EVENT_TYPE_NORMAL},
+        {lilka::NOTE_C6, 1.0, EVENT_TYPE_NORMAL, arpeggio},
         {0, 1.0, EVENT_TYPE_STOP},
         {0, 1.0, EVENT_TYPE_STOP},
         //
@@ -278,7 +279,11 @@ void NanoTrackerApp::run() {
                     event_t event = pattern.getChannelEvent(channelIndex, cursorY);
                     if (channelIndex == cursorX && event.type == EVENT_TYPE_NORMAL) {
                         mixer.start(
-                            channelIndex, pattern.getChannelWaveform(channelIndex), event.pitch, event.velocity
+                            channelIndex,
+                            pattern.getChannelWaveform(channelIndex),
+                            event.pitch,
+                            event.velocity,
+                            event.effect
                         );
                     } else {
                         mixer.start(channelIndex, WAVEFORM_SILENCE, 0.0, 0.0);
@@ -307,7 +312,7 @@ void NanoTrackerApp::run() {
                         if (event.type != EVENT_TYPE_NORMAL) {
                             waveform = WAVEFORM_SILENCE;
                         }
-                        mixer.start(channelIndex, waveform, event.pitch, event.velocity);
+                        mixer.start(channelIndex, waveform, event.pitch, event.velocity, event.effect);
                     }
                 } else if (state.b.justReleased) {
                     // Stop playing single event

@@ -7,6 +7,7 @@ typedef struct {
     waveform_t waveform;
     float pitch;
     float volume;
+    effect_t effect;
 } start_request_t;
 
 #define SAMPLE_RATE 8000
@@ -62,8 +63,8 @@ Mixer::~Mixer() {
     vSemaphoreDelete(xMutex);
 }
 
-void Mixer::start(int32_t channelIndex, waveform_t waveform, float pitch, float volume) {
-    start_request_t request = {channelIndex, waveform, pitch, volume};
+void Mixer::start(int32_t channelIndex, waveform_t waveform, float pitch, float volume, effect_t effect) {
+    start_request_t request = {channelIndex, waveform, pitch, volume, effect};
     xQueueSend(xQueue, &request, portMAX_DELAY);
 }
 
@@ -79,10 +80,12 @@ void Mixer::mixerTask() {
     waveform_t channelWaveforms[CHANNEL_COUNT];
     float channelPitches[CHANNEL_COUNT];
     float channelVolumes[CHANNEL_COUNT];
+    effect_t channelEffects[CHANNEL_COUNT];
     for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
         channelWaveforms[channelIndex] = WAVEFORM_SILENCE;
         channelPitches[channelIndex] = 0.0;
         channelVolumes[channelIndex] = 0.0;
+        channelEffects[channelIndex] = {EFFECT_TYPE_NONE, 0, 0, 0};
     }
 
     int64_t time = 0;
@@ -94,6 +97,7 @@ void Mixer::mixerTask() {
             channelWaveforms[request.channelIndex] = request.waveform;
             channelPitches[request.channelIndex] = request.pitch;
             channelVolumes[request.channelIndex] = request.volume;
+            channelEffects[request.channelIndex] = request.effect;
         }
         // Mix the channels
         int32_t mix = 0;
@@ -105,9 +109,14 @@ void Mixer::mixerTask() {
                 waveform_fn_t waveform_fn = waveform_functions[waveform];
                 int16_t value = 0;
                 if (channelPitches[channelIndex] != 0) {
-                    float fValue = waveform_fn(
-                        timeSec, channelPitches[channelIndex], channelVolumes[channelIndex], 0.0
-                    ); // TODO: Amplitude = volume?
+                    float modTimeSec = timeSec;
+                    float modPitch = channelPitches[channelIndex];
+                    float modVolume = channelVolumes[channelIndex];
+                    float modPhase = 0.0;
+                    effect_t effect = channelEffects[channelIndex];
+                    effect_fn_t effect_fn = effect_functions[effect.effect];
+                    effect_fn(&modTimeSec, &modPitch, &modVolume, &modPhase, effect);
+                    float fValue = waveform_fn(modTimeSec, modPitch, modVolume, modPhase); // TODO: Amplitude = volume?
                     // TODO
                     // fValue *= 0.02; // Reduce volume - I don't want to wake up my family :D /AD
                     fValue *= 0.25; // Reduce volume - I don't want to wake up my family :D /AD

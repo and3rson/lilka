@@ -48,6 +48,16 @@ float noteinfo_to_frequency(noteinfo_t noteinfo) {
     return A4_FREQUENCY * pow(2, ((float)(index - 57)) / 12.0);
 }
 
+float modulate_frequency(float frequency, int16_t semitoneCount) {
+    // Calculate the frequency ratio for semitone modulation
+    double frequencyRatio = pow(2.0, (float)semitoneCount / 12.0);
+
+    // Modulate the frequency
+    double modulatedFrequency = frequency * frequencyRatio;
+
+    return modulatedFrequency;
+}
+
 // Function to convert note to string
 char* noteinfo_t::toStr() {
     static char buffer[4];

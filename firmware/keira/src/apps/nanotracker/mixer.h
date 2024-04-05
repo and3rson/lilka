@@ -3,7 +3,8 @@
 #include "FreeRTOS.h"
 #include <semphr.h>
 #include <stdint.h>
-#include "pattern.h"
+#include "waveforms.h"
+#include "effects.h"
 
 #define MIXER_BUFFER_SIZE 256
 
@@ -11,7 +12,10 @@ class Mixer {
 public:
     Mixer();
     ~Mixer();
-    void start(int32_t channelIndex, waveform_t waveforms, float pitch, float volume);
+    void start(
+        int32_t channelIndex, waveform_t waveforms, float pitch, float volume,
+        effect_t effect = {EFFECT_TYPE_NONE, 0, 0, 0}
+    );
     void stop();
 
 private:
