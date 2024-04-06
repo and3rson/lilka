@@ -259,6 +259,40 @@ void Canvas::drawCanvas(Canvas* canvas) {
     draw16bitRGBBitmap(canvas->x(), canvas->y(), canvas->getFramebuffer(), canvas->width(), canvas->height());
 }
 
+int Canvas::drawTextAligned(const char* text, int16_t x, int16_t y, Alignment hAlign, Alignment vAlign) {
+    // TODO: WARNING: This will break if we're not using U8g2 fonts.
+    int16_t _x1, _y1;
+    uint16_t w, _h;
+    // U8g2 is a can of worms.
+    const int8_t ascent = u8g2Font[13]; // >0 (above the baseline, character 'A')
+    const int8_t descent = u8g2Font[14]; // <0 (below the baseline, character 'g')
+    getTextBounds(text, 0, 0, &_x1, &_y1, &w, &_h);
+    switch (hAlign) {
+        case Alignment::ALIGN_START:
+            break;
+        case Alignment::ALIGN_CENTER:
+            x -= w / 2;
+            break;
+        case Alignment::ALIGN_END:
+            x -= w;
+            break;
+    }
+    switch (vAlign) {
+        case Alignment::ALIGN_START:
+            y += ascent;
+            break;
+        case Alignment::ALIGN_CENTER:
+            y += (ascent - descent) / 2;
+            break;
+        case Alignment::ALIGN_END:
+            y += descent;
+            break;
+    }
+    setCursor(x, y);
+    this->print(text);
+    return w;
+}
+
 int16_t Canvas::x() {
     return _output_x;
 }

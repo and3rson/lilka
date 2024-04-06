@@ -11,7 +11,7 @@ void serial_begin() {
 
 void serial_log(const char* format, ...) {
     // TODO: printf cannot be called from an ISR
-    char buffer[1024];
+    char buffer[256];
     va_list args;
     va_start(args, format);
     vsnprintf(buffer, sizeof(buffer), format, args);
@@ -22,7 +22,7 @@ void serial_log(const char* format, ...) {
 }
 void serial_err(const char* format, ...) {
     // TODO: printf cannot be called from an ISR
-    char buffer[1024];
+    char buffer[256];
     va_list args;
     va_start(args, format);
     vsnprintf(buffer, sizeof(buffer), format, args);
