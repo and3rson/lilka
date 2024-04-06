@@ -8,13 +8,33 @@
 
 #define MIXER_BUFFER_SIZE 256
 
+typedef enum {
+    MIXER_COMMAND_SET_WAVEFORM,
+    MIXER_COMMAND_SET_FREQUENCY,
+    MIXER_COMMAND_SET_VOLUME,
+    MIXER_COMMAND_SET_EFFECT,
+    MIXER_COMMAND_CLEAR,
+    MIXER_COMMAND_COUNT,
+} mixer_command_type_t;
+
+typedef struct {
+    int32_t channelIndex;
+    mixer_command_type_t type;
+    union {
+        waveform_t waveform;
+        float frequency;
+        float volume;
+        effect_t effect;
+    };
+} mixer_command_t;
+
 class Mixer {
 public:
     Mixer();
     ~Mixer();
+    void sendCommand(const mixer_command_t command);
     void start(
-        int32_t channelIndex, waveform_t waveforms, float pitch, float volume,
-        effect_t effect = {EFFECT_TYPE_NONE, 0}
+        int32_t channelIndex, waveform_t waveforms, float pitch, float volume, effect_t effect = {EFFECT_TYPE_NONE, 0}
     );
     void stop();
 

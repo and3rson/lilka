@@ -14,129 +14,130 @@ LilTrackerApp::LilTrackerApp() :
 xSemaphoreHandle xMutex;
 
 void LilTrackerApp::run() {
+    const effect_t tremolo = {EFFECT_TYPE_TREMOLO, 0xF8};
     const effect_t arpeggio = {EFFECT_TYPE_ARPEGGIO, 0x6C};
     event_t channel0[] = {
-        {N_E4, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_E4, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
+        {N_E4, 64, EVENT_TYPE_NORMAL},
+        {N_C0, 64, EVENT_TYPE_STOP},
+        {N_E4, 64, EVENT_TYPE_NORMAL},
+        {N_C0, 64, EVENT_TYPE_STOP},
         //
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_E4, 0xFF, EVENT_TYPE_NORMAL},
+        {N_C0, 64, EVENT_TYPE_STOP},
+        {N_C0, 64, EVENT_TYPE_STOP},
+        {N_C0, 64, EVENT_TYPE_STOP},
+        {N_E4, 64, EVENT_TYPE_NORMAL},
         //
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_E4, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_D4, 0xFF, EVENT_TYPE_NORMAL},
+        {N_C0, 64, EVENT_TYPE_STOP},
+        {N_E4, 64, EVENT_TYPE_NORMAL},
+        {N_C0, 64, EVENT_TYPE_STOP},
+        {N_D4, 64, EVENT_TYPE_NORMAL},
         //
-        {N_E4, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_D4, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
+        {N_E4, 64, EVENT_TYPE_NORMAL},
+        {N_C0, 64, EVENT_TYPE_STOP},
+        {N_D4, 64, EVENT_TYPE_NORMAL},
+        {N_C0, 64, EVENT_TYPE_STOP},
         //
-        {N_C4, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_C4, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
+        {N_C4, 64, EVENT_TYPE_NORMAL},
+        {N_C0, 64, EVENT_TYPE_STOP},
+        {N_C4, 64, EVENT_TYPE_NORMAL},
+        {N_C0, 64, EVENT_TYPE_STOP},
         //
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_A3, 0xFF, EVENT_TYPE_NORMAL},
+        {N_C0, 64, EVENT_TYPE_STOP},
+        {N_C0, 64, EVENT_TYPE_STOP},
+        {N_C0, 64, EVENT_TYPE_STOP},
+        {N_A3, 64, EVENT_TYPE_NORMAL},
         //
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_B3, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_A3, 0xFF, EVENT_TYPE_NORMAL},
+        {N_C0, 64, EVENT_TYPE_STOP},
+        {N_B3, 64, EVENT_TYPE_NORMAL},
+        {N_C0, 64, EVENT_TYPE_STOP},
+        {N_A3, 64, EVENT_TYPE_NORMAL},
         //
-        {N_C4, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_B3, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
+        {N_C4, 64, EVENT_TYPE_NORMAL},
+        {N_C0, 64, EVENT_TYPE_STOP},
+        {N_B3, 64, EVENT_TYPE_NORMAL},
+        {N_C0, 64, EVENT_TYPE_STOP},
     };
     event_t channel1[] = {
-        {N_E2, 0xFF, EVENT_TYPE_NORMAL},
-        {N_G2, 0xFF, EVENT_TYPE_NORMAL},
-        {N_A2, 0xFF, EVENT_TYPE_NORMAL},
-        {N_B2, 0xFF, EVENT_TYPE_NORMAL},
+        {N_E2, 0, EVENT_TYPE_NORMAL, tremolo},
+        {N_G2, 0, EVENT_TYPE_STOP},
+        {N_A2, 0, EVENT_TYPE_NORMAL},
+        {N_B2, 0, EVENT_TYPE_NORMAL},
         //
-        {N_C0, 0xFF, EVENT_TYPE_STOP}, // {N_E2, 0xFF},
-        {N_G2, 0xFF, EVENT_TYPE_NORMAL},
-        {N_A2, 0xFF, EVENT_TYPE_NORMAL},
-        {N_B2, 0xFF, EVENT_TYPE_NORMAL},
+        {N_C0, 0, EVENT_TYPE_STOP}, // {N_E2, 0},
+        {N_G2, 0, EVENT_TYPE_NORMAL},
+        {N_A2, 0, EVENT_TYPE_NORMAL},
+        {N_B2, 0, EVENT_TYPE_NORMAL},
         //
-        {N_C0, 0xFF, EVENT_TYPE_STOP}, // {N_E2, 0xFF},
-        {N_G2, 0xFF, EVENT_TYPE_NORMAL},
-        {N_A2, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP}, // {N_B2, 0xFF},
+        {N_C0, 0, EVENT_TYPE_STOP}, // {N_E2, 0},
+        {N_G2, 0, EVENT_TYPE_NORMAL},
+        {N_A2, 0, EVENT_TYPE_NORMAL},
+        {N_B2, 0, EVENT_TYPE_NORMAL}, // {N_B2, 0},
         //
-        {N_E2, 0xFF, EVENT_TYPE_NORMAL},
-        {N_G2, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP}, // {N_A2, 0xFF},
-        {N_B2, 0xFF, EVENT_TYPE_NORMAL},
+        {N_G2, 0, EVENT_TYPE_NORMAL},
+        {N_A2, 0, EVENT_TYPE_NORMAL},
+        {N_B2, 0, EVENT_TYPE_NORMAL}, // {N_A2, 0},
+        {N_E2, 0, EVENT_TYPE_NORMAL},
         //
-        {N_C2, 0xFF, EVENT_TYPE_NORMAL},
-        {N_E2, 0xFF, EVENT_TYPE_NORMAL},
-        {N_F2, 0xFF, EVENT_TYPE_NORMAL},
-        {N_G2, 0xFF, EVENT_TYPE_NORMAL},
+        {N_C2, 0, EVENT_TYPE_NORMAL},
+        {N_E2, 0, EVENT_TYPE_STOP},
+        {N_F2, 0, EVENT_TYPE_NORMAL},
+        {N_G2, 0, EVENT_TYPE_NORMAL},
         //
-        {N_C0, 0xFF, EVENT_TYPE_STOP}, // {N_C2, 0xFF},
-        {N_E2, 0xFF, EVENT_TYPE_NORMAL},
-        {N_F2, 0xFF, EVENT_TYPE_NORMAL},
-        {N_G2, 0xFF, EVENT_TYPE_NORMAL},
+        {N_C0, 0, EVENT_TYPE_STOP}, // {N_C2, 0},
+        {N_E2, 0, EVENT_TYPE_NORMAL},
+        {N_F2, 0, EVENT_TYPE_NORMAL},
+        {N_G2, 0, EVENT_TYPE_NORMAL},
         //
-        {N_C0, 0xFF, EVENT_TYPE_STOP}, // {N_C2, 0xFF},
-        {N_E2, 0xFF, EVENT_TYPE_NORMAL},
-        {N_F2, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP}, // {N_G2, 0xFF},
+        {N_C0, 0, EVENT_TYPE_STOP}, // {N_C2, 0},
+        {N_E2, 0, EVENT_TYPE_NORMAL},
+        {N_F2, 0, EVENT_TYPE_NORMAL},
+        {N_G2, 0, EVENT_TYPE_NORMAL}, // {N_G2, 0},
         //
-        {N_C2, 0xFF, EVENT_TYPE_NORMAL},
-        {N_E2, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP}, // {N_F2, 0xFF},
-        {N_G2, 0xFF, EVENT_TYPE_NORMAL},
+        {N_E2, 0, EVENT_TYPE_NORMAL},
+        {N_F2, 0, EVENT_TYPE_NORMAL},
+        {N_G2, 0, EVENT_TYPE_NORMAL}, // {N_F2, 0},
+        {N_C2, 0, EVENT_TYPE_NORMAL},
     };
     event_t channel2[] = {
-        {N_E6, 0xFF, EVENT_TYPE_NORMAL, arpeggio},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
+        {N_E6, 127, EVENT_TYPE_NORMAL, arpeggio},
+        {N_C0, 96, EVENT_TYPE_CONT},
+        {N_C0, 64, EVENT_TYPE_CONT},
+        {N_C0, 32, EVENT_TYPE_CONT},
         //
-        {N_E6, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_E6, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
+        {N_E6, 0, EVENT_TYPE_NORMAL},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_E6, 0, EVENT_TYPE_NORMAL},
+        {N_C0, 0, EVENT_TYPE_STOP},
         //
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_E6, 0xFF, EVENT_TYPE_NORMAL, arpeggio},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_E6, 0, EVENT_TYPE_NORMAL, arpeggio},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_C0, 0, EVENT_TYPE_STOP},
         //
-        {N_E6, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
+        {N_E6, 0, EVENT_TYPE_NORMAL},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_C0, 0, EVENT_TYPE_STOP},
         //
-        {N_C6, 0xFF, EVENT_TYPE_NORMAL, arpeggio},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
+        {N_C6, 127, EVENT_TYPE_NORMAL, arpeggio},
+        {N_C0, 96, EVENT_TYPE_CONT},
+        {N_C0, 64, EVENT_TYPE_CONT},
+        {N_C0, 32, EVENT_TYPE_CONT},
         //
-        {N_C6, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_C6, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
+        {N_C6, 0, EVENT_TYPE_NORMAL},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_C6, 0, EVENT_TYPE_NORMAL},
+        {N_C0, 0, EVENT_TYPE_STOP},
         //
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_C6, 0xFF, EVENT_TYPE_NORMAL, arpeggio},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_C6, 0, EVENT_TYPE_NORMAL, arpeggio},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_C0, 0, EVENT_TYPE_STOP},
         //
-        {N_C6, 0xFF, EVENT_TYPE_NORMAL},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
-        {N_C0, 0xFF, EVENT_TYPE_STOP},
+        {N_C6, 0, EVENT_TYPE_NORMAL},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_C0, 0, EVENT_TYPE_STOP},
     };
 
     Pattern pattern;
@@ -201,7 +202,7 @@ void LilTrackerApp::run() {
                 printText(y, itemHeight, str, isEditing, eventFocused && currentSegment == 0, isDimmed);
                 // Volume
                 // TODO: volume should affect subsequent notes (same way as EVENT_TYPE_CONT)
-                if (event.volume == 0xFF) {
+                if (event.volume == 0) {
                     strcpy(str, "..");
                 } else {
                     sprintf(str, "%02X", event.volume);
@@ -297,11 +298,11 @@ void LilTrackerApp::run() {
                             channelIndex,
                             pattern.getChannelWaveform(channelIndex),
                             event.note.toFrequency(),
-                            ((float)event.volume) / MAX_VOLUME,
+                            event.volume > 0 ? ((float)event.volume) / MAX_VOLUME : 1.0,
                             event.effect
                         );
                     } else {
-                        mixer.start(channelIndex, WAVEFORM_SILENCE, 0.0, 0.0);
+                        mixer.start(channelIndex, WAVEFORM_SILENCE, 0.0, 1.0);
                     }
                 }
             } else if (state.b.justReleased) {
@@ -331,7 +332,7 @@ void LilTrackerApp::run() {
                             channelIndex,
                             waveform,
                             event.note.toFrequency(),
-                            ((float)event.volume) / MAX_VOLUME,
+                            event.volume > 0 ? ((float)event.volume) / MAX_VOLUME : 1.0,
                             event.effect
                         );
                     }

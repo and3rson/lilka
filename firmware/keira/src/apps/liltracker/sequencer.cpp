@@ -98,18 +98,31 @@ void Sequencer::sequencerTask() {
                 for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
                     event_t event = playstate.pattern->getChannelEvent(channelIndex, playstate.eventIndex);
                     waveform_t waveform = playstate.pattern->getChannelWaveform(channelIndex);
-                    if (event.type == EVENT_TYPE_CONT) {
-                        // Do nothing
+                    mixer_command_t cmd;
+                    cmd.channelIndex = channelIndex;
+                    if (event.type == EVENT_TYPE_STOP) {
+                        mixer->sendCommand({channelIndex, MIXER_COMMAND_CLEAR});
                     } else {
-                        if (event.type == EVENT_TYPE_STOP) {
-                            waveform = WAVEFORM_SILENCE;
+                        if (event.type == EVENT_TYPE_NORMAL) {
+                            cmd.type = MIXER_COMMAND_SET_WAVEFORM;
+                            cmd.waveform = waveform;
+                            mixer->sendCommand(cmd);
+                            cmd.type = MIXER_COMMAND_SET_FREQUENCY;
+                            cmd.frequency = event.note.toFrequency();
+                            mixer->sendCommand(cmd);
                         }
-                        mixer->start(
-                            channelIndex, waveform, event.note.toFrequency(), ((float)event.volume) / MAX_VOLUME, event.effect
-                        );
+                        if (event.effect.type != EFFECT_TYPE_NONE) {
+                            cmd.type = MIXER_COMMAND_SET_EFFECT;
+                            cmd.effect = event.effect;
+                            mixer->sendCommand(cmd);
+                        }
+                        if (event.volume) {
+                            cmd.type = MIXER_COMMAND_SET_VOLUME;
+                            cmd.volume = ((float)event.volume) / MAX_VOLUME;
+                            mixer->sendCommand(cmd);
+                        }
                     }
                 }
-                // mixer->start(playstate.pattern, playstate.eventIndex);
             }
             // Wait according to the BPM
             vTaskDelay(MS_PER_BEAT / portTICK_PERIOD_MS);

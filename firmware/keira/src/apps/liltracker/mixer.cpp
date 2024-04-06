@@ -1,14 +1,6 @@
 #include <lilka.h>
 #include "mixer.h"
-#include "pattern.h"
-
-typedef struct {
-    int32_t channelIndex;
-    waveform_t waveform;
-    float frequency;
-    float volume;
-    effect_t effect;
-} start_request_t;
+#include "config.h"
 
 typedef struct {
     waveform_t waveform;
@@ -20,7 +12,9 @@ typedef struct {
 
 #define SAMPLE_RATE 8000
 
-Mixer::Mixer() : xMutex(xSemaphoreCreateMutex()), xQueue(xQueueCreate(CHANNEL_COUNT, sizeof(start_request_t))) {
+Mixer::Mixer() :
+    xMutex(xSemaphoreCreateMutex()),
+    xQueue(xQueueCreate(CHANNEL_COUNT * MIXER_COMMAND_COUNT, sizeof(mixer_command_t))) {
     constexpr uint8_t pinCount = 3;
     uint8_t pins[pinCount] = {LILKA_I2S_BCLK, LILKA_I2S_LRCK, LILKA_I2S_DOUT};
     uint8_t funcs[pinCount] = {I2S0O_BCK_OUT_IDX, I2S0O_WS_OUT_IDX, I2S0O_SD_OUT_IDX};
@@ -71,15 +65,32 @@ Mixer::~Mixer() {
     vSemaphoreDelete(xMutex);
 }
 
+void Mixer::sendCommand(const mixer_command_t command) {
+    xQueueSend(xQueue, &command, portMAX_DELAY);
+}
+
 void Mixer::start(int32_t channelIndex, waveform_t waveform, float frequency, float volume, effect_t effect) {
-    start_request_t request = {channelIndex, waveform, frequency, volume, effect};
-    xQueueSend(xQueue, &request, portMAX_DELAY);
+    mixer_command_t cmd;
+    cmd.channelIndex = channelIndex;
+    cmd.type = MIXER_COMMAND_SET_WAVEFORM;
+    cmd.waveform = waveform;
+    sendCommand(cmd);
+    cmd.type = MIXER_COMMAND_SET_FREQUENCY;
+    cmd.frequency = frequency;
+    sendCommand(cmd);
+    cmd.type = MIXER_COMMAND_SET_VOLUME;
+    cmd.volume = volume;
+    sendCommand(cmd);
+    cmd.type = MIXER_COMMAND_SET_EFFECT;
+    cmd.effect = effect;
+    sendCommand(cmd);
 }
 
 void Mixer::stop() {
     // start(NULL, 0);
     for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-        start_request_t request = {channelIndex, WAVEFORM_SILENCE, 0.0, 0.0};
+        // start_request_t request = {channelIndex, WAVEFORM_SILENCE, 0.0, 0.0};
+        mixer_command_t request = {channelIndex, MIXER_COMMAND_CLEAR};
         xQueueSend(xQueue, &request, portMAX_DELAY);
     }
 }
@@ -87,16 +98,28 @@ void Mixer::stop() {
 void Mixer::mixerTask() {
     channel_state_t channelStates[CHANNEL_COUNT];
     for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-        channelStates[channelIndex] = {WAVEFORM_SILENCE, 0.0, 0.0, {EFFECT_TYPE_NONE, 0}};
+        channelStates[channelIndex] = {WAVEFORM_SILENCE, 0.0, 1.0, {EFFECT_TYPE_NONE, 0}};
     }
 
     int64_t time = 0;
     while (1) { // TODO: make this stoppable
         // TODO: Handle envelopes, effects and stuff in this loop
         // Check if queue has a new pattern and event index to play
-        start_request_t request;
-        while (xQueueReceive(xQueue, &request, 0) == pdTRUE) {
-            channelStates[request.channelIndex] = {request.waveform, request.frequency, request.volume, request.effect};
+        // start_request_t request;
+        mixer_command_t command;
+        while (xQueueReceive(xQueue, &command, 0) == pdTRUE) {
+            // channelStates[request.channelIndex] = {request.waveform, request.frequency, request.volume, request.effect};
+            if (command.type == MIXER_COMMAND_SET_WAVEFORM) {
+                channelStates[command.channelIndex].waveform = command.waveform;
+            } else if (command.type == MIXER_COMMAND_SET_FREQUENCY) {
+                channelStates[command.channelIndex].frequency = command.frequency;
+            } else if (command.type == MIXER_COMMAND_SET_VOLUME) {
+                channelStates[command.channelIndex].volume = command.volume;
+            } else if (command.type == MIXER_COMMAND_SET_EFFECT) {
+                channelStates[command.channelIndex].effect = command.effect;
+            } else if (command.type == MIXER_COMMAND_CLEAR) {
+                channelStates[command.channelIndex] = {WAVEFORM_SILENCE, 0.0, 1.0, {EFFECT_TYPE_NONE, 0}};
+            }
         }
         // Mix the channels
         int32_t mix = 0;

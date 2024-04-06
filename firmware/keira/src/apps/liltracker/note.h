@@ -16,6 +16,31 @@ float modulate_frequency(float frequency, float semitoneCount);
 #define N_C0 \
     { 0, 0 }
 
+#define N_C1 \
+    { 0, 1 }
+#define N_CS1 \
+    { 1, 1 }
+#define N_D1 \
+    { 2, 1 }
+#define N_DS1 \
+    { 3, 1 }
+#define N_E1 \
+    { 4, 1 }
+#define N_F1 \
+    { 5, 1 }
+#define N_FS1 \
+    { 6, 1 }
+#define N_G1 \
+    { 7, 1 }
+#define N_GS1 \
+    { 8, 1 }
+#define N_A1 \
+    { 9, 1 }
+#define N_AS1 \
+    { 10, 1 }
+#define N_B1 \
+    { 11, 1 }
+
 #define N_C2 \
     { 0, 2 }
 #define N_CS2 \

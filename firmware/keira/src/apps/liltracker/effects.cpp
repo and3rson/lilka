@@ -41,13 +41,13 @@ void effect_arpeggio(float* time, float* frequency, float* amplitude, float* pha
 void effect_vibrato(float* time, float* frequency, float* amplitude, float* phase, uint8_t param) {
     // This effect modulates the frequency of the note with a sine wave.
     // Upper nibble of the parameter is the speed of the vibrato (in Hz)
-    // Lower nibble of the parameter is the depth of the vibrato (in semitones?)
+    // Lower nibble of the parameter is the depth of the vibrato (in cents)
 
     uint8_t vibratoFrequency = (param & 0xF0) >> 4;
     uint8_t vibratoDepth = (param & 0x0F);
 
     // Calculate the vibrato
-    float vibrato = sinf(*time * 2.0f * M_PI * vibratoFrequency) * vibratoDepth;
+    float vibrato = sinf(*time * 2.0f * M_PI * vibratoFrequency) * vibratoDepth / 100.0f;
 
     // Apply the vibrato
     *frequency = modulate_frequency(*frequency, vibrato);
