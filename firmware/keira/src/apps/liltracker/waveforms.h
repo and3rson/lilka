@@ -19,6 +19,15 @@ const waveform_t waveforms[WAVEFORM_COUNT] = {
     WAVEFORM_NOISE,
 };
 
+const char* const waveform_names[WAVEFORM_COUNT] = {
+    "Silence",
+    "Square",
+    "Sawtooth",
+    "Triangle",
+    "Sine",
+    "Noise",
+};
+
 typedef float (*waveform_fn_t)(float time, float frequency, float amplitude, float phase);
 
 float silence(float time, float frequency, float amplitude, float phase);

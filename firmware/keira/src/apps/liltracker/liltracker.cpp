@@ -3,8 +3,8 @@
 #include "liltracker.h"
 #include "note.h"
 
-constexpr int32_t scoreTop = 0;
-const int32_t scoreBottom = lilka::display.height();
+constexpr int32_t scoreTop = 16;
+const int32_t scoreBottom = lilka::display.height() - 16;
 
 LilTrackerApp::LilTrackerApp() :
     App("LilTracker", 0, 0, lilka::display.width(), lilka::display.height()), mixer(), sequencer(&mixer) {
@@ -169,7 +169,15 @@ void LilTrackerApp::run() {
         canvas->setTextBound(0, 0, canvas->width(), canvas->height());
         canvas->setTextColor(lilka::colors::White);
         constexpr int16_t itemHeight = 13;
-        const int16_t centerY = canvas->height() / 2;
+        const int16_t centerY = scoreTop + (scoreBottom - scoreTop) / 2;
+        canvas->setCursor(12, scoreTop);
+        canvas->printf("#  ");
+        for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
+            canvas->printf("%-8s", waveform_names[pattern.getChannelWaveform(channelIndex)]);
+            if (channelIndex < CHANNEL_COUNT - 1) {
+                canvas->printf(" ");
+            }
+        }
         for (int eventIndex = 0; eventIndex < CHANNEL_SIZE; eventIndex++) {
             // Draw score, with current event in the middle
             int16_t y = centerY + (eventIndex - cursorY) * itemHeight;
@@ -183,7 +191,7 @@ void LilTrackerApp::run() {
                 canvas->drawRect(0, y, canvas->width(), itemHeight, lilka::colors::Blue);
             }
             canvas->setCursor(12, y + 11);
-            canvas->printf("%02X|", eventIndex);
+            canvas->printf("%02X ", eventIndex);
             for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
                 event_t event = pattern.getChannelEvent(channelIndex, eventIndex);
                 char str[4];
@@ -216,7 +224,7 @@ void LilTrackerApp::run() {
                 printText(y, itemHeight, str, isEditing, eventFocused && currentSegment == 3, isDimmed);
                 canvas->setTextColor(lilka::colors::White);
                 if (channelIndex < CHANNEL_COUNT - 1) {
-                    canvas->printf("|");
+                    canvas->printf(" ");
                 }
             }
         }

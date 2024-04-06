@@ -46,13 +46,7 @@ float noteinfo_t::toFrequency() {
 }
 
 float modulate_frequency(float frequency, float semitoneCount) {
-    // Calculate the frequency ratio for semitone modulation
-    float frequencyRatio = pow(2.0, semitoneCount / 12.0);
-
-    // Modulate the frequency
-    float modulatedFrequency = frequency * frequencyRatio;
-
-    return modulatedFrequency;
+    return frequency * pow(2.0, semitoneCount / 12.0);
 }
 
 // Function to convert note to string
