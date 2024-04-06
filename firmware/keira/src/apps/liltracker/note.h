@@ -1,5 +1,6 @@
 #pragma once
 
+#include <math.h>
 #include <stdint.h>
 
 typedef struct noteinfo_t {
@@ -11,7 +12,9 @@ typedef struct noteinfo_t {
     float toFrequency();
 } noteinfo_t;
 
-float modulate_frequency(float frequency, float semitoneCount);
+inline float modulate_frequency(float frequency, float semitoneCount) {
+    return frequency * pow(2.0, semitoneCount / 12.0);
+}
 
 #define N_C0 \
     { 0, 0 }

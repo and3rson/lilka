@@ -6,7 +6,10 @@
 #include "waveforms.h"
 #include "effects.h"
 
-#define MIXER_BUFFER_SIZE 256
+#define MIXER_BUFFER_SIZE        256
+#define SAMPLE_RATE              8000
+#define MIXER_BUFFER_DURATION_MS (MIXER_BUFFER_SIZE * 1000 / SAMPLE_RATE)
+#define SECONDS_PER_SAMPLE       (1.0f / SAMPLE_RATE)
 
 typedef enum {
     MIXER_COMMAND_SET_WAVEFORM,

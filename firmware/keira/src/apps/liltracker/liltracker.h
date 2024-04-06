@@ -11,5 +11,8 @@ private:
     Mixer mixer;
     Sequencer sequencer;
     void run() override;
-    void printText(int16_t y, int16_t itemHeight, const char* text, bool editing, bool focused, bool dimmed);
+    int printText(
+        const char* text, int16_t x, int16_t y, lilka::Alignment hAlign, lilka::Alignment vAlign, bool editing,
+        bool focused, bool dimmed
+    );
 };

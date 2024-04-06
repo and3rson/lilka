@@ -29,12 +29,12 @@ typedef struct {
     uint8_t param;
 } effect_t;
 
-typedef void (*effect_fn_t)(const float* time, float* frequency, float* amplitude, float* phase, uint8_t param);
+typedef void (*effect_fn_t)(const float time, float* frequency, float* amplitude, float* phase, uint8_t param);
 
-void effect_none(const float* time, float* frequency, float* amplitude, float* phase, uint8_t param);
-void effect_arpeggio(const float* time, float* frequency, float* amplitude, float* phase, uint8_t param);
-void effect_vibrato(const float* time, float* frequency, float* amplitude, float* phase, uint8_t param);
-void effect_tremolo(const float* time, float* frequency, float* amplitude, float* phase, uint8_t param);
+void effect_none(const float time, float* frequency, float* amplitude, float* phase, uint8_t param);
+void effect_arpeggio(const float time, float* frequency, float* amplitude, float* phase, uint8_t param);
+void effect_vibrato(const float time, float* frequency, float* amplitude, float* phase, uint8_t param);
+void effect_tremolo(const float time, float* frequency, float* amplitude, float* phase, uint8_t param);
 
 const effect_fn_t effect_functions[EFFECT_TYPE_COUNT] = {
     effect_none,

@@ -3,12 +3,20 @@
 #include "liltracker.h"
 #include "note.h"
 
-constexpr int32_t scoreTop = 16;
-const int32_t scoreBottom = lilka::display.height() - 16;
+constexpr int32_t SCORE_ITEM_HEIGHT = 15;
+constexpr int32_t SCORE_HEADER_TOP = 64;
+constexpr int32_t SCORE_TOP = SCORE_HEADER_TOP + SCORE_ITEM_HEIGHT;
+const int32_t SCORE_HEIGHT = lilka::display.height() - SCORE_TOP;
+const uint8_t* FONT = FONT_8x13_MONO;
+const int32_t SCORE_COUNTER_WIDTH = 32;
+const int32_t SCORE_EVENT_WIDTH = (lilka::display.width() - SCORE_COUNTER_WIDTH) / CHANNEL_COUNT;
+const int32_t SCORE_ROW_COUNT = SCORE_HEIGHT / SCORE_ITEM_HEIGHT;
+const int32_t SCORE_MIDDLE_ROW_INDEX = SCORE_ROW_COUNT / 2;
 
 LilTrackerApp::LilTrackerApp() :
     App("LilTracker", 0, 0, lilka::display.width(), lilka::display.height()), mixer(), sequencer(&mixer) {
     this->setFlags(APP_FLAG_FULLSCREEN);
+    this->setCore(1);
 }
 
 xSemaphoreHandle xMutex;
@@ -157,6 +165,8 @@ void LilTrackerApp::run() {
 
     bool isEditing = false;
 
+    char str[32];
+
     while (1) {
         seq_state_t seqState = sequencer.getSeqState();
 
@@ -165,36 +175,43 @@ void LilTrackerApp::run() {
         }
 
         canvas->fillScreen(lilka::colors::Black);
-        canvas->setFont(FONT_8x13);
+        canvas->setFont(FONT);
         canvas->setTextBound(0, 0, canvas->width(), canvas->height());
         canvas->setTextColor(lilka::colors::White);
-        constexpr int16_t itemHeight = 13;
-        const int16_t centerY = scoreTop + (scoreBottom - scoreTop) / 2;
-        canvas->setCursor(12, scoreTop);
-        canvas->printf("#  ");
+        canvas->drawTextAligned("##", SCORE_COUNTER_WIDTH / 2, SCORE_HEADER_TOP, lilka::ALIGN_CENTER, lilka::ALIGN_START);
+
         for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-            canvas->printf("%-8s", waveform_names[pattern.getChannelWaveform(channelIndex)]);
-            if (channelIndex < CHANNEL_COUNT - 1) {
-                canvas->printf(" ");
-            }
+            canvas->drawTextAligned(
+                waveform_names[pattern.getChannelWaveform(channelIndex)],
+                SCORE_COUNTER_WIDTH + channelIndex * SCORE_EVENT_WIDTH,
+                SCORE_HEADER_TOP,
+                lilka::ALIGN_START,
+                lilka::ALIGN_START
+            );
         }
+
         for (int eventIndex = 0; eventIndex < CHANNEL_SIZE; eventIndex++) {
-            // Draw score, with current event in the middle
-            int16_t y = centerY + (eventIndex - cursorY) * itemHeight;
-            if (y < scoreTop || y > scoreBottom) {
+            int scoreRowIndex = eventIndex - cursorY + SCORE_MIDDLE_ROW_INDEX - 1;
+            if (scoreRowIndex < 0 || scoreRowIndex >= SCORE_ROW_COUNT) {
+                // Not visible
                 continue;
             }
+            // Top coordinate of the score item on screen
+            int16_t y = SCORE_TOP + scoreRowIndex * SCORE_ITEM_HEIGHT;
+            // Draw score, with current event in the middle
             if (eventIndex % 4 == 0) {
-                canvas->fillRect(0, y, canvas->width(), itemHeight, lilka::colors::Delft_blue);
+                canvas->fillRect(0, y, canvas->width(), SCORE_ITEM_HEIGHT, lilka::colors::Delft_blue);
             }
             if (eventIndex == cursorY) {
-                canvas->drawRect(0, y, canvas->width(), itemHeight, lilka::colors::Blue);
+                canvas->drawRect(0, y, canvas->width(), SCORE_ITEM_HEIGHT, lilka::colors::Blue);
             }
-            canvas->setCursor(12, y + 11);
-            canvas->printf("%02X ", eventIndex);
+            sprintf(str, "%02X", eventIndex);
+            canvas->drawTextAligned(
+                str, SCORE_COUNTER_WIDTH / 2, y + SCORE_ITEM_HEIGHT / 2, lilka::ALIGN_CENTER, lilka::ALIGN_CENTER
+            );
             for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
                 event_t event = pattern.getChannelEvent(channelIndex, eventIndex);
-                char str[4];
+                int xOffset = SCORE_COUNTER_WIDTH + channelIndex * SCORE_EVENT_WIDTH;
                 if (event.type == EVENT_TYPE_CONT) {
                     strcpy(str, "...");
                 } else if (event.type == EVENT_TYPE_NORMAL) {
@@ -207,21 +224,56 @@ void LilTrackerApp::run() {
                 bool eventFocused = channelIndex == currentChannel && cursorY == eventIndex;
                 bool isDimmed = event.type != EVENT_TYPE_NORMAL;
                 // Note
-                printText(y, itemHeight, str, isEditing, eventFocused && currentSegment == 0, isDimmed);
+                xOffset += printText(
+                    str,
+                    xOffset,
+                    y + SCORE_ITEM_HEIGHT / 2,
+                    lilka::ALIGN_START,
+                    lilka::ALIGN_CENTER,
+                    isEditing,
+                    eventFocused && currentSegment == 0,
+                    isDimmed
+                );
                 // Volume
-                // TODO: volume should affect subsequent notes (same way as EVENT_TYPE_CONT)
                 if (event.volume == 0) {
-                    strcpy(str, "..");
+                    sprintf(str, "..");
                 } else {
                     sprintf(str, "%02X", event.volume);
                 }
-                printText(y, itemHeight, str, isEditing, eventFocused && currentSegment == 1, isDimmed);
+                xOffset += printText(
+                    str,
+                    xOffset,
+                    y + SCORE_ITEM_HEIGHT / 2,
+                    lilka::ALIGN_START,
+                    lilka::ALIGN_CENTER,
+                    isEditing,
+                    eventFocused && currentSegment == 1,
+                    isDimmed
+                );
                 // Effect
                 sprintf(str, "%c", effect_signs[event.effect.type]);
-                printText(y, itemHeight, str, isEditing, eventFocused && currentSegment == 2, isDimmed);
+                xOffset += printText(
+                    str,
+                    xOffset,
+                    y + SCORE_ITEM_HEIGHT / 2,
+                    lilka::ALIGN_START,
+                    lilka::ALIGN_CENTER,
+                    isEditing,
+                    eventFocused && currentSegment == 2,
+                    isDimmed
+                );
                 // Effect param
                 sprintf(str, "%02X", event.effect.param);
-                printText(y, itemHeight, str, isEditing, eventFocused && currentSegment == 3, isDimmed);
+                xOffset += printText(
+                    str,
+                    xOffset,
+                    y + SCORE_ITEM_HEIGHT / 2,
+                    lilka::ALIGN_START,
+                    lilka::ALIGN_CENTER,
+                    isEditing,
+                    eventFocused && currentSegment == 3,
+                    isDimmed
+                );
                 canvas->setTextColor(lilka::colors::White);
                 if (channelIndex < CHANNEL_COUNT - 1) {
                     canvas->printf(" ");
@@ -384,8 +436,9 @@ void LilTrackerApp::run() {
     }
 }
 
-void LilTrackerApp::printText(
-    int16_t y, int16_t itemHeight, const char* text, bool editing, bool focused, bool dimmed
+int LilTrackerApp::printText(
+    const char* text, int16_t x, int16_t y, lilka::Alignment hAlign, lilka::Alignment vAlign, bool editing,
+    bool focused, bool dimmed
 ) {
     uint16_t textColor;
     int32_t bgColor;
@@ -403,16 +456,8 @@ void LilTrackerApp::printText(
         } else {
             textColor = lilka::colors::Uranian_blue;
         }
-        bgColor = -1;
+        bgColor = textColor;
     }
-    canvas->setTextColor(textColor);
-    if (bgColor != -1) {
-        int16_t cx = canvas->getCursorX();
-        int16_t cy = canvas->getCursorY();
-        int16_t _x, _y;
-        uint16_t _w, _h;
-        canvas->getTextBounds(text, cx, cy, &_x, &_y, &_w, &_h);
-        canvas->fillRect(_x - 2, y + 1, _w + 4, itemHeight - 2, bgColor);
-    }
-    canvas->printf("%s", text);
+    canvas->setTextColor(textColor, bgColor);
+    return canvas->drawTextAligned(text, x, y, hAlign, vAlign);
 }

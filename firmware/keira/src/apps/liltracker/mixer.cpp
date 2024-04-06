@@ -1,4 +1,6 @@
 #include <lilka.h>
+#include <esp_wifi.h>
+#include <esp_bt.h>
 #include "mixer.h"
 #include "config.h"
 
@@ -9,8 +11,6 @@ typedef struct {
     effect_t effect;
     // float time; // TODO
 } channel_state_t;
-
-#define SAMPLE_RATE 8000
 
 Mixer::Mixer() :
     xMutex(xSemaphoreCreateMutex()),
@@ -46,6 +46,12 @@ Mixer::Mixer() :
         return;
     }
 
+    // Free up the core 0 for the mixer task
+    esp_wifi_stop();
+    esp_wifi_deinit();
+    esp_bt_controller_disable();
+    esp_bt_controller_deinit();
+
     xTaskCreatePinnedToCore(
         [](void* pvParameters) {
             static_cast<Mixer*>(pvParameters)->mixerTask();
@@ -56,7 +62,7 @@ Mixer::Mixer() :
         this,
         1,
         nullptr,
-        1
+        0
     );
 }
 
@@ -122,34 +128,34 @@ void Mixer::mixerTask() {
             }
         }
         // Mix the channels
-        int32_t mix = 0;
-        for (int32_t i = 0; i < MIXER_BUFFER_SIZE; i++) {
-            float timeSec = ((float)time + i) / SAMPLE_RATE;
-            for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
+        int64_t start = millis();
+        float timeSec = (float)time / SAMPLE_RATE;
+        for (int16_t i = 0; i < MIXER_BUFFER_SIZE; i++) {
+            // float timeSec = ((float)time + i) / SAMPLE_RATE;
+            timeSec += SECONDS_PER_SAMPLE;
+            audioBuffer[i] = 0;
+            for (int8_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
                 // event_t event = events[channelIndex];
                 const channel_state_t* channelState = &channelStates[channelIndex];
                 waveform_fn_t waveform_fn = waveform_functions[channelState->waveform];
-                int16_t value = 0;
-                if (channelState->waveform != WAVEFORM_SILENCE) {
-                    float modTimeSec = timeSec;
-                    float modFrequency = channelState->frequency;
-                    float modVolume = channelState->volume;
-                    float modPhase = 0.0;
-                    effect_t effect = channelState->effect;
-                    effect_fn_t effect_fn = effect_functions[effect.type];
-                    effect_fn(&modTimeSec, &modFrequency, &modVolume, &modPhase, effect.param);
-                    float fValue =
-                        waveform_fn(modTimeSec, modFrequency, modVolume, modPhase); // TODO: Amplitude = volume?
-                    // TODO
-                    // fValue *= 0.02; // Reduce volume - I don't want to wake up my family :D /AD
-                    fValue *= 0.25; // Reduce volume - I don't want to wake up my family :D /AD
-                    value = fValue * 32767;
-                }
-                mix += value;
+                float modFrequency = channelState->frequency;
+                float modVolume = channelState->volume;
+                float modPhase = 0.0;
+                effect_t effect = channelState->effect;
+                effect_fn_t effect_fn = effect_functions[effect.type];
+                effect_fn(timeSec, &modFrequency, &modVolume, &modPhase, effect.param);
+                audioBuffer[i] += waveform_fn(timeSec, modFrequency, modVolume, modPhase) * 0.1 * 32767;
             }
-            mix = mix / CHANNEL_COUNT;
-            audioBuffer[i] = mix;
+            audioBuffer[i] /= CHANNEL_COUNT;
         }
+        int64_t end = millis();
+        // Check if time spent mixing is more than the duration of the buffer
+        // Duration of the buffer in microseconds: 1 / SAMPLE_RATE * 1000 * MIXER_BUFFER_SIZE
+        // For 256-sample buffer at 8 kHz, it is 32000 microseconds
+        if (end - start > MIXER_BUFFER_DURATION_MS) {
+            lilka::serial_err("Mixer buffer underrun! Spent %ld ms, had %ld ms", end - start, MIXER_BUFFER_DURATION_MS);
+        }
+
         size_t bytesWritten = 0;
         esp_i2s::i2s_write(esp_i2s::I2S_NUM_0, audioBuffer, MIXER_BUFFER_SIZE * 2, &bytesWritten, portMAX_DELAY);
         time += bytesWritten / 2;
