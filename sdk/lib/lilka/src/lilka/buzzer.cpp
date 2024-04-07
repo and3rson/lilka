@@ -22,6 +22,10 @@ void Buzzer::begin() {
 #else
     _stop();
     pinMode(LILKA_BUZZER, OUTPUT);
+    // TODO: Should not be here. Треба кудись винести.
+    // const Tone helloTune[] = {{NOTE_C4, 8}, {NOTE_E4, 8}, {NOTE_E5, -4}, {NOTE_C6, 8}, {NOTE_C5, 8}};
+    const Tone helloTune[] = {{NOTE_C3, 8}, {NOTE_C4, 8}, {NOTE_C5, 8}, {NOTE_C7, 4}, {0, 8}, {NOTE_C6, 4}};
+    playMelody(helloTune, sizeof(helloTune) / sizeof(Tone), 160);
 #endif
 }
 

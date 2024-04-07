@@ -19,8 +19,6 @@ void Audio::begin() {
 
     I2S.setAllPins(LILKA_I2S_BCLK, LILKA_I2S_LRCK, LILKA_I2S_DOUT, LILKA_I2S_DOUT, -1);
 
-    I2S.begin(I2S_PHILIPS_MODE, 22050, 16);
-
     xTaskCreatePinnedToCore(ping_task, "ping_task", 4096, NULL, 1, NULL, 0);
 #endif
 }
@@ -42,15 +40,15 @@ void ping_task(void* arg) {
     serial_err("This part of code should never be called. Audio not supported for this version of lilka");
 #elif LILKA_VERSION == 2
     // Signed 16-bit PCM
-    const int16_t* ping = reinterpret_cast<const int16_t*>(ping_raw);
+    // const int16_t* ping = reinterpret_cast<const int16_t*>(ping_raw);
 
-    for (int i = 0; i < ping_raw_size / 2; i++) {
-        // TODO: Should use i2s_write & DMA
-        I2S.write(ping[i] >> 2);
-        I2S.write(ping[i] >> 2);
-    }
-
-    I2S.end();
+    // I2S.begin(I2S_PHILIPS_MODE, 22050, 16);
+    // for (int i = 0; i < ping_raw_size / 2; i++) {
+    //     // TODO: Should use i2s_write & DMA
+    //     I2S.write(ping[i] >> 2);
+    //     I2S.write(ping[i] >> 2);
+    // }
+    // I2S.end();
 
     vTaskDelete(NULL);
 #endif

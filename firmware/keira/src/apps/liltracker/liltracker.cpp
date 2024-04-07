@@ -178,7 +178,9 @@ void LilTrackerApp::run() {
         canvas->setFont(FONT);
         canvas->setTextBound(0, 0, canvas->width(), canvas->height());
         canvas->setTextColor(lilka::colors::White);
-        canvas->drawTextAligned("##", SCORE_COUNTER_WIDTH / 2, SCORE_HEADER_TOP, lilka::ALIGN_CENTER, lilka::ALIGN_START);
+        canvas->drawTextAligned(
+            "##", SCORE_COUNTER_WIDTH / 2, SCORE_HEADER_TOP, lilka::ALIGN_CENTER, lilka::ALIGN_START
+        );
 
         for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
             canvas->drawTextAligned(
@@ -234,6 +236,7 @@ void LilTrackerApp::run() {
                     eventFocused && currentSegment == 0,
                     isDimmed
                 );
+                xOffset += 4;
                 // Volume
                 if (event.volume == 0) {
                     sprintf(str, "..");
@@ -250,6 +253,7 @@ void LilTrackerApp::run() {
                     eventFocused && currentSegment == 1,
                     isDimmed
                 );
+                xOffset += 4;
                 // Effect
                 sprintf(str, "%c", effect_signs[event.effect.type]);
                 xOffset += printText(
@@ -262,6 +266,7 @@ void LilTrackerApp::run() {
                     eventFocused && currentSegment == 2,
                     isDimmed
                 );
+                xOffset += 4;
                 // Effect param
                 sprintf(str, "%02X", event.effect.param);
                 xOffset += printText(
@@ -274,10 +279,8 @@ void LilTrackerApp::run() {
                     eventFocused && currentSegment == 3,
                     isDimmed
                 );
-                canvas->setTextColor(lilka::colors::White);
-                if (channelIndex < CHANNEL_COUNT - 1) {
-                    canvas->printf(" ");
-                }
+                xOffset += 4;
+                (void)xOffset;
             }
         }
         lilka::State state = lilka::controller.getState();

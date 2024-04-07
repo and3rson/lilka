@@ -128,7 +128,7 @@ void Mixer::mixerTask() {
             }
         }
         // Mix the channels
-        int64_t start = millis();
+        int64_t mixStart = millis();
         float timeSec = (float)time / SAMPLE_RATE;
         for (int16_t i = 0; i < MIXER_BUFFER_SIZE; i++) {
             // float timeSec = ((float)time + i) / SAMPLE_RATE;
@@ -148,12 +148,14 @@ void Mixer::mixerTask() {
             }
             audioBuffer[i] /= CHANNEL_COUNT;
         }
-        int64_t end = millis();
+        int64_t mixEnd = millis();
         // Check if time spent mixing is more than the duration of the buffer
         // Duration of the buffer in microseconds: 1 / SAMPLE_RATE * 1000 * MIXER_BUFFER_SIZE
         // For 256-sample buffer at 8 kHz, it is 32000 microseconds
-        if (end - start > MIXER_BUFFER_DURATION_MS) {
-            lilka::serial_err("Mixer buffer underrun! Spent %ld ms, had %ld ms", end - start, MIXER_BUFFER_DURATION_MS);
+        if (mixEnd - mixStart > MIXER_BUFFER_DURATION_MS) {
+            lilka::serial_err(
+                "Mixer buffer underrun! Spent %d ms mixing, had %d ms", mixEnd - mixStart, MIXER_BUFFER_DURATION_MS
+            );
         }
 
         size_t bytesWritten = 0;
