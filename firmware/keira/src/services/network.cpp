@@ -11,10 +11,11 @@ NetworkService::NetworkService() :
     state(NETWORK_STATE_OFFLINE),
     reason(0),
     signalStrength(0),
-    mutex(xSemaphoreCreateMutex()),
+    mutex(xSemaphoreCreateBinary()),
     lastPassword(""),
     ipAddr("") {
     // TODO: Use the mutex, Luke!
+    xSemaphoreGive(mutex);
 }
 
 void NetworkService::run() {
