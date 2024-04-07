@@ -3,6 +3,7 @@
 #include "FreeRTOS.h"
 #include <semphr.h>
 #include <stdint.h>
+#include "config.h"
 #include "waveforms.h"
 #include "effects.h"
 
@@ -40,10 +41,13 @@ public:
         int32_t channelIndex, waveform_t waveforms, float pitch, float volume, effect_t effect = {EFFECT_TYPE_NONE, 0}
     );
     void stop();
+    int16_t readBuffer(int16_t* targetBuffer);
+    int16_t readBuffer(int16_t* targetBuffer, int32_t channelIndex);
 
 private:
     SemaphoreHandle_t xMutex;
     QueueHandle_t xQueue;
     void mixerTask();
-    int16_t audioBuffer[MIXER_BUFFER_SIZE];
+    int16_t audioBufferCopy[MIXER_BUFFER_SIZE];
+    int16_t channelAudioBuffersCopy[CHANNEL_COUNT][MIXER_BUFFER_SIZE];
 };

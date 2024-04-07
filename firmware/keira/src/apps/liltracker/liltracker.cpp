@@ -164,6 +164,7 @@ void LilTrackerApp::run() {
     int currentSegment = 0;
 
     bool isEditing = false;
+    bool isPreviewing = false;
 
     char str[32];
 
@@ -175,9 +176,45 @@ void LilTrackerApp::run() {
         }
 
         canvas->fillScreen(lilka::colors::Black);
+
+        // // Draw mixer buffer
+        // int16_t buffer[MIXER_BUFFER_SIZE];
+        // mixer.readBuffer(buffer);
+        //
+        // int16_t prevX, prevY;
+        // for (int i = 0; i < MIXER_BUFFER_SIZE; i++) {
+        //     int x = i * lilka::display.width() / MIXER_BUFFER_SIZE;
+        //     int y = SCORE_HEADER_TOP / 2 + ((float)buffer[i] / 32768 * 10) * SCORE_HEADER_TOP / 2;
+        //     if (i > 0) {
+        //         canvas->drawLine(prevX, prevY, x, y, lilka::colors::White);
+        //     }
+        //     prevX = x;
+        //     prevY = y;
+        // }
+
+        // Draw channel buffers
+        for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
+            int16_t buffer[MIXER_BUFFER_SIZE];
+            mixer.readBuffer(buffer, channelIndex);
+            int16_t prevX, prevY;
+            int16_t minX = SCORE_COUNTER_WIDTH + channelIndex * SCORE_EVENT_WIDTH;
+            int16_t width = SCORE_EVENT_WIDTH;
+
+            for (int i = 0; i < MIXER_BUFFER_SIZE; i += 4) {
+                int x = minX + i * width / MIXER_BUFFER_SIZE;
+                int index = i / 2; // Make samples wider for nicer display
+                int y = SCORE_HEADER_TOP / 2 + ((float)buffer[index] / 32768 * 10) * SCORE_HEADER_TOP / 2;
+                if (i > 0) {
+                    canvas->drawLine(prevX, prevY, x, y, lilka::colors::White);
+                }
+                prevX = x;
+                prevY = y;
+            }
+        }
+
         canvas->setFont(FONT);
         canvas->setTextBound(0, 0, canvas->width(), canvas->height());
-        canvas->setTextColor(lilka::colors::White);
+        canvas->setTextColor(lilka::colors::White, lilka::colors::White);
         canvas->drawTextAligned(
             "##", SCORE_COUNTER_WIDTH / 2, SCORE_HEADER_TOP, lilka::ALIGN_CENTER, lilka::ALIGN_START
         );
@@ -290,6 +327,7 @@ void LilTrackerApp::run() {
             if (state.a.justPressed) {
                 // Exit edit mode
                 mixer.stop();
+                isPreviewing = false;
                 isEditing = false;
             }
             if (state.up.justPressed || state.down.justPressed || state.left.justPressed || state.right.justPressed ||
@@ -351,26 +389,19 @@ void LilTrackerApp::run() {
                     event.type = static_cast<event_type_t>((event.type + 1) % EVENT_TYPE_COUNT);
                 }
                 pattern.setChannelEvent(currentChannel, cursorY, event);
+                if (isPreviewing) {
+                    // Update preview
+                    startPreview(&pattern, currentChannel, cursorY);
+                }
             }
             if (state.b.justPressed) {
                 // Play single event
-                for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-                    event_t event = pattern.getChannelEvent(channelIndex, cursorY);
-                    if (channelIndex == currentChannel && event.type == EVENT_TYPE_NORMAL) {
-                        mixer.start(
-                            channelIndex,
-                            pattern.getChannelWaveform(channelIndex),
-                            event.note.toFrequency(),
-                            event.volume > 0 ? ((float)event.volume) / MAX_VOLUME : 1.0,
-                            event.effect
-                        );
-                    } else {
-                        mixer.start(channelIndex, WAVEFORM_SILENCE, 0.0, 1.0);
-                    }
-                }
+                startPreview(&pattern, currentChannel, cursorY);
+                isPreviewing = true;
             } else if (state.b.justReleased) {
                 // Stop playing single event
                 mixer.stop();
+                isPreviewing = false;
             }
         } else {
             // Normal mode
@@ -385,29 +416,19 @@ void LilTrackerApp::run() {
                 // Not playing
                 if (state.b.justPressed) {
                     // Play all events from this row
-                    for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-                        event_t event = pattern.getChannelEvent(channelIndex, cursorY);
-                        waveform_t waveform = pattern.getChannelWaveform(channelIndex);
-                        if (event.type != EVENT_TYPE_NORMAL) {
-                            waveform = WAVEFORM_SILENCE;
-                        }
-                        mixer.start(
-                            channelIndex,
-                            waveform,
-                            event.note.toFrequency(),
-                            event.volume > 0 ? ((float)event.volume) / MAX_VOLUME : 1.0,
-                            event.effect
-                        );
-                    }
+                    startPreview(&pattern, -1, cursorY);
+                    isPreviewing = true;
                 } else if (state.b.justReleased) {
-                    // Stop playing single event
+                    // Stop playing all events from this row
                     mixer.stop();
+                    isPreviewing = false;
                 }
 
                 if (state.a.justPressed) {
-                    // Exit edit mode
+                    // Enter edit mode
                     mixer.stop();
                     isEditing = true;
+                    isPreviewing = false;
                 }
 
                 if (state.up.justPressed) {
@@ -463,4 +484,22 @@ int LilTrackerApp::printText(
     }
     canvas->setTextColor(textColor, bgColor);
     return canvas->drawTextAligned(text, x, y, hAlign, vAlign);
+}
+
+void LilTrackerApp::startPreview(Pattern* pattern, int32_t requestedChannelIndex, int32_t requestedEventIndex) {
+    for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
+        event_t event = pattern->getChannelEvent(channelIndex, requestedEventIndex);
+        bool shouldPlayThisChannel = requestedChannelIndex == -1 || requestedChannelIndex == channelIndex;
+        if (shouldPlayThisChannel && event.type == EVENT_TYPE_NORMAL) {
+            mixer.start(
+                channelIndex,
+                pattern->getChannelWaveform(channelIndex),
+                event.note.toFrequency(),
+                event.volume > 0 ? ((float)event.volume) / MAX_VOLUME : 1.0,
+                event.effect
+            );
+        } else {
+            mixer.start(channelIndex, WAVEFORM_SILENCE, 0.0, 1.0);
+        }
+    }
 }

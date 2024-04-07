@@ -58,7 +58,7 @@ Mixer::Mixer() :
             vTaskDelete(NULL);
         },
         "mixerTask",
-        4096,
+        8192,
         this,
         1,
         nullptr,
@@ -103,6 +103,8 @@ void Mixer::stop() {
 
 void Mixer::mixerTask() {
     channel_state_t channelStates[CHANNEL_COUNT];
+    int16_t audioBuffer[MIXER_BUFFER_SIZE];
+    int16_t channelAudioBuffers[CHANNEL_COUNT][MIXER_BUFFER_SIZE];
     for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
         channelStates[channelIndex] = {WAVEFORM_SILENCE, 0.0, 1.0, {EFFECT_TYPE_NONE, 0}};
     }
@@ -129,11 +131,11 @@ void Mixer::mixerTask() {
         }
         // Mix the channels
         int64_t mixStart = millis();
-        float timeSec = (float)time / SAMPLE_RATE;
+        // float timeSec = (float)time / SAMPLE_RATE;
         for (int16_t i = 0; i < MIXER_BUFFER_SIZE; i++) {
-            // float timeSec = ((float)time + i) / SAMPLE_RATE;
-            timeSec += SECONDS_PER_SAMPLE;
-            audioBuffer[i] = 0;
+            float timeSec = ((float)time + i) / SAMPLE_RATE;
+            // timeSec += SECONDS_PER_SAMPLE;
+            // audioBuffer[i] = 0;
             for (int8_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
                 // event_t event = events[channelIndex];
                 const channel_state_t* channelState = &channelStates[channelIndex];
@@ -144,7 +146,15 @@ void Mixer::mixerTask() {
                 effect_t effect = channelState->effect;
                 effect_fn_t effect_fn = effect_functions[effect.type];
                 effect_fn(timeSec, &modFrequency, &modVolume, &modPhase, effect.param);
-                audioBuffer[i] += waveform_fn(timeSec, modFrequency, modVolume, modPhase) * 0.1 * 32767;
+                channelAudioBuffers[channelIndex][i] =
+                    waveform_fn(timeSec, modFrequency, modVolume, modPhase) * 0.1 * 32767;
+            }
+            // audioBuffer[i] /= CHANNEL_COUNT;
+        }
+        for (int16_t i = 0; i < MIXER_BUFFER_SIZE; i++) {
+            audioBuffer[i] = 0;
+            for (int8_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
+                audioBuffer[i] += channelAudioBuffers[channelIndex][i];
             }
             audioBuffer[i] /= CHANNEL_COUNT;
         }
@@ -154,16 +164,45 @@ void Mixer::mixerTask() {
         // For 256-sample buffer at 8 kHz, it is 32000 microseconds
         if (mixEnd - mixStart > MIXER_BUFFER_DURATION_MS) {
             lilka::serial_err(
-                "Mixer buffer underrun! Spent %d ms mixing, had %d ms", mixEnd - mixStart, MIXER_BUFFER_DURATION_MS
+                "Mixer buffer underrun! Spent %lld ms mixing, had %lld ms", mixEnd - mixStart, MIXER_BUFFER_DURATION_MS
             );
+        } else {
+            // lilka::serial_log("Mixer buffer mix took %lld ms", mixEnd - mixStart);
         }
 
         size_t bytesWritten = 0;
         esp_i2s::i2s_write(esp_i2s::I2S_NUM_0, audioBuffer, MIXER_BUFFER_SIZE * 2, &bytesWritten, portMAX_DELAY);
+        xSemaphoreTake(xMutex, portMAX_DELAY);
+        int64_t mixCopyStart = micros();
+        memcpy(audioBufferCopy, audioBuffer, sizeof(int16_t) * MIXER_BUFFER_SIZE);
+        for (int8_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
+            memcpy(
+                channelAudioBuffersCopy[channelIndex],
+                channelAudioBuffers[channelIndex],
+                sizeof(int16_t) * MIXER_BUFFER_SIZE
+            );
+        }
+        int64_t mixCopyEnd = micros();
+        xSemaphoreGive(xMutex);
         time += bytesWritten / 2;
-        taskYIELD();
+        // taskYIELD();
+        vTaskDelay(1); // Needed to wait for UI to be able to acquire the mutex... Probably can go back to taskYIELD now
     }
 
     // TODO: Make this part reachable & deinit I2S
     i2s_driver_uninstall(esp_i2s::I2S_NUM_0);
+}
+
+int16_t Mixer::readBuffer(int16_t* targetBuffer) {
+    xSemaphoreTake(xMutex, portMAX_DELAY);
+    memcpy(targetBuffer, audioBufferCopy, sizeof(int16_t) * MIXER_BUFFER_SIZE);
+    xSemaphoreGive(xMutex);
+    return MIXER_BUFFER_SIZE;
+}
+
+int16_t Mixer::readBuffer(int16_t* targetBuffer, int32_t channelIndex) {
+    xSemaphoreTake(xMutex, portMAX_DELAY);
+    memcpy(targetBuffer, channelAudioBuffersCopy[channelIndex], sizeof(int16_t) * MIXER_BUFFER_SIZE);
+    xSemaphoreGive(xMutex);
+    return MIXER_BUFFER_SIZE;
 }

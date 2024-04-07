@@ -15,4 +15,5 @@ private:
         const char* text, int16_t x, int16_t y, lilka::Alignment hAlign, lilka::Alignment vAlign, bool editing,
         bool focused, bool dimmed
     );
+    void startPreview(Pattern* pattern, int32_t requestedChannelIndex, int32_t requestedEventIndex);
 };
