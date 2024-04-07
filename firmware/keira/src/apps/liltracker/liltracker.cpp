@@ -148,15 +148,19 @@ void LilTrackerApp::run() {
         {N_C0, 0, EVENT_TYPE_STOP},
     };
 
-    Pattern pattern;
+    Track track;
+    track.setPatternCount(2);
 
-    pattern.setChannelEvents(0, channel0);
-    pattern.setChannelWaveform(0, WAVEFORM_SQUARE);
-    pattern.setChannelEvents(1, channel1);
-    pattern.setChannelWaveform(1, WAVEFORM_SAWTOOTH);
-    pattern.setChannelEvents(2, channel2);
+    int patternIndex = 0;
+    Pattern* pattern = track.getPattern(patternIndex);
+
+    pattern->setChannelEvents(0, channel0);
+    pattern->setChannelWaveform(0, WAVEFORM_SQUARE);
+    pattern->setChannelEvents(1, channel1);
+    pattern->setChannelWaveform(1, WAVEFORM_SAWTOOTH);
+    pattern->setChannelEvents(2, channel2);
     // pattern.setChannelWaveform(2, WAVEFORM_TRIANGLE);
-    pattern.setChannelWaveform(2, WAVEFORM_SINE);
+    pattern->setChannelWaveform(2, WAVEFORM_SINE);
 
     int cursorX = 0;
     int cursorY = 0;
@@ -173,6 +177,8 @@ void LilTrackerApp::run() {
 
         if (seqState.playing) {
             cursorY = seqState.eventIndex;
+            patternIndex = seqState.patternIndex;
+            pattern = track.getPattern(patternIndex);
         }
 
         canvas->fillScreen(lilka::colors::Black);
@@ -221,7 +227,7 @@ void LilTrackerApp::run() {
 
         for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
             canvas->drawTextAligned(
-                waveform_names[pattern.getChannelWaveform(channelIndex)],
+                waveform_names[pattern->getChannelWaveform(channelIndex)],
                 SCORE_COUNTER_WIDTH + channelIndex * SCORE_EVENT_WIDTH,
                 SCORE_HEADER_TOP,
                 lilka::ALIGN_START,
@@ -249,7 +255,7 @@ void LilTrackerApp::run() {
                 str, SCORE_COUNTER_WIDTH / 2, y + SCORE_ITEM_HEIGHT / 2, lilka::ALIGN_CENTER, lilka::ALIGN_CENTER
             );
             for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-                event_t event = pattern.getChannelEvent(channelIndex, eventIndex);
+                event_t event = pattern->getChannelEvent(channelIndex, eventIndex);
                 int xOffset = SCORE_COUNTER_WIDTH + channelIndex * SCORE_EVENT_WIDTH;
                 if (event.type == EVENT_TYPE_CONT) {
                     strcpy(str, "...");
@@ -333,7 +339,7 @@ void LilTrackerApp::run() {
             if (state.up.justPressed || state.down.justPressed || state.left.justPressed || state.right.justPressed ||
                 state.c.justPressed) {
                 // Adjust note
-                event_t event = pattern.getChannelEvent(currentChannel, cursorY);
+                event_t event = pattern->getChannelEvent(currentChannel, cursorY);
                 if (currentSegment == 0) {
                     if (event.type == EVENT_TYPE_NORMAL) {
                         if (state.up.justPressed) {
@@ -388,15 +394,15 @@ void LilTrackerApp::run() {
                 if (state.c.justPressed) {
                     event.type = static_cast<event_type_t>((event.type + 1) % EVENT_TYPE_COUNT);
                 }
-                pattern.setChannelEvent(currentChannel, cursorY, event);
+                pattern->setChannelEvent(currentChannel, cursorY, event);
                 if (isPreviewing) {
                     // Update preview
-                    startPreview(&pattern, currentChannel, cursorY);
+                    startPreview(pattern, currentChannel, cursorY);
                 }
             }
             if (state.b.justPressed) {
                 // Play single event
-                startPreview(&pattern, currentChannel, cursorY);
+                startPreview(pattern, currentChannel, cursorY);
                 isPreviewing = true;
             } else if (state.b.justReleased) {
                 // Stop playing single event
@@ -416,7 +422,7 @@ void LilTrackerApp::run() {
                 // Not playing
                 if (state.b.justPressed) {
                     // Play all events from this row
-                    startPreview(&pattern, -1, cursorY);
+                    startPreview(pattern, -1, cursorY);
                     isPreviewing = true;
                 } else if (state.b.justReleased) {
                     // Stop playing all events from this row
@@ -447,7 +453,7 @@ void LilTrackerApp::run() {
 
                 if (state.start.justPressed) {
                     // Start playing
-                    sequencer.play(&pattern, true);
+                    sequencer.play(&track, true);
                 }
                 if (state.a.justPressed) {
                     // Enter edit mode

@@ -13,12 +13,13 @@ private:
     SemaphoreHandle_t xMutex;
 };
 
-Sequencer::Sequencer(Mixer* mixer) : xMutex(xSemaphoreCreateMutex()), mixer(mixer) {
+Sequencer::Sequencer(Mixer* mixer) : xMutex(xSemaphoreCreateBinary()), mixer(mixer) {
     playstate.playing = false;
-    playstate.loop = false;
     playstate.eventIndex = 0;
-    playstate.pattern = NULL;
+    playstate.patternIndex = 0;
     playstate.track = NULL;
+    playstate.loopPattern = false;
+    playstate.loopTrack = false;
 
     xTaskCreatePinnedToCore(
         [](void* pvParameters) {
@@ -32,32 +33,36 @@ Sequencer::Sequencer(Mixer* mixer) : xMutex(xSemaphoreCreateMutex()), mixer(mixe
         nullptr,
         1
     );
+
+    xSemaphoreGive(xMutex);
 }
 
 Sequencer::~Sequencer() {
     vSemaphoreDelete(xMutex);
 }
 
-void Sequencer::play(Pattern* pattern, bool loop) {
-    AcquireSequencer acquire(xMutex);
-    if (playstate.playing) {
-        return;
-    }
-    playstate.track = NULL;
-    playstate.pattern = pattern;
-    playstate.loop = loop;
-    playstate.eventIndex = 0;
-    playstate.playing = true;
-}
-
-void Sequencer::play(Track* track, bool loop) {
+void Sequencer::play(Track* track, int16_t patternIndex, bool loopPattern) {
     AcquireSequencer acquire(xMutex);
     if (playstate.playing) {
         return;
     }
     playstate.track = track;
-    playstate.pattern = NULL; // TODO: track->getPattern(0);
-    playstate.loop = loop;
+    playstate.patternIndex = patternIndex;
+    playstate.loopPattern = loopPattern;
+    playstate.loopTrack = false;
+    playstate.eventIndex = 0;
+    playstate.playing = true;
+}
+
+void Sequencer::play(Track* track, bool loopTrack) {
+    AcquireSequencer acquire(xMutex);
+    if (playstate.playing) {
+        return;
+    }
+    playstate.track = track;
+    playstate.patternIndex = 0;
+    playstate.loopPattern = false;
+    playstate.loopTrack = loopTrack;
     playstate.eventIndex = 0;
     playstate.playing = true;
 }
@@ -77,11 +82,10 @@ void Sequencer::sequencerTask() {
     while (1) { // TODO: make this stoppable
         // Play the pattern.
         // If we reach the end of the pattern:
-        // - If we have track, get the next pattern from the track and start playing
-        // - Else if we don't have a track and loop is enabled, start playing the pattern from the beginning
-        // - Else, stop playing
+        // - If loopPattern is enabled, start playing the pattern from the beginning
+        // - Else, increment the pattern index
         // If we reach the end of the track:
-        // - If loop is enabled, start playing the track from the beginning
+        // - If loopTrack is enabled, start playing the track from the beginning
         // - Else, stop playing
         // If we stop playing, yield the task
 
@@ -95,9 +99,10 @@ void Sequencer::sequencerTask() {
             // Play the pattern
             {
                 AcquireSequencer acquire(xMutex);
+                Pattern* pattern = playstate.track->getPattern(playstate.patternIndex);
                 for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-                    event_t event = playstate.pattern->getChannelEvent(channelIndex, playstate.eventIndex);
-                    waveform_t waveform = playstate.pattern->getChannelWaveform(channelIndex);
+                    event_t event = pattern->getChannelEvent(channelIndex, playstate.eventIndex);
+                    waveform_t waveform = pattern->getChannelWaveform(channelIndex);
                     mixer_command_t cmd;
                     cmd.channelIndex = channelIndex;
                     if (event.type == EVENT_TYPE_STOP) {
@@ -138,18 +143,23 @@ void Sequencer::sequencerTask() {
                 if (playstate.eventIndex >= CHANNEL_SIZE) {
                     // End of the pattern
                     playstate.eventIndex = 0;
-                    if (playstate.track != NULL) {
-                        // Playing the track
-                        // Get the next pattern from the track
-                        // playstate.pattern = playstate.track->getPattern(0); // TODO
-                        // playstate.eventIndex = 0;
-                    } else if (playstate.loop) {
+                    int16_t nextPatternIndex = playstate.patternIndex + 1;
+
+                    if (nextPatternIndex < playstate.track->getPatternCount()) {
+                        // Play the next pattern
+                        playstate.patternIndex = nextPatternIndex;
+                    } else if (playstate.loopPattern) {
                         // Loop the pattern
-                        playstate.eventIndex = 0;
                     } else {
-                        // Stop playing
-                        playstate.playing = false;
-                        mixer->stop();
+                        // End of the track
+                        playstate.patternIndex = 0;
+                        if (playstate.loopTrack) {
+                            // Loop the track
+                        } else {
+                            // Stop playing
+                            playstate.playing = false;
+                            mixer->stop();
+                        }
                     }
                 }
             }

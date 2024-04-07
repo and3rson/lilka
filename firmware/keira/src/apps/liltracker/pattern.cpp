@@ -16,18 +16,19 @@ private:
     SemaphoreHandle_t xMutex;
 };
 
-Pattern::Pattern() : xMutex(xSemaphoreCreateMutex()) {
+Pattern::Pattern() : xMutex(xSemaphoreCreateBinary()) {
     for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
         channels[channelIndex].waveform = WAVEFORM_SQUARE;
         channels[channelIndex].volume = 1.0f;
         channels[channelIndex].pitch = 1.0f;
         for (int32_t eventIndex = 0; eventIndex < CHANNEL_SIZE; eventIndex++) {
             channels[channelIndex].events[eventIndex].note = {0, 0};
-            channels[channelIndex].events[eventIndex].volume = 0xFF;
+            channels[channelIndex].events[eventIndex].volume = MAX_VOLUME;
             channels[channelIndex].events[eventIndex].type = EVENT_TYPE_CONT;
             channels[channelIndex].events[eventIndex].effect = {EFFECT_TYPE_NONE, 0};
         }
     }
+    xSemaphoreGive(xMutex);
 }
 
 Pattern::~Pattern() {

@@ -13,7 +13,7 @@ typedef struct {
 } channel_state_t;
 
 Mixer::Mixer() :
-    xMutex(xSemaphoreCreateMutex()),
+    xMutex(xSemaphoreCreateBinary()),
     xQueue(xQueueCreate(CHANNEL_COUNT * MIXER_COMMAND_COUNT, sizeof(mixer_command_t))) {
     constexpr uint8_t pinCount = 3;
     uint8_t pins[pinCount] = {LILKA_I2S_BCLK, LILKA_I2S_LRCK, LILKA_I2S_DOUT};
@@ -64,6 +64,8 @@ Mixer::Mixer() :
         nullptr,
         0
     );
+
+    xSemaphoreGive(xMutex);
 }
 
 Mixer::~Mixer() {
