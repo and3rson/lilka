@@ -1,12 +1,38 @@
 #include "pattern.h"
 #include <string.h>
 #include <lilka.h>
+#include <freertos/queue.h>
 
 class AcquireMixer {
 public:
     explicit AcquireMixer(SemaphoreHandle_t xMutex) {
         this->xMutex = xMutex;
-        xSemaphoreTake(xMutex, portMAX_DELAY);
+        // Check if this is a valid mutex
+        if (xMutex == NULL) {
+            // Panic!
+            lilka::serial_err("Invalid mutex!");
+        }
+        // Get size of xMutex item
+
+        // Out-of-bounds is happening somewhere, and it corrupts the mutex.
+        int length = reinterpret_cast<StaticQueue_t*>(xMutex)->uxDummy4[1];
+        int itemSize = reinterpret_cast<StaticQueue_t*>(xMutex)->uxDummy4[2];
+
+        if (itemSize != 0) {
+            // Panic!
+            lilka::serial_err("Mutex item size should be 0! Size: %d", itemSize);
+        }
+
+        // Get queue capacity of xMutex
+        // UBaseType_t uxQueueLength = uxQueueMessagesWaiting(xMutex);
+        // if (uxQueueLength > 0) {
+        //     // Panic!
+        //     lilka::serial_err("Mutex should always be empty! Capacity: %d", uxQueueLength);
+        // }
+        if (xSemaphoreTake(xMutex, portMAX_DELAY) != pdTRUE) {
+            // Panic!
+            lilka::serial_err("Failed to acquire mutex!");
+        }
     }
     ~AcquireMixer() {
         xSemaphoreGive(xMutex);
@@ -16,7 +42,7 @@ private:
     SemaphoreHandle_t xMutex;
 };
 
-Pattern::Pattern() : xMutex(xSemaphoreCreateBinary()) {
+Pattern::Pattern() : xMutex(xSemaphoreCreateMutex()) {
     for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
         channels[channelIndex].waveform = WAVEFORM_SQUARE;
         channels[channelIndex].volume = 1.0f;

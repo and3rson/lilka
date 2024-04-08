@@ -1,4 +1,7 @@
+// TODO: Add enable/disable methods instead of deallocating WiFi from apps like LilTracker
+
 #include <Preferences.h>
+#include <esp_wifi.h>
 
 #include "network.h"
 
@@ -106,22 +109,29 @@ void NetworkService::run() {
     });
 
     while (1) {
-        const int8_t rssi = WiFi.RSSI();
-        if (rssi == 0) {
-            signalStrength = 0;
+        // Check if WiFi is deallocated
+        wifi_mode_t mode;
+        if (esp_wifi_get_mode(&mode) == ESP_ERR_WIFI_NOT_INIT) {
+            // WiFi was deallocated
+            // TODO: This is a crutch to avoid using WiFi after deallocation by apps (e. g. LilTracker). /AD
         } else {
-            const int8_t excellent = -50;
-            const int8_t good = -70;
-            const int8_t fair = -80;
-
-            if (rssi >= excellent) {
-                signalStrength = 3;
-            } else if (rssi >= good) {
-                signalStrength = 2;
-            } else if (rssi >= fair) {
-                signalStrength = 1;
-            } else {
+            const int8_t rssi = WiFi.RSSI();
+            if (rssi == 0) {
                 signalStrength = 0;
+            } else {
+                const int8_t excellent = -50;
+                const int8_t good = -70;
+                const int8_t fair = -80;
+
+                if (rssi >= excellent) {
+                    signalStrength = 3;
+                } else if (rssi >= good) {
+                    signalStrength = 2;
+                } else if (rssi >= fair) {
+                    signalStrength = 1;
+                } else {
+                    signalStrength = 0;
+                }
             }
         }
 
