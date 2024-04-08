@@ -1,38 +1,22 @@
-#include "pattern.h"
 #include <string.h>
 #include <lilka.h>
 #include <freertos/queue.h>
+
+#include "pattern.h"
+
+#define WRITE_TO_BUFFER(buffer, value)              \
+    memcpy(&buffer[offset], &value, sizeof(value)); \
+    offset += sizeof(value);
+
+#define READ_FROM_BUFFER(value, buffer)             \
+    memcpy(&value, &buffer[offset], sizeof(value)); \
+    offset += sizeof(value);
 
 class AcquireMixer {
 public:
     explicit AcquireMixer(SemaphoreHandle_t xMutex) {
         this->xMutex = xMutex;
-        // Check if this is a valid mutex
-        if (xMutex == NULL) {
-            // Panic!
-            lilka::serial_err("Invalid mutex!");
-        }
-        // Get size of xMutex item
-
-        // Out-of-bounds is happening somewhere, and it corrupts the mutex.
-        int length = reinterpret_cast<StaticQueue_t*>(xMutex)->uxDummy4[1];
-        int itemSize = reinterpret_cast<StaticQueue_t*>(xMutex)->uxDummy4[2];
-
-        if (itemSize != 0) {
-            // Panic!
-            lilka::serial_err("Mutex item size should be 0! Size: %d", itemSize);
-        }
-
-        // Get queue capacity of xMutex
-        // UBaseType_t uxQueueLength = uxQueueMessagesWaiting(xMutex);
-        // if (uxQueueLength > 0) {
-        //     // Panic!
-        //     lilka::serial_err("Mutex should always be empty! Capacity: %d", uxQueueLength);
-        // }
-        if (xSemaphoreTake(xMutex, portMAX_DELAY) != pdTRUE) {
-            // Panic!
-            lilka::serial_err("Failed to acquire mutex!");
-        }
+        xSemaphoreTake(xMutex, portMAX_DELAY);
     }
     ~AcquireMixer() {
         xSemaphoreGive(xMutex);
@@ -89,38 +73,69 @@ void Pattern::setChannelEvents(int32_t channelIndex, const event_t* events) {
     }
 }
 
+int Pattern::calculateWriteBufferSize() {
+    AcquireMixer acquire(xMutex);
+    int32_t bufferSize = 0;
+
+    // Calculate all channels
+    for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
+        // Calculate channel settings
+        bufferSize += sizeof(int32_t);
+        bufferSize += sizeof(waveform_t);
+        bufferSize += sizeof(float);
+        bufferSize += sizeof(float);
+
+        // Calculate events
+        bufferSize += sizeof(int32_t);
+        bufferSize += sizeof(event_t) * CHANNEL_SIZE;
+    }
+
+    return bufferSize;
+}
+
 int Pattern::writeToBuffer(uint8_t* buffer) {
     AcquireMixer acquire(xMutex);
-    uint8_t* offset = buffer;
+    int32_t offset = 0;
+
+    // Write all channels
     for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-        memcpy(offset, &channels[channelIndex].waveform, sizeof(waveform_t));
-        offset += sizeof(waveform_t);
-        memcpy(offset, &channels[channelIndex].volume, sizeof(float));
-        offset += sizeof(float);
-        memcpy(offset, &channels[channelIndex].pitch, sizeof(float));
-        offset += sizeof(float);
+        // Write channel settings
+        // memcpy(&buffer[offset], &channelIndex, sizeof(int32_t));
+        WRITE_TO_BUFFER(buffer, channelIndex);
+        WRITE_TO_BUFFER(buffer, channels[channelIndex].waveform);
+        WRITE_TO_BUFFER(buffer, channels[channelIndex].volume);
+        WRITE_TO_BUFFER(buffer, channels[channelIndex].pitch);
+
+        // Write events
+        int32_t eventCount = CHANNEL_SIZE;
+        WRITE_TO_BUFFER(buffer, eventCount);
         for (int32_t eventIndex = 0; eventIndex < CHANNEL_SIZE; eventIndex++) {
-            memcpy(offset, &channels[channelIndex].events[eventIndex], sizeof(event_t));
-            offset += sizeof(event_t);
+            WRITE_TO_BUFFER(buffer, channels[channelIndex].events[eventIndex]);
         }
     }
-    return offset - buffer;
+
+    return offset;
 }
 
 int Pattern::readFromBuffer(const uint8_t* buffer) {
     AcquireMixer acquire(xMutex);
-    const uint8_t* offset = buffer;
+    int32_t offset = 0;
+
+    // Read all channels
     for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-        memcpy(&channels[channelIndex].waveform, offset, sizeof(waveform_t));
-        offset += sizeof(waveform_t);
-        memcpy(&channels[channelIndex].volume, offset, sizeof(float));
-        offset += sizeof(float);
-        memcpy(&channels[channelIndex].pitch, offset, sizeof(float));
-        offset += sizeof(float);
-        for (int32_t eventIndex = 0; eventIndex < CHANNEL_SIZE; eventIndex++) {
-            memcpy(&channels[channelIndex].events[eventIndex], offset, sizeof(event_t));
-            offset += sizeof(event_t);
+        // Read channel settings
+        READ_FROM_BUFFER(channelIndex, buffer);
+        READ_FROM_BUFFER(channels[channelIndex].waveform, buffer);
+        READ_FROM_BUFFER(channels[channelIndex].volume, buffer);
+        READ_FROM_BUFFER(channels[channelIndex].pitch, buffer);
+
+        // Read events
+        int32_t eventCount;
+        READ_FROM_BUFFER(eventCount, buffer);
+        for (int32_t eventIndex = 0; eventIndex < eventCount; eventIndex++) {
+            READ_FROM_BUFFER(channels[channelIndex].events[eventIndex], buffer);
         }
     }
-    return offset - buffer;
+
+    return offset;
 }

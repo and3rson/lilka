@@ -100,7 +100,7 @@ void Sequencer::sequencerTask() {
             // Play the page
             {
                 AcquireSequencer acquire(xMutex);
-                page_t* page = playstate.track->getPage(playstate.pageIndex);
+                const page_t* page = playstate.track->getPage(playstate.pageIndex);
                 for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
                     Pattern* pattern = playstate.track->getPattern(page->patternIndices[channelIndex]);
                     event_t event = pattern->getChannelEvent(channelIndex, playstate.eventIndex);
@@ -132,7 +132,8 @@ void Sequencer::sequencerTask() {
                 }
             }
             // Wait according to the BPM
-            vTaskDelay(MS_PER_BEAT / portTICK_PERIOD_MS);
+            const int32_t msPerBeat = 60000 / playstate.track->getBPM();
+            vTaskDelay(msPerBeat / portTICK_PERIOD_MS);
             // Increment the event index
             {
                 AcquireSequencer acquire(xMutex);

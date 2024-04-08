@@ -1,7 +1,6 @@
 #pragma once
 
 #define CHANNEL_COUNT 3
-#define BPM           400
-#define MS_PER_BEAT   60 * 1000 / BPM
+#define DEFAULT_BPM   400
 #define CHANNEL_SIZE  32
 #define MAX_VOLUME    127

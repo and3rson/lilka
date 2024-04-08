@@ -1,6 +1,8 @@
 #include <math.h>
 #include "waveforms.h"
 
+// TODO: Use integers instead of floats for audio samples, time, frequency, amplitude, and phase?
+
 // Silence wave function
 float silence(float time, float frequency, float amplitude, float phase) {
     return 0.0f;
@@ -18,7 +20,8 @@ float sine(float time, float frequency, float amplitude, float phase) {
 
 // Square wave function
 float square(float time, float frequency, float amplitude, float phase) {
-    return amplitude * (sinf(2.0f * M_PI * frequency * time + phase) > 0.0f ? 1.0f : -1.0f);
+    // return amplitude * (sinf(2.0f * M_PI * frequency * time + phase) > 0.0f ? 1.0f : -1.0f);
+    return amplitude * (fmodf(time * frequency + phase, 1.0f) < 0.5f ? 1.0f : -1.0f);
 }
 
 // Sawtooth wave function

@@ -178,7 +178,6 @@ void Mixer::mixerTask() {
         size_t bytesWritten = 0;
         esp_i2s::i2s_write(esp_i2s::I2S_NUM_0, audioBuffer, MIXER_BUFFER_SIZE * 2, &bytesWritten, portMAX_DELAY);
         xSemaphoreTake(xMutex, portMAX_DELAY);
-        int64_t mixCopyStart = micros();
         memcpy(audioBufferCopy, audioBuffer, sizeof(int16_t) * MIXER_BUFFER_SIZE);
         for (int8_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
             memcpy(
@@ -187,7 +186,6 @@ void Mixer::mixerTask() {
                 sizeof(int16_t) * MIXER_BUFFER_SIZE
             );
         }
-        int64_t mixCopyEnd = micros();
         xSemaphoreGive(xMutex);
         time += bytesWritten / 2;
         // taskYIELD();

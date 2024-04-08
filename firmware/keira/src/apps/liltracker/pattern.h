@@ -38,6 +38,8 @@ public:
     event_t getChannelEvent(int32_t channelIndex, int32_t eventIndex);
     void setChannelEvent(int32_t channelIndex, int32_t eventIndex, event_t event);
     void setChannelEvents(int32_t channelIndex, const event_t* events);
+
+    int calculateWriteBufferSize();
     int writeToBuffer(uint8_t* buffer);
     int readFromBuffer(const uint8_t* buffer);
 
