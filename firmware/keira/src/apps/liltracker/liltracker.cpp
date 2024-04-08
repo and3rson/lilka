@@ -290,6 +290,7 @@ void LilTrackerApp::run() {
             if (eventIndex == scoreCursorY && activeBlock == ACTIVE_BLOCK_EVENT_EDITING) {
                 canvas->drawRect(0, y, canvas->width(), SCORE_ITEM_HEIGHT, lilka::colors::Blue);
             }
+            canvas->setTextColor(lilka::colors::White, lilka::colors::White);
             sprintf(str, "%02X", eventIndex);
             canvas->drawTextAligned(
                 str, SCORE_COUNTER_WIDTH / 2, y + SCORE_ITEM_HEIGHT / 2, lilka::ALIGN_CENTER, lilka::ALIGN_CENTER

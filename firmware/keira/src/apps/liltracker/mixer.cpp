@@ -1,6 +1,7 @@
 #include <lilka.h>
 #include <esp_wifi.h>
 #include <esp_bt.h>
+#include "WiFi.h"
 #include "mixer.h"
 #include "config.h"
 
@@ -47,10 +48,11 @@ Mixer::Mixer() :
     }
 
     // Free up the core 0 for the mixer task
-    esp_wifi_stop();
-    esp_wifi_deinit();
-    esp_bt_controller_disable();
-    esp_bt_controller_deinit();
+    // WiFi.mode(WIFI_OFF);
+    // esp_wifi_stop();
+    // esp_wifi_deinit();
+    // esp_bt_controller_disable();
+    // esp_bt_controller_deinit();
 
     xTaskCreatePinnedToCore(
         [](void* pvParameters) {
@@ -166,7 +168,7 @@ void Mixer::mixerTask() {
         // For 256-sample buffer at 8 kHz, it is 32000 microseconds
         if (mixEnd - mixStart > MIXER_BUFFER_DURATION_MS) {
             lilka::serial_err(
-                "Mixer buffer underrun! Spent %lld ms mixing, had %lld ms", mixEnd - mixStart, MIXER_BUFFER_DURATION_MS
+                "Mixer buffer underrun! Spent %lld ms mixing, had %d ms", mixEnd - mixStart, MIXER_BUFFER_DURATION_MS
             );
         } else {
             // lilka::serial_log("Mixer buffer mix took %lld ms", mixEnd - mixStart);

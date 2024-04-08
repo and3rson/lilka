@@ -91,6 +91,7 @@ void NetworkService::run() {
             }
             case ARDUINO_EVENT_WIFI_STA_GOT_IP:
             case ARDUINO_EVENT_WIFI_STA_GOT_IP6: {
+                Serial.println("Got IP");
                 IPAddress ip = WiFi.localIP();
                 ipAddr = ip.toString();
                 Serial.println("NetworkService: got IP address: " + ipAddr);
@@ -104,6 +105,7 @@ void NetworkService::run() {
                 break;
             }
             default:
+                Serial.println("Got unhandled WiFi event");
                 break;
         }
     });
@@ -114,6 +116,10 @@ void NetworkService::run() {
         if (esp_wifi_get_mode(&mode) == ESP_ERR_WIFI_NOT_INIT) {
             // WiFi was deallocated
             // TODO: This is a crutch to avoid using WiFi after deallocation by apps (e. g. LilTracker). /AD
+            // Serial.println("NetworkService: WiFi deallocated");
+        } else if (WiFi.status() == WL_DISCONNECTED) {
+            // WiFi is disconnected
+            // Serial.println("NetworkService: WiFi disconnected");
         } else {
             const int8_t rssi = WiFi.RSSI();
             if (rssi == 0) {
