@@ -306,7 +306,7 @@ void LilTrackerApp::run() {
         // }
 
         // Draw channel buffers
-        if (seqState.playing) {
+        if (seqState.playing || isPreviewing) {
             for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
                 int16_t buffer[MIXER_BUFFER_SIZE];
                 mixer.readBuffer(buffer, channelIndex);
