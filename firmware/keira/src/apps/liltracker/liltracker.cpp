@@ -154,22 +154,117 @@ void LilTrackerApp::run() {
         {N_C0, 0, EVENT_TYPE_STOP},
         {N_C0, 0, EVENT_TYPE_STOP},
     };
+    event_t drums[] = {
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_E6, 80, EVENT_TYPE_NORMAL},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        //
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_E6, 80, EVENT_TYPE_NORMAL},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        //
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_E6, 80, EVENT_TYPE_NORMAL},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        //
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_E6, 80, EVENT_TYPE_NORMAL},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        //
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_E6, 80, EVENT_TYPE_NORMAL},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        //
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_E6, 80, EVENT_TYPE_NORMAL},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        //
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_E6, 80, EVENT_TYPE_NORMAL},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        //
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_E6, 80, EVENT_TYPE_NORMAL},
+        {N_C0, 0, EVENT_TYPE_STOP},
+        //
+    };
 
     Track track;
-    track.setPatternCount(2);
 
-    int patternIndex = 0;
-    Pattern* pattern = track.getPattern(patternIndex);
+    {
+        page_t* page;
 
-    pattern->setChannelEvents(0, channel0);
-    pattern->setChannelWaveform(0, WAVEFORM_SQUARE);
-    pattern->setChannelEvents(1, channel1);
-    pattern->setChannelWaveform(1, WAVEFORM_SAWTOOTH);
-    pattern->setChannelEvents(2, channel2);
-    // pattern.setChannelWaveform(2, WAVEFORM_TRIANGLE);
-    pattern->setChannelWaveform(2, WAVEFORM_SINE);
+        page = track.getPage(0);
+        page->patternIndices[0] = 0;
+        page->patternIndices[1] = 2;
+        page->patternIndices[2] = 0;
 
-    int8_t activeBlock = ACTIVE_BLOCK_CONTROLS;
+        page = track.getPage(1);
+        page->patternIndices[0] = 0;
+        page->patternIndices[1] = 2;
+        page->patternIndices[2] = 1;
+
+        page = track.getPage(2);
+        page->patternIndices[0] = 2;
+        page->patternIndices[1] = 2;
+        page->patternIndices[2] = 1;
+
+        page = track.getPage(3);
+        page->patternIndices[0] = 2;
+        page->patternIndices[1] = 2;
+        page->patternIndices[2] = 1;
+
+        page = track.getPage(4);
+        page->patternIndices[0] = 3;
+        page->patternIndices[1] = 2;
+        page->patternIndices[2] = 1;
+
+        page = track.getPage(5);
+        page->patternIndices[0] = 3;
+        page->patternIndices[1] = 2;
+        page->patternIndices[2] = 1;
+
+        page = track.getPage(6);
+        page->patternIndices[0] = 3;
+        page->patternIndices[1] = 2;
+        page->patternIndices[2] = 0;
+
+        page = track.getPage(7);
+        page->patternIndices[0] = 0;
+        page->patternIndices[1] = 2;
+        page->patternIndices[2] = 0;
+
+        Pattern* pattern;
+
+        pattern = track.getPattern(1);
+        pattern->setChannelEvents(2, drums);
+        pattern->setChannelWaveform(2, WAVEFORM_NOISE);
+
+        pattern = track.getPattern(2);
+        pattern->setChannelEvents(0, channel0);
+        pattern->setChannelWaveform(0, WAVEFORM_SQUARE);
+        pattern->setChannelEvents(1, channel1);
+        pattern->setChannelWaveform(1, WAVEFORM_SAWTOOTH);
+        pattern->setChannelEvents(2, channel2);
+        // pattern.setChannelWaveform(2, WAVEFORM_TRIANGLE);
+        pattern->setChannelWaveform(2, WAVEFORM_SINE);
+
+        pattern = track.getPattern(3);
+        pattern->setChannelEvents(0, channel2);
+        pattern->setChannelWaveform(0, WAVEFORM_SINE);
+    }
+
+    int pageIndex = 0;
+
+    int8_t activeBlock = ACTIVE_BLOCK_EVENT_EDITING;
     int scoreCursorX = 0;
     int scoreCursorY = 0;
     int currentChannel = 0;
@@ -188,9 +283,10 @@ void LilTrackerApp::run() {
 
         if (seqState.playing) {
             scoreCursorY = seqState.eventIndex;
-            patternIndex = seqState.patternIndex;
-            pattern = track.getPattern(patternIndex);
+            pageIndex = seqState.pageIndex;
         }
+
+        page_t* page = track.getPage(pageIndex);
 
         canvas->fillScreen(lilka::colors::Black);
 
@@ -201,7 +297,7 @@ void LilTrackerApp::run() {
         // int16_t prevX, prevY;
         // for (int i = 0; i < MIXER_BUFFER_SIZE; i++) {
         //     int x = i * lilka::display.width() / MIXER_BUFFER_SIZE;
-        //     int y = SCORE_HEADER_TOP / 2 + ((float)buffer[i] / 32768 * 10) * SCORE_HEADER_TOP / 2;
+        //     int y = SCORE_HEADER_TOP / 2 + ((float)buffer[i] / 32768 / mixer.getMasterVolume()) * SCORE_HEADER_TOP / 2;
         //     if (i > 0) {
         //         canvas->drawLine(prevX, prevY, x, y, lilka::colors::White);
         //     }
@@ -221,7 +317,8 @@ void LilTrackerApp::run() {
                 for (int i = 0; i < MIXER_BUFFER_SIZE; i += 4) {
                     int x = minX + i * width / MIXER_BUFFER_SIZE;
                     int index = i / 2; // Make samples wider for nicer display
-                    int y = SCORE_HEADER_TOP / 2 + ((float)buffer[index] / 32768 * 10) * SCORE_HEADER_TOP / 2;
+                    int y = SCORE_HEADER_TOP / 2 +
+                            ((float)buffer[index] / 32768 / mixer.getMasterVolume()) * SCORE_HEADER_TOP / 2;
                     if (i > 0) {
                         canvas->drawLine(prevX, prevY, x, y, lilka::colors::White);
                     }
@@ -230,8 +327,8 @@ void LilTrackerApp::run() {
                 }
             }
         } else {
-            // Draw current segment info and other controls
-            sprintf(str, "Page %d", 1337);
+            // Draw current page info and pattern indices
+            sprintf(str, "Page %02X", pageIndex);
             bool isPageSelectorFocused = activeBlock == ACTIVE_BLOCK_CONTROLS && controlCursorY == 0;
             printText(
                 str,
@@ -240,7 +337,7 @@ void LilTrackerApp::run() {
                 lilka::ALIGN_CENTER,
                 lilka::ALIGN_CENTER,
                 isPageSelectorFocused && isEditing,
-                controlCursorY == 0,
+                isPageSelectorFocused,
                 false
             );
         }
@@ -254,10 +351,17 @@ void LilTrackerApp::run() {
 
         // Draw channel waveform names
         for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
+            Pattern* pattern = track.getPattern(page->patternIndices[channelIndex]);
             bool isChannelWaveformFocused =
                 activeBlock == ACTIVE_BLOCK_CONTROLS && controlCursorY == 1 && controlCursorX == channelIndex;
+            sprintf(
+                str,
+                "%02X: %-4s",
+                page->patternIndices[channelIndex],
+                waveform_names[pattern->getChannelWaveform(channelIndex)]
+            );
             printText(
-                waveform_names[pattern->getChannelWaveform(channelIndex)],
+                str,
                 SCORE_COUNTER_WIDTH + channelIndex * SCORE_EVENT_WIDTH,
                 SCORE_HEADER_TOP,
                 lilka::ALIGN_START,
@@ -296,6 +400,7 @@ void LilTrackerApp::run() {
                 str, SCORE_COUNTER_WIDTH / 2, y + SCORE_ITEM_HEIGHT / 2, lilka::ALIGN_CENTER, lilka::ALIGN_CENTER
             );
             for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
+                Pattern* pattern = track.getPattern(page->patternIndices[channelIndex]);
                 event_t event = pattern->getChannelEvent(channelIndex, eventIndex);
                 int xOffset = SCORE_COUNTER_WIDTH + channelIndex * SCORE_EVENT_WIDTH;
                 if (event.type == EVENT_TYPE_CONT) {
@@ -380,20 +485,32 @@ void LilTrackerApp::run() {
                     state.right.justPressed) {
                     if (controlCursorY == 0) {
                         // Select page
-                        if (state.left.justPressed) {
-                            // currentPage = (currentPage - 1 + track.getPageCount()) % track.getPageCount();
-                        } else if (state.down.justPressed) {
-                            // currentPage = (currentPage + 1) % track.getPageCount();
+                        if (state.up.justPressed || state.left.justPressed) {
+                            pageIndex = (pageIndex - 1 + track.getPageCount()) % track.getPageCount();
+                        } else if (state.down.justPressed || state.right.justPressed) {
+                            pageIndex = (pageIndex + 1) % track.getPageCount();
                         }
                     } else if (controlCursorY == 1) {
                         // Select waveform for pattern's channel
-                        if (state.up.justPressed) {
+                        Pattern* pattern = track.getPattern(page->patternIndices[controlCursorX]);
+                        if (state.left.justPressed) {
+                            // Previous waveform
                             int8_t newWaveform =
                                 (pattern->getChannelWaveform(controlCursorX) - 1 + WAVEFORM_COUNT) % WAVEFORM_COUNT;
                             pattern->setChannelWaveform(controlCursorX, static_cast<waveform_t>(newWaveform));
-                        } else if (state.down.justPressed) {
+                        } else if (state.right.justPressed) {
+                            // Next waveform
                             int8_t newWaveform = (pattern->getChannelWaveform(controlCursorX) + 1) % WAVEFORM_COUNT;
                             pattern->setChannelWaveform(controlCursorX, static_cast<waveform_t>(newWaveform));
+                        } else if (state.up.justPressed) {
+                            // Previous pattern
+                            page->patternIndices[controlCursorX] =
+                                (page->patternIndices[controlCursorX] - 1 + track.getPatternCount()) %
+                                track.getPatternCount();
+                        } else if (state.down.justPressed) {
+                            // Next pattern
+                            page->patternIndices[controlCursorX] =
+                                (page->patternIndices[controlCursorX] + 1) % track.getPatternCount();
                         }
                     }
                 }
@@ -427,6 +544,7 @@ void LilTrackerApp::run() {
                 if (state.up.justPressed || state.down.justPressed || state.left.justPressed ||
                     state.right.justPressed || state.c.justPressed) {
                     // Adjust note
+                    Pattern* pattern = track.getPattern(page->patternIndices[currentChannel]);
                     event_t event = pattern->getChannelEvent(currentChannel, scoreCursorY);
                     if (currentSegment == 0) {
                         if (event.type == EVENT_TYPE_NORMAL) {
@@ -486,12 +604,12 @@ void LilTrackerApp::run() {
                     pattern->setChannelEvent(currentChannel, scoreCursorY, event);
                     if (isPreviewing) {
                         // Update preview
-                        startPreview(pattern, currentChannel, scoreCursorY);
+                        startPreview(&track, page, currentChannel, scoreCursorY);
                     }
                 }
                 if (state.b.justPressed) {
                     // Play single event
-                    startPreview(pattern, currentChannel, scoreCursorY);
+                    startPreview(&track, page, currentChannel, scoreCursorY);
                     isPreviewing = true;
                 } else if (state.b.justReleased) {
                     // Stop playing single event
@@ -511,7 +629,7 @@ void LilTrackerApp::run() {
                     // Not playing
                     if (state.b.justPressed) {
                         // Play all events from this row
-                        startPreview(pattern, -1, scoreCursorY);
+                        startPreview(&track, page, -1, scoreCursorY);
                         isPreviewing = true;
                     } else if (state.b.justReleased) {
                         // Stop playing all events from this row
@@ -542,7 +660,7 @@ void LilTrackerApp::run() {
 
                     if (state.start.justPressed) {
                         // Start playing
-                        sequencer.play(&track, true);
+                        sequencer.play(&track, pageIndex, true);
                     }
                     if (state.a.justPressed) {
                         // Enter edit mode
@@ -585,8 +703,11 @@ int LilTrackerApp::printText(
     return canvas->drawTextAligned(text, x, y, hAlign, vAlign);
 }
 
-void LilTrackerApp::startPreview(Pattern* pattern, int32_t requestedChannelIndex, int32_t requestedEventIndex) {
+void LilTrackerApp::startPreview(
+    Track* track, page_t* page, int32_t requestedChannelIndex, int32_t requestedEventIndex
+) {
     for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
+        Pattern* pattern = track->getPattern(page->patternIndices[channelIndex]);
         event_t event = pattern->getChannelEvent(channelIndex, requestedEventIndex);
         bool shouldPlayThisChannel = requestedChannelIndex == -1 || requestedChannelIndex == channelIndex;
         if (shouldPlayThisChannel && event.type == EVENT_TYPE_NORMAL) {

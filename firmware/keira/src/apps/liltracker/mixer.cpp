@@ -15,7 +15,8 @@ typedef struct {
 
 Mixer::Mixer() :
     xMutex(xSemaphoreCreateBinary()),
-    xQueue(xQueueCreate(CHANNEL_COUNT * MIXER_COMMAND_COUNT, sizeof(mixer_command_t))) {
+    xQueue(xQueueCreate(CHANNEL_COUNT * MIXER_COMMAND_COUNT, sizeof(mixer_command_t))),
+    masterVolume(0.25) {
     constexpr uint8_t pinCount = 3;
     uint8_t pins[pinCount] = {LILKA_I2S_BCLK, LILKA_I2S_LRCK, LILKA_I2S_DOUT};
     uint8_t funcs[pinCount] = {I2S0O_BCK_OUT_IDX, I2S0O_WS_OUT_IDX, I2S0O_SD_OUT_IDX};
@@ -151,7 +152,7 @@ void Mixer::mixerTask() {
                 effect_fn_t effect_fn = effect_functions[effect.type];
                 effect_fn(timeSec, &modFrequency, &modVolume, &modPhase, effect.param);
                 channelAudioBuffers[channelIndex][i] =
-                    waveform_fn(timeSec, modFrequency, modVolume, modPhase) * 0.1 * 32767;
+                    waveform_fn(timeSec, modFrequency, modVolume, modPhase) * masterVolume * 32767;
             }
             // audioBuffer[i] /= CHANNEL_COUNT;
         }
@@ -209,4 +210,8 @@ int16_t Mixer::readBuffer(int16_t* targetBuffer, int32_t channelIndex) {
     memcpy(targetBuffer, channelAudioBuffersCopy[channelIndex], sizeof(int16_t) * MIXER_BUFFER_SIZE);
     xSemaphoreGive(xMutex);
     return MIXER_BUFFER_SIZE;
+}
+
+float Mixer::getMasterVolume() {
+    return masterVolume;
 }

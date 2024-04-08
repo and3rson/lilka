@@ -1,4 +1,5 @@
 #include "sequencer.h"
+#include "lilka/serial.h"
 
 class AcquireSequencer {
 public:
@@ -16,9 +17,9 @@ private:
 Sequencer::Sequencer(Mixer* mixer) : xMutex(xSemaphoreCreateBinary()), mixer(mixer) {
     playstate.playing = false;
     playstate.eventIndex = 0;
-    playstate.patternIndex = 0;
+    playstate.pageIndex = 0;
     playstate.track = NULL;
-    playstate.loopPattern = false;
+    playstate.loopPage = false;
     playstate.loopTrack = false;
 
     xTaskCreatePinnedToCore(
@@ -41,15 +42,15 @@ Sequencer::~Sequencer() {
     vSemaphoreDelete(xMutex);
 }
 
-void Sequencer::play(Track* track, int16_t patternIndex, bool loopPattern) {
+void Sequencer::play(Track* track, int16_t pageIndex, bool loopTrack) {
     AcquireSequencer acquire(xMutex);
     if (playstate.playing) {
         return;
     }
     playstate.track = track;
-    playstate.patternIndex = patternIndex;
-    playstate.loopPattern = loopPattern;
-    playstate.loopTrack = false;
+    playstate.pageIndex = pageIndex;
+    playstate.loopPage = false;
+    playstate.loopTrack = loopTrack;
     playstate.eventIndex = 0;
     playstate.playing = true;
 }
@@ -60,8 +61,8 @@ void Sequencer::play(Track* track, bool loopTrack) {
         return;
     }
     playstate.track = track;
-    playstate.patternIndex = 0;
-    playstate.loopPattern = false;
+    playstate.pageIndex = 0;
+    playstate.loopPage = false;
     playstate.loopTrack = loopTrack;
     playstate.eventIndex = 0;
     playstate.playing = true;
@@ -80,10 +81,10 @@ seq_state_t Sequencer::getSeqState() {
 
 void Sequencer::sequencerTask() {
     while (1) { // TODO: make this stoppable
-        // Play the pattern.
-        // If we reach the end of the pattern:
-        // - If loopPattern is enabled, start playing the pattern from the beginning
-        // - Else, increment the pattern index
+        // Play the page.
+        // If we reach the end of the page:
+        // - If loopPage is enabled, start playing the page from the beginning
+        // - Else, increment the page index
         // If we reach the end of the track:
         // - If loopTrack is enabled, start playing the track from the beginning
         // - Else, stop playing
@@ -96,11 +97,12 @@ void Sequencer::sequencerTask() {
         }
 
         if (playing) {
-            // Play the pattern
+            // Play the page
             {
                 AcquireSequencer acquire(xMutex);
-                Pattern* pattern = playstate.track->getPattern(playstate.patternIndex);
+                page_t* page = playstate.track->getPage(playstate.pageIndex);
                 for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
+                    Pattern* pattern = playstate.track->getPattern(page->patternIndices[channelIndex]);
                     event_t event = pattern->getChannelEvent(channelIndex, playstate.eventIndex);
                     waveform_t waveform = pattern->getChannelWaveform(channelIndex);
                     mixer_command_t cmd;
@@ -141,18 +143,18 @@ void Sequencer::sequencerTask() {
                 }
                 playstate.eventIndex++;
                 if (playstate.eventIndex >= CHANNEL_SIZE) {
-                    // End of the pattern
+                    // End of the page
                     playstate.eventIndex = 0;
-                    int16_t nextPatternIndex = playstate.patternIndex + 1;
+                    int16_t nextPageIndex = playstate.pageIndex + 1;
 
-                    if (nextPatternIndex < playstate.track->getPatternCount()) {
-                        // Play the next pattern
-                        playstate.patternIndex = nextPatternIndex;
-                    } else if (playstate.loopPattern) {
-                        // Loop the pattern
+                    if (playstate.loopPage) {
+                        // Loop the page
+                    } else if (nextPageIndex < playstate.track->getPageCount()) {
+                        // Play the next page
+                        playstate.pageIndex = nextPageIndex;
                     } else {
                         // End of the track
-                        playstate.patternIndex = 0;
+                        playstate.pageIndex = 0;
                         if (playstate.loopTrack) {
                             // Loop the track
                         } else {

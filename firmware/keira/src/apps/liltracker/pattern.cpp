@@ -44,7 +44,7 @@ private:
 
 Pattern::Pattern() : xMutex(xSemaphoreCreateMutex()) {
     for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-        channels[channelIndex].waveform = WAVEFORM_SQUARE;
+        channels[channelIndex].waveform = WAVEFORM_SILENCE;
         channels[channelIndex].volume = 1.0f;
         channels[channelIndex].pitch = 1.0f;
         for (int32_t eventIndex = 0; eventIndex < CHANNEL_SIZE; eventIndex++) {

@@ -43,6 +43,7 @@ public:
     void stop();
     int16_t readBuffer(int16_t* targetBuffer);
     int16_t readBuffer(int16_t* targetBuffer, int32_t channelIndex);
+    float getMasterVolume();
 
 private:
     SemaphoreHandle_t xMutex;
@@ -50,4 +51,5 @@ private:
     void mixerTask();
     int16_t audioBufferCopy[MIXER_BUFFER_SIZE];
     int16_t channelAudioBuffersCopy[CHANNEL_COUNT][MIXER_BUFFER_SIZE];
+    float masterVolume;
 };

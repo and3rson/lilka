@@ -6,9 +6,9 @@
 
 typedef struct {
     Track* track;
-    int16_t patternIndex; // TODO: use int16_t consistently for indices
+    int16_t pageIndex;
     int16_t eventIndex;
-    bool loopPattern;
+    bool loopPage;
     bool loopTrack;
     bool playing;
 } seq_state_t;
@@ -18,7 +18,7 @@ public:
     explicit Sequencer(Mixer* mixer);
     ~Sequencer();
     // void play(Track* track, int16_t patternIndex, int16_t eventIndex); // TODO - implement this instead of using mixer directly from LilTrackerApp?
-    void play(Track* track, int16_t patternIndex, bool loopPattern);
+    void play(Track* track, int16_t pageIndex, bool loopTrack);
     void play(Track* track, bool loopTrack);
     void stop();
     seq_state_t getSeqState();

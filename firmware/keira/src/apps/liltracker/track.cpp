@@ -16,8 +16,8 @@ private:
 
 Track::Track() : xMutex(xSemaphoreCreateRecursiveMutex()) {
     // Create default page and pattern
-    pages.resize(1);
-    patterns.resize(1);
+    pages.resize(4);
+    patterns.resize(4);
     xSemaphoreGive(xMutex);
 }
 
@@ -52,6 +52,10 @@ void Track::setPageCount(int16_t count) {
 
 page_t* Track::getPage(int16_t index) {
     AcquireTrack acquire(xMutex);
+    // Auto-resize if index is out of bounds
+    if (index >= getPageCount()) {
+        setPageCount(index + 1);
+    }
     return &pages[index];
 }
 
@@ -71,7 +75,7 @@ int32_t Track::writeToBuffer(uint8_t* data) {
     offset += sizeof(int16_t);
     for (int16_t i = 0; i < getPageCount(); i++) {
         for (int8_t j = 0; j < CHANNEL_COUNT; j++) {
-            *reinterpret_cast<int16_t*>(&data[offset]) = (*getPage(i)).patternIndexes[j];
+            *reinterpret_cast<int16_t*>(&data[offset]) = (*getPage(i)).patternIndices[j];
             offset += sizeof(int16_t);
         }
     }
@@ -96,7 +100,7 @@ int32_t Track::readFromBuffer(const uint8_t* data) {
     setPageCount(pageCount);
     for (int16_t i = 0; i < pageCount; i++) {
         for (int8_t j = 0; j < CHANNEL_COUNT; j++) {
-            (*getPage(i)).patternIndexes[j] = *reinterpret_cast<const int16_t*>(&data[offset]);
+            (*getPage(i)).patternIndices[j] = *reinterpret_cast<const int16_t*>(&data[offset]);
             offset += sizeof(int16_t);
         }
     }
