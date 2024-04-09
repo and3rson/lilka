@@ -100,10 +100,8 @@ public:
 
 private:
     // Input task FreeRTOS semaphore
-    static SemaphoreHandle_t semaphore;
-    static void inputTask(void* self);
-    void _resetState();
-    void _clearHandlers();
+    SemaphoreHandle_t semaphore;
+    void inputTask();
     State state;
     int8_t pins[Button::COUNT] = {
         LILKA_GPIO_UP,
