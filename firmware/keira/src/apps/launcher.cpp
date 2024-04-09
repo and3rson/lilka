@@ -26,6 +26,7 @@
 #include "nes/nesapp.h"
 #include "ftp/ftp_server.h"
 #include "weather/weather.h"
+#include "modplayer/modplayer.h"
 
 #include "icons/demos.h"
 #include "icons/sdcard.h"
@@ -302,6 +303,8 @@ void LauncherApp::selectFile(String path) {
         AppManager::getInstance()->runApp(new LuaFileRunnerApp(path));
     } else if (lowerCasedPath.endsWith(".js")) {
         AppManager::getInstance()->runApp(new MJSApp(path));
+    } else if (lowerCasedPath.endsWith(".mod")) {
+        AppManager::getInstance()->runApp(new ModPlayerApp(path));
     } else {
         // Get file size
         FILE* file = fopen(path.c_str(), "r");
