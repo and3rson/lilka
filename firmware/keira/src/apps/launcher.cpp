@@ -209,9 +209,11 @@ void LauncherApp::sdBrowserMenu(FS* fSysDriver, const String& path) {
             if (currentPath == "/") sdBrowserMenu(fSysDriver, currentPath + entries[index].name);
             else sdBrowserMenu(fSysDriver, currentPath + "/" + entries[index].name);
         } else {
-            if (currentPath == "/")
-                selectFile(lilka::fileutils.getFullPath(fSysDriver, currentPath + entries[index].name));
-            else selectFile(lilka::fileutils.getFullPath(fSysDriver, currentPath + "/" + entries[index].name));
+            if (currentPath == "/") {
+                selectFile(lilka::fileutils.getCannonicalPath(fSysDriver, currentPath + entries[index].name));
+            } else {
+                selectFile(lilka::fileutils.getCannonicalPath(fSysDriver, currentPath + "/" + entries[index].name));
+            }
         }
     }
 

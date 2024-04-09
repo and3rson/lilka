@@ -7,9 +7,13 @@ FileUtils::FileUtils() : sdMutex(xSemaphoreCreateMutex()) {
     spiffs = &SPIFFS;
 }
 
-void FileUtils::begin() {
-    initSD();
-    initSPIFFS();
+void FileUtils::begin(bool beginSD, bool beginSPIFFS) {
+    if (beginSD) {
+        initSD();
+    }
+    if (beginSPIFFS) {
+        initSPIFFS();
+    }
 }
 
 void FileUtils::initSPIFFS() {
@@ -59,23 +63,21 @@ bool FileUtils::initSD() {
     return false;
 }
 
-uint32_t FileUtils::getEntryCount(FS* fSysDriver, const String& relPath) {
-    FS* fs = fSysDriver;
-
-    if (fs == NULL) {
-        serial_err("Path (%s) reffers to unknown filesystem type", relPath.c_str());
+uint32_t FileUtils::getEntryCount(FS* driver, const String& localPath) {
+    if (driver == NULL) {
+        serial_err("Path (%s) reffers to unknown filesystem type", localPath.c_str());
         return 0;
     }
 
-    File root = fs->open(stripPath(relPath));
+    File root = driver->open(stripPath(localPath));
     // Below we assume if folder can't be open then it has zero files
     // Btw we will show this error using serial
     if (!root) {
-        serial_err("getEntryCount: failed to open directory: %s", relPath.c_str());
+        serial_err("getEntryCount: failed to open directory: %s", localPath.c_str());
         return 0;
     }
     if (!root.isDirectory()) {
-        serial_err("getEntryCount: not a directory: %s", relPath.c_str());
+        serial_err("getEntryCount: not a directory: %s", localPath.c_str());
         return 0;
     }
 
@@ -101,20 +103,19 @@ const String FileUtils::stripPath(const String& path) {
     return striped_path;
 }
 
-size_t FileUtils::listDir(FS* fSysDriver, const String& relPath, Entry entries[]) {
-    FS* fs = fSysDriver;
-    if (fs == NULL) {
-        serial_err("Path (%s) reffers to unknown filesystem type", relPath.c_str());
+size_t FileUtils::listDir(FS* driver, const String& localPath, Entry entries[]) {
+    if (driver == NULL) {
+        serial_err("Path (%s) reffers to unknown filesystem type", localPath.c_str());
         return 0;
     }
 
-    File root = fs->open(stripPath(relPath));
+    File root = driver->open(stripPath(localPath));
     if (!root) {
-        serial_err("listDir: failed to open directory: %s", relPath.c_str());
+        serial_err("listDir: failed to open directory: %s", localPath.c_str());
         return -1;
     }
     if (!root.isDirectory()) {
-        serial_err("listDir: not a directory: %s", relPath.c_str());
+        serial_err("listDir: not a directory: %s", localPath.c_str());
         return -1;
     }
 
@@ -147,35 +148,35 @@ size_t FileUtils::listDir(FS* fSysDriver, const String& relPath, Entry entries[]
     return i;
 }
 
-const String FileUtils::getFullPath(const FS* fSysDriver, const String& relPath) {
+const String FileUtils::getCannonicalPath(const FS* driver, const String& localPath) {
     // Allready okay
-    if (relPath.startsWith(LILKA_SD_ROOT LILKA_SLASH) || relPath.startsWith(LILKA_SPIFFS_ROOT LILKA_SLASH))
-        return relPath;
+    if (localPath.startsWith(LILKA_SD_ROOT LILKA_SLASH) || localPath.startsWith(LILKA_SPIFFS_ROOT LILKA_SLASH))
+        return localPath;
 
-    if (fSysDriver == sdfs) {
-        return String(LILKA_SD_ROOT) + relPath;
-    } else if (fSysDriver == spiffs) {
-        return String(LILKA_SPIFFS_ROOT) + relPath;
+    if (driver == sdfs) {
+        return String(LILKA_SD_ROOT) + localPath;
+    } else if (driver == spiffs) {
+        return String(LILKA_SPIFFS_ROOT) + localPath;
     }
-    serial_err("Unknown fSysDriver provided");
-    return relPath;
+    serial_err("Unknown driver provided");
+    return localPath;
 }
 
-const PathInfo FileUtils::getRelativePathInfo(const String& canPath) {
+const PathInfo FileUtils::getLocalPathInfo(const String& cannonicalPath) {
     PathInfo pathInfo;
-    if (canPath.startsWith(LILKA_SD_ROOT LILKA_SLASH)) {
-        pathInfo.path = canPath.substring(sizeof(LILKA_SD_ROOT) - 1);
-        pathInfo.fSysDriver = sdfs;
-    } else if (canPath.startsWith(LILKA_SPIFFS_ROOT LILKA_SLASH)) {
-        pathInfo.path = canPath.substring(sizeof(LILKA_SPIFFS_ROOT) - 1);
-        pathInfo.fSysDriver = spiffs;
+    if (cannonicalPath.startsWith(LILKA_SD_ROOT LILKA_SLASH)) {
+        pathInfo.path = cannonicalPath.substring(sizeof(LILKA_SD_ROOT) - 1);
+        pathInfo.driver = sdfs;
+    } else if (cannonicalPath.startsWith(LILKA_SPIFFS_ROOT LILKA_SLASH)) {
+        pathInfo.path = cannonicalPath.substring(sizeof(LILKA_SPIFFS_ROOT) - 1);
+        pathInfo.driver = spiffs;
     } else
-    // Maybe path is allready relative?
+    // Maybe path is allready local?
     {
-        pathInfo.path = canPath;
-        // Can't determine fSysDriver from
+        pathInfo.path = cannonicalPath;
+        // Can't determine driver from
         // given path
-        pathInfo.fSysDriver = NULL;
+        pathInfo.driver = NULL;
     }
     return pathInfo;
 }
