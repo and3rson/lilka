@@ -4,7 +4,7 @@
 AppManager* AppManager::instance = NULL;
 
 AppManager::AppManager() :
-    mutex(xSemaphoreCreateBinary()), panel(NULL), toastMessage(""), toastStartTime(0), toastEndTime(0) {
+    mutex(xSemaphoreCreateMutex()), panel(NULL), toastMessage(""), toastStartTime(0), toastEndTime(0) {
     xSemaphoreGive(mutex);
 }
 

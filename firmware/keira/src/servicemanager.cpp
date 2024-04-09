@@ -19,8 +19,7 @@ ServiceManager* ServiceManager::getInstance() {
 }
 
 void ServiceManager::addService(Service* service) {
-    xSemaphoreTake(xMutex, portMAX_DELAY);
+    AcquireServiceManager acquire(xMutex);
     services.push_back(service);
     service->start();
-    xSemaphoreGive(xMutex);
 }

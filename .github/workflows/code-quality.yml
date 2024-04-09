@@ -16,7 +16,7 @@ jobs:
       - name: Run clang-format
         run: |
           apt update -y
-          apt install -y make clang-format
+          apt install -y make clang-format-18
           make clang-format
 
   cppcheck:

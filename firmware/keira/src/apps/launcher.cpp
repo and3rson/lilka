@@ -52,7 +52,6 @@ ITEM_LIST app_items = {
     ITEM_SUBMENU(
         "Демо",
         {
-            ITEM_APP("ЛілТрекер", LilTrackerApp),
             ITEM_APP("Лінії", DemoLines),
             ITEM_APP("Диск", DiskApp),
             ITEM_APP("Перетворення", TransformApp),
@@ -68,6 +67,7 @@ ITEM_LIST app_items = {
          ITEM_APP("I2C-сканер", ScanI2CApp),
          ITEM_APP("GPIO-мененджер", GPIOManagerApp)},
     ),
+    ITEM_APP("ЛілТрекер", LilTrackerApp),
     ITEM_APP("Летріс", LetrisApp),
     ITEM_APP("Тамагочі", TamagotchiApp),
     ITEM_APP("Погода", WeatherApp),

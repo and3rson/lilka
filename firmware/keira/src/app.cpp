@@ -10,7 +10,7 @@ App::App(const char* name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) :
     canvas(new lilka::Canvas(x, y, w, h)),
     backCanvas(new lilka::Canvas(x, y, w, h)),
     isDrawQueued(false),
-    backCanvasMutex(xSemaphoreCreateBinary()),
+    backCanvasMutex(xSemaphoreCreateMutex()),
     stackSize(8192),
     appCore(0) {
     // Clear buffers

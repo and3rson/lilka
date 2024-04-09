@@ -1,4 +1,5 @@
 // TODO: Add enable/disable methods instead of deallocating WiFi from apps like LilTracker
+// TODO: Use the mutex, Luke!
 
 #include <Preferences.h>
 #include <esp_wifi.h>
@@ -14,7 +15,7 @@ NetworkService::NetworkService() :
     state(NETWORK_STATE_OFFLINE),
     reason(0),
     signalStrength(0),
-    mutex(xSemaphoreCreateBinary()),
+    mutex(xSemaphoreCreateMutex()),
     lastPassword(""),
     ipAddr("") {
     // TODO: Use the mutex, Luke!
@@ -38,13 +39,13 @@ void NetworkService::run() {
     // Check if there is a known network to connect to
     prefs.begin("network", true);
     if (!prefs.isKey("last_ssid")) {
-        Serial.println("NetworkService: no last SSID found, skipping startup connection");
+        lilka::serial_log("NetworkService: no last SSID found, skipping startup connection");
     } else {
         String currentSSID = prefs.getString("last_ssid");
-        Serial.println("NetworkService: last SSID found: " + currentSSID);
+        lilka::serial_log("NetworkService: last SSID found: %s", currentSSID.c_str());
         lastPassword = getPassword(currentSSID);
         if (lastPassword == "") {
-            Serial.println("NetworkService: no password found for last SSID, skipping startup connection");
+            lilka::serial_log("NetworkService: no password found for last SSID, skipping startup connection");
         } else {
             connect(currentSSID, lastPassword);
         }
@@ -54,12 +55,12 @@ void NetworkService::run() {
     WiFi.onEvent([this](WiFiEvent_t event, WiFiEventInfo_t info) {
         switch (event) {
             case ARDUINO_EVENT_WIFI_STA_START: {
-                Serial.println("NetworkService: connecting to WiFi");
+                lilka::serial_log("NetworkService: connecting to WiFi");
                 setNetworkState(NETWORK_STATE_CONNECTING);
                 break;
             }
             case ARDUINO_EVENT_WIFI_STA_CONNECTED: {
-                Serial.println("NetworkService: connected to WiFi");
+                lilka::serial_log("NetworkService: connected to WiFi");
                 setNetworkState(NETWORK_STATE_ONLINE);
                 Preferences prefs;
                 String connectedSSID = String(info.wifi_sta_connected.ssid, info.wifi_sta_connected.ssid_len);
@@ -67,7 +68,7 @@ void NetworkService::run() {
                 if (!prefs.isKey("last_ssid") || !String(prefs.getString("last_ssid")).equals(connectedSSID)) {
                     // Set current SSID as last connected
                     prefs.putString("last_ssid", String(connectedSSID));
-                    Serial.println("NetworkService: last SSID set to " + connectedSSID);
+                    lilka::serial_log("NetworkService: last SSID set to  %s", connectedSSID.c_str());
                 }
                 prefs.end();
                 String ssidHash = hash(connectedSSID);
@@ -76,14 +77,14 @@ void NetworkService::run() {
                 if (savedPassword != lastPassword) {
                     // Save password for the connected network
                     prefs.putString(String(ssidHash + "_pw").c_str(), lastPassword);
-                    Serial.println("NetworkService: password for " + connectedSSID + " saved");
+                    lilka::serial_log("NetworkService: password for %s saved", connectedSSID.c_str());
                 }
                 prefs.end();
                 break;
             }
             case ARDUINO_EVENT_WIFI_STA_DISCONNECTED: {
-                Serial.println(
-                    "NetworkService: disconnected from WiFi, reason " + String(info.wifi_sta_disconnected.reason)
+                lilka::serial_log(
+                    "NetworkService: disconnected from WiFi, reason: %d", info.wifi_sta_disconnected.reason
                 );
                 setNetworkState(NETWORK_STATE_OFFLINE);
                 reason = info.wifi_sta_disconnected.reason;
@@ -91,21 +92,19 @@ void NetworkService::run() {
             }
             case ARDUINO_EVENT_WIFI_STA_GOT_IP:
             case ARDUINO_EVENT_WIFI_STA_GOT_IP6: {
-                Serial.println("Got IP");
                 IPAddress ip = WiFi.localIP();
                 ipAddr = ip.toString();
-                Serial.println("NetworkService: got IP address: " + ipAddr);
+                lilka::serial_log("NetworkService: got IP address: %s", ipAddr.c_str());
                 setNetworkState(NETWORK_STATE_ONLINE);
                 break;
             }
             case ARDUINO_EVENT_WIFI_STA_LOST_IP: {
-                Serial.println("NetworkService: lost IP address");
+                lilka::serial_log("NetworkService: lost IP address");
                 ipAddr = "";
                 setNetworkState(NETWORK_STATE_OFFLINE);
                 break;
             }
             default:
-                Serial.println("Got unhandled WiFi event");
                 break;
         }
     });
@@ -116,10 +115,10 @@ void NetworkService::run() {
         if (esp_wifi_get_mode(&mode) == ESP_ERR_WIFI_NOT_INIT) {
             // WiFi was deallocated
             // TODO: This is a crutch to avoid using WiFi after deallocation by apps (e. g. LilTracker). /AD
-            // Serial.println("NetworkService: WiFi deallocated");
+            // lilka::serial_log("NetworkService: WiFi deallocated");
         } else if (WiFi.status() == WL_DISCONNECTED) {
             // WiFi is disconnected
-            // Serial.println("NetworkService: WiFi disconnected");
+            // lilka::serial_log("NetworkService: WiFi disconnected");
         } else {
             const int8_t rssi = WiFi.RSSI();
             if (rssi == 0) {
@@ -169,17 +168,17 @@ int NetworkService::getSignalStrength() {
 bool NetworkService::connect(String ssid) {
     String password = getPassword(ssid);
     if (password == "") {
-        Serial.println("NetworkService: no password found for SSID " + ssid);
+        lilka::serial_log("NetworkService: no password found for SSID %s", ssid.c_str());
         return false;
     }
-    Serial.println("NetworkService: found password for SSID " + ssid);
+    lilka::serial_log("NetworkService: found password for SSID ", ssid.c_str());
     connect(ssid, password);
     return true;
 }
 
 // Attempt to connect to a given network with a given password.
 void NetworkService::connect(String ssid, String password) {
-    Serial.println("NetworkService: connecting to " + ssid);
+    lilka::serial_log("NetworkService: connecting to %s", ssid.c_str());
     lastPassword = password;
     WiFi.disconnect();
     WiFi.begin(ssid.c_str(), password.c_str());
@@ -217,7 +216,6 @@ String NetworkService::getIpAddr() {
 }
 
 void NetworkService::setNetworkState(NetworkState state) {
-    // xSemaphoreTake(mutex, portMAX_DELAY);
     if (this->state != state) {
         this->state = state;
         if (state == NETWORK_STATE_OFFLINE) {
@@ -226,5 +224,4 @@ void NetworkService::setNetworkState(NetworkState state) {
             AppManager::getInstance()->startToast("Приєднано до WiFi", 2000);
         }
     }
-    // xSemaphoreGive(mutex);
 }
