@@ -1,6 +1,6 @@
 IMAGE2CODE = ./sdk/tools/image2code/image2code.py
-CPPCHECK = cppcheck
-CLANG_FORMAT = clang-format
+CPPCHECK ?= cppcheck
+CLANG_FORMAT ?= $(shell command -v clang-format-18 2>/dev/null || echo clang-format)
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -49,7 +49,7 @@ check-docker: ## Run all checks in docker
 	docker build -t lilka-check -f - . <<EOF
 		FROM ubuntu:24.04
 		RUN apt-get update -y && \
-		apt-get install -y clang-format cppcheck findutils grep make
+		apt-get install -y clang-format-18 cppcheck findutils grep make
 	EOF
 	docker run --rm -it -v $(PWD):/lilka -w /lilka lilka-check make check
 

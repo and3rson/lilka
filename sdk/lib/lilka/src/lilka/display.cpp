@@ -27,6 +27,10 @@ Display::Display() :
     ),
     splash(default_splash),
     rleLength(default_splash_length) {
+    // Apply rotation immediately.
+    // This is necessary because setRotation is called in begin(), so display width/height are not valid at this point.
+    // We call this so that width/height are valid as early as possible.
+    Arduino_TFT::setRotation(LILKA_DISPLAY_ROTATION);
 }
 
 void Display::begin() {
@@ -61,10 +65,6 @@ void Display::begin() {
             }
             endWrite();
         }
-        // TODO: Should not be here. Треба кудись винести.
-        // const Tone helloTune[] = {{NOTE_C4, 8}, {NOTE_E4, 8}, {NOTE_E5, -4}, {NOTE_C6, 8}, {NOTE_C5, 8}};
-        const Tone helloTune[] = {{NOTE_C3, 8}, {NOTE_C4, 8}, {NOTE_C5, 8}, {NOTE_C7, 4}, {0, 8}, {NOTE_C6, 4}};
-        buzzer.playMelody(helloTune, sizeof(helloTune) / sizeof(Tone), 160);
         delay(800);
         for (int i = 4; i >= 0; i--) {
             startWrite();
@@ -257,6 +257,40 @@ void Canvas::draw16bitRGBBitmapWithTranColor(
 
 void Canvas::drawCanvas(Canvas* canvas) {
     draw16bitRGBBitmap(canvas->x(), canvas->y(), canvas->getFramebuffer(), canvas->width(), canvas->height());
+}
+
+int Canvas::drawTextAligned(const char* text, int16_t x, int16_t y, Alignment hAlign, Alignment vAlign) {
+    // TODO: WARNING: This will break if we're not using U8g2 fonts.
+    int16_t _x1, _y1;
+    uint16_t w, _h;
+    // U8g2 is a can of worms.
+    const int8_t ascent = u8g2Font[13]; // >0 (above the baseline, character 'A')
+    const int8_t descent = u8g2Font[14]; // <0 (below the baseline, character 'g')
+    getTextBounds(text, 0, 0, &_x1, &_y1, &w, &_h);
+    switch (hAlign) {
+        case Alignment::ALIGN_START:
+            break;
+        case Alignment::ALIGN_CENTER:
+            x -= w / 2;
+            break;
+        case Alignment::ALIGN_END:
+            x -= w;
+            break;
+    }
+    switch (vAlign) {
+        case Alignment::ALIGN_START:
+            y += ascent;
+            break;
+        case Alignment::ALIGN_CENTER:
+            y += (ascent - descent) / 2;
+            break;
+        case Alignment::ALIGN_END:
+            y += descent;
+            break;
+    }
+    setCursor(x, y);
+    this->print(text);
+    return w;
 }
 
 int16_t Canvas::x() {
