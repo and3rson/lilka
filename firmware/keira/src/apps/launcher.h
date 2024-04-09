@@ -37,8 +37,7 @@ private:
     void run() override;
     void appsMenu(const char* title, ITEM_LIST& menu);
     void demosMenu();
-    void sdBrowserMenu(String path);
-    void spiffsBrowserMenu();
+    void sdBrowserMenu(FS* fSysDriver, const String& path);
     void devMenu();
     void settingsMenu();
 

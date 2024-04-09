@@ -33,7 +33,7 @@
 
     void loop() {
         // Заповнити екран чорним кольором
-        lilka::display.fillScreen(lilka::display.color565(0, 255, 0));
+        lilka::display.fillScreen(lilka::colors::Black);
 
         while (1) {
             // Отримати стан кнопок
@@ -41,14 +41,14 @@
 
             if (state.a.justPressed) { // Якщо щойно була натиснута кнопка "A"...
                 // Розпочати відтворення звуку на частоті 440 Гц
-                lilka::buzzer.play(440);
+                lilka::buzzer.play(lilka::NOTE_A4);
                 // Заповнити екран червоним кольором
-                lilka::display.fillScreen(lilka::display.color565(255, 0, 0));
+                lilka::display.fillScreen(lilka::colors::Red);
             } else if (state.a.justReleased) { // Якщо кнопка "A" щойно була відпущена...
                 // Зупинити відтворення звуку
                 lilka::buzzer.stop();
                 // Заповнити екран зеленим кольором
-                lilka::display.fillScreen(lilka::display.color565(0, 255, 0));
+                lilka::display.fillScreen(lilka::colors::Green);
             }
         }
     }
@@ -76,7 +76,7 @@
 
         void loop() {
             // Заповнити екран чорним кольором
-            display.fillScreen(display.color565(0, 255, 0));
+            display.fillScreen(colors::Black);
 
             while (1) {
                 // Отримати стан кнопок
@@ -84,14 +84,14 @@
 
                 if (state.a.justPressed) { // Якщо щойно була натиснута кнопка "A"...
                     // Розпочати відтворення звуку на частоті 440 Гц
-                    buzzer.play(440);
+                    buzzer.play(NOTE_A4);
                     // Заповнити екран червоним кольором
-                    display.fillScreen(display.color565(255, 0, 0));
+                    display.fillScreen(colors::Red);
                 } else if (state.a.justReleased) { // Якщо кнопка "A" щойно була відпущена...
                     // Зупинити відтворення звуку
                     buzzer.stop();
                     // Заповнити екран зеленим кольором
-                    display.fillScreen(display.color565(0, 255, 0));
+                    display.fillScreen(colors::Green);
                 }
             }
         }
@@ -105,6 +105,7 @@
     buzzer
     controller
     display
+    fileutils
     multiboot
     resources
     spi
