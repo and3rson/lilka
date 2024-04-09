@@ -2,7 +2,7 @@
 #include <Preferences.h>
 
 #include "multiboot.h"
-#include "sdcard.h"
+#include "fileutils.h"
 #include "serial.h"
 
 extern "C" bool verifyRollbackLater() {
@@ -11,7 +11,7 @@ extern "C" bool verifyRollbackLater() {
 
 namespace lilka {
 
-extern SDCard sdcard;
+extern FileUtils fileutils;
 
 #define MULTIBOOT_PATH_KEY "multiboot_path"
 
@@ -93,7 +93,7 @@ int MultiBoot::start(String path) {
     // Завантаження прошивки з microSD-картки.
     this->path = path;
 
-    if (!sdcard.available()) {
+    if (!fileutils.isSDAvailable()) {
         serial_err("SD card not available");
         return -1;
     }
@@ -150,9 +150,8 @@ int MultiBoot::start(String path) {
     // Remove "/sd" prefix
     // TODO: Maybe we should use absolute path (including "/sd")?
     // TODO: Store arg in RAM?
-    if (arg.startsWith("/sd/")) {
-        arg = arg.substring(3);
-    }
+    arg = lilka::fileutils.getLocalPathInfo(arg).path;
+
     prefs.putString(MULTIBOOT_PATH_KEY, arg);
     prefs.end();
 

@@ -63,7 +63,7 @@ typedef struct {
 /// }
 ///
 /// void loop() {
-///     lilka::buzzer.play(440); // Грати ноту "Ля"
+///     lilka::buzzer.play(lilka::NOTE_A4); // Грати ноту "Ля"
 ///     delay(500);
 ///     lilka::buzzer.stop(); // Зупинити відтворення
 ///     delay(1500);

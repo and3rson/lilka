@@ -1,6 +1,7 @@
 #include <ff.h>
-#include <sd_diskio.h>
-
+#include <FS.h>
+#include <SD.h>
+#include <SPIFFS.h>
 #include "launcher.h"
 #include "appmanager.h"
 
@@ -94,9 +95,9 @@ void LauncherApp::run() {
         if (index == 0) {
             appsMenu("Додатки", app_items);
         } else if (index == 1) {
-            sdBrowserMenu("/");
+            sdBrowserMenu(&SD, "/");
         } else if (index == 2) {
-            spiffsBrowserMenu();
+            sdBrowserMenu(&SPIFFS, "/");
         } else if (index == 3) {
             appsMenu("Розробка", dev_items);
         } else if (index == 4) {
@@ -163,11 +164,9 @@ const uint16_t get_file_color(const String& filename) {
     }
 }
 
-void LauncherApp::sdBrowserMenu(String path) {
-    if (!lilka::sdcard.available()) {
-        alert("Помилка", "SD-карта не знайдена");
-    }
-    size_t _numEntries = lilka::sdcard.getEntryCount(path);
+void LauncherApp::sdBrowserMenu(FS* fSysDriver, const String& path) {
+    String currentPath = lilka::fileutils.stripPath(path);
+    size_t _numEntries = lilka::fileutils.getEntryCount(fSysDriver, currentPath);
     if (_numEntries == 0) {
         alert("Помилка", "Директорія пуста або сталася помилка читання директорії");
         return;
@@ -175,7 +174,7 @@ void LauncherApp::sdBrowserMenu(String path) {
 
     lilka::Entry* entries = new lilka::Entry[_numEntries];
 
-    int numEntries = lilka::sdcard.listDir(path, entries);
+    int numEntries = lilka::fileutils.listDir(fSysDriver, currentPath, entries);
     std::unique_ptr<lilka::Entry[]> entriesPtr(entries);
 
     // Так як listDir має повертати -1 в разі помилки
@@ -184,15 +183,17 @@ void LauncherApp::sdBrowserMenu(String path) {
         alert("Помилка", "Не вдалося прочитати директорію");
         return;
     }
-
-    lilka::Menu menu("SD: " + path);
+    String menuTitle = (fSysDriver == &SD ? "SD: " : (fSysDriver == &SPIFFS ? "SPIFFS: " : "?")) + currentPath;
+    lilka::Menu menu(menuTitle);
     for (int i = 0; i < numEntries; i++) {
         String filename = entries[i].name;
         const menu_icon_t* icon =
             entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(filename);
         uint16_t color = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? lilka::colors::Arylide_yellow
                                                                             : get_file_color(filename);
-        menu.addItem(filename, icon, color);
+        if (entries[i].type != lilka::EntryType::ENT_DIRECTORY)
+            menu.addItem(filename, icon, color, lilka::fileutils.getHumanFriendlySize(entries[i].size));
+        else menu.addItem(filename, icon, color);
     }
     menu.addItem("<< Назад", 0, 0);
 
@@ -205,60 +206,24 @@ void LauncherApp::sdBrowserMenu(String path) {
         int16_t index = menu.getCursor();
         if (index == numEntries) break;
         if (entries[index].type == lilka::EntryType::ENT_DIRECTORY) {
-            sdBrowserMenu(path + entries[index].name + "/");
+            if (currentPath == "/") sdBrowserMenu(fSysDriver, currentPath + entries[index].name);
+            else sdBrowserMenu(fSysDriver, currentPath + "/" + entries[index].name);
         } else {
-            selectFile(lilka::sdcard.abspath(path + entries[index].name));
+            if (currentPath == "/") {
+                selectFile(lilka::fileutils.getCannonicalPath(fSysDriver, currentPath + entries[index].name));
+            } else {
+                selectFile(lilka::fileutils.getCannonicalPath(fSysDriver, currentPath + "/" + entries[index].name));
+            }
         }
     }
 
     return;
 }
 
-void LauncherApp::spiffsBrowserMenu() {
-    if (!lilka::filesystem.available()) {
-        alert("Помилка", "SPIFFS не підтримується");
-        return;
-    }
-
-    String filenames
-        [32]; // TODO - allocate dynamically (increasing to 64 causes task stack overflow which is limited by ARDUINO_LOOP_STACK_SIZE)
-    int numEntries = lilka::filesystem.readdir(filenames);
-
-    if (numEntries == -1) {
-        alert("Помилка", "Не вдалося прочитати корінь SPIFFS");
-        return;
-    }
-    const menu_icon_t* icons[32];
-    uint16_t colors[32];
-    for (int i = 0; i < numEntries; i++) {
-        icons[i] = get_file_icon(filenames[i]);
-        colors[i] = get_file_color(filenames[i]);
-    }
-    filenames[numEntries++] = "<< Назад";
-    icons[numEntries - 1] = 0;
-    colors[numEntries - 1] = 0;
-
-    lilka::Menu menu("SPIFFS");
-    for (int i = 0; i < numEntries; i++) {
-        menu.addItem(filenames[i], icons[i], colors[i]);
-    }
-    while (1) {
-        while (!menu.isFinished()) {
-            menu.update();
-            menu.draw(canvas);
-            queueDraw();
-        }
-        int16_t index = menu.getCursor();
-        if (index == numEntries - 1) {
-            return;
-        }
-        selectFile(lilka::filesystem.abspath(filenames[index]));
-    }
-}
-
 void LauncherApp::selectFile(String path) {
     String lowerCasedPath = path;
     lowerCasedPath.toLowerCase();
+    //lilka::serial_log("FileBrowser : Selected path %s", path.c_str());
     if (lowerCasedPath.endsWith(".rom") || lowerCasedPath.endsWith(".nes")) {
         AppManager::getInstance()->runApp(new NesApp(path));
     } else if (lowerCasedPath.endsWith(".bin")) {
@@ -304,6 +269,7 @@ void LauncherApp::selectFile(String path) {
         AppManager::getInstance()->runApp(new MJSApp(path));
     } else {
         // Get file size
+        // lilka::serial_log(path.c_str());
         FILE* file = fopen(path.c_str(), "r");
         if (!file) {
             alert("Помилка", "Не вдалося відкрити файл");
@@ -398,27 +364,10 @@ void LauncherApp::settingsMenu() {
                 );
             }
         } else if (index == 4) {
-            // Init card in VFS without actually mounting it
-            lilka::SPI1.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0));
-            uint8_t pdrv = sdcard_init(LILKA_SDCARD_CS, &lilka::SPI1, 4000000);
-            lilka::SPI1.endTransaction();
-            if (pdrv == 0xFF) {
-                alert("Помилка", "Не вдалося ініціалізувати SD-карту");
-                continue;
-            }
-
-            // SD card uninitializer (RAII)
-            std::unique_ptr<void, void (*)(void*)> sdcardUninit(nullptr, [](void* pdrv) {
-                // C++ is beautiful and ugly at the same time
-                lilka::SPI1.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0));
-                sdcard_uninit(*static_cast<uint8_t*>(pdrv));
-                lilka::SPI1.endTransaction();
-            });
-
-            // Check if the user is just messing around
             lilka::Alert confirm(
                 "Форматування",
-                "УВАГА: Це очистить ВСІ дані з SD-карти!\n\nПродовжити?\n\nSTART - продовжити\nA - скасувати"
+                "УВАГА: Це очистить ВСІ дані з SD-карти!\n"
+                "\nПродовжити?\n\nSTART - продовжити\nA - скасувати"
             );
             confirm.addActivationButton(lilka::Button::START);
             confirm.draw(canvas);
@@ -431,40 +380,32 @@ void LauncherApp::settingsMenu() {
                 continue;
             }
 
-            // Allocate work buffer for FatFS library (4 sectors)
-            // Otherwise f_mkfs tries to allocate in stack and fails due to task stack size
-            constexpr uint32_t workbufSize = FF_MAX_SS * 4;
-            uint8_t* workbuf = new uint8_t[workbufSize];
-            std::unique_ptr<uint8_t[]> workbufPtr(workbuf);
-
-            // Create partition table
-            DWORD plist[] = {100, 0, 0, 0};
-            FRESULT res = f_fdisk(pdrv, plist, workbuf);
-            if (res != FR_OK) {
-                this->alert("Помилка", "Не вдалося записати таблицю розділів, код помилки: " + String(res));
-                continue;
-            }
             lilka::ProgressDialog dialog("Форматування", "Будь ласка, зачекайте...");
             dialog.draw(canvas);
             queueDraw();
-
-            // Format the partition
-            res = f_mkfs("/sd", FM_ANY, 0, workbuf, workbufSize);
-            if (res != FR_OK) {
-                this->alert("Помилка", "Не вдалося сформатувати SD-карту, код помилки: " + String(res));
-                continue;
+            if (!lilka::fileutils.createSDPartTable()) {
+                alert(
+                    "Помилка",
+                    "Не вдалося створити нову таблицю розділів. "
+                    "Можливо відсутня карта.\n\n"
+                    "Систему буде перезавантажено."
+                );
+                esp_restart();
             }
-
-            // This code does not work since f_setlabel is not implemented.
-            // Keeping it here for future reference.
-            // char label[16];
-            // sprintf(label, "%d:Keira", pdrv);
-            // if (f_setlabel(const_cast<char*>(label)) != FR_OK) {
-            //     this->alert("Помилка", "Не вдалося встановити мітку розділу");
-            //     continue;
-            // }
-
-            this->alert("Форматування", "Форматування SD-карти завершено!");
+            if (!lilka::fileutils.formatSD()) {
+                this->alert(
+                    "Помилка",
+                    "Не вдалося форматувати SD-карту.\n\n"
+                    "Систему буде перезавантажено."
+                );
+                esp_restart();
+            }
+            this->alert(
+                "Форматування",
+                "Форматування SD-карти завершено!\n\n"
+                "Систему буде перезавантажено."
+            );
+            esp_restart();
         } else if (index == 5) {
             lilka::board.enablePowerSavingMode();
             esp_light_sleep_start();
