@@ -5,62 +5,111 @@
 // Детальніше про формат та його історію — https://en.wikipedia.org/wiki/MOD_(file_format)
 // Найбільший архів з музикою у форматі MOD – https://modarchive.org/
 //
+
+#include <AudioGeneratorMOD.h>
+#include <AudioOutputI2S.h>
+#include <AudioFileSourceSD.h>
+
 #include "modplayer.h"
 
 ModPlayerApp::ModPlayerApp(String path) :
-    App("MODPlayer", 0, 0, lilka::display.width(), lilka::display.height()), path(path) {
+    App("MODPlayer", 0, 0, lilka::display.width(), lilka::display.height()),
+    playerCommandQueue(xQueueCreate(8, sizeof(PlayerCommand))) {
     setFlags(AppFlags::APP_FLAG_FULLSCREEN);
+    // This app will run on core 1 since it's already more busy with drawing Keira stuff.
+    // However, player task will run on core 0 since it's less busy. /AD
+    setCore(1);
+    // Get local file name (path minus mount point)
+    fileName = lilka::fileutils.getLocalPathInfo(path).path;
+    playerMutex = xSemaphoreCreateMutex();
+    xSemaphoreGive(playerMutex);
 }
 
 void ModPlayerApp::run() {
-    modSource = new AudioFileSourceSD(path.substring(3).c_str());
-    out = new AudioOutputI2S();
-    //bclk = BCK = GPIO42, wclk = LRCK = GPIO1, dout = DIN = GPIO2
-    out->SetPinout(42, 1, 2);
-    mod = new AudioGeneratorMOD();
-    mod->begin(modSource, out);
-
-    float gain = 1.0;
-    out->SetGain(gain);
-
-    bool isPaused = false;
-    bool isFinished = false;
-    String fileName = path.substring(4);
-    mainWindow(fileName, gain, isFinished);
+    // Start the player task on core 0
+    xTaskCreatePinnedToCore(
+        [](void* arg) {
+            ModPlayerApp* app = static_cast<ModPlayerApp*>(arg);
+            app->playTask();
+        },
+        "MODPlayer",
+        8192,
+        this,
+        1,
+        nullptr,
+        0
+    );
 
     while (1) {
-        if (mod->isRunning()) {
-            if (!isPaused) {
-                if (!mod->loop()) mod->stop();
-            }
-        } else {
-            isFinished = true;
-            mainWindow(fileName, gain, isFinished);
-        };
+        mainWindow();
+        xSemaphoreTake(playerMutex, portMAX_DELAY);
+        PlayerTaskData info = playerTaskData;
+        xSemaphoreGive(playerMutex);
+
         lilka::State state = lilka::controller.getState();
         if (state.a.justPressed) {
-            isPaused = !isPaused;
+            PlayerCommand command = {.type = CMD_SET_PAUSED, .isPaused = !info.isPaused};
+            xQueueSend(playerCommandQueue, &command, portMAX_DELAY);
         };
         if (state.b.justPressed) {
+            // Exit app
+            PlayerCommand command = {.type = CMD_STOP};
+            xQueueSend(playerCommandQueue, &command, portMAX_DELAY);
             break;
         };
         if (state.up.justPressed) {
-            gain = gain + 0.25;
-            if (gain > 4) gain = 4.0;
-            out->SetGain(gain);
-            mainWindow(fileName, gain, isFinished);
+            PlayerCommand command = {.type = CMD_SET_GAIN, .gain = info.gain + 0.25f};
+            xQueueSend(playerCommandQueue, &command, portMAX_DELAY);
         };
         if (state.down.justPressed) {
-            gain = gain - 0.25;
-            if (gain < 0) gain = 0;
-            out->SetGain(gain);
-            mainWindow(fileName, gain, isFinished);
+            PlayerCommand command = {.type = CMD_SET_GAIN, .gain = info.gain - 0.25f};
+            xQueueSend(playerCommandQueue, &command, portMAX_DELAY);
         };
     };
 }
 
-void ModPlayerApp::mainWindow(String fileName, float gain, bool isFinished) {
+void ModPlayerApp::mainWindow() {
     canvas->fillScreen(lilka::colors::Black);
+
+    xSemaphoreTake(playerMutex, portMAX_DELAY);
+    bool shouldDrawAnalyzer = !playerTaskData.isPaused && !playerTaskData.isFinished;
+    xSemaphoreGive(playerMutex);
+    if (shouldDrawAnalyzer) {
+        int16_t analyzerBuffer[ANALYZER_BUFFER_SIZE];
+        xSemaphoreTake(playerMutex, portMAX_DELAY);
+        playerTaskData.analyzer->readBuffer(analyzerBuffer);
+        int16_t head = playerTaskData.analyzer->getBufferHead();
+        float gain = playerTaskData.gain;
+        xSemaphoreGive(playerMutex);
+
+        int16_t prevX, prevY;
+        int16_t width = canvas->width();
+        int16_t height = canvas->height();
+
+        constexpr int16_t HUE_SPEED_DIV = 4;
+        constexpr int16_t HUE_SCALE = 4;
+
+        int64_t time = millis();
+
+        for (int i = 0; i < ANALYZER_BUFFER_SIZE; i += 4) {
+            int x = i * width / ANALYZER_BUFFER_SIZE;
+            int index = (i + head) % ANALYZER_BUFFER_SIZE;
+            float amplitude = static_cast<float>(analyzerBuffer[index]) / 32768 * gain;
+            int y = height / 2 + static_cast<int>(amplitude * height / 2);
+            if (i > 0) {
+                int16_t hue = (time / HUE_SPEED_DIV + i / HUE_SCALE) % 360;
+                canvas->drawLine(prevX, prevY, x, y, lilka::display.color565hsv(hue, 100, 100));
+            }
+            prevX = x;
+            prevY = y;
+        }
+    }
+
+    xSemaphoreTake(playerMutex, portMAX_DELAY);
+    // Copy playerTaskData to prevent blocking the mutex for too long
+    PlayerTaskData info = this->playerTaskData;
+    xSemaphoreGive(playerMutex);
+
     canvas->setFont(FONT_9x15);
     canvas->setTextBound(32, 32, canvas->width() - 64, canvas->height() - 64);
     canvas->setTextColor(lilka::colors::White);
@@ -72,8 +121,84 @@ void ModPlayerApp::mainWindow(String fileName, float gain, bool isFinished) {
     canvas->println("[B] - Вийти");
     canvas->println("------------------------");
     canvas->println("Файл: " + fileName);
-    if (isFinished) canvas->println("Трек закінчився");
+    if (info.isFinished) canvas->println("Трек закінчився");
     canvas->setCursor(32, canvas->height() - 38);
-    canvas->println("Гучність: " + String(gain));
+    canvas->println("Гучність: " + String(info.gain));
     queueDraw();
+}
+
+void ModPlayerApp::playTask() {
+    // Source/sink order:
+    // modSource -> mod -> analyzer -> out
+
+    // Create output
+    AudioOutputI2S* out = new AudioOutputI2S(0, AudioOutputI2S::EXTERNAL_I2S, 32); // Use 32 DMA buffers
+    std::unique_ptr<AudioOutputI2S> outPtr(out);
+    out->SetPinout(LILKA_I2S_BCLK, LILKA_I2S_LRCK, LILKA_I2S_DOUT);
+
+    // Create output analyzer
+    playerTaskData.analyzer = new AudioOutputAnalyzer(out);
+    std::unique_ptr<AudioOutputAnalyzer> analyzerPtr(playerTaskData.analyzer);
+
+    // Create source
+    AudioFileSourceSD* modSource = new AudioFileSourceSD(fileName.c_str());
+    std::unique_ptr<AudioFileSource> modSourcePtr(modSource);
+
+    // Create MOD player
+    AudioGeneratorMOD* mod = new AudioGeneratorMOD();
+    std::unique_ptr<AudioGeneratorMOD> modPtr(mod);
+    mod->begin(modSource, playerTaskData.analyzer);
+
+    xSemaphoreTake(playerMutex, portMAX_DELAY);
+    playerTaskData.isPaused = false;
+    playerTaskData.isFinished = false;
+    playerTaskData.gain = 1.0f;
+    xSemaphoreGive(playerMutex);
+
+    while (1) {
+        // Check for new command
+        PlayerCommand command;
+        if (xQueueReceive(playerCommandQueue, &command, 0) == pdTRUE) {
+            switch (command.type) {
+                case CMD_SET_PAUSED:
+                    xSemaphoreTake(playerMutex, portMAX_DELAY);
+                    playerTaskData.isPaused = command.isPaused;
+                    xSemaphoreGive(playerMutex);
+                    break;
+                case CMD_SET_GAIN:
+                    xSemaphoreTake(playerMutex, portMAX_DELAY);
+                    playerTaskData.gain = command.gain;
+                    xSemaphoreGive(playerMutex);
+                    if (playerTaskData.gain < 0) playerTaskData.gain = 0;
+                    if (playerTaskData.gain > 4) playerTaskData.gain = 4;
+                    out->SetGain(playerTaskData.gain);
+                    break;
+                case CMD_STOP:
+                    xSemaphoreTake(playerMutex, portMAX_DELAY);
+                    playerTaskData.isFinished = true;
+                    xSemaphoreGive(playerMutex);
+                    break;
+            }
+        }
+        xSemaphoreTake(playerMutex, portMAX_DELAY);
+        if (playerTaskData.isFinished) {
+            mod->stop();
+            xSemaphoreGive(playerMutex);
+            break;
+        }
+        if (!playerTaskData.isPaused) {
+            if (!mod->loop()) {
+                mod->stop();
+                playerTaskData.isFinished = true;
+                xSemaphoreGive(playerMutex);
+                break;
+            }
+        }
+        xSemaphoreGive(playerMutex);
+        taskYIELD(); // Give app a chance to acquire playerMutex
+    }
+
+    // Tasks must ALWAYS delete themselves before exiting, or we're get IllegalInstruction panic
+    vTaskDelete(NULL);
+    lilka::serial_log("Player task exited");
 }
