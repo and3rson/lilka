@@ -9,6 +9,8 @@
 #include <AudioGeneratorMOD.h>
 #include <AudioOutputI2S.h>
 #include <AudioFileSourceSD.h>
+#include <AudioFileSourceBuffer.h>
+#include <AudioFileSourcePROGMEM.h>
 
 #include "modplayer.h"
 
@@ -148,11 +150,11 @@ void ModPlayerApp::mainWindow() {
 
 void ModPlayerApp::playTask() {
     // Source/sink order:
-    // modSource -> mod -> analyzer -> out
+    // modSource -> modBufferSource -> mod -> analyzer -> out
 
     // Create output
-    AudioOutputI2S* out = new AudioOutputI2S(0, AudioOutputI2S::EXTERNAL_I2S, 32); // Use 32 DMA buffers
-    std::unique_ptr<AudioOutputI2S> outPtr(out);
+    AudioOutputI2S* out = new AudioOutputI2S();
+    std::unique_ptr<AudioOutputI2S> outPtr(out); // Auto-delete on task return
     out->SetPinout(LILKA_I2S_BCLK, LILKA_I2S_LRCK, LILKA_I2S_DOUT);
 
     // Create output analyzer
@@ -163,10 +165,23 @@ void ModPlayerApp::playTask() {
     AudioFileSourceSD* modSource = new AudioFileSourceSD(fileName.c_str());
     std::unique_ptr<AudioFileSource> modSourcePtr(modSource);
 
+    // Previously we directly fed modSource to mod, but it caused a lot of stuttering due to SPI bus contention between SD and display.
+    // However, MOD files are small enough to fit in memory, so we can read the whole file into a buffer and then feed it to mod!
+    // Why not use AudioFileSourceBuffer? Because it doesn't seem to work properly and does weird things, and its code is barely readable.
+    // So we read the file manually and then use AudioFileSourcePROGMEM to feed it to mod. (In ESP32, PROGMEM is an outdated misnomer: it works with RAM too)
+    // TODO: Задокументувати нюанс SPI bus contention між SD та дисплеєм. /AD
+    uint8_t* modFileData = new uint8_t[modSource->getSize()];
+    std::unique_ptr<uint8_t[]> modFileDataPtr(modFileData);
+    // Read the whole file into buffer
+    modSource->read(modFileData, modSource->getSize());
+    // Create source buffer
+    AudioFileSourcePROGMEM* modBufferSource = new AudioFileSourcePROGMEM(modFileData, modSource->getSize());
+    std::unique_ptr<AudioFileSource> modBufferSourcePtr(modBufferSource);
+
     // Create MOD player
     AudioGeneratorMOD* mod = new AudioGeneratorMOD();
     std::unique_ptr<AudioGeneratorMOD> modPtr(mod);
-    mod->begin(modSource, playerTaskData.analyzer);
+    mod->begin(modBufferSource, playerTaskData.analyzer);
 
     xSemaphoreTake(playerMutex, portMAX_DELAY);
     playerTaskData.isPaused = false;
