@@ -133,8 +133,9 @@ void ModPlayerApp::mainWindow() {
     );
     const uint16_t* titleCanvasFB = titleCanvas.getFramebuffer();
     uint16_t yOffset = canvas->height() - titleCanvas.height() - 8;
+    float time = millis() / 1500.0f;
     for (int16_t x = 0; x < titleCanvas.width(); x++) {
-        int16_t yShift = sin(millis() / 1500.0f + x / 25.0f) * 4 + yOffset;
+        int16_t yShift = sinf(time + x / 25.0f) * 4 + yOffset;
         for (int16_t y = 0; y < titleCanvas.height(); y++) {
             uint16_t color = titleCanvasFB[x + y * titleCanvas.width()];
             if (color) {
