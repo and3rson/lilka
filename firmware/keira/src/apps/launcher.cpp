@@ -44,6 +44,7 @@
 #include "icons/bin.h"
 #include "icons/lua.h"
 #include "icons/js.h"
+#include "icons/music.h"
 
 LauncherApp::LauncherApp() : App("Menu") {
 }
@@ -144,6 +145,8 @@ const menu_icon_t* get_file_icon(const String& filename) {
         return &lua;
     } else if (lowerCasedFileName.endsWith(".js")) {
         return &js;
+    } else if (lowerCasedFileName.endsWith(".mod")) {
+        return &music;
     } else {
         return &normalfile;
     }
@@ -160,6 +163,8 @@ const uint16_t get_file_color(const String& filename) {
         return lilka::colors::Maya_blue;
     } else if (lowerCasedFileName.endsWith(".js")) {
         return lilka::colors::Butterscotch;
+    } else if (lowerCasedFileName.endsWith(".mod")) {
+        return lilka::colors::Pink_lace;
     } else {
         return lilka::colors::Light_gray;
     }
