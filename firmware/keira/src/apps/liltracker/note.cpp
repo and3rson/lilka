@@ -3,12 +3,10 @@
 
 #include "note.h"
 
-const float A4_FREQUENCY = 440.0;
-
 const char* note_names[] = {"C-", "C#", "D-", "D#", "E-", "F-", "F#", "G-", "G#", "A-", "A#", "B-"};
 
 // Function to convert frequency to the nearest musical note, starting from A0 and ending with B9
-#define A4_FREQUENCY 440.0
+#define A4_FREQUENCY 440.0f
 
 // Define the number of notes in an octave
 #define NOTES_PER_OCTAVE 12
@@ -42,7 +40,7 @@ float noteinfo_t::toFrequency() {
         absIndex = 0;
     }
 
-    return A4_FREQUENCY * pow(2, ((float)(absIndex - 57)) / 12.0);
+    return A4_FREQUENCY * powf(2.0, ((float)(absIndex - 57)) / 12.0f);
 }
 
 // Function to convert note to string

@@ -13,7 +13,7 @@ typedef struct noteinfo_t {
 } noteinfo_t;
 
 inline float modulate_frequency(float frequency, float semitoneCount) {
-    return frequency * pow(2.0, semitoneCount / 12.0);
+    return frequency * powf(2.0f, semitoneCount / 12.0f);
 }
 
 #define N_C0 \
