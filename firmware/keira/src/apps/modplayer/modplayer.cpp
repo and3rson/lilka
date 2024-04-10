@@ -88,6 +88,7 @@ void ModPlayerApp::mainWindow() {
 
         constexpr int16_t HUE_SPEED_DIV = 4;
         constexpr int16_t HUE_SCALE = 4;
+        int16_t yCenter = height * 5 / 7;
 
         int64_t time = millis();
 
@@ -95,7 +96,7 @@ void ModPlayerApp::mainWindow() {
             int x = i * width / ANALYZER_BUFFER_SIZE;
             int index = (i + head) % ANALYZER_BUFFER_SIZE;
             float amplitude = static_cast<float>(analyzerBuffer[index]) / 32768 * gain;
-            int y = height / 2 + static_cast<int>(amplitude * height / 2);
+            int y = yCenter + static_cast<int>(amplitude * height / 2);
             if (i > 0) {
                 int16_t hue = (time / HUE_SPEED_DIV + i / HUE_SCALE) % 360;
                 canvas->drawLine(prevX, prevY, x, y, lilka::display.color565hsv(hue, 100, 100));
@@ -111,7 +112,7 @@ void ModPlayerApp::mainWindow() {
     xSemaphoreGive(playerMutex);
 
     canvas->setFont(FONT_9x15);
-    canvas->setTextBound(32, 32, canvas->width() - 64, canvas->height() - 64);
+    canvas->setTextBound(32, 32, canvas->width() - 64, canvas->height() - 32);
     canvas->setTextColor(lilka::colors::White);
     canvas->setCursor(32, 32 + 15);
     canvas->println("Програвач MOD");
@@ -120,10 +121,27 @@ void ModPlayerApp::mainWindow() {
     canvas->println("[Up] / [Down] - Гучність");
     canvas->println("[B] - Вийти");
     canvas->println("------------------------");
-    canvas->println("Файл: " + fileName);
-    if (info.isFinished) canvas->println("Трек закінчився");
-    canvas->setCursor(32, canvas->height() - 38);
     canvas->println("Гучність: " + String(info.gain));
+    if (info.isFinished) canvas->println("Трек закінчився");
+
+    lilka::Canvas titleCanvas(canvas->width(), 20);
+    titleCanvas.fillScreen(lilka::colors::Black);
+    titleCanvas.setFont(FONT_9x15);
+    titleCanvas.setTextColor(lilka::display.color565hsv((millis() * 30) % 360, 100, 100));
+    titleCanvas.drawTextAligned(
+        fileName.c_str(), titleCanvas.width() / 2, titleCanvas.height() / 2, lilka::ALIGN_CENTER, lilka::ALIGN_CENTER
+    );
+    const uint16_t* titleCanvasFB = titleCanvas.getFramebuffer();
+    uint16_t yOffset = canvas->height() - titleCanvas.height() - 8;
+    for (int16_t x = 0; x < titleCanvas.width(); x++) {
+        int16_t yShift = sin(millis() / 1500.0f + x / 25.0f) * 4 + yOffset;
+        for (int16_t y = 0; y < titleCanvas.height(); y++) {
+            uint16_t color = titleCanvasFB[x + y * titleCanvas.width()];
+            if (color) {
+                canvas->drawPixel(x, y + yShift, color);
+            }
+        }
+    }
     queueDraw();
 }
 
