@@ -9,15 +9,17 @@
 namespace lilka {
 
 // Рекомендовані шрифти для використання з дисплеєм.
-#define FONT_4x6   u8g2_font_4x6_t_cyrillic
-#define FONT_5x7   u8g2_font_5x7_t_cyrillic
-#define FONT_5x8   u8g2_font_5x8_t_cyrillic
-#define FONT_6x12  u8g2_font_6x12_t_cyrillic
-#define FONT_6x13  u8g2_font_6x13_t_cyrillic
-#define FONT_7x13  u8g2_font_7x13_t_cyrillic
-#define FONT_8x13  u8g2_font_8x13_t_cyrillic
-#define FONT_9x15  u8g2_font_9x15_t_cyrillic
-#define FONT_10x20 u8g2_font_10x20_t_cyrillic
+#define FONT_4x6        u8g2_font_4x6_t_cyrillic
+#define FONT_5x7        u8g2_font_5x7_t_cyrillic
+#define FONT_5x8        u8g2_font_5x8_t_cyrillic
+#define FONT_6x12       u8g2_font_6x12_t_cyrillic
+#define FONT_6x13       u8g2_font_6x13_t_cyrillic
+#define FONT_7x13       u8g2_font_7x13_t_cyrillic
+#define FONT_8x13       u8g2_font_8x13_t_cyrillic
+#define FONT_8x13_MONO  u8g2_font_8x13_mf
+#define FONT_9x15       u8g2_font_9x15_t_cyrillic
+#define FONT_10x20      u8g2_font_10x20_t_cyrillic
+#define FONT_10x20_MONO u8g2_font_10x20_mf
 
 class Canvas;
 class Image;
@@ -92,8 +94,12 @@ public:
     /// - `FONT_6x13`
     /// - `FONT_7x13`
     /// - `FONT_8x13`
+    /// - `FONT_8x13_MONO`
     /// - `FONT_9x15`
     /// - `FONT_10x20`
+    /// - `FONT_10x20_MONO`
+    ///
+    /// Також можна використати будь-який інший шрифт з бібліотеки `U8g2`: https://github.com/olikraus/u8g2/wiki/fntlistallplain
     ///
     /// Наприклад:
     ///
@@ -251,6 +257,12 @@ private:
     uint32_t rleLength;
 };
 
+typedef enum {
+    ALIGN_START,
+    ALIGN_CENTER,
+    ALIGN_END,
+} Alignment;
+
 /// Клас для роботи з графічним буфером.
 ///
 /// При частому перемальовуванні екрану без використання буфера може спостерігатися мерехтіння.
@@ -306,6 +318,7 @@ public:
         int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
     );
     void drawCanvas(Canvas* canvas);
+    int drawTextAligned(const char* text, int16_t x, int16_t y, Alignment hAlign, Alignment vAlign);
     int16_t x();
     int16_t y();
 };

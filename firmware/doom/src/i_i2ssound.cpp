@@ -46,6 +46,7 @@ static boolean32 I_I2S_InitSound(boolean32 _use_sfx_prefix) {
     xSemaphoreTake(
         backBufferMutex, portMAX_DELAY
     ); // Acquire back buffer mutex to prevent drawing while initializing I2S
+    lilka::audio.initPins();
     esp_i2s::i2s_config_t cfg = {
         .mode = (esp_i2s::i2s_mode_t)(esp_i2s::I2S_MODE_MASTER | esp_i2s::I2S_MODE_TX),
         .sample_rate = 11025,

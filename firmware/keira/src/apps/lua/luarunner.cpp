@@ -408,7 +408,7 @@ void LuaLiveRunnerApp::run() {
         }
 
         // TODO: This is a temporary fix: https://github.com/espressif/arduino-esp32/issues/9221
-        lilka::sdcard.available();
+        lilka::fileutils.isSDAvailable();
 
         execSource(code);
 
@@ -424,7 +424,7 @@ void LuaLiveRunnerApp::run() {
 
 void LuaLiveRunnerApp::execSource(String source) {
 #ifndef LILKA_NO_LUA
-    luaSetup("/sd"); // TODO: hard-coded
+    luaSetup(lilka::fileutils.getSDRoot().c_str());
 
     lilka::serial_log("lua: run source");
 
@@ -450,7 +450,7 @@ LuaReplApp::LuaReplApp() : AbstractLuaRunnerApp("Lua REPL") {
 
 void LuaReplApp::run() {
 #ifndef LILKA_NO_LUA
-    luaSetup("/sd"); // TODO: hard-coded
+    luaSetup(lilka::fileutils.getSDRoot().c_str()); // TODO: hard-coded
 
     canvas->setFont(FONT_10x20);
     canvas->setCursor(8, 48);
@@ -463,7 +463,7 @@ void LuaReplApp::run() {
     lilka::serial_log("lua: start REPL");
 
     // TODO: This is a temporary fix: https://github.com/espressif/arduino-esp32/issues/9221
-    lilka::sdcard.available();
+    lilka::fileutils.initSD();
 
     bool quit = false;
     while (!quit) {

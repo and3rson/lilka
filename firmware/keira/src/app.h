@@ -60,6 +60,7 @@ protected:
     void suspend();
     void resume();
     void stop();
+    void setCore(int appCore);
     /// Встановити прапорці додатку.
     ///
     /// Наприклад, якщо додаток має відображатися на весь екран, то слід викликати setFlags(APP_FLAG_FULLSCREEN).
@@ -68,7 +69,7 @@ protected:
     AppFlags getFlags();
     /// Встановити розмір стеку задачі додатку.
     ///
-    /// За замовчуванням, розмір стеку задачі дорівнює 16384 байт. Проте деякі додатки можуть вимагати більший розмір стеку.
+    /// За замовчуванням, розмір стеку задачі дорівнює 8192 байт. Проте деякі додатки можуть вимагати більший розмір стеку.
     void setStackSize(uint32_t stackSize);
 
     bool needsRedraw();
@@ -101,6 +102,7 @@ private:
     const char* name;
     SemaphoreHandle_t backCanvasMutex;
     bool isDrawQueued;
+    int appCore;
     AppFlags flags;
     TaskHandle_t taskHandle;
     uint32_t stackSize;

@@ -11,14 +11,16 @@ App::App(const char* name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) :
     backCanvas(new lilka::Canvas(x, y, w, h)),
     isDrawQueued(false),
     backCanvasMutex(xSemaphoreCreateMutex()),
-    stackSize(8192) {
+    stackSize(8192),
+    appCore(0) {
     // Clear buffers
     canvas->fillScreen(0);
     backCanvas->fillScreen(0);
     Serial.println(
         "Created app " + String(name) + " at " + String(x) + ", " + String(y) + " with size " + String(w) + "x" +
-        String(h)
+        String(h) + " on core " + String(appCore)
     );
+    xSemaphoreGive(backCanvasMutex);
 }
 
 void App::start() {
@@ -27,7 +29,7 @@ void App::start() {
         return;
     }
     Serial.println("Starting app " + String(name));
-    if (xTaskCreatePinnedToCore(_run, name, stackSize, this, 1, &taskHandle, 0) != pdPASS) {
+    if (xTaskCreatePinnedToCore(_run, name, stackSize, this, 1, &taskHandle, appCore) != pdPASS) {
         Serial.println(
             "Failed to create task for app " + String(name) +
             " - not enough memory? Try increasing stack size with setStackSize()"
@@ -90,6 +92,10 @@ void App::queueDraw() {
     isDrawQueued = true;
     xSemaphoreGive(backCanvasMutex);
     taskYIELD();
+}
+
+void App::setCore(int appCore) {
+    this->appCore = appCore;
 }
 
 void App::setFlags(AppFlags flags) {

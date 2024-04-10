@@ -150,8 +150,8 @@ void setup() {
             if (firmwareDir.endsWith("/")) {
                 firmwareDir = firmwareDir.substring(0, firmwareDir.length() - 1);
             }
-            strcpy(arg3, (String("/sd") + firmwareDir + "/" + file.name()).c_str());
-            lilka::serial_log("Found .WAD file: %s", arg3);
+            strcpy(arg3, (lilka::fileutils.getSDRoot() + firmwareDir + "/" + file.name()).c_str());
+            lilka::serial_log("Found .WAD file: %s\n", arg3);
             found = true;
             file.close();
             break;
