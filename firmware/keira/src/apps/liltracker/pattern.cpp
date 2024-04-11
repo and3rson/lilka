@@ -3,6 +3,7 @@
 #include <freertos/queue.h>
 
 #include "pattern.h"
+#include "utils/acquire.h"
 
 #define WRITE_TO_BUFFER(buffer, value)              \
     memcpy(&buffer[offset], &value, sizeof(value)); \
@@ -11,20 +12,6 @@
 #define READ_FROM_BUFFER(value, buffer)             \
     memcpy(&value, &buffer[offset], sizeof(value)); \
     offset += sizeof(value);
-
-class AcquireMixer {
-public:
-    explicit AcquireMixer(SemaphoreHandle_t xMutex) {
-        this->xMutex = xMutex;
-        xSemaphoreTake(xMutex, portMAX_DELAY);
-    }
-    ~AcquireMixer() {
-        xSemaphoreGive(xMutex);
-    }
-
-private:
-    SemaphoreHandle_t xMutex;
-};
 
 Pattern::Pattern() : xMutex(xSemaphoreCreateMutex()) {
     for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
@@ -46,27 +33,27 @@ Pattern::~Pattern() {
 }
 
 waveform_t Pattern::getChannelWaveform(int32_t channelIndex) {
-    AcquireMixer acquire(xMutex);
+    Acquire acquire(xMutex);
     return channels[channelIndex].waveform;
 }
 
 void Pattern::setChannelWaveform(int32_t channelIndex, waveform_t waveform) {
-    AcquireMixer acquire(xMutex);
+    Acquire acquire(xMutex);
     channels[channelIndex].waveform = waveform;
 }
 
 event_t Pattern::getChannelEvent(int32_t channelIndex, int32_t eventIndex) {
-    AcquireMixer acquire(xMutex);
+    Acquire acquire(xMutex);
     return channels[channelIndex].events[eventIndex];
 }
 
 void Pattern::setChannelEvent(int32_t channelIndex, int32_t eventIndex, event_t event) {
-    AcquireMixer acquire(xMutex);
+    Acquire acquire(xMutex);
     channels[channelIndex].events[eventIndex] = event;
 }
 
 void Pattern::setChannelEvents(int32_t channelIndex, const event_t* events) {
-    AcquireMixer acquire(xMutex);
+    Acquire acquire(xMutex);
     for (int32_t eventIndex = 0; eventIndex < CHANNEL_SIZE; eventIndex++) {
         event_t event = events[eventIndex];
         channels[channelIndex].events[eventIndex] = event;
@@ -74,7 +61,7 @@ void Pattern::setChannelEvents(int32_t channelIndex, const event_t* events) {
 }
 
 int Pattern::calculateWriteBufferSize() {
-    AcquireMixer acquire(xMutex);
+    Acquire acquire(xMutex);
     int32_t bufferSize = 0;
 
     // Calculate all channels
@@ -94,7 +81,7 @@ int Pattern::calculateWriteBufferSize() {
 }
 
 int Pattern::writeToBuffer(uint8_t* buffer) {
-    AcquireMixer acquire(xMutex);
+    Acquire acquire(xMutex);
     int32_t offset = 0;
 
     // Write all channels
@@ -118,7 +105,7 @@ int Pattern::writeToBuffer(uint8_t* buffer) {
 }
 
 int Pattern::readFromBuffer(const uint8_t* buffer) {
-    AcquireMixer acquire(xMutex);
+    Acquire acquire(xMutex);
     int32_t offset = 0;
 
     // Read all channels

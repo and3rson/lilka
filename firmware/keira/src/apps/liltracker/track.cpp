@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include "track.h"
+#include "utils/acquire.h"
 
 // TODO: Limit page count
 // TODO: Limit pattern count
@@ -17,20 +18,6 @@
     memcpy(&value, &buffer[offset], sizeof(value)); \
     offset += sizeof(value);
 
-class AcquireTrack {
-public:
-    explicit AcquireTrack(SemaphoreHandle_t xMutex) {
-        this->xMutex = xMutex;
-        xSemaphoreTakeRecursive(xMutex, portMAX_DELAY);
-    }
-    ~AcquireTrack() {
-        xSemaphoreGiveRecursive(xMutex);
-    }
-
-private:
-    SemaphoreHandle_t xMutex;
-};
-
 Track::Track(int16_t bpm) : xMutex(xSemaphoreCreateRecursiveMutex()), bpm(bpm) {
     // Create default page and pattern
     pages.resize(4);
@@ -39,17 +26,17 @@ Track::Track(int16_t bpm) : xMutex(xSemaphoreCreateRecursiveMutex()), bpm(bpm) {
 }
 
 int16_t Track::getPatternCount() {
-    AcquireTrack acquire(xMutex);
+    Acquire acquire(xMutex, true);
     return patterns.size();
 }
 
 void Track::setPatternCount(int16_t count) {
-    AcquireTrack acquire(xMutex);
+    Acquire acquire(xMutex, true);
     patterns.resize(MAX(count, 1));
 }
 
 Pattern* Track::getPattern(int16_t index) {
-    AcquireTrack acquire(xMutex);
+    Acquire acquire(xMutex, true);
     // Auto-resize if index is out of bounds
     if (index >= getPatternCount()) {
         setPatternCount(index + 1);
@@ -58,17 +45,17 @@ Pattern* Track::getPattern(int16_t index) {
 }
 
 int16_t Track::getPageCount() {
-    AcquireTrack acquire(xMutex);
+    Acquire acquire(xMutex, true);
     return pages.size();
 }
 
 void Track::setPageCount(int16_t count) {
-    AcquireTrack acquire(xMutex);
+    Acquire acquire(xMutex, true);
     pages.resize(MAX(count, 1));
 }
 
 page_t* Track::getPage(int16_t index) {
-    AcquireTrack acquire(xMutex);
+    Acquire acquire(xMutex, true);
     // Auto-resize if index is out of bounds
     if (index >= getPageCount()) {
         setPageCount(index + 1);
@@ -77,17 +64,17 @@ page_t* Track::getPage(int16_t index) {
 }
 
 int16_t Track::getBPM() {
-    AcquireTrack acquire(xMutex);
+    Acquire acquire(xMutex, true);
     return bpm;
 }
 
 void Track::setBPM(int16_t bpm) {
-    AcquireTrack acquire(xMutex);
+    Acquire acquire(xMutex, true);
     this->bpm = CLAMP(bpm, 30, 900);
 }
 
 int32_t Track::calculateWriteBufferSize() {
-    AcquireTrack acquire(xMutex);
+    Acquire acquire(xMutex, true);
     int32_t size = 3 * sizeof(int16_t); // Header, BPM, pattern count, page count
     for (int16_t i = 0; i < getPatternCount(); i++) {
         size += getPattern(i)->calculateWriteBufferSize();
@@ -97,7 +84,7 @@ int32_t Track::calculateWriteBufferSize() {
 }
 
 int32_t Track::writeToBuffer(uint8_t* data) {
-    AcquireTrack acquire(xMutex);
+    Acquire acquire(xMutex, true);
     int32_t offset = 0;
 
     // Write header ("LIL")
@@ -128,7 +115,7 @@ int32_t Track::writeToBuffer(uint8_t* data) {
 }
 
 int32_t Track::readFromBuffer(const uint8_t* data) {
-    AcquireTrack acquire(xMutex);
+    Acquire acquire(xMutex, true);
     int32_t offset = 0;
 
     // Read header ("LIL")

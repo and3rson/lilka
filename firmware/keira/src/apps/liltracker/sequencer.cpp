@@ -1,18 +1,6 @@
 #include "sequencer.h"
 #include "lilka/serial.h"
-
-class AcquireSequencer {
-public:
-    explicit AcquireSequencer(SemaphoreHandle_t xMutex) : xMutex(xMutex) {
-        xSemaphoreTake(xMutex, portMAX_DELAY);
-    }
-    ~AcquireSequencer() {
-        xSemaphoreGive(xMutex);
-    }
-
-private:
-    SemaphoreHandle_t xMutex;
-};
+#include "utils/acquire.h"
 
 Sequencer::Sequencer(Mixer* mixer) : xMutex(xSemaphoreCreateBinary()), mixer(mixer) {
     playstate.playing = false;
@@ -43,7 +31,7 @@ Sequencer::~Sequencer() {
 }
 
 void Sequencer::play(Track* track, int16_t pageIndex, bool loopTrack) {
-    AcquireSequencer acquire(xMutex);
+    Acquire acquire(xMutex);
     if (playstate.playing) {
         return;
     }
@@ -56,7 +44,7 @@ void Sequencer::play(Track* track, int16_t pageIndex, bool loopTrack) {
 }
 
 void Sequencer::play(Track* track, bool loopTrack) {
-    AcquireSequencer acquire(xMutex);
+    Acquire acquire(xMutex);
     if (playstate.playing) {
         return;
     }
@@ -69,13 +57,13 @@ void Sequencer::play(Track* track, bool loopTrack) {
 }
 
 void Sequencer::stop() {
-    AcquireSequencer acquire(xMutex);
+    Acquire acquire(xMutex);
     playstate.playing = false;
     mixer->stop();
 }
 
 seq_state_t Sequencer::getSeqState() {
-    AcquireSequencer acquire(xMutex);
+    Acquire acquire(xMutex);
     return playstate;
 }
 
@@ -92,14 +80,14 @@ void Sequencer::sequencerTask() {
 
         bool playing;
         {
-            AcquireSequencer acquire(xMutex);
+            Acquire acquire(xMutex);
             playing = playstate.playing;
         }
 
         if (playing) {
             // Play the page
             {
-                AcquireSequencer acquire(xMutex);
+                Acquire acquire(xMutex);
                 const page_t* page = playstate.track->getPage(playstate.pageIndex);
                 for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
                     Pattern* pattern = playstate.track->getPattern(page->patternIndices[channelIndex]);
@@ -136,7 +124,7 @@ void Sequencer::sequencerTask() {
             vTaskDelay(msPerBeat / portTICK_PERIOD_MS);
             // Increment the event index
             {
-                AcquireSequencer acquire(xMutex);
+                Acquire acquire(xMutex);
                 if (!playstate.playing) {
                     // Playback stopped while we were waiting
                     mixer->stop();

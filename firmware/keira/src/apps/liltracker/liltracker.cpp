@@ -321,7 +321,7 @@ void LilTrackerApp::run() {
         // for (int i = 0; i < MIXER_BUFFER_SIZE; i++) {
         //     int x = i * lilka::display.width() / MIXER_BUFFER_SIZE;
         //     float amplitude = static_cast<float>(buffer[i]) / 32768 / mixer.getMasterVolume();
-        //     int y = SCORE_HEADER_TOP / 2 + static_cast<int>(amplitude * SCORE_HEADER_TOP / 2);
+        //     int y = SCORE_HEADER_TOP / 2 - static_cast<int>(amplitude * SCORE_HEADER_TOP / 2);
         //     if (i > 0) {
         //         canvas->drawLine(prevX, prevY, x, y, lilka::colors::White);
         //     }
@@ -342,7 +342,7 @@ void LilTrackerApp::run() {
                     int x = minX + i * width / MIXER_BUFFER_SIZE;
                     int index = i / 2; // Make samples wider for nicer display
                     float amplitude = static_cast<float>(buffer[index]) / 32768 / mixer.getMasterVolume();
-                    int y = SCORE_HEADER_TOP / 2 + static_cast<int>(amplitude * SCORE_HEADER_TOP / 2);
+                    int y = SCORE_HEADER_TOP / 2 - static_cast<int>(amplitude * SCORE_HEADER_TOP / 2);
                     if (i > 0) {
                         canvas->drawLine(prevX, prevY, x, y, lilka::colors::White);
                     }
