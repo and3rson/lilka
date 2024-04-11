@@ -4,11 +4,8 @@
 
 class Defer {
 public:
-    Defer(std::function<void()> func) : _func(func) {
-    }
-    ~Defer() {
-        _func();
-    }
+    explicit Defer(std::function<void()> func);
+    ~Defer();
 
 private:
     std::function<void()> _func;
