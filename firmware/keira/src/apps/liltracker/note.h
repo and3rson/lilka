@@ -1,6 +1,6 @@
 #pragma once
 
-#include <math.h>
+// #include <math.h>
 #include <stdint.h>
 
 typedef struct noteinfo_t {
@@ -12,8 +12,29 @@ typedef struct noteinfo_t {
     float toFrequency();
 } noteinfo_t;
 
+// inline float modulate_frequency(int16_t frequency, int16_t semitoneCount) {
+//     return frequency * powf(2.0f, semitoneCount / 12.0f);
+// }
+
+// Lookup table for powers of 2 in range [-10;10] with a step of 1/12
+extern float pow2table[12 * 10 * 2 + 1];
+
 inline float modulate_frequency(float frequency, float semitoneCount) {
-    return frequency * powf(2.0f, semitoneCount / 12.0f);
+    int index = semitoneCount + 12 * 10;
+    if (index < 0) {
+        index = 0;
+    } else if (index > 12 * 10 * 2) {
+        index = 12 * 10 * 2;
+    }
+    return frequency * pow2table[index];
+    // int index = semitoneCount + 12;
+    // if (index < 0) {
+    //     index = 0;
+    // } else if (index > 24) {
+    //     index = 24;
+    // }
+    //
+    // return frequency * pow2table[index][0] / pow2table[index][1];
 }
 
 #define N_C0 \

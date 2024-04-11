@@ -1,5 +1,5 @@
 #include <math.h>
-#include <stdio.h>
+#include <lilka/fmath.h>
 
 #include "effects.h"
 #include "note.h"
@@ -47,7 +47,7 @@ void effect_vibrato(float time, float* frequency, float* amplitude, float* phase
     uint8_t vibratoDepth = param & 0x0F;
 
     // Calculate the depth of vibrato in terms of radians
-    float phaseModulation = vibratoDepth / 15.0f * sinf(time * 2.0f * M_PI * vibratoFrequency);
+    float phaseModulation = vibratoDepth / 15.0f * lilka::fSin360(time * vibratoFrequency * 360);
 
     // Apply the vibrato phase modulation
     *phase += phaseModulation;
@@ -62,7 +62,7 @@ void effect_tremolo(float time, float* frequency, float* amplitude, float* phase
     uint8_t tremoloDepth = (param & 0x0F);
 
     // Calculate the tremolo into a range of 0.0 to 1.0
-    float tremolo = (sinf(time * 2.0f * M_PI * tremoloFrequency) + 1.0f) / 2.0f;
+    float tremolo = (lilka::fSin360(time * tremoloFrequency * 360) + 1.0f) / 2.0f;
 
     // Apply the tremolo
     *amplitude = *amplitude * (1.0f - tremolo * tremoloDepth / 15.0f);

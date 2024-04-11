@@ -1,4 +1,5 @@
 #include <math.h>
+#include <lilka/fmath.h>
 #include "waveforms.h"
 
 // TODO: Use integers instead of floats for audio samples, time, frequency, amplitude, and phase?
@@ -14,8 +15,12 @@ float triangle(float time, float frequency, float amplitude, float phase) {
 }
 
 // Sine wave function
-float sine(float time, float frequency, float amplitude, float phase) {
-    return amplitude * sinf(2.0f * M_PI * frequency * time + phase);
+// float sine(float time, float frequency, float amplitude, float phase) {
+//     return amplitude * sinf(2.0f * M_PI * frequency * time + phase);
+// }
+
+float fast_sine(float time, float frequency, float amplitude, float phase) {
+    return amplitude * lilka::fSin360(frequency * 360 * time + phase);
 }
 
 // Square wave function
