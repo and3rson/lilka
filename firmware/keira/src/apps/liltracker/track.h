@@ -16,6 +16,7 @@ typedef struct {
 class Track {
 public:
     explicit Track(int16_t bpm = DEFAULT_BPM);
+    ~Track();
     int16_t getPatternCount();
     int16_t getUsedPatternCount();
     void setPatternCount(int16_t count);
@@ -33,7 +34,7 @@ public:
 
 private:
     int16_t bpm;
-    std::vector<Pattern> patterns;
-    std::vector<page_t> pages;
+    std::vector<Pattern*> patterns;
+    std::vector<page_t*> pages;
     SemaphoreHandle_t xMutex;
 };

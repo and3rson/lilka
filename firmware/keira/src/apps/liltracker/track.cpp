@@ -1,5 +1,6 @@
 #include <string.h>
 
+#include "lilka/serial.h"
 #include "track.h"
 #include "utils/acquire.h"
 
@@ -20,9 +21,33 @@
 
 Track::Track(int16_t bpm) : xMutex(xSemaphoreCreateRecursiveMutex()), bpm(bpm) {
     // Create default page and pattern
-    pages.resize(4);
-    patterns.resize(4);
+    constexpr uint16_t initialPageCount = 4;
+    constexpr uint16_t initialPatternCount = 4;
+    pages.resize(initialPageCount);
+    for (int16_t i = 0; i < initialPageCount; i++) {
+        pages[i] = new page_t();
+        for (int8_t j = 0; j < CHANNEL_COUNT; j++) {
+            pages[i]->patternIndices[j] = 0;
+        }
+    }
+    patterns.resize(initialPatternCount);
+    for (int16_t i = 0; i < initialPatternCount; i++) {
+        patterns[i] = new Pattern();
+    }
     xSemaphoreGive(xMutex);
+}
+
+Track::~Track() {
+    {
+        Acquire acquire(xMutex, true);
+        for (Pattern* pattern : patterns) {
+            delete pattern;
+        }
+        for (page_t* page : pages) {
+            delete page;
+        }
+    }
+    vSemaphoreDelete(xMutex);
 }
 
 int16_t Track::getPatternCount() {
@@ -44,16 +69,24 @@ int16_t Track::getUsedPatternCount() {
 
 void Track::setPatternCount(int16_t count) {
     Acquire acquire(xMutex, true);
-    patterns.resize(MAX(count, 1));
+    count = MAX(count, 1);
+    while (getPatternCount() > count) {
+        delete patterns.back();
+        patterns.pop_back();
+    }
+    while (getPatternCount() < count) {
+        patterns.push_back(new Pattern());
+    }
 }
 
 Pattern* Track::getPattern(int16_t index) {
     Acquire acquire(xMutex, true);
-    // Auto-resize if index is out of bounds
     if (index >= getPatternCount()) {
+        // Auto-resize if index is out of bounds
+        // This will happen when user tries to access pattern index that is not yet allocated
         setPatternCount(index + 1);
     }
-    return &patterns[index];
+    return patterns[index];
 }
 
 int16_t Track::getPageCount() {
@@ -63,16 +96,38 @@ int16_t Track::getPageCount() {
 
 void Track::setPageCount(int16_t count) {
     Acquire acquire(xMutex, true);
-    pages.resize(MAX(count, 1));
+    count = MAX(count, 1);
+    while (getPageCount() > count) {
+        delete pages.back();
+        pages.pop_back();
+    }
+    while (getPageCount() < count) {
+        page_t* lastPage = getPageCount() > 0 ? pages.back() : NULL;
+        pages.push_back(new page_t());
+        for (int8_t i = 0; i < CHANNEL_COUNT; i++) {
+            if (lastPage != NULL) {
+                // Copy pattern indices from last page
+                pages.back()->patternIndices[i] = lastPage->patternIndices[i];
+            } else {
+                // Set pattern indices to 0 (should not happen)
+                lilka::serial_err(
+                    "Track::setPageCount: suspiciously creating new page with all pattern indices set to 0, index %d", i
+                );
+                pages.back()->patternIndices[i] = 0;
+            }
+        }
+    }
 }
 
 page_t* Track::getPage(int16_t index) {
     Acquire acquire(xMutex, true);
-    // Auto-resize if index is out of bounds
     if (index >= getPageCount()) {
+        // Auto-resize if index is out of bounds
+        // (This should not happen in normal operation, since page count is controlled by UI)
+        lilka::serial_err("Track::getPage: suspiciously resizing page count to %d", index + 1);
         setPageCount(index + 1);
     }
-    return &pages[index];
+    return pages[index];
 }
 
 int16_t Track::getBPM() {

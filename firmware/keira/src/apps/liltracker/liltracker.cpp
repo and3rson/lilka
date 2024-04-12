@@ -242,6 +242,8 @@ void LilTrackerApp::run() {
         {
             page_t* page;
 
+            track.setPageCount(7);
+
             page = track.getPage(0);
             page->patternIndices[0] = 0;
             page->patternIndices[1] = 2;
