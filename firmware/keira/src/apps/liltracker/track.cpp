@@ -73,9 +73,17 @@ void Track::setBPM(int16_t bpm) {
     this->bpm = CLAMP(bpm, 30, 900);
 }
 
+void Track::reset() {
+    Acquire acquire(xMutex, true);
+    pages.resize(0);
+    patterns.resize(0);
+    pages.resize(4);
+    patterns.resize(4);
+}
+
 int32_t Track::calculateWriteBufferSize() {
     Acquire acquire(xMutex, true);
-    int32_t size = 3 * sizeof(int16_t); // Header, BPM, pattern count, page count
+    int32_t size = 32 * sizeof(int16_t); // Header (signature + reserved), BPM, pattern count, page count
     for (int16_t i = 0; i < getPatternCount(); i++) {
         size += getPattern(i)->calculateWriteBufferSize();
     }
@@ -87,10 +95,16 @@ int32_t Track::writeToBuffer(uint8_t* data) {
     Acquire acquire(xMutex, true);
     int32_t offset = 0;
 
-    // Write header ("LIL")
+    // Write header signature ("LILT")
     data[offset++] = 'L';
     data[offset++] = 'I';
     data[offset++] = 'L';
+    data[offset++] = 'T';
+
+    // Write header reserved bytes until offset 32
+    while (offset < 32) {
+        data[offset++] = 0;
+    }
 
     // Write BPM
     WRITE_TO_BUFFER(data, bpm);
@@ -118,10 +132,13 @@ int32_t Track::readFromBuffer(const uint8_t* data) {
     Acquire acquire(xMutex, true);
     int32_t offset = 0;
 
-    // Read header ("LIL")
-    if (data[offset++] != 'L' || data[offset++] != 'I' || data[offset++] != 'L') {
+    // Read header signature ("LIL")
+    if (data[offset++] != 'L' || data[offset++] != 'I' || data[offset++] != 'L' || data[offset++] != 'T') {
         return -1;
     }
+
+    // Skip header reserved bytes until offset 32
+    offset = 32;
 
     // Read BPM
     READ_FROM_BUFFER(bpm, data);

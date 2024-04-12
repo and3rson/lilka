@@ -24,6 +24,7 @@ public:
     page_t* getPage(int16_t index);
     int16_t getBPM();
     void setBPM(int16_t bpm);
+    void reset();
 
     int32_t calculateWriteBufferSize();
     int32_t writeToBuffer(uint8_t* data);

@@ -4,8 +4,8 @@
 #include <stdint.h>
 
 typedef struct noteinfo_t {
-    int index; // [0;11]
-    int octave;
+    uint8_t index; // [0;11]
+    uint8_t octave;
     char* toStr();
     void add(int16_t semitoneCount);
     void fromFrequency(float frequency);

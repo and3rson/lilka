@@ -64,6 +64,9 @@ int Pattern::calculateWriteBufferSize() {
     Acquire acquire(xMutex);
     int32_t bufferSize = 0;
 
+    // Count 32 reserved bytes
+    bufferSize += 32;
+
     // Calculate all channels
     for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
         // Calculate channel settings
@@ -83,6 +86,11 @@ int Pattern::calculateWriteBufferSize() {
 int Pattern::writeToBuffer(uint8_t* buffer) {
     Acquire acquire(xMutex);
     int32_t offset = 0;
+
+    // Write 32 reserved bytes
+    while (offset < 32) {
+        buffer[offset++] = 0;
+    }
 
     // Write all channels
     for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
@@ -107,6 +115,9 @@ int Pattern::writeToBuffer(uint8_t* buffer) {
 int Pattern::readFromBuffer(const uint8_t* buffer) {
     Acquire acquire(xMutex);
     int32_t offset = 0;
+
+    // Skip 32 reserved bytes
+    offset = 32;
 
     // Read all channels
     for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {

@@ -16,10 +16,11 @@ typedef enum {
 } event_type_t;
 
 typedef struct event_t {
-    noteinfo_t note;
-    uint8_t volume;
-    event_type_t type;
-    effect_t effect;
+    noteinfo_t note; // 2 bytes
+    uint8_t volume; // 1 byte
+    event_type_t type; // 1 byte
+    effect_t effect; // 2 bytes
+    uint8_t reserved[10]; // 10 bytes
 } event_t;
 
 typedef struct {
