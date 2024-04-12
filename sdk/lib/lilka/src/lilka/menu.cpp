@@ -312,6 +312,9 @@ void Menu::clearItems() {
     setCursor(0);
     items.clear();
 }
+int16_t Menu::getItemCount() {
+    return items.size();
+}
 void Menu::addActivationButton(Button activationButton) {
     activationButtons.push_back(activationButton);
 }

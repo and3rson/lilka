@@ -3,6 +3,8 @@
 #include "liltracker.h"
 #include "note.h"
 
+#define LILTRACKER_DIR "/liltracker"
+
 // Layout:
 // - Title
 // - Controls (3 columns, 2 rows)
@@ -634,8 +636,12 @@ void LilTrackerApp::run() {
                     if (controlCursorY == 1) {
                         if (controlCursorX == 0) {
                             // Load
+                            String filename = filePicker(false);
+                            Serial.println("Loading file: " + filename);
                         } else if (controlCursorX == 1) {
                             // Save
+                            String filename = filePicker(true);
+                            Serial.println("Saving file: " + filename);
                         } else if (controlCursorX == 2) {
                             // Reset
                             if (confirm("Увага", "Очистити всі дані композиції?")) {
@@ -854,6 +860,15 @@ void LilTrackerApp::startPreview(
     }
 }
 
+void LilTrackerApp::alert(String title, String message) {
+    lilka::Alert alert(title, message);
+    alert.draw(canvas);
+    queueDraw();
+    while (!alert.isFinished()) {
+        alert.update();
+    }
+}
+
 bool LilTrackerApp::confirm(String title, String message) {
     lilka::Alert alert(title, message + "\n\n[START] - Так\n[A] - Ні");
     alert.addActivationButton(lilka::Button::START);
@@ -863,4 +878,85 @@ bool LilTrackerApp::confirm(String title, String message) {
         alert.update();
     }
     return alert.getButton() == lilka::Button::START;
+}
+
+String LilTrackerApp::filePicker(bool isSave) {
+    // isSave determines whether we are writing to file or opening an existing one
+
+    // List files
+    if (!SD.exists(LILTRACKER_DIR)) {
+        if (!SD.mkdir(LILTRACKER_DIR)) {
+            alert("Помилка", "Не вдалося створити директорію " LILTRACKER_DIR);
+            return "";
+        }
+    }
+    File root = SD.open("/liltracker");
+    if (!root) {
+        alert("Помилка", "Не вдалося відкрити директорію " LILTRACKER_DIR);
+        return "";
+    }
+
+    int fileCount = lilka::fileutils.getEntryCount(&SD, LILTRACKER_DIR);
+    if (fileCount == 0 && !isSave) {
+        alert("Помилка", "Директорія " LILTRACKER_DIR " порожня");
+        return "";
+    }
+
+    lilka::Entry entries[fileCount];
+    lilka::fileutils.listDir(&SD, LILTRACKER_DIR, entries);
+
+    lilka::Menu menu(isSave ? "Зберегти трек" : "Відкрити трек");
+    if (isSave) {
+        menu.addItem("++ Створити новий");
+    }
+    for (int i = 0; i < fileCount; i++) {
+        if (entries[i].type == lilka::EntryType::ENT_DIRECTORY) {
+            continue;
+        }
+        menu.addItem(entries[i].name);
+    }
+    menu.addItem("<< Назад");
+
+    while (!menu.isFinished()) {
+        menu.update();
+        menu.draw(canvas);
+        queueDraw();
+    }
+
+    int16_t selectedItem = menu.getCursor();
+    if (selectedItem == menu.getItemCount() - 1) {
+        // Back
+        return "";
+    }
+
+    if (isSave) {
+        if (selectedItem == 0) {
+            // Create new file
+            lilka::InputDialog dialog("Введіть назву файлу");
+            while (1) {
+                dialog.update();
+                dialog.draw(canvas);
+                queueDraw();
+                if (dialog.isFinished()) {
+                    String filename = dialog.getValue();
+                    filename.trim();
+                    if (filename.length() == 0) {
+                        alert("Помилка", "Назва файлу не може бути порожньою");
+                    } else {
+                        return String(LILTRACKER_DIR) + "/" + filename;
+                    }
+                }
+            }
+        } else {
+            // Save to existing file
+            lilka::MenuItem item;
+            menu.getItem(selectedItem - 1, &item);
+            return String(LILTRACKER_DIR) + "/" + item.title;
+        }
+    } else {
+        // Open existing file
+        lilka::MenuItem item;
+        menu.getItem(selectedItem, &item);
+        return String(LILTRACKER_DIR) + "/" + item.title;
+    }
 }

@@ -16,5 +16,7 @@ private:
         bool focused, bool dimmed
     );
     void startPreview(Track* track, page_t* page, int32_t requestedChannelIndex, int32_t requestedEventIndex);
+    void alert(String title, String message);
     bool confirm(String title, String message);
+    String filePicker(bool isSave);
 };
