@@ -109,8 +109,17 @@ int32_t Track::writeToBuffer(uint8_t* data) {
     // Write BPM
     WRITE_TO_BUFFER(data, bpm);
 
+    // Find largest index of pattern that is used in a page.
+    // We won't write trailing patterns that are not used.
+    int16_t largestUsedPatternIndex = 0; // There is always at least one pattern
+    for (int16_t i = 0; i < getPageCount(); i++) {
+        for (int8_t j = 0; j < CHANNEL_COUNT; j++) {
+            largestUsedPatternIndex = MAX(largestUsedPatternIndex, getPage(i)->patternIndices[j]);
+        }
+    }
+
     // Write patterns
-    int16_t patternCount = getPatternCount();
+    int16_t patternCount = largestUsedPatternIndex + 1;
     WRITE_TO_BUFFER(data, patternCount);
     for (int16_t i = 0; i < patternCount; i++) {
         offset += getPattern(i)->writeToBuffer(&data[offset]);
