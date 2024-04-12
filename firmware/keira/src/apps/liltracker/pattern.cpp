@@ -14,8 +14,14 @@
     offset += sizeof(value);
 
 Pattern::Pattern() : xMutex(xSemaphoreCreateMutex()) {
+    const waveform_t defaultWaveforms[CHANNEL_COUNT] = {
+        WAVEFORM_SQUARE,
+        WAVEFORM_SAWTOOTH,
+        WAVEFORM_NOISE,
+    };
     for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-        channels[channelIndex].waveform = WAVEFORM_SILENCE;
+        // Set some default waveforms for nicer expeience when starting from scratch
+        channels[channelIndex].waveform = defaultWaveforms[channelIndex];
         channels[channelIndex].volume = 1.0f;
         channels[channelIndex].pitch = 1.0f;
         for (int32_t eventIndex = 0; eventIndex < CHANNEL_SIZE; eventIndex++) {

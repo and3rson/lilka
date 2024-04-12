@@ -294,6 +294,16 @@ void LilTrackerApp::run() {
 
     char str[64];
 
+    // // Testing serialization/deserialization
+    // uint8_t* buff = new uint8_t[track.calculateWriteBufferSize()];
+    // track.writeToBuffer(buff);
+    // File file = SD.open("/lilka_walks.lt", FILE_WRITE);
+    // file.write(buff, track.calculateWriteBufferSize());
+    // file.close();
+    // track.reset();
+    // track.readFromBuffer(buff);
+    // delete[] buff;
+
     while (1) {
         seq_state_t seqState = sequencer.getSeqState();
 
@@ -400,13 +410,12 @@ void LilTrackerApp::run() {
                 bool isFocused = activeBlock == ACTIVE_BLOCK_CONTROLS && controlCursorX == i && controlCursorY == 1;
                 const char* buttonText;
                 if (i == 0) {
-                    buttonText = "Відкрити";
+                    buttonText = "Load";
                 } else if (i == 1) {
-                    buttonText = "Записати";
+                    buttonText = "Save";
                 } else {
-                    buttonText = "Скинути";
+                    buttonText = "Reset";
                 }
-                canvas->setFont(FONT_8x13);
                 printText(
                     buttonText,
                     CONTROL_PADDING_LEFT + CONTROL_WIDTH * i,
@@ -593,13 +602,7 @@ void LilTrackerApp::run() {
                             }
                         }
                     } else if (controlCursorY == 1) {
-                        if (controlCursorX == 0) {
-                            // Load
-                        } else if (controlCursorX == 1) {
-                            // Save
-                        } else if (controlCursorX == 2) {
-                            // Reset
-                        }
+                        // Unreachable
                     } else if (controlCursorY == 2) {
                         // Select waveform for pattern's channel
                         Pattern* pattern = track.getPattern(page->patternIndices[controlCursorX]);
@@ -627,7 +630,22 @@ void LilTrackerApp::run() {
             } else {
                 if (state.a.justPressed) {
                     // Enter edit mode
-                    isEditing = true;
+
+                    if (controlCursorY == 1) {
+                        if (controlCursorX == 0) {
+                            // Load
+                        } else if (controlCursorX == 1) {
+                            // Save
+                        } else if (controlCursorX == 2) {
+                            // Reset
+                            if (confirm("Увага", "Очистити всі дані композиції?")) {
+                                pageIndex = 0;
+                                track.reset();
+                            }
+                        }
+                    } else {
+                        isEditing = true;
+                    }
                 }
                 if (state.up.justPressed) {
                     // We add 1 to CONTROL_ROWS to account for the score header row which is not part of the control, but is managed by the same cursor
@@ -834,4 +852,15 @@ void LilTrackerApp::startPreview(
             mixer.start(channelIndex, WAVEFORM_SILENCE, 0.0, 1.0);
         }
     }
+}
+
+bool LilTrackerApp::confirm(String title, String message) {
+    lilka::Alert alert(title, message + "\n\n[START] - Так\n[A] - Ні");
+    alert.addActivationButton(lilka::Button::START);
+    alert.draw(canvas);
+    queueDraw();
+    while (!alert.isFinished()) {
+        alert.update();
+    }
+    return alert.getButton() == lilka::Button::START;
 }

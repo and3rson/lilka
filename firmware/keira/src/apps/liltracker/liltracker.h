@@ -16,4 +16,5 @@ private:
         bool focused, bool dimmed
     );
     void startPreview(Track* track, page_t* page, int32_t requestedChannelIndex, int32_t requestedEventIndex);
+    bool confirm(String title, String message);
 };
