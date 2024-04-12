@@ -17,6 +17,7 @@ class Track {
 public:
     explicit Track(int16_t bpm = DEFAULT_BPM);
     int16_t getPatternCount();
+    int16_t getUsedPatternCount();
     void setPatternCount(int16_t count);
     Pattern* getPattern(int16_t index);
     int16_t getPageCount();

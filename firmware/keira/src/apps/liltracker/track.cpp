@@ -30,6 +30,18 @@ int16_t Track::getPatternCount() {
     return patterns.size();
 }
 
+int16_t Track::getUsedPatternCount() {
+    // Similar to getPatternCount, but only counts patterns that are used in pages
+    Acquire acquire(xMutex, true);
+    int16_t count = 1;
+    for (int16_t i = 0; i < getPageCount(); i++) {
+        for (int8_t j = 0; j < CHANNEL_COUNT; j++) {
+            count = MAX(count, getPage(i)->patternIndices[j] + 1);
+        }
+    }
+    return count;
+}
+
 void Track::setPatternCount(int16_t count) {
     Acquire acquire(xMutex, true);
     patterns.resize(MAX(count, 1));
@@ -83,11 +95,18 @@ void Track::reset() {
 
 int32_t Track::calculateWriteBufferSize() {
     Acquire acquire(xMutex, true);
-    int32_t size = 32 * sizeof(int16_t); // Header (signature + reserved), BPM, pattern count, page count
-    for (int16_t i = 0; i < getPatternCount(); i++) {
+    int32_t size = 0;
+    size += 4; // Signature
+    size += 32; // Reserved
+    size += sizeof(int16_t); // BPM
+    size += sizeof(int16_t); // Pattern count
+    // Patterns
+    for (int16_t i = 0; i < getUsedPatternCount(); i++) {
         size += getPattern(i)->calculateWriteBufferSize();
     }
-    size += getPageCount() * CHANNEL_COUNT * sizeof(int16_t); // Pages
+    size += sizeof(int16_t); // Page count
+    // Pages
+    size += getPageCount() * CHANNEL_COUNT * sizeof(int16_t);
     return size;
 }
 
@@ -95,39 +114,32 @@ int32_t Track::writeToBuffer(uint8_t* data) {
     Acquire acquire(xMutex, true);
     int32_t offset = 0;
 
-    // Write header signature ("LILT")
+    // Write signature ("LILT")
     data[offset++] = 'L';
     data[offset++] = 'I';
     data[offset++] = 'L';
     data[offset++] = 'T';
 
-    // Write header reserved bytes until offset 32
-    while (offset < 32) {
+    // Write 32 reserved bytes
+    for (int8_t i = 0; i < 32; i++) {
         data[offset++] = 0;
     }
 
     // Write BPM
     WRITE_TO_BUFFER(data, bpm);
 
-    // Find largest index of pattern that is used in a page.
-    // We won't write trailing patterns that are not used.
-    int16_t largestUsedPatternIndex = 0; // There is always at least one pattern
-    for (int16_t i = 0; i < getPageCount(); i++) {
-        for (int8_t j = 0; j < CHANNEL_COUNT; j++) {
-            largestUsedPatternIndex = MAX(largestUsedPatternIndex, getPage(i)->patternIndices[j]);
-        }
-    }
-
-    // Write patterns
-    int16_t patternCount = largestUsedPatternIndex + 1;
+    // Write pattern count
+    int16_t patternCount = getUsedPatternCount();
     WRITE_TO_BUFFER(data, patternCount);
+    // Write patterns
     for (int16_t i = 0; i < patternCount; i++) {
         offset += getPattern(i)->writeToBuffer(&data[offset]);
     }
 
-    // Write pages
+    // Write page count
     int16_t pageCount = getPageCount();
     WRITE_TO_BUFFER(data, pageCount);
+    // Write pages
     for (int16_t i = 0; i < pageCount; i++) {
         for (int8_t j = 0; j < CHANNEL_COUNT; j++) {
             WRITE_TO_BUFFER(data, getPage(i)->patternIndices[j]);
@@ -141,29 +153,31 @@ int32_t Track::readFromBuffer(const uint8_t* data) {
     Acquire acquire(xMutex, true);
     int32_t offset = 0;
 
-    // Read header signature ("LIL")
+    // Read signature ("LILT")
     if (data[offset++] != 'L' || data[offset++] != 'I' || data[offset++] != 'L' || data[offset++] != 'T') {
         return -1;
     }
 
-    // Skip header reserved bytes until offset 32
-    offset = 32;
+    // Skip 32 reserved bytes
+    offset += 32;
 
     // Read BPM
     READ_FROM_BUFFER(bpm, data);
 
-    // Read patterns
+    // Read pattern count
     int16_t patternCount;
     READ_FROM_BUFFER(patternCount, data);
     setPatternCount(patternCount);
+    // Read patterns
     for (int16_t i = 0; i < patternCount; i++) {
         offset += getPattern(i)->readFromBuffer(&data[offset]);
     }
 
-    // Read pages
+    // Read page count
     int16_t pageCount;
     READ_FROM_BUFFER(pageCount, data);
     setPageCount(pageCount);
+    // Read pages
     for (int16_t i = 0; i < pageCount; i++) {
         for (int8_t j = 0; j < CHANNEL_COUNT; j++) {
             READ_FROM_BUFFER(getPage(i)->patternIndices[j], data);
