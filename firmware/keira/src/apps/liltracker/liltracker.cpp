@@ -39,10 +39,18 @@ const int32_t SCORE_ROW_COUNT = SCORE_HEIGHT / ITEM_HEIGHT;
 const int32_t SCORE_MIDDLE_ROW_INDEX = SCORE_ROW_COUNT / 2;
 
 typedef enum {
-    ACTIVE_BLOCK_CONTROLS,
-    ACTIVE_BLOCK_EVENT_EDITING,
-    ACTIVE_BLOCK_COUNT,
+    BLOCK_CONTROLS,
+    BLOCK_EVENT_EDITING,
+    BLOCK_COUNT,
 } active_block_t;
+
+typedef enum {
+    SEGMENT_NOTE,
+    SEGMENT_VOLUME,
+    SEGMENT_EFFECT,
+    SEGMENT_EFFECT_PARAM,
+    SEGMENT_COUNT,
+} active_segment_t;
 
 LilTrackerApp::LilTrackerApp() :
     App("LilTracker", 0, 0, lilka::display.width(), lilka::display.height()), mixer(), sequencer(&mixer) {
@@ -292,7 +300,7 @@ void LilTrackerApp::run() {
 
     int pageIndex = 0;
 
-    int8_t activeBlock = ACTIVE_BLOCK_EVENT_EDITING;
+    int8_t activeBlock = BLOCK_EVENT_EDITING;
     int scoreCursorX = 0;
     int scoreCursorY = 0;
     int currentChannel = 0;
@@ -379,7 +387,7 @@ void LilTrackerApp::run() {
 
             // Draw current page info and pattern indices
             sprintf(str, "Page: %02X", pageIndex);
-            bool isPageSelFocused = activeBlock == ACTIVE_BLOCK_CONTROLS && controlCursorX == 0 && controlCursorY == 0;
+            bool isPageSelFocused = activeBlock == BLOCK_CONTROLS && controlCursorX == 0 && controlCursorY == 0;
             printText(
                 str,
                 CONTROL_PADDING_LEFT,
@@ -391,7 +399,7 @@ void LilTrackerApp::run() {
                 false
             );
 
-            bool isBPMFocused = activeBlock == ACTIVE_BLOCK_CONTROLS && controlCursorX == 1 && controlCursorY == 0;
+            bool isBPMFocused = activeBlock == BLOCK_CONTROLS && controlCursorX == 1 && controlCursorY == 0;
             sprintf(str, "BPM: %3d", track.getBPM());
             printText(
                 str,
@@ -404,7 +412,7 @@ void LilTrackerApp::run() {
                 false
             );
 
-            bool isLengthFocused = activeBlock == ACTIVE_BLOCK_CONTROLS && controlCursorX == 2 && controlCursorY == 0;
+            bool isLengthFocused = activeBlock == BLOCK_CONTROLS && controlCursorX == 2 && controlCursorY == 0;
             sprintf(str, "Len: %3d", track.getPageCount());
             printText(
                 str,
@@ -419,7 +427,7 @@ void LilTrackerApp::run() {
 
             // Draw buttons (load/save/reset)
             for (int i = 0; i < 3; i++) {
-                bool isFocused = activeBlock == ACTIVE_BLOCK_CONTROLS && controlCursorX == i && controlCursorY == 1;
+                bool isFocused = activeBlock == BLOCK_CONTROLS && controlCursorX == i && controlCursorY == 1;
                 const char* buttonText;
                 if (i == 0) {
                     buttonText = "Load";
@@ -452,7 +460,7 @@ void LilTrackerApp::run() {
         for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
             Pattern* pattern = track.getPattern(page->patternIndices[channelIndex]);
             bool isChannelWaveformFocused =
-                activeBlock == ACTIVE_BLOCK_CONTROLS && controlCursorY == 2 && controlCursorX == channelIndex;
+                activeBlock == BLOCK_CONTROLS && controlCursorY == 2 && controlCursorX == channelIndex;
             sprintf(
                 str,
                 "%02X: %-4s",
@@ -490,7 +498,7 @@ void LilTrackerApp::run() {
             if (eventIndex % 4 == 0) {
                 canvas->fillRect(0, y, canvas->width(), SCORE_ITEM_HEIGHT, lilka::colors::Delft_blue);
             }
-            if (eventIndex == scoreCursorY && activeBlock == ACTIVE_BLOCK_EVENT_EDITING) {
+            if (eventIndex == scoreCursorY && activeBlock == BLOCK_EVENT_EDITING) {
                 canvas->drawRect(0, y, canvas->width(), SCORE_ITEM_HEIGHT, lilka::colors::Blue);
             }
             canvas->setTextColor(lilka::colors::White, lilka::colors::White);
@@ -511,8 +519,8 @@ void LilTrackerApp::run() {
                 } else {
                     strcpy(str, "???");
                 }
-                bool eventFocused = activeBlock == ACTIVE_BLOCK_EVENT_EDITING && channelIndex == currentChannel &&
-                                    scoreCursorY == eventIndex;
+                bool eventFocused =
+                    activeBlock == BLOCK_EVENT_EDITING && channelIndex == currentChannel && scoreCursorY == eventIndex;
                 bool isDimmed = event.type != EVENT_TYPE_NORMAL;
                 // Note
                 xOffset += printText(
@@ -522,7 +530,7 @@ void LilTrackerApp::run() {
                     lilka::ALIGN_START,
                     lilka::ALIGN_CENTER,
                     eventFocused && isEditing,
-                    eventFocused && currentSegment == 0,
+                    eventFocused && currentSegment == SEGMENT_NOTE,
                     isDimmed
                 );
                 xOffset += 4;
@@ -539,7 +547,7 @@ void LilTrackerApp::run() {
                     lilka::ALIGN_START,
                     lilka::ALIGN_CENTER,
                     eventFocused && isEditing,
-                    eventFocused && currentSegment == 1,
+                    eventFocused && currentSegment == SEGMENT_VOLUME,
                     isDimmed
                 );
                 xOffset += 4;
@@ -552,7 +560,7 @@ void LilTrackerApp::run() {
                     lilka::ALIGN_START,
                     lilka::ALIGN_CENTER,
                     eventFocused && isEditing,
-                    eventFocused && currentSegment == 2,
+                    eventFocused && currentSegment == SEGMENT_EFFECT,
                     isDimmed
                 );
                 xOffset += 4;
@@ -565,7 +573,7 @@ void LilTrackerApp::run() {
                     lilka::ALIGN_START,
                     lilka::ALIGN_CENTER,
                     eventFocused && isEditing,
-                    eventFocused && currentSegment == 3,
+                    eventFocused && currentSegment == SEGMENT_EFFECT_PARAM,
                     isDimmed
                 );
                 xOffset += 4;
@@ -574,7 +582,7 @@ void LilTrackerApp::run() {
         }
         lilka::State state = lilka::controller.getState();
 
-        if (activeBlock == ACTIVE_BLOCK_CONTROLS) {
+        if (activeBlock == BLOCK_CONTROLS) {
             if (isEditing) {
                 if (state.a.justPressed) {
                     // Exit edit mode
@@ -633,9 +641,8 @@ void LilTrackerApp::run() {
                                 (page->patternIndices[controlCursorX] - 1 + track.getPatternCount()) %
                                 track.getPatternCount();
                         } else if (state.down.justPressed) {
-                            // Next pattern
-                            page->patternIndices[controlCursorX] =
-                                (page->patternIndices[controlCursorX] + 1) % track.getPatternCount();
+                            // Next pattern (auto-resize, unused patterns will not be saved)
+                            page->patternIndices[controlCursorX]++;
                         }
                     }
                 }
@@ -684,10 +691,10 @@ void LilTrackerApp::run() {
                     controlCursorX = (controlCursorX + 1) % CHANNEL_COUNT;
                 }
                 if (state.select.justPressed) {
-                    activeBlock = (activeBlock + 1) % ACTIVE_BLOCK_COUNT;
+                    activeBlock = (activeBlock + 1) % BLOCK_COUNT;
                 }
             }
-        } else if (activeBlock == ACTIVE_BLOCK_EVENT_EDITING) {
+        } else if (activeBlock == BLOCK_EVENT_EDITING) {
             if (isEditing) {
                 // Edit mode
                 if (state.a.justPressed) {
@@ -701,20 +708,34 @@ void LilTrackerApp::run() {
                     // Adjust note
                     Pattern* pattern = track.getPattern(page->patternIndices[currentChannel]);
                     event_t event = pattern->getChannelEvent(currentChannel, scoreCursorY);
-                    if (currentSegment == 0) {
-                        if (event.type == EVENT_TYPE_NORMAL) {
-                            if (state.up.justPressed) {
-                                event.note.add(1);
-                            } else if (state.down.justPressed) {
-                                event.note.add(-1);
+                    if (currentSegment == SEGMENT_NOTE) {
+                        if (event.type != EVENT_TYPE_NORMAL) {
+                            event.type = EVENT_TYPE_NORMAL;
+                            // Find and use previous note (if any)
+                            bool found = false;
+                            for (int i = scoreCursorY - 1; i >= 0; i--) {
+                                event_t prevEvent = pattern->getChannelEvent(currentChannel, i);
+                                if (prevEvent.type == EVENT_TYPE_NORMAL) {
+                                    event.note = prevEvent.note;
+                                    found = true;
+                                    break;
+                                }
                             }
-                            if (state.left.justPressed) {
-                                event.note.add(-12);
-                            } else if (state.right.justPressed) {
-                                event.note.add(12);
+                            if (!found) {
+                                event.note = N_C0;
                             }
                         }
-                    } else if (currentSegment == 1) {
+                        if (state.up.justPressed) {
+                            event.note.add(1);
+                        } else if (state.down.justPressed) {
+                            event.note.add(-1);
+                        }
+                        if (state.left.justPressed) {
+                            event.note.add(-12);
+                        } else if (state.right.justPressed) {
+                            event.note.add(12);
+                        }
+                    } else if (currentSegment == SEGMENT_VOLUME) {
                         // Adjust volume
                         if (state.up.justPressed) {
                             event.volume = (event.volume + 1) % (MAX_VOLUME + 1);
@@ -726,7 +747,7 @@ void LilTrackerApp::run() {
                         } else if (state.right.justPressed) {
                             event.volume = (event.volume + 16) % (MAX_VOLUME + 1);
                         }
-                    } else if (currentSegment == 2) {
+                    } else if (currentSegment == SEGMENT_EFFECT) {
                         // Adjust effect
                         if (event.type == EVENT_TYPE_NORMAL) {
                             if (state.up.justPressed) {
@@ -738,7 +759,7 @@ void LilTrackerApp::run() {
                                 );
                             }
                         }
-                    } else if (currentSegment == 3) {
+                    } else if (currentSegment == SEGMENT_EFFECT_PARAM) {
                         // Adjust effect param
                         if (event.type == EVENT_TYPE_NORMAL) {
                             if (state.up.justPressed) {
@@ -804,13 +825,14 @@ void LilTrackerApp::run() {
                     } else if (state.down.justPressed) {
                         scoreCursorY = (scoreCursorY + 1) % CHANNEL_SIZE;
                     } else if (state.left.justPressed) {
-                        scoreCursorX = (scoreCursorX - 1 + CHANNEL_COUNT * 4) % (CHANNEL_COUNT * 4);
-                        currentChannel = scoreCursorX / 4;
-                        currentSegment = scoreCursorX % 4;
+                        scoreCursorX =
+                            (scoreCursorX - 1 + CHANNEL_COUNT * SEGMENT_COUNT) % (CHANNEL_COUNT * SEGMENT_COUNT);
+                        currentChannel = scoreCursorX / SEGMENT_COUNT;
+                        currentSegment = scoreCursorX % SEGMENT_COUNT;
                     } else if (state.right.justPressed) {
-                        scoreCursorX = (scoreCursorX + 1) % (CHANNEL_COUNT * 4);
-                        currentChannel = scoreCursorX / 4;
-                        currentSegment = scoreCursorX % 4;
+                        scoreCursorX = (scoreCursorX + 1) % (CHANNEL_COUNT * SEGMENT_COUNT);
+                        currentChannel = scoreCursorX / SEGMENT_COUNT;
+                        currentSegment = scoreCursorX % SEGMENT_COUNT;
                     }
 
                     if (state.start.justPressed) {
@@ -822,7 +844,7 @@ void LilTrackerApp::run() {
                         isEditing = true;
                     }
                     if (state.select.justPressed) {
-                        activeBlock = (activeBlock + 1) % ACTIVE_BLOCK_COUNT;
+                        activeBlock = (activeBlock + 1) % BLOCK_COUNT;
                     }
                 }
             }
