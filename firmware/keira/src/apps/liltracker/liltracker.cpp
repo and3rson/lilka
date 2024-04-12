@@ -49,236 +49,245 @@ LilTrackerApp::LilTrackerApp() :
     this->setFlags(APP_FLAG_FULLSCREEN);
     this->setCore(1);
     this->setStackSize(16384);
+    this->initialPath = "";
+}
+
+LilTrackerApp::LilTrackerApp(String path) : LilTrackerApp() {
+    this->initialPath = lilka::fileutils.getLocalPathInfo(path).path;
 }
 
 xSemaphoreHandle xMutex;
 
 void LilTrackerApp::run() {
-    // Sample hard-coded song: "Lilka Walks" by Anderson
-    event_t lead_square[] = {
-        {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-        {N_C0, 64, EVENT_TYPE_CONT},
-        {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-        {N_C0, 64, EVENT_TYPE_CONT},
-        //
-        {N_C0, 64, EVENT_TYPE_CONT},
-        {N_C0, 64, EVENT_TYPE_CONT},
-        {N_C0, 64, EVENT_TYPE_CONT},
-        {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-        //
-        {N_C0, 64, EVENT_TYPE_CONT},
-        {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-        {N_C0, 64, EVENT_TYPE_CONT},
-        {N_D4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-        //
-        {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x02}},
-        {N_C0, 64, EVENT_TYPE_CONT},
-        {N_D4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x02}},
-        {N_C0, 64, EVENT_TYPE_CONT},
-        //
-        {N_C4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-        {N_C0, 64, EVENT_TYPE_CONT},
-        {N_C4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-        {N_C0, 64, EVENT_TYPE_CONT},
-        //
-        {N_C0, 64, EVENT_TYPE_CONT},
-        {N_C0, 64, EVENT_TYPE_CONT},
-        {N_C0, 64, EVENT_TYPE_CONT},
-        {N_A3, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-        //
-        {N_C0, 64, EVENT_TYPE_CONT},
-        {N_B3, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-        {N_C0, 64, EVENT_TYPE_CONT},
-        {N_A3, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-        //
-        {N_C4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x02}},
-        {N_C0, 64, EVENT_TYPE_CONT},
-        {N_B3, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x02}},
-        {N_C0, 64, EVENT_TYPE_CONT},
-    };
-    event_t bass_sawtooth[] = {
-        {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        {N_G2, 0, EVENT_TYPE_STOP},
-        {N_A2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        {N_B2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        //
-        {N_C0, 0, EVENT_TYPE_STOP}, // {N_E2, 0},
-        {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        {N_A2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        {N_B2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        //
-        {N_C0, 0, EVENT_TYPE_STOP}, // {N_E2, 0},
-        {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        {N_A2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        {N_B2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}}, // {N_B2, 0},
-        //
-        {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        {N_A2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        {N_B2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}}, // {N_A2, 0},
-        {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        //
-        {N_C2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        {N_E2, 0, EVENT_TYPE_STOP},
-        {N_F2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        //
-        {N_C0, 0, EVENT_TYPE_STOP}, // {N_C2, 0},
-        {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        {N_F2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        //
-        {N_C0, 0, EVENT_TYPE_STOP}, // {N_C2, 0},
-        {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        {N_F2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}}, // {N_G2, 0},
-        //
-        {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        {N_F2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}}, // {N_F2, 0},
-        {N_C2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-    };
-    event_t chorus_sine[] = {
-        {N_E6, 127, EVENT_TYPE_NORMAL, {EFFECT_TYPE_ARPEGGIO, 0x6C}},
-        {N_C0, 96, EVENT_TYPE_CONT},
-        {N_C0, 64, EVENT_TYPE_CONT},
-        {N_C0, 32, EVENT_TYPE_CONT},
-        //
-        {N_E6, 0, EVENT_TYPE_NORMAL},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        //
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_ARPEGGIO, 0x6C}},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        //
-        {N_E6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x40}},
-        {N_C0, 0, EVENT_TYPE_CONT},
-        //
-        {N_C6, 127, EVENT_TYPE_NORMAL, {EFFECT_TYPE_ARPEGGIO, 0x6C}},
-        {N_C0, 96, EVENT_TYPE_CONT},
-        {N_C0, 64, EVENT_TYPE_CONT},
-        {N_C0, 32, EVENT_TYPE_CONT},
-        //
-        {N_C6, 0, EVENT_TYPE_NORMAL},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_C6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        //
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_C6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_ARPEGGIO, 0x6C}},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        //
-        {N_C6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_C6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x40}},
-        {N_C0, 0, EVENT_TYPE_STOP},
-    };
-    event_t drums[] = {
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        //
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        //
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        //
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        //
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        //
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        //
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        //
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        //
-    };
-
     Track track;
 
-    {
-        page_t* page;
+    if (initialPath.length()) {
+        loadTrack(&track, initialPath);
+    } else {
+        // Sample hard-coded song: "Lilka Walks" by Anderson
+        event_t lead_square[] = {
+            {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
+            {N_C0, 64, EVENT_TYPE_CONT},
+            {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
+            {N_C0, 64, EVENT_TYPE_CONT},
+            //
+            {N_C0, 64, EVENT_TYPE_CONT},
+            {N_C0, 64, EVENT_TYPE_CONT},
+            {N_C0, 64, EVENT_TYPE_CONT},
+            {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
+            //
+            {N_C0, 64, EVENT_TYPE_CONT},
+            {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
+            {N_C0, 64, EVENT_TYPE_CONT},
+            {N_D4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
+            //
+            {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x02}},
+            {N_C0, 64, EVENT_TYPE_CONT},
+            {N_D4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x02}},
+            {N_C0, 64, EVENT_TYPE_CONT},
+            //
+            {N_C4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
+            {N_C0, 64, EVENT_TYPE_CONT},
+            {N_C4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
+            {N_C0, 64, EVENT_TYPE_CONT},
+            //
+            {N_C0, 64, EVENT_TYPE_CONT},
+            {N_C0, 64, EVENT_TYPE_CONT},
+            {N_C0, 64, EVENT_TYPE_CONT},
+            {N_A3, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
+            //
+            {N_C0, 64, EVENT_TYPE_CONT},
+            {N_B3, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
+            {N_C0, 64, EVENT_TYPE_CONT},
+            {N_A3, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
+            //
+            {N_C4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x02}},
+            {N_C0, 64, EVENT_TYPE_CONT},
+            {N_B3, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x02}},
+            {N_C0, 64, EVENT_TYPE_CONT},
+        };
+        event_t bass_sawtooth[] = {
+            {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            {N_G2, 0, EVENT_TYPE_STOP},
+            {N_A2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            {N_B2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            //
+            {N_C0, 0, EVENT_TYPE_STOP}, // {N_E2, 0},
+            {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            {N_A2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            {N_B2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            //
+            {N_C0, 0, EVENT_TYPE_STOP}, // {N_E2, 0},
+            {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            {N_A2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            {N_B2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}}, // {N_B2, 0},
+            //
+            {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            {N_A2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            {N_B2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}}, // {N_A2, 0},
+            {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            //
+            {N_C2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            {N_E2, 0, EVENT_TYPE_STOP},
+            {N_F2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            //
+            {N_C0, 0, EVENT_TYPE_STOP}, // {N_C2, 0},
+            {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            {N_F2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            //
+            {N_C0, 0, EVENT_TYPE_STOP}, // {N_C2, 0},
+            {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            {N_F2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}}, // {N_G2, 0},
+            //
+            {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            {N_F2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+            {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}}, // {N_F2, 0},
+            {N_C2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+        };
+        event_t chorus_sine[] = {
+            {N_E6, 127, EVENT_TYPE_NORMAL, {EFFECT_TYPE_ARPEGGIO, 0x6C}},
+            {N_C0, 96, EVENT_TYPE_CONT},
+            {N_C0, 64, EVENT_TYPE_CONT},
+            {N_C0, 32, EVENT_TYPE_CONT},
+            //
+            {N_E6, 0, EVENT_TYPE_NORMAL},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_E6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            //
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_E6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_ARPEGGIO, 0x6C}},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            //
+            {N_E6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_E6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x40}},
+            {N_C0, 0, EVENT_TYPE_CONT},
+            //
+            {N_C6, 127, EVENT_TYPE_NORMAL, {EFFECT_TYPE_ARPEGGIO, 0x6C}},
+            {N_C0, 96, EVENT_TYPE_CONT},
+            {N_C0, 64, EVENT_TYPE_CONT},
+            {N_C0, 32, EVENT_TYPE_CONT},
+            //
+            {N_C6, 0, EVENT_TYPE_NORMAL},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_C6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            //
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_C6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_ARPEGGIO, 0x6C}},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            //
+            {N_C6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_C6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x40}},
+            {N_C0, 0, EVENT_TYPE_STOP},
+        };
+        event_t drums[] = {
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            //
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            //
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            //
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            //
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            //
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            //
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            //
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_C0, 0, EVENT_TYPE_STOP},
+            //
+        };
 
-        page = track.getPage(0);
-        page->patternIndices[0] = 0;
-        page->patternIndices[1] = 2;
-        page->patternIndices[2] = 0;
+        {
+            page_t* page;
 
-        page = track.getPage(1);
-        page->patternIndices[0] = 0;
-        page->patternIndices[1] = 2;
-        page->patternIndices[2] = 1;
+            page = track.getPage(0);
+            page->patternIndices[0] = 0;
+            page->patternIndices[1] = 2;
+            page->patternIndices[2] = 0;
 
-        page = track.getPage(2);
-        page->patternIndices[0] = 2;
-        page->patternIndices[1] = 2;
-        page->patternIndices[2] = 1;
+            page = track.getPage(1);
+            page->patternIndices[0] = 0;
+            page->patternIndices[1] = 2;
+            page->patternIndices[2] = 1;
 
-        page = track.getPage(3);
-        page->patternIndices[0] = 2;
-        page->patternIndices[1] = 2;
-        page->patternIndices[2] = 1;
+            page = track.getPage(2);
+            page->patternIndices[0] = 2;
+            page->patternIndices[1] = 2;
+            page->patternIndices[2] = 1;
 
-        page = track.getPage(4);
-        page->patternIndices[0] = 3;
-        page->patternIndices[1] = 2;
-        page->patternIndices[2] = 1;
+            page = track.getPage(3);
+            page->patternIndices[0] = 2;
+            page->patternIndices[1] = 2;
+            page->patternIndices[2] = 1;
 
-        page = track.getPage(5);
-        page->patternIndices[0] = 3;
-        page->patternIndices[1] = 2;
-        page->patternIndices[2] = 1;
+            page = track.getPage(4);
+            page->patternIndices[0] = 3;
+            page->patternIndices[1] = 2;
+            page->patternIndices[2] = 1;
 
-        page = track.getPage(6);
-        page->patternIndices[0] = 3;
-        page->patternIndices[1] = 2;
-        page->patternIndices[2] = 0;
+            page = track.getPage(5);
+            page->patternIndices[0] = 3;
+            page->patternIndices[1] = 2;
+            page->patternIndices[2] = 1;
 
-        Pattern* pattern;
+            page = track.getPage(6);
+            page->patternIndices[0] = 3;
+            page->patternIndices[1] = 2;
+            page->patternIndices[2] = 0;
 
-        pattern = track.getPattern(1);
-        pattern->setChannelEvents(2, drums);
-        pattern->setChannelWaveform(2, WAVEFORM_NOISE);
+            Pattern* pattern;
 
-        pattern = track.getPattern(2);
-        pattern->setChannelEvents(0, lead_square);
-        pattern->setChannelWaveform(0, WAVEFORM_SQUARE);
-        pattern->setChannelEvents(1, bass_sawtooth);
-        pattern->setChannelWaveform(1, WAVEFORM_SAWTOOTH);
-        pattern->setChannelEvents(2, chorus_sine);
-        // pattern.setChannelWaveform(2, WAVEFORM_TRIANGLE);
-        pattern->setChannelWaveform(2, WAVEFORM_SINE);
+            pattern = track.getPattern(1);
+            pattern->setChannelEvents(2, drums);
+            pattern->setChannelWaveform(2, WAVEFORM_NOISE);
 
-        pattern = track.getPattern(3);
-        pattern->setChannelEvents(0, chorus_sine);
-        pattern->setChannelWaveform(0, WAVEFORM_SINE);
+            pattern = track.getPattern(2);
+            pattern->setChannelEvents(0, lead_square);
+            pattern->setChannelWaveform(0, WAVEFORM_SQUARE);
+            pattern->setChannelEvents(1, bass_sawtooth);
+            pattern->setChannelWaveform(1, WAVEFORM_SAWTOOTH);
+            pattern->setChannelEvents(2, chorus_sine);
+            // pattern.setChannelWaveform(2, WAVEFORM_TRIANGLE);
+            pattern->setChannelWaveform(2, WAVEFORM_SINE);
+
+            pattern = track.getPattern(3);
+            pattern->setChannelEvents(0, chorus_sine);
+            pattern->setChannelWaveform(0, WAVEFORM_SINE);
+        }
     }
 
     int pageIndex = 0;

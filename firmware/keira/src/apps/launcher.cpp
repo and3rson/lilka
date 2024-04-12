@@ -269,6 +269,8 @@ void LauncherApp::selectFile(String path) {
         AppManager::getInstance()->runApp(new LuaFileRunnerApp(path));
     } else if (lowerCasedPath.endsWith(".js")) {
         AppManager::getInstance()->runApp(new MJSApp(path));
+    } else if (lowerCasedPath.endsWith(".lt")) {
+        AppManager::getInstance()->runApp(new LilTrackerApp(path));
     } else {
         // Get file size
         // lilka::serial_log(path.c_str());

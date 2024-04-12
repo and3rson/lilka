@@ -6,6 +6,7 @@
 class LilTrackerApp : public App {
 public:
     LilTrackerApp();
+    explicit LilTrackerApp(String path);
 
 private:
     Mixer mixer;
@@ -21,4 +22,6 @@ private:
     String filePicker(bool isSave);
     void loadTrack(Track* track, String path);
     void saveTrack(Track* track, String path);
+
+    String initialPath;
 };
