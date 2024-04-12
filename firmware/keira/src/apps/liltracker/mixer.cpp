@@ -1,7 +1,7 @@
 #include <lilka.h>
 #include <esp_wifi.h>
 #include <esp_bt.h>
-#include "WiFi.h"
+// #include "WiFi.h"
 #include "mixer.h"
 #include "config.h"
 
@@ -9,7 +9,10 @@ typedef struct {
     waveform_t waveform;
     float frequency;
     float volume;
+    // TODO: Research how effects should generally be handled in NES, since things seem weird:
+    // some effects are cancelled by others, some are reset by OFF, etc... /AD
     effect_t effect;
+    float effectStartTime;
     // float time; // TODO
 } channel_state_t;
 
@@ -130,6 +133,7 @@ void Mixer::mixerTask() {
                 channelStates[command.channelIndex].volume = command.volume;
             } else if (command.type == MIXER_COMMAND_SET_EFFECT) {
                 channelStates[command.channelIndex].effect = command.effect;
+                channelStates[command.channelIndex].effectStartTime = ((float)time) / SAMPLE_RATE;
             } else if (command.type == MIXER_COMMAND_CLEAR) {
                 channelStates[command.channelIndex] = {WAVEFORM_SILENCE, 0.0, 1.0, {EFFECT_TYPE_NONE, 0}};
             }
@@ -145,12 +149,13 @@ void Mixer::mixerTask() {
                 // event_t event = events[channelIndex];
                 const channel_state_t* channelState = &channelStates[channelIndex];
                 waveform_fn_t waveform_fn = waveform_functions[channelState->waveform];
+                float relTime = timeSec - channelState->effectStartTime;
                 float modFrequency = channelState->frequency;
                 float modVolume = channelState->volume;
                 float modPhase = 0.0;
                 effect_t effect = channelState->effect;
                 effect_fn_t effect_fn = effect_functions[effect.type];
-                effect_fn(timeSec, &modFrequency, &modVolume, &modPhase, effect.param);
+                effect_fn(timeSec, relTime, &modFrequency, &modVolume, &modPhase, effect.param);
                 channelAudioBuffers[channelIndex][i] =
                     waveform_fn(timeSec, modFrequency, modVolume, modPhase) * masterVolume * 32767;
             }

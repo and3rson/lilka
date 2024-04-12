@@ -4,17 +4,22 @@
 #include "effects.h"
 #include "note.h"
 
-void effect_none(float time, float* frequency, float* amplitude, float* phase, uint8_t param) {
+void effect_none(float time, float relTime, float* frequency, float* amplitude, float* phase, uint8_t param) {
     (void)time;
+    (void)relTime;
     (void)frequency;
     (void)amplitude;
     (void)phase;
     (void)param;
 }
 
-void effect_arpeggio(float time, float* frequency, float* amplitude, float* phase, uint8_t param) {
+void effect_arpeggio(float time, float relTime, float* frequency, float* amplitude, float* phase, uint8_t param) {
     // This effect arpeggiates the note by changing the frequency of the note at a fixed interval.
     // It mimics NES arpeggio that consists of up to 3 notes.
+
+    (void)relTime;
+    (void)amplitude;
+    (void)param;
 
     constexpr int8_t count = 3; // 3 notes
 
@@ -38,10 +43,14 @@ void effect_arpeggio(float time, float* frequency, float* amplitude, float* phas
     }
 }
 
-void effect_vibrato(float time, float* frequency, float* amplitude, float* phase, uint8_t param) {
+void effect_vibrato(float time, float relTime, float* frequency, float* amplitude, float* phase, uint8_t param) {
     // This effect modulates the frequency of the note with a sine wave.
     // Upper nibble of the parameter is the speed of the vibrato (in Hz)
     // Lower nibble of the parameter is the depth of the vibrato (0 to 15, 0 = no vibrato, 15 = one full semitone vibrato)
+
+    (void)relTime;
+    (void)frequency;
+    (void)amplitude;
 
     uint8_t vibratoFrequency = (param & 0xF0) >> 4;
     uint8_t vibratoDepth = param & 0x0F;
@@ -53,10 +62,15 @@ void effect_vibrato(float time, float* frequency, float* amplitude, float* phase
     *phase += phaseModulation;
 }
 
-void effect_tremolo(float time, float* frequency, float* amplitude, float* phase, uint8_t param) {
+void effect_tremolo(float time, float relTime, float* frequency, float* amplitude, float* phase, uint8_t param) {
     // This effect modulates the amplitude of the note with a sine wave.
     // Upper nibble of the parameter is the speed of the tremolo (in Hz)
     // Lower nibble of the parameter is the depth of the tremolo (0 to 15, 0 = no tremolo, 15 = max tremolo)
+
+    (void)time;
+    (void)relTime;
+    (void)frequency;
+    (void)phase;
 
     uint8_t tremoloFrequency = (param & 0xF0) >> 4;
     uint8_t tremoloDepth = (param & 0x0F);
@@ -66,4 +80,31 @@ void effect_tremolo(float time, float* frequency, float* amplitude, float* phase
 
     // Apply the tremolo
     *amplitude = *amplitude * (1.0f - tremolo * tremoloDepth / 15.0f);
+}
+
+void effect_volume_slide(float time, float relTime, float* frequency, float* amplitude, float* phase, uint8_t param) {
+    // This effect slides the volume of the note.
+    // If upper nibble is 0, lower nibble is slide down speed (1s / value)
+    // If lower nibble is 0, upper nibble is slide up speed (1s / value)
+    // relTime is the relative time of when the effect started
+
+    (void)time;
+    (void)frequency;
+    (void)phase;
+
+    uint8_t slideUpSpeed = (param & 0xF0) >> 4;
+    uint8_t slideDownSpeed = param & 0x0F;
+
+    float newAmplitude = *amplitude;
+
+    if (slideUpSpeed == 0) {
+        // Slide down
+        newAmplitude = 1.0f - (relTime / (1.0f / slideDownSpeed));
+    } else if (slideDownSpeed == 0) {
+        // Slide up
+        newAmplitude = relTime / (1.0f / slideUpSpeed);
+    }
+
+    // Clamp the amplitude
+    *amplitude = fminf(fmaxf(newAmplitude, 0.0f), 1.0f);
 }

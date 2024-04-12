@@ -1,6 +1,7 @@
 #include <math.h>
 #include <lilka/fmath.h>
 #include "waveforms.h"
+#include "rand.h"
 
 // TODO: Use integers instead of floats for audio samples, time, frequency, amplitude, and phase?
 
@@ -36,5 +37,6 @@ float sawtooth(float time, float frequency, float amplitude, float phase) {
 
 // Noise wave function
 float noise(float time, float frequency, float amplitude, float phase) {
-    return 2.0f * amplitude * ((float)rand() / RAND_MAX - 0.5f);
+    Xoroshiro128Plus generator(time * frequency + phase);
+    return 2.0f * amplitude * (generator() / (float)generator.max() - 0.5f);
 }

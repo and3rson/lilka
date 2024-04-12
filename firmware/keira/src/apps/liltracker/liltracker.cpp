@@ -51,170 +51,169 @@ LilTrackerApp::LilTrackerApp() :
 xSemaphoreHandle xMutex;
 
 void LilTrackerApp::run() {
-    const effect_t tremolo = {EFFECT_TYPE_TREMOLO, 0xF8};
-    const effect_t arpeggio = {EFFECT_TYPE_ARPEGGIO, 0x6C};
-    event_t channel0[] = {
-        {N_E4, 64, EVENT_TYPE_NORMAL},
-        {N_C0, 64, EVENT_TYPE_STOP},
-        {N_E4, 64, EVENT_TYPE_NORMAL},
-        {N_C0, 64, EVENT_TYPE_STOP},
+    // Sample hard-coded song: "Lilka Walks" by Anderson
+    event_t lead_square[] = {
+        {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
+        {N_C0, 64, EVENT_TYPE_CONT},
+        {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
+        {N_C0, 64, EVENT_TYPE_CONT},
         //
-        {N_C0, 64, EVENT_TYPE_STOP},
-        {N_C0, 64, EVENT_TYPE_STOP},
-        {N_C0, 64, EVENT_TYPE_STOP},
-        {N_E4, 64, EVENT_TYPE_NORMAL},
+        {N_C0, 64, EVENT_TYPE_CONT},
+        {N_C0, 64, EVENT_TYPE_CONT},
+        {N_C0, 64, EVENT_TYPE_CONT},
+        {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
         //
-        {N_C0, 64, EVENT_TYPE_STOP},
-        {N_E4, 64, EVENT_TYPE_NORMAL},
-        {N_C0, 64, EVENT_TYPE_STOP},
-        {N_D4, 64, EVENT_TYPE_NORMAL},
+        {N_C0, 64, EVENT_TYPE_CONT},
+        {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
+        {N_C0, 64, EVENT_TYPE_CONT},
+        {N_D4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
         //
-        {N_E4, 64, EVENT_TYPE_NORMAL},
-        {N_C0, 64, EVENT_TYPE_STOP},
-        {N_D4, 64, EVENT_TYPE_NORMAL},
-        {N_C0, 64, EVENT_TYPE_STOP},
+        {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x02}},
+        {N_C0, 64, EVENT_TYPE_CONT},
+        {N_D4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x02}},
+        {N_C0, 64, EVENT_TYPE_CONT},
         //
-        {N_C4, 64, EVENT_TYPE_NORMAL},
-        {N_C0, 64, EVENT_TYPE_STOP},
-        {N_C4, 64, EVENT_TYPE_NORMAL},
-        {N_C0, 64, EVENT_TYPE_STOP},
+        {N_C4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
+        {N_C0, 64, EVENT_TYPE_CONT},
+        {N_C4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
+        {N_C0, 64, EVENT_TYPE_CONT},
         //
-        {N_C0, 64, EVENT_TYPE_STOP},
-        {N_C0, 64, EVENT_TYPE_STOP},
-        {N_C0, 64, EVENT_TYPE_STOP},
-        {N_A3, 64, EVENT_TYPE_NORMAL},
+        {N_C0, 64, EVENT_TYPE_CONT},
+        {N_C0, 64, EVENT_TYPE_CONT},
+        {N_C0, 64, EVENT_TYPE_CONT},
+        {N_A3, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
         //
-        {N_C0, 64, EVENT_TYPE_STOP},
-        {N_B3, 64, EVENT_TYPE_NORMAL},
-        {N_C0, 64, EVENT_TYPE_STOP},
-        {N_A3, 64, EVENT_TYPE_NORMAL},
+        {N_C0, 64, EVENT_TYPE_CONT},
+        {N_B3, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
+        {N_C0, 64, EVENT_TYPE_CONT},
+        {N_A3, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
         //
-        {N_C4, 64, EVENT_TYPE_NORMAL},
-        {N_C0, 64, EVENT_TYPE_STOP},
-        {N_B3, 64, EVENT_TYPE_NORMAL},
-        {N_C0, 64, EVENT_TYPE_STOP},
+        {N_C4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x02}},
+        {N_C0, 64, EVENT_TYPE_CONT},
+        {N_B3, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x02}},
+        {N_C0, 64, EVENT_TYPE_CONT},
     };
-    event_t channel1[] = {
-        {N_E2, 0, EVENT_TYPE_NORMAL, tremolo},
+    event_t bass_sawtooth[] = {
+        {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
         {N_G2, 0, EVENT_TYPE_STOP},
-        {N_A2, 0, EVENT_TYPE_NORMAL},
-        {N_B2, 0, EVENT_TYPE_NORMAL},
+        {N_A2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+        {N_B2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
         //
         {N_C0, 0, EVENT_TYPE_STOP}, // {N_E2, 0},
-        {N_G2, 0, EVENT_TYPE_NORMAL},
-        {N_A2, 0, EVENT_TYPE_NORMAL},
-        {N_B2, 0, EVENT_TYPE_NORMAL},
+        {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+        {N_A2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+        {N_B2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
         //
         {N_C0, 0, EVENT_TYPE_STOP}, // {N_E2, 0},
-        {N_G2, 0, EVENT_TYPE_NORMAL},
-        {N_A2, 0, EVENT_TYPE_NORMAL},
-        {N_B2, 0, EVENT_TYPE_NORMAL}, // {N_B2, 0},
+        {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+        {N_A2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+        {N_B2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}}, // {N_B2, 0},
         //
-        {N_G2, 0, EVENT_TYPE_NORMAL},
-        {N_A2, 0, EVENT_TYPE_NORMAL},
-        {N_B2, 0, EVENT_TYPE_NORMAL}, // {N_A2, 0},
-        {N_E2, 0, EVENT_TYPE_NORMAL},
+        {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+        {N_A2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+        {N_B2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}}, // {N_A2, 0},
+        {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
         //
-        {N_C2, 0, EVENT_TYPE_NORMAL},
+        {N_C2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
         {N_E2, 0, EVENT_TYPE_STOP},
-        {N_F2, 0, EVENT_TYPE_NORMAL},
-        {N_G2, 0, EVENT_TYPE_NORMAL},
+        {N_F2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+        {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
         //
         {N_C0, 0, EVENT_TYPE_STOP}, // {N_C2, 0},
-        {N_E2, 0, EVENT_TYPE_NORMAL},
-        {N_F2, 0, EVENT_TYPE_NORMAL},
-        {N_G2, 0, EVENT_TYPE_NORMAL},
+        {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+        {N_F2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+        {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
         //
         {N_C0, 0, EVENT_TYPE_STOP}, // {N_C2, 0},
-        {N_E2, 0, EVENT_TYPE_NORMAL},
-        {N_F2, 0, EVENT_TYPE_NORMAL},
-        {N_G2, 0, EVENT_TYPE_NORMAL}, // {N_G2, 0},
+        {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+        {N_F2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+        {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}}, // {N_G2, 0},
         //
-        {N_E2, 0, EVENT_TYPE_NORMAL},
-        {N_F2, 0, EVENT_TYPE_NORMAL},
-        {N_G2, 0, EVENT_TYPE_NORMAL}, // {N_F2, 0},
-        {N_C2, 0, EVENT_TYPE_NORMAL},
+        {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+        {N_F2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
+        {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}}, // {N_F2, 0},
+        {N_C2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
     };
-    event_t channel2[] = {
-        {N_E6, 127, EVENT_TYPE_NORMAL, arpeggio},
+    event_t chorus_sine[] = {
+        {N_E6, 127, EVENT_TYPE_NORMAL, {EFFECT_TYPE_ARPEGGIO, 0x6C}},
         {N_C0, 96, EVENT_TYPE_CONT},
         {N_C0, 64, EVENT_TYPE_CONT},
         {N_C0, 32, EVENT_TYPE_CONT},
         //
         {N_E6, 0, EVENT_TYPE_NORMAL},
         {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 0, EVENT_TYPE_NORMAL},
+        {N_E6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
         {N_C0, 0, EVENT_TYPE_STOP},
         //
         {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 0, EVENT_TYPE_NORMAL, arpeggio},
+        {N_E6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_ARPEGGIO, 0x6C}},
         {N_C0, 0, EVENT_TYPE_STOP},
         {N_C0, 0, EVENT_TYPE_STOP},
         //
-        {N_E6, 0, EVENT_TYPE_NORMAL},
+        {N_E6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
         {N_C0, 0, EVENT_TYPE_STOP},
-        {N_C0, 0, EVENT_TYPE_STOP},
-        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_E6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x40}},
+        {N_C0, 0, EVENT_TYPE_CONT},
         //
-        {N_C6, 127, EVENT_TYPE_NORMAL, arpeggio},
+        {N_C6, 127, EVENT_TYPE_NORMAL, {EFFECT_TYPE_ARPEGGIO, 0x6C}},
         {N_C0, 96, EVENT_TYPE_CONT},
         {N_C0, 64, EVENT_TYPE_CONT},
         {N_C0, 32, EVENT_TYPE_CONT},
         //
         {N_C6, 0, EVENT_TYPE_NORMAL},
         {N_C0, 0, EVENT_TYPE_STOP},
-        {N_C6, 0, EVENT_TYPE_NORMAL},
+        {N_C6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
         {N_C0, 0, EVENT_TYPE_STOP},
         //
         {N_C0, 0, EVENT_TYPE_STOP},
-        {N_C6, 0, EVENT_TYPE_NORMAL, arpeggio},
+        {N_C6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_ARPEGGIO, 0x6C}},
         {N_C0, 0, EVENT_TYPE_STOP},
         {N_C0, 0, EVENT_TYPE_STOP},
         //
-        {N_C6, 0, EVENT_TYPE_NORMAL},
+        {N_C6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
         {N_C0, 0, EVENT_TYPE_STOP},
-        {N_C0, 0, EVENT_TYPE_STOP},
+        {N_C6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x40}},
         {N_C0, 0, EVENT_TYPE_STOP},
     };
     event_t drums[] = {
         {N_C0, 0, EVENT_TYPE_STOP},
         {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 80, EVENT_TYPE_NORMAL},
+        {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
         {N_C0, 0, EVENT_TYPE_STOP},
         //
         {N_C0, 0, EVENT_TYPE_STOP},
         {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 80, EVENT_TYPE_NORMAL},
+        {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
         {N_C0, 0, EVENT_TYPE_STOP},
         //
         {N_C0, 0, EVENT_TYPE_STOP},
         {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 80, EVENT_TYPE_NORMAL},
+        {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
         {N_C0, 0, EVENT_TYPE_STOP},
         //
         {N_C0, 0, EVENT_TYPE_STOP},
         {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 80, EVENT_TYPE_NORMAL},
+        {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
         {N_C0, 0, EVENT_TYPE_STOP},
         //
         {N_C0, 0, EVENT_TYPE_STOP},
         {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 80, EVENT_TYPE_NORMAL},
+        {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
         {N_C0, 0, EVENT_TYPE_STOP},
         //
         {N_C0, 0, EVENT_TYPE_STOP},
         {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 80, EVENT_TYPE_NORMAL},
+        {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
         {N_C0, 0, EVENT_TYPE_STOP},
         //
         {N_C0, 0, EVENT_TYPE_STOP},
         {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 80, EVENT_TYPE_NORMAL},
+        {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
         {N_C0, 0, EVENT_TYPE_STOP},
         //
         {N_C0, 0, EVENT_TYPE_STOP},
         {N_C0, 0, EVENT_TYPE_STOP},
-        {N_E6, 80, EVENT_TYPE_NORMAL},
+        {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
         {N_C0, 0, EVENT_TYPE_STOP},
         //
     };
@@ -259,11 +258,6 @@ void LilTrackerApp::run() {
         page->patternIndices[1] = 2;
         page->patternIndices[2] = 0;
 
-        page = track.getPage(7);
-        page->patternIndices[0] = 0;
-        page->patternIndices[1] = 2;
-        page->patternIndices[2] = 0;
-
         Pattern* pattern;
 
         pattern = track.getPattern(1);
@@ -271,16 +265,16 @@ void LilTrackerApp::run() {
         pattern->setChannelWaveform(2, WAVEFORM_NOISE);
 
         pattern = track.getPattern(2);
-        pattern->setChannelEvents(0, channel0);
+        pattern->setChannelEvents(0, lead_square);
         pattern->setChannelWaveform(0, WAVEFORM_SQUARE);
-        pattern->setChannelEvents(1, channel1);
+        pattern->setChannelEvents(1, bass_sawtooth);
         pattern->setChannelWaveform(1, WAVEFORM_SAWTOOTH);
-        pattern->setChannelEvents(2, channel2);
+        pattern->setChannelEvents(2, chorus_sine);
         // pattern.setChannelWaveform(2, WAVEFORM_TRIANGLE);
         pattern->setChannelWaveform(2, WAVEFORM_SINE);
 
         pattern = track.getPattern(3);
-        pattern->setChannelEvents(0, channel2);
+        pattern->setChannelEvents(0, chorus_sine);
         pattern->setChannelWaveform(0, WAVEFORM_SINE);
     }
 
