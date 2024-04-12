@@ -2,6 +2,7 @@
 
 #include "liltracker.h"
 #include "note.h"
+#include "utils/defer.h"
 
 #define LILTRACKER_DIR "/liltracker"
 
@@ -637,16 +638,25 @@ void LilTrackerApp::run() {
                         if (controlCursorX == 0) {
                             // Load
                             String filename = filePicker(false);
-                            Serial.println("Loading file: " + filename);
+                            if (filename.length()) {
+                                loadTrack(&track, filename);
+                                pageIndex = 0;
+                                scoreCursorX = 0;
+                                scoreCursorY = 0;
+                            }
                         } else if (controlCursorX == 1) {
                             // Save
                             String filename = filePicker(true);
-                            Serial.println("Saving file: " + filename);
+                            if (filename.length()) {
+                                saveTrack(&track, filename);
+                            }
                         } else if (controlCursorX == 2) {
                             // Reset
-                            if (confirm("Увага", "Очистити всі дані композиції?")) {
-                                pageIndex = 0;
+                            if (confirm("Увага", "Очистити всі дані\nкомпозиції?")) {
                                 track.reset();
+                                pageIndex = 0;
+                                scoreCursorX = 0;
+                                scoreCursorY = 0;
                             }
                         }
                     } else {
@@ -861,23 +871,23 @@ void LilTrackerApp::startPreview(
 }
 
 void LilTrackerApp::alert(String title, String message) {
-    lilka::Alert alert(title, message);
-    alert.draw(canvas);
+    lilka::Alert alertDialog(title, message);
+    alertDialog.draw(canvas);
     queueDraw();
-    while (!alert.isFinished()) {
-        alert.update();
+    while (!alertDialog.isFinished()) {
+        alertDialog.update();
     }
 }
 
 bool LilTrackerApp::confirm(String title, String message) {
-    lilka::Alert alert(title, message + "\n\n[START] - Так\n[A] - Ні");
-    alert.addActivationButton(lilka::Button::START);
-    alert.draw(canvas);
+    lilka::Alert confirmDialog(title, message + "\n\n[START] - Так\n[A] - Ні");
+    confirmDialog.addActivationButton(lilka::Button::START);
+    confirmDialog.draw(canvas);
     queueDraw();
-    while (!alert.isFinished()) {
-        alert.update();
+    while (!confirmDialog.isFinished()) {
+        confirmDialog.update();
     }
-    return alert.getButton() == lilka::Button::START;
+    return confirmDialog.getButton() == lilka::Button::START;
 }
 
 String LilTrackerApp::filePicker(bool isSave) {
@@ -943,6 +953,12 @@ String LilTrackerApp::filePicker(bool isSave) {
                     if (filename.length() == 0) {
                         alert("Помилка", "Назва файлу не може бути порожньою");
                     } else {
+                        String lowerFilename = filename;
+                        lowerFilename.toLowerCase();
+                        if (lowerFilename.endsWith(".lt")) {
+                            filename.remove(filename.length() - 3);
+                        }
+                        filename += ".lt";
                         return String(LILTRACKER_DIR) + "/" + filename;
                     }
                 }
@@ -959,4 +975,30 @@ String LilTrackerApp::filePicker(bool isSave) {
         menu.getItem(selectedItem, &item);
         return String(LILTRACKER_DIR) + "/" + item.title;
     }
+}
+
+void LilTrackerApp::loadTrack(Track* track, String filename) {
+    File file = SD.open(filename, FILE_READ);
+    if (!file) {
+        alert("Помилка", "Не вдалося відкрити файл " + filename);
+        return;
+    }
+    Defer closeFile([&file]() { file.close(); });
+    uint8_t* buff = new uint8_t[file.size()];
+    std::unique_ptr<uint8_t[]> buffPtr(buff);
+    file.read(buff, file.size());
+    track->readFromBuffer(buff);
+}
+
+void LilTrackerApp::saveTrack(Track* track, String filename) {
+    File file = SD.open(filename, FILE_WRITE);
+    if (!file) {
+        alert("Помилка", "Не вдалося відкрити файл " + filename);
+        return;
+    }
+    Defer closeFile([&file]() { file.close(); });
+    uint8_t* buff = new uint8_t[track->calculateWriteBufferSize()];
+    std::unique_ptr<uint8_t[]> buffPtr(buff);
+    track->writeToBuffer(buff);
+    file.write(buff, track->calculateWriteBufferSize());
 }

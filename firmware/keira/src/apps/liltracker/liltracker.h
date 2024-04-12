@@ -19,4 +19,6 @@ private:
     void alert(String title, String message);
     bool confirm(String title, String message);
     String filePicker(bool isSave);
+    void loadTrack(Track* track, String path);
+    void saveTrack(Track* track, String path);
 };
