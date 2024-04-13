@@ -319,6 +319,10 @@ public:
     );
     void drawCanvas(Canvas* canvas);
     int drawTextAligned(const char* text, int16_t x, int16_t y, Alignment hAlign, Alignment vAlign);
+    void getTextBoundsAligned(
+        const char* text, int16_t x, int16_t y, Alignment hAlign, Alignment vAlign, int16_t* x1, int16_t* y1,
+        uint16_t* w, uint16_t* h
+    );
     int16_t x();
     int16_t y();
 };

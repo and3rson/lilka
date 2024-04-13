@@ -20,20 +20,7 @@
     offset += sizeof(value);
 
 Track::Track(int16_t bpm) : xMutex(xSemaphoreCreateRecursiveMutex()), bpm(bpm) {
-    // Create default page and pattern
-    constexpr uint16_t initialPageCount = 4;
-    constexpr uint16_t initialPatternCount = 4;
-    pages.resize(initialPageCount);
-    for (int16_t i = 0; i < initialPageCount; i++) {
-        pages[i] = new page_t();
-        for (int8_t j = 0; j < CHANNEL_COUNT; j++) {
-            pages[i]->patternIndices[j] = 0;
-        }
-    }
-    patterns.resize(initialPatternCount);
-    for (int16_t i = 0; i < initialPatternCount; i++) {
-        patterns[i] = new Pattern();
-    }
+    reset();
     xSemaphoreGive(xMutex);
 }
 
@@ -111,9 +98,9 @@ void Track::setPageCount(int16_t count) {
             } else {
                 // Set pattern indices to 0 (should not happen)
                 lilka::serial_err(
-                    "Track::setPageCount: suspiciously creating new page with all pattern indices set to 0, index %d", i
+                    "Track::setPageCount: suspiciously creating first page with all pattern indices set to 0, index %d",
+                    i
                 );
-                pages.back()->patternIndices[i] = 0;
             }
         }
     }
@@ -142,10 +129,23 @@ void Track::setBPM(int16_t bpm) {
 
 void Track::reset() {
     Acquire acquire(xMutex, true);
-    pages.resize(0);
-    patterns.resize(0);
-    pages.resize(4);
-    patterns.resize(4);
+    // Create default pages and patterns
+    constexpr uint16_t initialPageCount = 4;
+    constexpr uint16_t initialPatternCount = 4;
+    while (pages.size()) {
+        delete pages.back();
+        pages.pop_back();
+    }
+    while (pages.size() < initialPageCount) {
+        pages.push_back(new page_t());
+    }
+    while (patterns.size()) {
+        delete patterns.back();
+        patterns.pop_back();
+    }
+    while (patterns.size() < initialPatternCount) {
+        patterns.push_back(new Pattern());
+    }
 }
 
 int32_t Track::calculateWriteBufferSize() {

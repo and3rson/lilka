@@ -6,8 +6,8 @@
 
 // Track consists of pages that are played sequentially.
 // Each page tells which patterns to play.
-typedef struct {
-    int16_t patternIndices[CHANNEL_COUNT];
+typedef struct page_t {
+    int16_t patternIndices[CHANNEL_COUNT] = {0, 0, 0};
 } page_t;
 
 // Track is the top-level container for a song.

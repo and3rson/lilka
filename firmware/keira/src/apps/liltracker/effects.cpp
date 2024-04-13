@@ -106,5 +106,6 @@ void effect_volume_slide(float time, float relTime, float* frequency, float* amp
     }
 
     // Clamp the amplitude
-    *amplitude = fminf(fmaxf(newAmplitude, 0.0f), 1.0f);
+    // TODO: We should probably override the amplitude, and disable this effect if event volume is set in tracker?
+    *amplitude *= fminf(fmaxf(newAmplitude, 0.0f), 1.0f);
 }

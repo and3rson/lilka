@@ -293,6 +293,38 @@ int Canvas::drawTextAligned(const char* text, int16_t x, int16_t y, Alignment hA
     return w;
 }
 
+void Canvas::getTextBoundsAligned(
+    const char* text, int16_t x, int16_t y, Alignment hAlign, Alignment vAlign, int16_t* x1, int16_t* y1, uint16_t* w,
+    uint16_t* h
+) {
+    // TODO: WARNING: This will break if we're not using U8g2 fonts.
+    // U8g2 is a can of worms.
+    const int8_t ascent = u8g2Font[13]; // >0 (above the baseline, character 'A')
+    const int8_t descent = u8g2Font[14]; // <0 (below the baseline, character 'g')
+    getTextBounds(text, x, y, x1, y1, w, h);
+    switch (hAlign) {
+        case Alignment::ALIGN_START:
+            break;
+        case Alignment::ALIGN_CENTER:
+            *x1 -= *w / 2;
+            break;
+        case Alignment::ALIGN_END:
+            *x1 -= *w;
+            break;
+    }
+    switch (vAlign) {
+        case Alignment::ALIGN_START:
+            *y1 += ascent;
+            break;
+        case Alignment::ALIGN_CENTER:
+            *y1 += (ascent - descent) / 2;
+            break;
+        case Alignment::ALIGN_END:
+            *y1 += descent;
+            break;
+    }
+}
+
 int16_t Canvas::x() {
     return _output_x;
 }

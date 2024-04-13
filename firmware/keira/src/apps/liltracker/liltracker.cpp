@@ -199,42 +199,42 @@ void LilTrackerApp::run() {
         event_t drums[] = {
             {N_C0, 0, EVENT_TYPE_STOP},
             {N_C0, 0, EVENT_TYPE_STOP},
-            {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_E6, 0x80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
             {N_C0, 0, EVENT_TYPE_STOP},
             //
             {N_C0, 0, EVENT_TYPE_STOP},
             {N_C0, 0, EVENT_TYPE_STOP},
-            {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_E6, 0x80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
             {N_C0, 0, EVENT_TYPE_STOP},
             //
             {N_C0, 0, EVENT_TYPE_STOP},
             {N_C0, 0, EVENT_TYPE_STOP},
-            {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_E6, 0x80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
             {N_C0, 0, EVENT_TYPE_STOP},
             //
             {N_C0, 0, EVENT_TYPE_STOP},
             {N_C0, 0, EVENT_TYPE_STOP},
-            {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_E6, 0x80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
             {N_C0, 0, EVENT_TYPE_STOP},
             //
             {N_C0, 0, EVENT_TYPE_STOP},
             {N_C0, 0, EVENT_TYPE_STOP},
-            {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_E6, 0x80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
             {N_C0, 0, EVENT_TYPE_STOP},
             //
             {N_C0, 0, EVENT_TYPE_STOP},
             {N_C0, 0, EVENT_TYPE_STOP},
-            {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_E6, 0x80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
             {N_C0, 0, EVENT_TYPE_STOP},
             //
             {N_C0, 0, EVENT_TYPE_STOP},
             {N_C0, 0, EVENT_TYPE_STOP},
-            {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_E6, 0x80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
             {N_C0, 0, EVENT_TYPE_STOP},
             //
             {N_C0, 0, EVENT_TYPE_STOP},
             {N_C0, 0, EVENT_TYPE_STOP},
-            {N_E6, 80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
+            {N_E6, 0x80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
             {N_C0, 0, EVENT_TYPE_STOP},
             //
         };
@@ -305,8 +305,6 @@ void LilTrackerApp::run() {
     int8_t activeBlock = BLOCK_EVENT_EDITING;
     int scoreCursorX = 0;
     int scoreCursorY = 0;
-    int currentChannel = 0;
-    int currentSegment = 0;
 
     bool isEditing = false;
     bool isPreviewing = false;
@@ -333,6 +331,9 @@ void LilTrackerApp::run() {
             scoreCursorY = seqState.eventIndex;
             pageIndex = seqState.pageIndex;
         }
+
+        int currentChannel = scoreCursorX / SEGMENT_COUNT;
+        int currentSegment = scoreCursorX % SEGMENT_COUNT;
 
         page_t* page = track.getPage(pageIndex);
 
@@ -390,7 +391,7 @@ void LilTrackerApp::run() {
             // Draw current page info and pattern indices
             sprintf(str, "Page: %02X", pageIndex);
             bool isPageSelFocused = activeBlock == BLOCK_CONTROLS && controlCursorX == 0 && controlCursorY == 0;
-            printText(
+            drawElement(
                 str,
                 CONTROL_PADDING_LEFT,
                 CONTROL_TOP + ITEM_HEIGHT / 2,
@@ -398,12 +399,12 @@ void LilTrackerApp::run() {
                 lilka::ALIGN_CENTER,
                 isPageSelFocused && isEditing,
                 isPageSelFocused,
-                false
+                lilka::colors::Uranian_blue
             );
 
             bool isBPMFocused = activeBlock == BLOCK_CONTROLS && controlCursorX == 1 && controlCursorY == 0;
             sprintf(str, "BPM: %3d", track.getBPM());
-            printText(
+            drawElement(
                 str,
                 CONTROL_PADDING_LEFT + CONTROL_WIDTH,
                 CONTROL_TOP + ITEM_HEIGHT / 2,
@@ -411,12 +412,12 @@ void LilTrackerApp::run() {
                 lilka::ALIGN_CENTER,
                 isBPMFocused && isEditing,
                 isBPMFocused,
-                false
+                lilka::colors::Uranian_blue
             );
 
             bool isLengthFocused = activeBlock == BLOCK_CONTROLS && controlCursorX == 2 && controlCursorY == 0;
             sprintf(str, "Len: %3d", track.getPageCount());
-            printText(
+            drawElement(
                 str,
                 CONTROL_PADDING_LEFT + CONTROL_WIDTH * 2,
                 CONTROL_TOP + ITEM_HEIGHT / 2,
@@ -424,7 +425,7 @@ void LilTrackerApp::run() {
                 lilka::ALIGN_CENTER,
                 isLengthFocused && isEditing,
                 isLengthFocused,
-                false
+                lilka::colors::Uranian_blue
             );
 
             // Draw buttons (load/save/reset)
@@ -438,7 +439,7 @@ void LilTrackerApp::run() {
                 } else {
                     buttonText = "Reset";
                 }
-                printText(
+                drawElement(
                     buttonText,
                     CONTROL_PADDING_LEFT + CONTROL_WIDTH * i,
                     CONTROL_TOP + ITEM_HEIGHT * 3 / 2,
@@ -446,7 +447,7 @@ void LilTrackerApp::run() {
                     lilka::ALIGN_CENTER,
                     isFocused && isEditing,
                     isFocused,
-                    false
+                    lilka::colors::Uranian_blue
                 );
             }
             canvas->setFont(FONT);
@@ -469,7 +470,7 @@ void LilTrackerApp::run() {
                 page->patternIndices[channelIndex],
                 waveform_names[pattern->getChannelWaveform(channelIndex)]
             );
-            printText(
+            drawElement(
                 str,
                 SCORE_COUNTER_WIDTH + channelIndex * SCORE_EVENT_WIDTH,
                 SCORE_HEADER_TOP + ITEM_HEIGHT / 2,
@@ -477,7 +478,7 @@ void LilTrackerApp::run() {
                 lilka::ALIGN_CENTER,
                 isChannelWaveformFocused && isEditing,
                 isChannelWaveformFocused,
-                false
+                lilka::colors::Uranian_blue
             );
             // canvas->drawTextAligned(
             //     waveform_names[pattern->getChannelWaveform(channelIndex)],
@@ -525,7 +526,7 @@ void LilTrackerApp::run() {
                     activeBlock == BLOCK_EVENT_EDITING && channelIndex == currentChannel && scoreCursorY == eventIndex;
                 bool isDimmed = event.type != EVENT_TYPE_NORMAL;
                 // Note
-                xOffset += printText(
+                xOffset += drawElement(
                     str,
                     xOffset,
                     y + SCORE_ITEM_HEIGHT / 2,
@@ -533,7 +534,7 @@ void LilTrackerApp::run() {
                     lilka::ALIGN_CENTER,
                     eventFocused && isEditing,
                     eventFocused && currentSegment == SEGMENT_NOTE,
-                    isDimmed
+                    isDimmed ? lilka::colors::Uranian_blue : lilka::colors::White
                 );
                 xOffset += 4;
                 // Volume
@@ -542,7 +543,7 @@ void LilTrackerApp::run() {
                 } else {
                     sprintf(str, "%02X", event.volume);
                 }
-                xOffset += printText(
+                xOffset += drawElement(
                     str,
                     xOffset,
                     y + SCORE_ITEM_HEIGHT / 2,
@@ -550,12 +551,12 @@ void LilTrackerApp::run() {
                     lilka::ALIGN_CENTER,
                     eventFocused && isEditing,
                     eventFocused && currentSegment == SEGMENT_VOLUME,
-                    isDimmed
+                    isDimmed ? lilka::colors::Uranian_blue : lilka::colors::Green
                 );
                 xOffset += 4;
                 // Effect
                 sprintf(str, "%c", effect_signs[event.effect.type]);
-                xOffset += printText(
+                xOffset += drawElement(
                     str,
                     xOffset,
                     y + SCORE_ITEM_HEIGHT / 2,
@@ -563,12 +564,12 @@ void LilTrackerApp::run() {
                     lilka::ALIGN_CENTER,
                     eventFocused && isEditing,
                     eventFocused && currentSegment == SEGMENT_EFFECT,
-                    isDimmed
+                    isDimmed ? lilka::colors::Uranian_blue : lilka::colors::Yellow
                 );
                 xOffset += 4;
                 // Effect param
                 sprintf(str, "%02X", event.effect.param);
-                xOffset += printText(
+                xOffset += drawElement(
                     str,
                     xOffset,
                     y + SCORE_ITEM_HEIGHT / 2,
@@ -576,7 +577,7 @@ void LilTrackerApp::run() {
                     lilka::ALIGN_CENTER,
                     eventFocused && isEditing,
                     eventFocused && currentSegment == SEGMENT_EFFECT_PARAM,
-                    isDimmed
+                    isDimmed ? lilka::colors::Uranian_blue : lilka::colors::Orange
                 );
                 xOffset += 4;
                 (void)xOffset;
@@ -711,31 +712,35 @@ void LilTrackerApp::run() {
                     Pattern* pattern = track.getPattern(page->patternIndices[currentChannel]);
                     event_t event = pattern->getChannelEvent(currentChannel, scoreCursorY);
                     if (currentSegment == SEGMENT_NOTE) {
-                        if (event.type != EVENT_TYPE_NORMAL) {
-                            event.type = EVENT_TYPE_NORMAL;
-                            // Find and use previous note (if any)
-                            bool found = false;
-                            for (int i = scoreCursorY - 1; i >= 0; i--) {
-                                event_t prevEvent = pattern->getChannelEvent(currentChannel, i);
-                                if (prevEvent.type == EVENT_TYPE_NORMAL) {
-                                    event.note = prevEvent.note;
-                                    found = true;
-                                    break;
+                        if (state.c.justPressed) {
+                            event.type = static_cast<event_type_t>((event.type + 1) % EVENT_TYPE_COUNT);
+                        } else {
+                            if (event.type != EVENT_TYPE_NORMAL) {
+                                event.type = EVENT_TYPE_NORMAL;
+                                // Find and use previous note (if any)
+                                bool found = false;
+                                for (int i = scoreCursorY - 1; i >= 0; i--) {
+                                    event_t prevEvent = pattern->getChannelEvent(currentChannel, i);
+                                    if (prevEvent.type == EVENT_TYPE_NORMAL) {
+                                        event.note = prevEvent.note;
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                if (!found) {
+                                    event.note = N_C0;
                                 }
                             }
-                            if (!found) {
-                                event.note = N_C0;
+                            if (state.up.justPressed) {
+                                event.note.add(1);
+                            } else if (state.down.justPressed) {
+                                event.note.add(-1);
                             }
-                        }
-                        if (state.up.justPressed) {
-                            event.note.add(1);
-                        } else if (state.down.justPressed) {
-                            event.note.add(-1);
-                        }
-                        if (state.left.justPressed) {
-                            event.note.add(-12);
-                        } else if (state.right.justPressed) {
-                            event.note.add(12);
+                            if (state.left.justPressed) {
+                                event.note.add(-12);
+                            } else if (state.right.justPressed) {
+                                event.note.add(12);
+                            }
                         }
                     } else if (currentSegment == SEGMENT_VOLUME) {
                         // Adjust volume
@@ -775,9 +780,6 @@ void LilTrackerApp::run() {
                                 event.effect.param = (event.effect.param + 16) % 256;
                             }
                         }
-                    }
-                    if (state.c.justPressed) {
-                        event.type = static_cast<event_type_t>((event.type + 1) % EVENT_TYPE_COUNT);
                     }
                     pattern->setChannelEvent(currentChannel, scoreCursorY, event);
                     if (isPreviewing) {
@@ -829,12 +831,8 @@ void LilTrackerApp::run() {
                     } else if (state.left.justPressed) {
                         scoreCursorX =
                             (scoreCursorX - 1 + CHANNEL_COUNT * SEGMENT_COUNT) % (CHANNEL_COUNT * SEGMENT_COUNT);
-                        currentChannel = scoreCursorX / SEGMENT_COUNT;
-                        currentSegment = scoreCursorX % SEGMENT_COUNT;
                     } else if (state.right.justPressed) {
                         scoreCursorX = (scoreCursorX + 1) % (CHANNEL_COUNT * SEGMENT_COUNT);
-                        currentChannel = scoreCursorX / SEGMENT_COUNT;
-                        currentSegment = scoreCursorX % SEGMENT_COUNT;
                     }
 
                     if (state.start.justPressed) {
@@ -856,29 +854,37 @@ void LilTrackerApp::run() {
     }
 }
 
-int LilTrackerApp::printText(
+int LilTrackerApp::drawElement(
     const char* text, int16_t x, int16_t y, lilka::Alignment hAlign, lilka::Alignment vAlign, bool editing,
-    bool focused, bool dimmed
+    bool focused, uint16_t color
 ) {
     uint16_t textColor;
-    int32_t bgColor;
+    uint16_t fillColor;
+    uint16_t outlineColor;
     if (focused) {
         if (editing) {
             textColor = lilka::colors::Black;
-            bgColor = lilka::colors::Green;
+            fillColor = color;
+            outlineColor = 0;
         } else {
-            textColor = lilka::colors::Black;
-            bgColor = lilka::colors::Uranian_blue;
+            textColor = color;
+            fillColor = 0;
+            outlineColor = color;
         }
     } else {
-        if (!dimmed) {
-            textColor = lilka::colors::White;
-        } else {
-            textColor = lilka::colors::Uranian_blue;
-        }
-        bgColor = textColor;
+        textColor = color;
+        fillColor = 0;
+        outlineColor = 0;
     }
-    canvas->setTextColor(textColor, bgColor);
+    canvas->setTextColor(textColor);
+    int16_t _x, _y;
+    uint16_t _w, _h;
+    canvas->getTextBoundsAligned(text, x, y, hAlign, vAlign, &_x, &_y, &_w, &_h);
+    if (fillColor) {
+        canvas->fillRect(_x, _y, _w, _h, fillColor);
+    } else if (outlineColor) {
+        canvas->drawRect(_x, _y, _w, _h, outlineColor);
+    }
     return canvas->drawTextAligned(text, x, y, hAlign, vAlign);
 }
 
