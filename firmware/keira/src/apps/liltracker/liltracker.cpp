@@ -526,7 +526,6 @@ void LilTrackerApp::run() {
                 }
                 bool eventFocused =
                     activeBlock == BLOCK_EVENT_EDITING && channelIndex == currentChannel && scoreCursorY == eventIndex;
-                bool isDimmed = event.type != EVENT_TYPE_NORMAL;
                 // Note
                 xOffset += drawElement(
                     str,
@@ -536,7 +535,7 @@ void LilTrackerApp::run() {
                     lilka::ALIGN_CENTER,
                     eventFocused && isEditing,
                     eventFocused && currentSegment == SEGMENT_NOTE,
-                    isDimmed ? lilka::colors::Uranian_blue : lilka::colors::White
+                    event.type == EVENT_TYPE_CONT ? lilka::colors::Battleship_gray : lilka::colors::White
                 );
                 xOffset += 4;
                 // Volume
@@ -553,7 +552,7 @@ void LilTrackerApp::run() {
                     lilka::ALIGN_CENTER,
                     eventFocused && isEditing,
                     eventFocused && currentSegment == SEGMENT_VOLUME,
-                    isDimmed ? lilka::colors::Uranian_blue : lilka::colors::Green
+                    event.volume == 0 ? lilka::colors::Battleship_gray : lilka::colors::Green
                 );
                 xOffset += 4;
                 // Effect
@@ -566,7 +565,7 @@ void LilTrackerApp::run() {
                     lilka::ALIGN_CENTER,
                     eventFocused && isEditing,
                     eventFocused && currentSegment == SEGMENT_EFFECT,
-                    isDimmed ? lilka::colors::Uranian_blue : lilka::colors::Yellow
+                    event.effect.type == EFFECT_TYPE_NONE ? lilka::colors::Battleship_gray : lilka::colors::Yellow
                 );
                 xOffset += 4;
                 // Effect param
@@ -579,7 +578,7 @@ void LilTrackerApp::run() {
                     lilka::ALIGN_CENTER,
                     eventFocused && isEditing,
                     eventFocused && currentSegment == SEGMENT_EFFECT_PARAM,
-                    isDimmed ? lilka::colors::Uranian_blue : lilka::colors::Orange
+                    event.effect.type == EFFECT_TYPE_NONE ? lilka::colors::Battleship_gray : lilka::colors::Orange
                 );
                 xOffset += 4;
                 (void)xOffset;
