@@ -27,6 +27,7 @@
 #include "nes/nesapp.h"
 #include "ftp/ftp_server.h"
 #include "weather/weather.h"
+#include "liltracker/liltracker.h"
 
 #include "icons/demos.h"
 #include "icons/sdcard.h"
@@ -66,6 +67,7 @@ ITEM_LIST app_items = {
          ITEM_APP("I2C-сканер", ScanI2CApp),
          ITEM_APP("GPIO-мененджер", GPIOManagerApp)},
     ),
+    ITEM_APP("ЛілТрекер", LilTrackerApp),
     ITEM_APP("Летріс", LetrisApp),
     ITEM_APP("Тамагочі", TamagotchiApp),
     ITEM_APP("Погода", WeatherApp),
@@ -267,6 +269,8 @@ void LauncherApp::selectFile(String path) {
         AppManager::getInstance()->runApp(new LuaFileRunnerApp(path));
     } else if (lowerCasedPath.endsWith(".js")) {
         AppManager::getInstance()->runApp(new MJSApp(path));
+    } else if (lowerCasedPath.endsWith(".lt")) {
+        AppManager::getInstance()->runApp(new LilTrackerApp(path));
     } else {
         // Get file size
         // lilka::serial_log(path.c_str());

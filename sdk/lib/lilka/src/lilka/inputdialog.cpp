@@ -130,7 +130,7 @@ void InputDialog::draw(Arduino_GFX* canvas) {
     canvas->setFont(FONT_10x20);
 
     canvas->setTextBound(4, 4, canvas->width() - 8, canvas->height() - 8);
-    canvas->setCursor(4, 20);
+    canvas->setCursor(16, 20);
     canvas->println(title);
 
     canvas->setTextBound(16, 16, canvas->width() - 32, canvas->height() - 32);

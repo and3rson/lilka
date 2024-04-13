@@ -301,16 +301,19 @@ bool Menu::setItem(int16_t index, String title, const menu_icon_t* icon, uint16_
     }
 }
 bool Menu::getItem(int16_t index, MenuItem* menuItem) {
-    if ((menuItem == NULL) || index > items.size() - 1) {
+    if ((menuItem == NULL) || index > items.size() - 1 || index < 0) {
         return false;
     } else {
-        memcpy(menuItem, &(items[index]), sizeof(MenuItem));
+        *menuItem = items[index];
         return true;
     }
 }
 void Menu::clearItems() {
     setCursor(0);
     items.clear();
+}
+int16_t Menu::getItemCount() {
+    return items.size();
 }
 void Menu::addActivationButton(Button activationButton) {
     activationButtons.push_back(activationButton);

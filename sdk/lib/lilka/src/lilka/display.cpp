@@ -8,6 +8,9 @@
 
 namespace lilka {
 
+template class GFX<Display>;
+template class GFX<Canvas>;
+
 #if LILKA_VERSION == 1
 Arduino_ESP32SPI displayBus(LILKA_DISPLAY_DC, LILKA_DISPLAY_CS, LILKA_SPI_SCK, LILKA_SPI_MOSI);
 #else
@@ -96,17 +99,20 @@ void Display::setSplash(const void* splash, uint32_t rleLength) {
     this->rleLength = rleLength;
 }
 
-void Display::drawImage(Image* image, int16_t x, int16_t y) {
+template <typename T>
+void GFX<T>::drawImage(Image* image, int16_t x, int16_t y) {
+    Arduino_GFX* base = static_cast<T*>(this);
     if (image->transparentColor == -1) {
-        draw16bitRGBBitmap(x - image->pivotX, y - image->pivotY, image->pixels, image->width, image->height);
+        base->draw16bitRGBBitmap(x - image->pivotX, y - image->pivotY, image->pixels, image->width, image->height);
     } else {
-        draw16bitRGBBitmapWithTranColor(
+        base->draw16bitRGBBitmapWithTranColor(
             x - image->pivotX, y - image->pivotY, image->pixels, image->transparentColor, image->width, image->height
         );
     }
 }
 
-void Display::drawImageTransformed(Image* image, int16_t destX, int16_t destY, Transform transform) {
+template <typename T>
+void GFX<T>::drawImageTransformed(Image* image, int16_t destX, int16_t destY, Transform transform) {
     // Transform image around its pivot.
     // Draw the rotated image at the specified position.
 
@@ -163,8 +169,22 @@ void Display::draw16bitRGBBitmapWithTranColor(
     Arduino_ST7789::draw16bitRGBBitmapWithTranColor(x, y, const_cast<uint16_t*>(bitmap), transparent_color, w, h);
 }
 
-void Display::drawCanvas(Canvas* canvas) {
-    draw16bitRGBBitmap(canvas->x(), canvas->y(), canvas->getFramebuffer(), canvas->width(), canvas->height());
+uint8_t* Display::getFont() {
+    return u8g2Font;
+}
+
+void Canvas::draw16bitRGBBitmapWithTranColor(
+    int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
+) {
+    // Цей cast безпечний, оскільки Arduino_GFX.draw16bitRGBBitmapWithTranColor не змінює bitmap.
+    Arduino_Canvas::draw16bitRGBBitmapWithTranColor(x, y, const_cast<uint16_t* const>(bitmap), transparent_color, w, h);
+}
+
+template <typename T>
+void GFX<T>::drawCanvas(Canvas* canvas) {
+    static_cast<T*>(this)->draw16bitRGBBitmap(
+        canvas->x(), canvas->y(), canvas->getFramebuffer(), canvas->width(), canvas->height()
+    );
 }
 
 Canvas::Canvas() : Arduino_Canvas(display.width(), display.height(), NULL) {
@@ -186,87 +206,17 @@ Canvas::Canvas(uint16_t x, uint16_t y, uint16_t width, uint16_t height) :
     begin();
 }
 
-void Canvas::drawImage(Image* image, int16_t x, int16_t y) {
-    if (image->transparentColor == -1) {
-        draw16bitRGBBitmap(x - image->pivotX, y - image->pivotY, image->pixels, image->width, image->height);
-    } else {
-        draw16bitRGBBitmapWithTranColor(
-            x - image->pivotX, y - image->pivotY, image->pixels, image->transparentColor, image->width, image->height
-        );
-    }
-}
-
-void Canvas::drawImageTransformed(Image* image, int16_t destX, int16_t destY, Transform transform) {
-    // Transform image around its pivot.
-    // Draw the rotated image at the specified position.
-
-    // Calculate the coordinates of the four corners of the destination rectangle.
-    int32_t imageWidth = image->width;
-    int32_t imageHeight = image->height;
-
-    // Calculate the coordinates of the four corners of the destination rectangle.
-    int_vector_t v1 = transform.transform(int_vector_t{-image->pivotX, -image->pivotY});
-    int_vector_t v2 = transform.transform(int_vector_t{imageWidth - image->pivotX, -image->pivotY});
-    int_vector_t v3 = transform.transform(int_vector_t{-image->pivotX, imageHeight - image->pivotY});
-    int_vector_t v4 = transform.transform(int_vector_t{imageWidth - image->pivotX, imageHeight - image->pivotY});
-
-    // Find the bounding box of the transformed image.
-    int_vector_t topLeft = int_vector_t{min(min(v1.x, v2.x), min(v3.x, v4.x)), min(min(v1.y, v2.y), min(v3.y, v4.y))};
-    int_vector_t bottomRight =
-        int_vector_t{max(max(v1.x, v2.x), max(v3.x, v4.x)), max(max(v1.y, v2.y), max(v3.y, v4.y))};
-
-    if (bottomRight.x - topLeft.x == 0 || bottomRight.y - topLeft.y == 0) {
-        // The transformed image is empty.
-        lilka::serial_err("Transform leads to image with zero width or height");
-        return;
-    }
-
-    // Create a new image to hold the transformed image.
-    Image destImage(bottomRight.x - topLeft.x, bottomRight.y - topLeft.y, image->transparentColor, 0, 0);
-
-    // Draw the transformed image to the new image.
-    Transform inverse = transform.inverse();
-    int_vector_t point{0, 0};
-    for (point.y = topLeft.y; point.y < bottomRight.y; point.y++) {
-        for (point.x = topLeft.x; point.x < bottomRight.x; point.x++) {
-            int_vector_t v = inverse.transform(point);
-            // Apply pivot offset
-            v.x += image->pivotX;
-            v.y += image->pivotY;
-            if (v.x >= 0 && v.x < image->width && v.y >= 0 && v.y < image->height) {
-                destImage.pixels[point.x - topLeft.x + (point.y - topLeft.y) * destImage.width] =
-                    image->pixels[v.x + v.y * image->width];
-            } else {
-                destImage.pixels[point.x - topLeft.x + (point.y - topLeft.y) * destImage.width] =
-                    image->transparentColor;
-            }
-        }
-    }
-
-    // TODO: Draw directly to the canvas?
-    drawImage(&destImage, destX + topLeft.x, destY + topLeft.y);
-}
-
-void Canvas::draw16bitRGBBitmapWithTranColor(
-    int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
-) {
-    // Цей cast безпечний, оскільки Arduino_GFX.draw16bitRGBBitmapWithTranColor не змінює bitmap.
-    Arduino_Canvas::draw16bitRGBBitmapWithTranColor(x, y, const_cast<uint16_t* const>(bitmap), transparent_color, w, h);
-    // Arduino_Canvas::draw16bitRGBBitmapWithTranColor(x, y, (uint16_t *)(bitmap), transparent_color, w, h);
-}
-
-void Canvas::drawCanvas(Canvas* canvas) {
-    draw16bitRGBBitmap(canvas->x(), canvas->y(), canvas->getFramebuffer(), canvas->width(), canvas->height());
-}
-
-int Canvas::drawTextAligned(const char* text, int16_t x, int16_t y, Alignment hAlign, Alignment vAlign) {
+template <typename T>
+int GFX<T>::drawTextAligned(const char* text, int16_t x, int16_t y, Alignment hAlign, Alignment vAlign) {
     // TODO: WARNING: This will break if we're not using U8g2 fonts.
     int16_t _x1, _y1;
     uint16_t w, _h;
     // U8g2 is a can of worms.
-    const int8_t ascent = u8g2Font[13]; // >0 (above the baseline, character 'A')
-    const int8_t descent = u8g2Font[14]; // <0 (below the baseline, character 'g')
-    getTextBounds(text, 0, 0, &_x1, &_y1, &w, &_h);
+    T* base = static_cast<T*>(this);
+    const uint8_t* font = base->getFont();
+    const int8_t ascent = font[13]; // >0 (above the baseline, character 'A')
+    const int8_t descent = font[14]; // <0 (below the baseline, character 'g')
+    base->getTextBounds(text, 0, 0, &_x1, &_y1, &w, &_h);
     switch (hAlign) {
         case Alignment::ALIGN_START:
             break;
@@ -288,9 +238,44 @@ int Canvas::drawTextAligned(const char* text, int16_t x, int16_t y, Alignment hA
             y += descent;
             break;
     }
-    setCursor(x, y);
-    this->print(text);
+    base->setCursor(x, y);
+    base->print(text);
     return w;
+}
+
+template <typename T>
+void GFX<T>::getTextBoundsAligned(
+    const char* text, int16_t x, int16_t y, Alignment hAlign, Alignment vAlign, int16_t* x1, int16_t* y1, uint16_t* w,
+    uint16_t* h
+) {
+    // TODO: WARNING: This will break if we're not using U8g2 fonts.
+    // U8g2 is a can of worms.
+    T* base = static_cast<T*>(this);
+    const uint8_t* font = base->getFont();
+    const int8_t ascent = font[13]; // >0 (above the baseline, character 'A')
+    const int8_t descent = font[14]; // <0 (below the baseline, character 'g')
+    base->getTextBounds(text, x, y, x1, y1, w, h);
+    switch (hAlign) {
+        case Alignment::ALIGN_START:
+            break;
+        case Alignment::ALIGN_CENTER:
+            *x1 -= *w / 2;
+            break;
+        case Alignment::ALIGN_END:
+            *x1 -= *w;
+            break;
+    }
+    switch (vAlign) {
+        case Alignment::ALIGN_START:
+            *y1 += ascent;
+            break;
+        case Alignment::ALIGN_CENTER:
+            *y1 += (ascent - descent) / 2;
+            break;
+        case Alignment::ALIGN_END:
+            *y1 += descent;
+            break;
+    }
 }
 
 int16_t Canvas::x() {
@@ -299,6 +284,10 @@ int16_t Canvas::x() {
 
 int16_t Canvas::y() {
     return _output_y;
+}
+
+uint8_t* Canvas::getFont() {
+    return u8g2Font;
 }
 
 int16_t getTextWidth(const uint8_t* font, const char* text) {
