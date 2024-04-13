@@ -38,13 +38,14 @@ typedef struct {
 ///     dreams.addItem("Смерть русні");
 ///     dreams.addItem("Ядерка на червону площу");
 ///     dreams.addItem("Повернення Криму");
-///     int index = -1;
-///     while (index == -1) {
+///     while (!dreams.isFinished()) {
 ///         dreams.update();
 ///         dreams.draw(&lilka::display);
-///         index = dreams.getSelectedIndex();
 ///     }
-///     Serial.println("Ви обрали пункт номер " + String(index));
+///     int index = dreams.getCursor();
+///     lilka::MenuItem item;
+///     dreams.getItem(index, &item);
+///     Serial.println(String("Ви обрали пункт ") + item.title);
 /// }
 /// @endcode
 class Menu {
@@ -85,7 +86,7 @@ public:
     void draw(Arduino_GFX* canvas);
     /// Перевірити, чи обрано пункт меню.
     ///
-    /// Якщо пункт обрано (користувач натиснув кнопку "A"), повертається ``true``, інакше ``false``. Після виклику цієї функції пункт перестає бути обраним.
+    /// Якщо пункт обрано, тобто користувач натиснув кнопку "A" (або іншу кнопку, яка була додана за допомогою ``addActivationButton()``), повертається ``true``, інакше ``false``.
     bool isFinished();
     /// Змінити пункт меню
     /// @param index Індекс пункту.
@@ -185,7 +186,7 @@ public:
     void draw(Arduino_GFX* canvas);
     /// Перевірити, чи користувач закрив сповіщення.
     ///
-    /// Якщо сповіщення закрито (користувач натиснув кнопку "A" або "Start"), повертається ``true``, інакше ``false``.
+    /// Якщо сповіщення закрито, тобто користувач натиснув кнопку "A" (або іншу кнопку, яка була додана за допомогою ``addActivationButton()``), повертається ``true``, інакше ``false``.
     bool isFinished();
     /// Дозволити закриття сповіщення за допомогою інших кнопок.
     ///
@@ -265,13 +266,42 @@ private:
 /// Клас для відображення діалогового вікна введення.
 ///
 /// Малює вікно введення та екранну клавіатуру, дозволяє вводити текст та підтверджувати введення.
+///
+/// Приклад використання:
+///
+/// @code
+/// InputDialog dialog("Введіть пароль");
+/// dialog.setMasked(true);
+/// dialog.setValue("1234");
+/// while (!dialog.isFinished()) {
+///     dialog.update();
+///     dialog.draw(&lilka::display);
+/// }
+/// String password = dialog.getValue();
+/// @endcode
 class InputDialog {
 public:
+    /// Конструктор класу.
+    ///
+    /// @param title Заголовок діалогового вікна введення.
     explicit InputDialog(String title);
+    /// Встановити маскування введеного тексту. Якщо встановлено ``true``, введений текст буде відображатися як зірочки.
+    /// @param masked Чи маскувати введений текст.
     void setMasked(bool masked);
+    /// Встановити початкове значення введеного тексту.
+    /// @param value Текст.
     void setValue(String value);
+    /// Оновити стан діалогового вікна введення.
+    ///
+    /// Цю функцію потрібно викликати, щоб діалогове вікно введення опрацювало вхідні дані від користувача та оновило свій стан.
     void update();
+    /// Намалювати діалогове вікно введення на Display або Canvas.
+    ///
+    /// @param canvas Вказівник на Display або Canvas, на якому потрібно намалювати діалогове вікно введення.
     void draw(Arduino_GFX* canvas);
+    /// Перевірити, чи користувач завершив введення тексту.
+    ///
+    /// Якщо введення завершено, тобто користувач натиснув кнопку "START", повертається ``true``, інакше ``false``.
     bool isFinished();
     String getValue();
 
