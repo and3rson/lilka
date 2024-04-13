@@ -18,7 +18,7 @@
     manual/index
     keira/index
     library/index
-    faq
+    faq/index
     glossary
 
 .. sidebar-links::

@@ -90,3 +90,7 @@ extensions.append("sphinx_toolbox.sidebar_links")
 extensions.append("sphinx_toolbox.github")
 github_username = "and3rson"
 github_repository = "lilka"
+
+# -- Graphviz ----------------------------------------------------------------
+
+extensions.append("sphinx.ext.graphviz")

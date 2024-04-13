@@ -93,13 +93,7 @@ void AppManager::loop() {
             renderToast(topApp->backCanvas);
         }
         if (app->needsRedraw()) {
-            lilka::display.draw16bitRGBBitmap(
-                app->backCanvas->x(),
-                app->backCanvas->y(),
-                app->backCanvas->getFramebuffer(),
-                app->backCanvas->width(),
-                app->backCanvas->height()
-            );
+            lilka::display.drawCanvas(app->backCanvas);
             app->markClean();
         }
         app->releaseBackCanvas();
