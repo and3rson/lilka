@@ -15,7 +15,7 @@ typedef enum {
     EVENT_TYPE_COUNT,
 } event_type_t;
 
-typedef struct event_t {
+typedef struct {
     noteinfo_t note; // 2 bytes
     uint8_t volume; // 1 byte
     event_type_t type; // 1 byte

@@ -1,4 +1,3 @@
-#include <string.h>
 #include <lilka.h>
 #include <freertos/queue.h>
 
@@ -25,10 +24,8 @@ Pattern::Pattern() : xMutex(xSemaphoreCreateMutex()) {
         channels[channelIndex].volume = 1.0f;
         channels[channelIndex].pitch = 1.0f;
         for (int32_t eventIndex = 0; eventIndex < CHANNEL_SIZE; eventIndex++) {
-            channels[channelIndex].events[eventIndex].note = {0, 0};
-            channels[channelIndex].events[eventIndex].volume = MAX_VOLUME;
-            channels[channelIndex].events[eventIndex].type = EVENT_TYPE_CONT;
-            channels[channelIndex].events[eventIndex].effect = {EFFECT_TYPE_NONE, 0};
+            event_t event = {N_C0, MAX_VOLUME, EVENT_TYPE_CONT, {EFFECT_TYPE_NONE, 0}};
+            channels[channelIndex].events[eventIndex] = event;
         }
     }
     xSemaphoreGive(xMutex);

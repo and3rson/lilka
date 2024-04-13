@@ -312,6 +312,8 @@ void LilTrackerApp::run() {
     int controlCursorX = 0;
     int controlCursorY = 0;
 
+    event_t copiedEvent = {N_C0, MAX_VOLUME, EVENT_TYPE_CONT, {EFFECT_TYPE_NONE, 0}};
+
     char str[64];
 
     // // Testing serialization/deserialization
@@ -815,6 +817,16 @@ void LilTrackerApp::run() {
                         // Stop playing all events from this row
                         mixer.stop();
                         isPreviewing = false;
+                    }
+
+                    if (state.c.justPressed) {
+                        // Copy event
+                        Pattern* pattern = track.getPattern(page->patternIndices[currentChannel]);
+                        copiedEvent = pattern->getChannelEvent(currentChannel, scoreCursorY);
+                    } else if (state.d.justPressed) {
+                        // Paste event
+                        Pattern* pattern = track.getPattern(page->patternIndices[currentChannel]);
+                        pattern->setChannelEvent(currentChannel, scoreCursorY, copiedEvent);
                     }
 
                     if (state.a.justPressed) {
