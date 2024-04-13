@@ -4,8 +4,9 @@
 AppManager* AppManager::instance = NULL;
 
 AppManager::AppManager() :
-    mutex(xSemaphoreCreateMutex()), panel(NULL), toastMessage(""), toastStartTime(0), toastEndTime(0) {
-    xSemaphoreGive(mutex);
+    // We're using binary semaphore instead of mutex because we will be releasing the lock from another task (see the hefty explanation in runApp())
+    lock(xSemaphoreCreateBinary()), panel(NULL), toastMessage(""), toastStartTime(0), toastEndTime(0) {
+    xSemaphoreGive(lock);
 }
 
 AppManager::~AppManager() {
@@ -23,27 +24,63 @@ AppManager* AppManager::getInstance() {
 /// Set the panel app.
 /// Panel app is drawn separately from the other apps on the top of the screen.
 void AppManager::setPanel(App* app) {
-    xSemaphoreTake(mutex, portMAX_DELAY);
+    xSemaphoreTake(lock, portMAX_DELAY);
     panel = app;
     panel->start();
-    xSemaphoreGive(mutex);
+    xSemaphoreGive(lock);
 }
+
+struct SuspensionData {
+    SemaphoreHandle_t lock;
+    App* topApp;
+};
 
 /// Spawn a new app and pause the current one.
 void AppManager::runApp(App* app) {
     // If there's an app already running, pause it
-    xSemaphoreTake(mutex, portMAX_DELAY);
+    xSemaphoreTake(lock, portMAX_DELAY);
+
     App* topApp = NULL;
     if (apps.size() > 0) {
         topApp = apps.back();
     }
     apps.push_back(app);
     app->start();
-    xSemaphoreGive(mutex);
-    if (topApp != NULL) {
-        // This method may be called from an app itself, that's why we postpone the suspension till the end of this method
-        topApp->suspend();
-    }
+
+    // So why all this mess? Here's the deal:
+    //
+    // We can't call suspend() directly from this method, because this method will likely be called from topApp itself,
+    // which would stop execution of this method at the moment of calling suspend().
+    // This would cause a deadlock because the lock will never be released.
+    //
+    // We could release lock *before* calling suspend() (and we did that until recently), but then there's a race condition:
+    // 1. Mutex is released
+    // 2. New top app starts and stops very quickly, triggering resume() on previous top app
+    // 3. We finally reach topApp->suspend() and it's too late - the previous top app is already resumed, so we suspend the wrong app, and the system hangs
+    //
+    // TODO: We should probably use queues to talk to AppManager and avoid all this mess with RTOS functions being called by gosh knows who. /AD
+    // Anyway - behold: an additional task that will suspend the top app and release the lock when it's done.
+    SuspensionData* suspensionData = new SuspensionData{lock, topApp};
+    xTaskCreate(
+        [](void* param) {
+            SuspensionData* data = static_cast<SuspensionData*>(param);
+            App* topApp = data->topApp;
+            SemaphoreHandle_t lock = data->lock;
+            delete data;
+
+            if (topApp != NULL) {
+                topApp->suspend();
+            }
+            xSemaphoreGive(lock);
+
+            vTaskDelete(NULL);
+        },
+        "runApp",
+        4096,
+        suspensionData,
+        1,
+        NULL
+    );
 }
 
 /// Remove the top app and resume the previous one.
@@ -70,36 +107,38 @@ App* AppManager::removeTopApp() {
 /// Redraws the panel and the top app if necessary.
 /// If the top app has finished, it is removed from the list and the next app is resumed.
 void AppManager::loop() {
-    xSemaphoreTake(mutex, portMAX_DELAY);
+    xSemaphoreTake(lock, portMAX_DELAY);
 
-    // Check if top app has finished
-    App* topApp = apps.back();
-    if (topApp->getState() == eDeleted) {
-        // Switch to the next app in stack
-        topApp = removeTopApp();
-    }
+    if (apps.size()) {
+        // Check if top app has finished
+        App* topApp = apps.back();
+        if (topApp->getState() == eDeleted) {
+            // Switch to the next app in stack
+            topApp = removeTopApp();
+        }
 
-    // Draw panel and top app
-    for (App* app : {panel, topApp}) {
-        if (app == panel) {
-            // Check if topApp is fullscreen. If it is, don't draw the panel
-            if (topApp->getFlags() & AppFlags::APP_FLAG_FULLSCREEN) {
-                continue;
+        // Draw panel and top app
+        for (App* app : {panel, topApp}) {
+            if (app == panel) {
+                // Check if topApp is fullscreen. If it is, don't draw the panel
+                if (topApp->getFlags() & AppFlags::APP_FLAG_FULLSCREEN) {
+                    continue;
+                }
             }
+            app->acquireBackCanvas();
+            // Draw toast message on app's canvas to prevent flickering
+            if (millis() < toastEndTime) {
+                renderToast(topApp->backCanvas);
+            }
+            if (app->needsRedraw()) {
+                lilka::display.drawCanvas(app->backCanvas);
+                app->markClean();
+            }
+            app->releaseBackCanvas();
         }
-        app->acquireBackCanvas();
-        // Draw toast message on app's canvas to prevent flickering
-        if (millis() < toastEndTime) {
-            renderToast(topApp->backCanvas);
-        }
-        if (app->needsRedraw()) {
-            lilka::display.drawCanvas(app->backCanvas);
-            app->markClean();
-        }
-        app->releaseBackCanvas();
     }
 
-    xSemaphoreGive(mutex);
+    xSemaphoreGive(lock);
 
     taskYIELD();
 }
@@ -139,7 +178,7 @@ void AppManager::renderToast(lilka::Canvas* canvas) {
 /// Render panel and top app to the given canvas.
 /// Useful for taking screenshots.
 void AppManager::renderToCanvas(lilka::Canvas* canvas) {
-    xSemaphoreTake(mutex, portMAX_DELAY);
+    xSemaphoreTake(lock, portMAX_DELAY);
 
     // Draw panel and top app
     for (App* app : {panel, apps.back()}) {
@@ -148,14 +187,14 @@ void AppManager::renderToCanvas(lilka::Canvas* canvas) {
         app->releaseBackCanvas();
     }
 
-    xSemaphoreGive(mutex);
+    xSemaphoreGive(lock);
 }
 
 /// Display a toast message.
 void AppManager::startToast(String message, uint64_t duration) {
-    xSemaphoreTake(mutex, portMAX_DELAY);
+    xSemaphoreTake(lock, portMAX_DELAY);
     toastMessage = message;
     toastStartTime = millis();
     toastEndTime = millis() + duration;
-    xSemaphoreGive(mutex);
+    xSemaphoreGive(lock);
 }
