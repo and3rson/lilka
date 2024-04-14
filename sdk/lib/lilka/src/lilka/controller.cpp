@@ -30,6 +30,9 @@ Controller::Controller() : state{}, semaphore(xSemaphoreCreateRecursiveMutex()) 
             .justPressed = false,
             .justReleased = false,
             .time = 0,
+            .nextRepeatTime = 0,
+            .repeatRate = 0,
+            .repeatDelay = 0,
         };
     }
     xSemaphoreGive(semaphore);
@@ -53,8 +56,14 @@ void Controller::inputTask() {
                 if (millis() - buttonState->time < LILKA_DEBOUNCE_TIME) {
                     continue;
                 }
+
+                // Is the button being held down?
                 bool pressed = !digitalRead(pins[i]);
-                if (pressed != buttonState->pressed) {
+                // Should the button repeat right now?
+                bool shouldRepeat = buttonState->nextRepeatTime && millis() >= buttonState->nextRepeatTime;
+
+                // Make/break
+                if (pressed != buttonState->pressed || shouldRepeat) {
                     buttonState->pressed = pressed;
                     buttonState->justPressed = pressed;
                     buttonState->justReleased = !pressed;
@@ -68,6 +77,24 @@ void Controller::inputTask() {
                         globalHandler((Button)i, pressed);
                     }
                     buttonState->time = millis();
+                }
+
+                // Calculate repeats
+                if (pressed) {
+                    // Button is being held down, check if we need to repeat
+                    if (buttonState->repeatRate && buttonState->repeatDelay) {
+                        // Repeat is enabled, set next repeat time
+                        if (buttonState->nextRepeatTime == 0) {
+                            // This is the first repeat, delay by repeatDelay
+                            buttonState->nextRepeatTime = millis() + buttonState->repeatDelay;
+                        } else if (millis() >= buttonState->nextRepeatTime) {
+                            // Delay subsequent repeats by 1/repeatRate seconds
+                            buttonState->nextRepeatTime += 1000 / buttonState->repeatRate;
+                        }
+                    }
+                } else {
+                    // Button is not being held down, reset repeat
+                    buttonState->nextRepeatTime = 0;
                 }
             }
         }
@@ -142,6 +169,14 @@ void Controller::clearHandlers() {
         handlers[i] = NULL;
     }
     globalHandler = NULL;
+}
+
+void Controller::setAutoRepeat(Button button, uint32_t rate, uint32_t delay) {
+    AcquireController acquire(semaphore);
+    _StateButtons& buttons = *reinterpret_cast<_StateButtons*>(&state);
+    ButtonState* buttonState = &buttons[button];
+    buttonState->repeatRate = rate;
+    buttonState->repeatDelay = delay;
 }
 
 Controller controller;
