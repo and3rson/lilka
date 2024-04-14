@@ -80,6 +80,9 @@ ITEM_LIST dev_items = {
 };
 
 void LauncherApp::run() {
+    for (lilka::Button button : {lilka::Button::UP, lilka::Button::DOWN, lilka::Button::LEFT, lilka::Button::RIGHT}) {
+        lilka::controller.setAutoRepeat(button, 10, 300);
+    }
     lilka::Menu menu("Головне меню");
     menu.addItem("Додатки", &demos, lilka::colors::Pink);
     menu.addItem("Браузер SD-карти", &sdcard, lilka::colors::Arylide_yellow);
