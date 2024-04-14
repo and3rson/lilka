@@ -12,17 +12,17 @@
 #define MIXER_BUFFER_DURATION_MS (MIXER_BUFFER_SIZE * 1000 / SAMPLE_RATE)
 #define SECONDS_PER_SAMPLE       (1.0f / SAMPLE_RATE)
 
-typedef enum {
+typedef enum : uint8_t {
     MIXER_COMMAND_SET_WAVEFORM,
     MIXER_COMMAND_SET_FREQUENCY,
     MIXER_COMMAND_SET_VOLUME,
     MIXER_COMMAND_SET_EFFECT,
-    MIXER_COMMAND_CLEAR,
+    MIXER_COMMAND_SET_OFF,
     MIXER_COMMAND_COUNT,
 } mixer_command_type_t;
 
 typedef struct {
-    int32_t channelIndex;
+    uint8_t channelIndex;
     mixer_command_type_t type;
     union {
         waveform_t waveform;
@@ -38,11 +38,13 @@ public:
     ~Mixer();
     void sendCommand(const mixer_command_t command);
     void start(
-        int32_t channelIndex, waveform_t waveforms, float pitch, float volume, effect_t effect = {EFFECT_TYPE_NONE, 0}
+        uint8_t channelIndex, waveform_t waveforms, float frequency, float volume,
+        effect_t effect = {EFFECT_TYPE_NONE, 0}
     );
     void stop();
+    void reset();
     int16_t readBuffer(int16_t* targetBuffer);
-    int16_t readBuffer(int16_t* targetBuffer, int32_t channelIndex);
+    int16_t readBuffer(int16_t* targetBuffer, uint8_t channelIndex);
     float getMasterVolume();
 
 private:

@@ -1,9 +1,9 @@
 // This is a generated file, do not edit.
 // clang-format off
 #include <stdint.h>
-const uint16_t sqr_width = 9;
-const uint16_t sqr_height = 13;
-const uint16_t sqr[] = {
+const uint16_t sqr_img_width = 9;
+const uint16_t sqr_img_height = 13;
+const uint16_t sqr_img[] = {
     0x0000,
     0x0000,
     0x0000,

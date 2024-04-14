@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-typedef enum {
+typedef enum : uint8_t {
     EFFECT_TYPE_NONE,
     EFFECT_TYPE_ARPEGGIO, // NES: 00xy
     EFFECT_TYPE_VIBRATO, // NES: 04xy
