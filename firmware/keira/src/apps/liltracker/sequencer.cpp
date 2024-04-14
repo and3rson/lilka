@@ -41,6 +41,7 @@ void Sequencer::play(Track* track, int16_t pageIndex, bool loopTrack) {
     playstate.loopTrack = loopTrack;
     playstate.eventIndex = 0;
     playstate.playing = true;
+    mixer->reset();
 }
 
 void Sequencer::play(Track* track, bool loopTrack) {
@@ -54,6 +55,7 @@ void Sequencer::play(Track* track, bool loopTrack) {
     playstate.loopTrack = loopTrack;
     playstate.eventIndex = 0;
     playstate.playing = true;
+    mixer->reset();
 }
 
 void Sequencer::stop() {
@@ -92,30 +94,30 @@ void Sequencer::sequencerTask() {
                 for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
                     Pattern* pattern = playstate.track->getPattern(page->patternIndices[channelIndex]);
                     event_t event = pattern->getChannelEvent(channelIndex, playstate.eventIndex);
-                    waveform_t waveform = pattern->getChannelWaveform(channelIndex);
+                    // waveform_t waveform = pattern->getChannelWaveform(channelIndex);
                     mixer_command_t cmd;
                     cmd.channelIndex = channelIndex;
-                    if (event.type == EVENT_TYPE_STOP) {
-                        mixer->sendCommand({channelIndex, MIXER_COMMAND_CLEAR});
-                    } else {
-                        if (event.type == EVENT_TYPE_NORMAL) {
-                            cmd.type = MIXER_COMMAND_SET_WAVEFORM;
-                            cmd.waveform = waveform;
-                            mixer->sendCommand(cmd);
-                            cmd.type = MIXER_COMMAND_SET_FREQUENCY;
-                            cmd.frequency = event.note.toFrequency();
-                            mixer->sendCommand(cmd);
-                        }
-                        if (event.effect.type != EFFECT_TYPE_NONE) {
-                            cmd.type = MIXER_COMMAND_SET_EFFECT;
-                            cmd.effect = event.effect;
-                            mixer->sendCommand(cmd);
-                        }
-                        if (event.volume) {
-                            cmd.type = MIXER_COMMAND_SET_VOLUME;
-                            cmd.volume = ((float)event.volume) / MAX_VOLUME;
-                            mixer->sendCommand(cmd);
-                        }
+                    if (event.type == EVENT_TYPE_OFF) {
+                        mixer->sendCommand({channelIndex, MIXER_COMMAND_SET_OFF});
+                    } else if (event.type == EVENT_TYPE_NORMAL) {
+                        cmd.type = MIXER_COMMAND_SET_FREQUENCY;
+                        cmd.frequency = event.note.toFrequency();
+                        mixer->sendCommand(cmd);
+                    }
+                    if (event.waveform != WAVEFORM_CONT) {
+                        cmd.type = MIXER_COMMAND_SET_WAVEFORM;
+                        cmd.waveform = event.waveform;
+                        mixer->sendCommand(cmd);
+                    }
+                    if (event.effect.type != EFFECT_TYPE_NONE) {
+                        cmd.type = MIXER_COMMAND_SET_EFFECT;
+                        cmd.effect = event.effect;
+                        mixer->sendCommand(cmd);
+                    }
+                    if (event.volume) {
+                        cmd.type = MIXER_COMMAND_SET_VOLUME;
+                        cmd.volume = ((float)event.volume) / MAX_VOLUME;
+                        mixer->sendCommand(cmd);
                     }
                 }
             }

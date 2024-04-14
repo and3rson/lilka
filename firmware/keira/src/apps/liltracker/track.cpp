@@ -152,8 +152,8 @@ int32_t Track::calculateWriteBufferSize() {
     Acquire acquire(xMutex, true);
     int32_t size = 0;
     size += 4; // Signature
-    size += 32; // Reserved
-    size += sizeof(int16_t); // BPM
+    size += 64; // Reserved
+    size += sizeof(bpm); // BPM
     size += sizeof(int16_t); // Pattern count
     // Patterns
     for (int16_t i = 0; i < getUsedPatternCount(); i++) {
@@ -169,14 +169,14 @@ int32_t Track::writeToBuffer(uint8_t* data) {
     Acquire acquire(xMutex, true);
     int32_t offset = 0;
 
-    // Write signature ("LILT")
+    // Write signature ("LIL") & version (1)
     data[offset++] = 'L';
     data[offset++] = 'I';
     data[offset++] = 'L';
-    data[offset++] = 'T';
+    data[offset++] = 1;
 
-    // Write 32 reserved bytes
-    for (int8_t i = 0; i < 32; i++) {
+    // Write reserved bytes until position 64
+    while (offset < 64) {
         data[offset++] = 0;
     }
 
@@ -208,13 +208,14 @@ int32_t Track::readFromBuffer(const uint8_t* data) {
     Acquire acquire(xMutex, true);
     int32_t offset = 0;
 
-    // Read signature ("LILT")
-    if (data[offset++] != 'L' || data[offset++] != 'I' || data[offset++] != 'L' || data[offset++] != 'T') {
+    // Read signature ("LIL")
+    if (data[offset++] != 'L' || data[offset++] != 'I' || data[offset++] != 'L') {
         return -1;
     }
+    // offset++; // Skip version
 
-    // Skip 32 reserved bytes
-    offset += 32;
+    // Skip reserved bytes until position 64
+    offset = 64;
 
     // Read BPM
     READ_FROM_BUFFER(bpm, data);

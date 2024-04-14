@@ -4,6 +4,8 @@
 #include "note.h"
 #include "utils/defer.h"
 
+#include "icons/liltracker_icons.h"
+
 #define LILTRACKER_DIR "/liltracker"
 
 // Layout:
@@ -38,21 +40,24 @@ const int32_t SCORE_EVENT_WIDTH = (lilka::display.width() - SCORE_COUNTER_WIDTH)
 const int32_t SCORE_ROW_COUNT = SCORE_HEIGHT / ITEM_HEIGHT;
 const int32_t SCORE_MIDDLE_ROW_INDEX = SCORE_ROW_COUNT / 2;
 
-typedef enum {
+const uint8_t* FONT_ICONS = liltracker_icons;
+
+typedef enum : uint8_t {
     BLOCK_CONTROLS,
     BLOCK_EVENT_SCORE,
     BLOCK_COUNT,
 } active_block_t;
 
-typedef enum {
+typedef enum : uint8_t {
     SEGMENT_NOTE,
+    SEGMENT_WAVEFORM,
     SEGMENT_VOLUME,
     SEGMENT_EFFECT,
     SEGMENT_EFFECT_PARAM,
     SEGMENT_COUNT,
 } active_segment_t;
 
-typedef enum {
+typedef enum : uint8_t {
     VISUALIZER_MODE_PER_CHANNEL,
     VISUALIZER_MODE_MIXED,
     VISUALIZER_MODE_COUNT,
@@ -93,7 +98,7 @@ void LilTrackerApp::run() {
 
     int visualizerMode = VISUALIZER_MODE_PER_CHANNEL;
 
-    event_t copiedEvent = {N_C0, MAX_VOLUME, EVENT_TYPE_CONT, {EFFECT_TYPE_NONE, 0}};
+    event_t copiedEvent = {N_C0, WAVEFORM_CONT, MAX_VOLUME, EVENT_TYPE_CONT, {EFFECT_TYPE_NONE, 0}};
 
     char str[64];
 
@@ -237,15 +242,9 @@ void LilTrackerApp::run() {
         );
 
         for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-            Pattern* pattern = track.getPattern(page->patternIndices[channelIndex]);
             bool isChannelWaveformFocused =
                 activeBlock == BLOCK_CONTROLS && controlCursorY == 2 && controlCursorX == channelIndex;
-            sprintf(
-                str,
-                "%02X: %-4s",
-                page->patternIndices[channelIndex],
-                waveform_names[pattern->getChannelWaveform(channelIndex)]
-            );
+            sprintf(str, "%02X", page->patternIndices[channelIndex]);
             drawElement(
                 str,
                 SCORE_COUNTER_WIDTH + channelIndex * SCORE_EVENT_WIDTH,
@@ -256,13 +255,6 @@ void LilTrackerApp::run() {
                 isChannelWaveformFocused,
                 lilka::colors::Uranian_blue
             );
-            // canvas->drawTextAligned(
-            //     waveform_names[pattern->getChannelWaveform(channelIndex)],
-            //     SCORE_COUNTER_WIDTH + channelIndex * SCORE_EVENT_WIDTH,
-            //     SCORE_HEADER_TOP,
-            //     lilka::ALIGN_START,
-            //     lilka::ALIGN_START
-            // );
         }
 
         for (int eventIndex = 0; eventIndex < CHANNEL_SIZE; eventIndex++) {
@@ -293,7 +285,7 @@ void LilTrackerApp::run() {
                     strcpy(str, "...");
                 } else if (event.type == EVENT_TYPE_NORMAL) {
                     strcpy(str, event.note.toStr());
-                } else if (event.type == EVENT_TYPE_STOP) {
+                } else if (event.type == EVENT_TYPE_OFF) {
                     strcpy(str, "OFF");
                 } else {
                     strcpy(str, "???");
@@ -311,7 +303,29 @@ void LilTrackerApp::run() {
                     eventFocused && currentSegment == SEGMENT_NOTE,
                     event.type == EVENT_TYPE_CONT ? lilka::colors::Battleship_gray : lilka::colors::White
                 );
-                xOffset += 4;
+                // Waveform
+                int8_t fontShiftY = 0;
+                if (event.waveform == WAVEFORM_CONT) {
+                    sprintf(str, ".");
+                    canvas->setFont(FONT);
+                } else {
+                    sprintf(str, "%d", event.waveform - 1);
+                    canvas->setFont(FONT_ICONS);
+                    // I have absolutely no idea why does the icon font end up aligned incorrectly, and I'm too lazy to fix it properly.
+                    fontShiftY = 3;
+                }
+                drawElement(
+                    str,
+                    xOffset,
+                    y + SCORE_ITEM_HEIGHT / 2 + fontShiftY,
+                    lilka::ALIGN_START,
+                    lilka::ALIGN_CENTER,
+                    eventFocused && isEditing,
+                    eventFocused && currentSegment == SEGMENT_WAVEFORM,
+                    event.waveform == WAVEFORM_CONT ? lilka::colors::Battleship_gray : lilka::colors::Cyan
+                );
+                canvas->setFont(FONT);
+                xOffset += 9;
                 // Volume
                 if (event.volume == 0) {
                     sprintf(str, "..");
@@ -328,7 +342,6 @@ void LilTrackerApp::run() {
                     eventFocused && currentSegment == SEGMENT_VOLUME,
                     event.volume == 0 ? lilka::colors::Battleship_gray : lilka::colors::Green
                 );
-                xOffset += 4;
                 // Effect
                 sprintf(str, "%c", effect_signs[event.effect.type]);
                 xOffset += drawElement(
@@ -341,7 +354,6 @@ void LilTrackerApp::run() {
                     eventFocused && currentSegment == SEGMENT_EFFECT,
                     event.effect.type == EFFECT_TYPE_NONE ? lilka::colors::Battleship_gray : lilka::colors::Yellow
                 );
-                xOffset += 4;
                 // Effect param
                 sprintf(str, "%02X", event.effect.param);
                 xOffset += drawElement(
@@ -403,16 +415,12 @@ void LilTrackerApp::run() {
                         // Unreachable
                     } else if (controlCursorY == 2) {
                         // Select waveform for pattern's channel
-                        Pattern* pattern = track.getPattern(page->patternIndices[controlCursorX]);
                         if (state.left.justPressed) {
-                            // Previous waveform
-                            int8_t newWaveform =
-                                (pattern->getChannelWaveform(controlCursorX) - 1 + WAVEFORM_COUNT) % WAVEFORM_COUNT;
-                            pattern->setChannelWaveform(controlCursorX, static_cast<waveform_t>(newWaveform));
+                            // Previous channel
+                            controlCursorX = (controlCursorX - 1 + CHANNEL_COUNT) % CHANNEL_COUNT;
                         } else if (state.right.justPressed) {
-                            // Next waveform
-                            int8_t newWaveform = (pattern->getChannelWaveform(controlCursorX) + 1) % WAVEFORM_COUNT;
-                            pattern->setChannelWaveform(controlCursorX, static_cast<waveform_t>(newWaveform));
+                            // Next channel
+                            controlCursorX = (controlCursorX + 1) % CHANNEL_COUNT;
                         } else if (state.up.justPressed) {
                             // Previous pattern
                             page->patternIndices[controlCursorX] =
@@ -517,6 +525,14 @@ void LilTrackerApp::run() {
                                 event.note.add(12);
                             }
                         }
+                    } else if (currentSegment == SEGMENT_WAVEFORM) {
+                        // Adjust waveform
+                        if (state.up.justPressed) {
+                            event.waveform = static_cast<waveform_t>((event.waveform + 1) % WAVEFORM_COUNT);
+                        } else if (state.down.justPressed) {
+                            event.waveform =
+                                static_cast<waveform_t>((event.waveform - 1 + WAVEFORM_COUNT) % WAVEFORM_COUNT);
+                        }
                     } else if (currentSegment == SEGMENT_VOLUME) {
                         // Adjust volume
                         if (state.up.justPressed) {
@@ -531,29 +547,24 @@ void LilTrackerApp::run() {
                         }
                     } else if (currentSegment == SEGMENT_EFFECT) {
                         // Adjust effect
-                        if (event.type == EVENT_TYPE_NORMAL) {
-                            if (state.up.justPressed) {
-                                event.effect.type =
-                                    static_cast<effect_type_t>((event.effect.type + 1) % EFFECT_TYPE_COUNT);
-                            } else if (state.down.justPressed) {
-                                event.effect.type = static_cast<effect_type_t>(
-                                    (event.effect.type - 1 + EFFECT_TYPE_COUNT) % EFFECT_TYPE_COUNT
-                                );
-                            }
+                        if (state.up.justPressed) {
+                            event.effect.type = static_cast<effect_type_t>((event.effect.type + 1) % EFFECT_TYPE_COUNT);
+                        } else if (state.down.justPressed) {
+                            event.effect.type = static_cast<effect_type_t>(
+                                (event.effect.type - 1 + EFFECT_TYPE_COUNT) % EFFECT_TYPE_COUNT
+                            );
                         }
                     } else if (currentSegment == SEGMENT_EFFECT_PARAM) {
                         // Adjust effect param
-                        if (event.type == EVENT_TYPE_NORMAL) {
-                            if (state.up.justPressed) {
-                                event.effect.param = (event.effect.param + 1) % 256;
-                            } else if (state.down.justPressed) {
-                                event.effect.param = (event.effect.param - 1 + 256) % 256;
-                            }
-                            if (state.left.justPressed) {
-                                event.effect.param = (event.effect.param - 16 + 256) % 256;
-                            } else if (state.right.justPressed) {
-                                event.effect.param = (event.effect.param + 16) % 256;
-                            }
+                        if (state.up.justPressed) {
+                            event.effect.param = (event.effect.param + 1) % 256;
+                        } else if (state.down.justPressed) {
+                            event.effect.param = (event.effect.param - 1 + 256) % 256;
+                        }
+                        if (state.left.justPressed) {
+                            event.effect.param = (event.effect.param - 16 + 256) % 256;
+                        } else if (state.right.justPressed) {
+                            event.effect.param = (event.effect.param + 16) % 256;
                         }
                     }
                     pattern->setChannelEvent(currentChannel, scoreCursorY, event);
@@ -688,15 +699,22 @@ void LilTrackerApp::startPreview(
         event_t event = pattern->getChannelEvent(channelIndex, requestedEventIndex);
         bool shouldPlayThisChannel = requestedChannelIndex == -1 || requestedChannelIndex == channelIndex;
         if (shouldPlayThisChannel && event.type == EVENT_TYPE_NORMAL) {
+            // Find waveform for this event by iterating up
+            waveform_t waveform = WAVEFORM_SQUARE; // Default to square if no waveform found
+            for (int i = requestedEventIndex; i >= 0; i--) {
+                event_t prevEvent = pattern->getChannelEvent(channelIndex, i);
+                if (prevEvent.waveform != WAVEFORM_CONT) {
+                    waveform = prevEvent.waveform;
+                    break;
+                }
+            }
             mixer.start(
                 channelIndex,
-                pattern->getChannelWaveform(channelIndex),
+                waveform,
                 event.note.toFrequency(),
                 event.volume > 0 ? ((float)event.volume) / MAX_VOLUME : 1.0,
                 event.effect
             );
-        } else {
-            mixer.start(channelIndex, WAVEFORM_SILENCE, 0.0, 1.0);
         }
     }
 }
