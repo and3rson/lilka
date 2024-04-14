@@ -38,7 +38,7 @@ icons:
 		-not \( -name SimpleFTPServer -prune \) \
 		-not \( -name *splash* -prune \) \
 		-not \( -name *weather* -prune \) \
-		-iname *.png \
+		-iname '*.png' \
 		-exec $(IMAGE2CODE) {} \;
 
 .PHONY: check
