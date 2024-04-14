@@ -4,11 +4,7 @@
 #include "note.h"
 #include "utils/defer.h"
 
-#include "icons/noi.h"
-#include "icons/sqr.h"
-#include "icons/tri.h"
-#include "icons/saw.h"
-#include "icons/sin.h"
+#include "icons/liltracker_icons.h"
 
 #define LILTRACKER_DIR "/liltracker"
 
@@ -44,6 +40,8 @@ const int32_t SCORE_EVENT_WIDTH = (lilka::display.width() - SCORE_COUNTER_WIDTH)
 const int32_t SCORE_ROW_COUNT = SCORE_HEIGHT / ITEM_HEIGHT;
 const int32_t SCORE_MIDDLE_ROW_INDEX = SCORE_ROW_COUNT / 2;
 
+const uint8_t* FONT_ICONS = liltracker_icons;
+
 typedef enum : uint8_t {
     BLOCK_CONTROLS,
     BLOCK_EVENT_SCORE,
@@ -64,15 +62,6 @@ typedef enum : uint8_t {
     VISUALIZER_MODE_MIXED,
     VISUALIZER_MODE_COUNT,
 } visualizer_mode_t;
-
-const uint16_t* waveform_signs[WAVEFORM_COUNT] = {
-    0, // WAVEFORM_CONT
-    sqr_img, // WAVEFORM_SQUARE
-    saw_img, // WAVEFORM_SAWTOOTH
-    tri_img, // WAVEFORM_TRIANGLE
-    sin_img, // WAVEFORM_SINE
-    noi_img, // WAVEFORM_NOISE
-};
 
 LilTrackerApp::LilTrackerApp() :
     App("LilTracker", 0, 0, lilka::display.width(), lilka::display.height()), mixer(), sequencer(&mixer) {
@@ -315,26 +304,27 @@ void LilTrackerApp::run() {
                     event.type == EVENT_TYPE_CONT ? lilka::colors::Battleship_gray : lilka::colors::White
                 );
                 // Waveform
+                int8_t fontShiftY = 0;
                 if (event.waveform == WAVEFORM_CONT) {
                     sprintf(str, ".");
+                    canvas->setFont(FONT);
                 } else {
-                    sprintf(str, " ");
+                    sprintf(str, "%d", event.waveform - 1);
+                    canvas->setFont(FONT_ICONS);
+                    // I have absolutely no idea why does the icon font end up aligned incorrectly, and I'm too lazy to fix it properly.
+                    fontShiftY = 3;
                 }
                 drawElement(
                     str,
                     xOffset,
-                    y + SCORE_ITEM_HEIGHT / 2,
+                    y + SCORE_ITEM_HEIGHT / 2 + fontShiftY,
                     lilka::ALIGN_START,
                     lilka::ALIGN_CENTER,
                     eventFocused && isEditing,
                     eventFocused && currentSegment == SEGMENT_WAVEFORM,
-                    event.waveform == WAVEFORM_CONT ? lilka::colors::Battleship_gray : lilka::colors::Blue
+                    event.waveform == WAVEFORM_CONT ? lilka::colors::Battleship_gray : lilka::colors::Cyan
                 );
-                if (event.waveform != WAVEFORM_CONT) {
-                    canvas->draw16bitRGBBitmapWithTranColor(
-                        xOffset, y, waveform_signs[event.waveform], lilka::colors::Black, sin_img_width, sin_img_height
-                    );
-                }
+                canvas->setFont(FONT);
                 xOffset += 9;
                 // Volume
                 if (event.volume == 0) {
