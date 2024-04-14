@@ -40,7 +40,7 @@ const int32_t SCORE_MIDDLE_ROW_INDEX = SCORE_ROW_COUNT / 2;
 
 typedef enum {
     BLOCK_CONTROLS,
-    BLOCK_EVENT_EDITING,
+    BLOCK_EVENT_SCORE,
     BLOCK_COUNT,
 } active_block_t;
 
@@ -51,6 +51,12 @@ typedef enum {
     SEGMENT_EFFECT_PARAM,
     SEGMENT_COUNT,
 } active_segment_t;
+
+typedef enum {
+    VISUALIZER_MODE_PER_CHANNEL,
+    VISUALIZER_MODE_MIXED,
+    VISUALIZER_MODE_COUNT,
+} visualizer_mode_t;
 
 LilTrackerApp::LilTrackerApp() :
     App("LilTracker", 0, 0, lilka::display.width(), lilka::display.height()), mixer(), sequencer(&mixer) {
@@ -71,238 +77,11 @@ void LilTrackerApp::run() {
 
     if (initialPath.length()) {
         loadTrack(&track, initialPath);
-    } else {
-        // Sample hard-coded song: "Lilka Walks" by Anderson
-        event_t lead_square[] = {
-            {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-            {N_C0, 64, EVENT_TYPE_CONT},
-            {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-            {N_C0, 64, EVENT_TYPE_CONT},
-            //
-            {N_C0, 64, EVENT_TYPE_CONT},
-            {N_C0, 64, EVENT_TYPE_CONT},
-            {N_C0, 64, EVENT_TYPE_CONT},
-            {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-            //
-            {N_C0, 64, EVENT_TYPE_CONT},
-            {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-            {N_C0, 64, EVENT_TYPE_CONT},
-            {N_D4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-            //
-            {N_E4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x02}},
-            {N_C0, 64, EVENT_TYPE_CONT},
-            {N_D4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x02}},
-            {N_C0, 64, EVENT_TYPE_CONT},
-            //
-            {N_C4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-            {N_C0, 64, EVENT_TYPE_CONT},
-            {N_C4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-            {N_C0, 64, EVENT_TYPE_CONT},
-            //
-            {N_C0, 64, EVENT_TYPE_CONT},
-            {N_C0, 64, EVENT_TYPE_CONT},
-            {N_C0, 64, EVENT_TYPE_CONT},
-            {N_A3, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-            //
-            {N_C0, 64, EVENT_TYPE_CONT},
-            {N_B3, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-            {N_C0, 64, EVENT_TYPE_CONT},
-            {N_A3, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x04}},
-            //
-            {N_C4, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x02}},
-            {N_C0, 64, EVENT_TYPE_CONT},
-            {N_B3, 64, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x02}},
-            {N_C0, 64, EVENT_TYPE_CONT},
-        };
-        event_t bass_sawtooth[] = {
-            {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            {N_G2, 0, EVENT_TYPE_STOP},
-            {N_A2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            {N_B2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            //
-            {N_C0, 0, EVENT_TYPE_STOP}, // {N_E2, 0},
-            {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            {N_A2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            {N_B2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            //
-            {N_C0, 0, EVENT_TYPE_STOP}, // {N_E2, 0},
-            {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            {N_A2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            {N_B2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}}, // {N_B2, 0},
-            //
-            {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            {N_A2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            {N_B2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}}, // {N_A2, 0},
-            {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            //
-            {N_C2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            {N_E2, 0, EVENT_TYPE_STOP},
-            {N_F2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            //
-            {N_C0, 0, EVENT_TYPE_STOP}, // {N_C2, 0},
-            {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            {N_F2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            //
-            {N_C0, 0, EVENT_TYPE_STOP}, // {N_C2, 0},
-            {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            {N_F2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}}, // {N_G2, 0},
-            //
-            {N_E2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            {N_F2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-            {N_G2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}}, // {N_F2, 0},
-            {N_C2, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x05}},
-        };
-        event_t chorus_sine[] = {
-            {N_E6, 127, EVENT_TYPE_NORMAL, {EFFECT_TYPE_ARPEGGIO, 0x6C}},
-            {N_C0, 96, EVENT_TYPE_CONT},
-            {N_C0, 64, EVENT_TYPE_CONT},
-            {N_C0, 32, EVENT_TYPE_CONT},
-            //
-            {N_E6, 0, EVENT_TYPE_NORMAL},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_E6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            //
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_E6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_ARPEGGIO, 0x6C}},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            //
-            {N_E6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_E6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x40}},
-            {N_C0, 0, EVENT_TYPE_CONT},
-            //
-            {N_C6, 127, EVENT_TYPE_NORMAL, {EFFECT_TYPE_ARPEGGIO, 0x6C}},
-            {N_C0, 96, EVENT_TYPE_CONT},
-            {N_C0, 64, EVENT_TYPE_CONT},
-            {N_C0, 32, EVENT_TYPE_CONT},
-            //
-            {N_C6, 0, EVENT_TYPE_NORMAL},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_C6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            //
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_C6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_ARPEGGIO, 0x6C}},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            //
-            {N_C6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_C6, 0, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x40}},
-            {N_C0, 0, EVENT_TYPE_STOP},
-        };
-        event_t drums[] = {
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_E6, 0x80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            //
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_E6, 0x80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            //
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_E6, 0x80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            //
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_E6, 0x80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            //
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_E6, 0x80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            //
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_E6, 0x80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            //
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_E6, 0x80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            //
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            {N_E6, 0x80, EVENT_TYPE_NORMAL, {EFFECT_TYPE_VOLUME_SLIDE, 0x06}},
-            {N_C0, 0, EVENT_TYPE_STOP},
-            //
-        };
-
-        {
-            page_t* page;
-
-            track.setPageCount(7);
-
-            page = track.getPage(0);
-            page->patternIndices[0] = 0;
-            page->patternIndices[1] = 2;
-            page->patternIndices[2] = 0;
-
-            page = track.getPage(1);
-            page->patternIndices[0] = 0;
-            page->patternIndices[1] = 2;
-            page->patternIndices[2] = 1;
-
-            page = track.getPage(2);
-            page->patternIndices[0] = 2;
-            page->patternIndices[1] = 2;
-            page->patternIndices[2] = 1;
-
-            page = track.getPage(3);
-            page->patternIndices[0] = 2;
-            page->patternIndices[1] = 2;
-            page->patternIndices[2] = 1;
-
-            page = track.getPage(4);
-            page->patternIndices[0] = 3;
-            page->patternIndices[1] = 2;
-            page->patternIndices[2] = 1;
-
-            page = track.getPage(5);
-            page->patternIndices[0] = 3;
-            page->patternIndices[1] = 2;
-            page->patternIndices[2] = 1;
-
-            page = track.getPage(6);
-            page->patternIndices[0] = 3;
-            page->patternIndices[1] = 2;
-            page->patternIndices[2] = 0;
-
-            Pattern* pattern;
-
-            pattern = track.getPattern(1);
-            pattern->setChannelEvents(2, drums);
-            pattern->setChannelWaveform(2, WAVEFORM_NOISE);
-
-            pattern = track.getPattern(2);
-            pattern->setChannelEvents(0, lead_square);
-            pattern->setChannelWaveform(0, WAVEFORM_SQUARE);
-            pattern->setChannelEvents(1, bass_sawtooth);
-            pattern->setChannelWaveform(1, WAVEFORM_SAWTOOTH);
-            pattern->setChannelEvents(2, chorus_sine);
-            // pattern.setChannelWaveform(2, WAVEFORM_TRIANGLE);
-            pattern->setChannelWaveform(2, WAVEFORM_SINE);
-
-            pattern = track.getPattern(3);
-            pattern->setChannelEvents(0, chorus_sine);
-            pattern->setChannelWaveform(0, WAVEFORM_SINE);
-        }
     }
 
     int pageIndex = 0;
 
-    int8_t activeBlock = BLOCK_EVENT_EDITING;
+    int8_t activeBlock = BLOCK_EVENT_SCORE;
     int scoreCursorX = 0;
     int scoreCursorY = 0;
 
@@ -312,19 +91,11 @@ void LilTrackerApp::run() {
     int controlCursorX = 0;
     int controlCursorY = 0;
 
+    int visualizerMode = VISUALIZER_MODE_PER_CHANNEL;
+
     event_t copiedEvent = {N_C0, MAX_VOLUME, EVENT_TYPE_CONT, {EFFECT_TYPE_NONE, 0}};
 
     char str[64];
-
-    // // Testing serialization/deserialization
-    // uint8_t* buff = new uint8_t[track.calculateWriteBufferSize()];
-    // track.writeToBuffer(buff);
-    // File file = SD.open("/lilka_walks.lt", FILE_WRITE);
-    // file.write(buff, track.calculateWriteBufferSize());
-    // file.close();
-    // track.reset();
-    // track.readFromBuffer(buff);
-    // delete[] buff;
 
     while (1) {
         seq_state_t seqState = sequencer.getSeqState();
@@ -342,35 +113,38 @@ void LilTrackerApp::run() {
         canvas->fillScreen(lilka::colors::Black);
         canvas->setFont(FONT);
 
-        // // Draw mixed buffer
-        // int16_t buffer[MIXER_BUFFER_SIZE];
-        // mixer.readBuffer(buffer);
-        //
-        // int16_t prevX, prevY;
-        // for (int i = 0; i < MIXER_BUFFER_SIZE; i++) {
-        //     int x = i * lilka::display.width() / MIXER_BUFFER_SIZE;
-        //     float amplitude = static_cast<float>(buffer[i]) / 32768 / mixer.getMasterVolume();
-        //     int y = SCORE_HEADER_TOP / 2 - static_cast<int>(amplitude * SCORE_HEADER_TOP / 2);
-        //     if (i > 0) {
-        //         canvas->drawLine(prevX, prevY, x, y, lilka::colors::White);
-        //     }
-        //     prevX = x;
-        //     prevY = y;
-        // }
-
-        // Draw per-channel buffers
         if (seqState.playing || isPreviewing) {
-            for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-                int16_t buffer[MIXER_BUFFER_SIZE];
-                mixer.readBuffer(buffer, channelIndex);
-                int16_t prevX, prevY;
-                int16_t minX = SCORE_COUNTER_WIDTH + channelIndex * SCORE_EVENT_WIDTH;
-                int16_t width = SCORE_EVENT_WIDTH;
+            // Draw visualizer
+            if (visualizerMode == VISUALIZER_MODE_PER_CHANNEL) {
+                // Draw per-channel buffers
+                for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
+                    int16_t buffer[MIXER_BUFFER_SIZE];
+                    mixer.readBuffer(buffer, channelIndex);
+                    int16_t prevX, prevY;
+                    int16_t minX = SCORE_COUNTER_WIDTH + channelIndex * SCORE_EVENT_WIDTH;
+                    int16_t width = SCORE_EVENT_WIDTH;
 
-                for (int i = 0; i < MIXER_BUFFER_SIZE; i += 4) {
-                    int x = minX + i * width / MIXER_BUFFER_SIZE;
-                    int index = i / 2; // Make samples wider for nicer display
-                    float amplitude = static_cast<float>(buffer[index]) / 32768 / mixer.getMasterVolume();
+                    for (int i = 0; i < MIXER_BUFFER_SIZE; i += 4) {
+                        int x = minX + i * width / MIXER_BUFFER_SIZE;
+                        int index = i / 2; // Make samples wider for nicer display
+                        float amplitude = static_cast<float>(buffer[index]) / 32768 / mixer.getMasterVolume();
+                        int y = SCORE_HEADER_TOP / 2 - static_cast<int>(amplitude * SCORE_HEADER_TOP / 2);
+                        if (i > 0) {
+                            canvas->drawLine(prevX, prevY, x, y, lilka::colors::White);
+                        }
+                        prevX = x;
+                        prevY = y;
+                    }
+                }
+            } else {
+                // Draw mixed buffer
+                int16_t buffer[MIXER_BUFFER_SIZE];
+                mixer.readBuffer(buffer);
+
+                int16_t prevX, prevY;
+                for (int i = 0; i < MIXER_BUFFER_SIZE; i++) {
+                    int x = i * lilka::display.width() / MIXER_BUFFER_SIZE;
+                    float amplitude = static_cast<float>(buffer[i]) / 32768 / mixer.getMasterVolume();
                     int y = SCORE_HEADER_TOP / 2 - static_cast<int>(amplitude * SCORE_HEADER_TOP / 2);
                     if (i > 0) {
                         canvas->drawLine(prevX, prevY, x, y, lilka::colors::White);
@@ -503,7 +277,7 @@ void LilTrackerApp::run() {
             if (eventIndex % 4 == 0) {
                 canvas->fillRect(0, y, canvas->width(), SCORE_ITEM_HEIGHT, lilka::colors::Delft_blue);
             }
-            if (eventIndex == scoreCursorY && activeBlock == BLOCK_EVENT_EDITING) {
+            if (eventIndex == scoreCursorY && activeBlock == BLOCK_EVENT_SCORE) {
                 canvas->drawRect(0, y, canvas->width(), SCORE_ITEM_HEIGHT, lilka::colors::Blue);
             }
             canvas->setTextColor(lilka::colors::White, lilka::colors::White);
@@ -525,7 +299,7 @@ void LilTrackerApp::run() {
                     strcpy(str, "???");
                 }
                 bool eventFocused =
-                    activeBlock == BLOCK_EVENT_EDITING && channelIndex == currentChannel && scoreCursorY == eventIndex;
+                    activeBlock == BLOCK_EVENT_SCORE && channelIndex == currentChannel && scoreCursorY == eventIndex;
                 // Note
                 xOffset += drawElement(
                     str,
@@ -698,7 +472,7 @@ void LilTrackerApp::run() {
                     activeBlock = (activeBlock + 1) % BLOCK_COUNT;
                 }
             }
-        } else if (activeBlock == BLOCK_EVENT_EDITING) {
+        } else if (activeBlock == BLOCK_EVENT_SCORE) {
             if (isEditing) {
                 // Edit mode
                 if (state.a.justPressed) {
@@ -806,6 +580,10 @@ void LilTrackerApp::run() {
                         // Stop playing
                         sequencer.stop();
                     }
+
+                    if (state.select.justPressed) {
+                        visualizerMode = (visualizerMode + 1) % VISUALIZER_MODE_COUNT;
+                    }
                 } else {
                     // Not playing
                     if (state.b.justPressed) {
@@ -854,10 +632,13 @@ void LilTrackerApp::run() {
                         // Enter edit mode
                         isEditing = true;
                     }
-                    if (state.select.justPressed) {
+                    if (state.select.justPressed && !isPreviewing) {
                         activeBlock = (activeBlock + 1) % BLOCK_COUNT;
                     }
                 }
+            }
+            if (state.select.justPressed && isPreviewing) {
+                visualizerMode = (visualizerMode + 1) % VISUALIZER_MODE_COUNT;
             }
         }
 
