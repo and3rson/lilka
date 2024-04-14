@@ -1,9 +1,9 @@
 // This is a generated file, do not edit.
 // clang-format off
 #include <stdint.h>
-const uint16_t ship_width = 32;
-const uint16_t ship_height = 32;
-const uint16_t ship[] = {
+const uint16_t ship_img_width = 32;
+const uint16_t ship_img_height = 32;
+const uint16_t ship_img[] = {
     0xffff,
     0xffff,
     0xffff,

@@ -103,7 +103,7 @@ void WiFiConfigApp::run() {
                 signalStrength = 0;
             }
         }
-        menu_icon_t* icons[] = {&wifi_0, &wifi_1, &wifi_2, &wifi_3};
+        menu_icon_t* icons[] = {&wifi_0_img, &wifi_1_img, &wifi_2_img, &wifi_3_img};
         menu.addItem(
             networks[i],
             icons[signalStrength],

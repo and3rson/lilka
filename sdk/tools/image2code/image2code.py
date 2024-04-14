@@ -91,9 +91,9 @@ for fname in sys.argv[1:]:
             print("// This is a generated file, do not edit.", file=f)
             print("// clang-format off", file=f)
             print(f"#include <stdint.h>", file=f)
-            print(f"const uint16_t {var_name}_width = {img.width};", file=f)
-            print(f"const uint16_t {var_name}_height = {img.height};", file=f)
-            print(f"const uint16_t {var_name}[] = {{", file=f)
+            print(f"const uint16_t {var_name}_img_width = {img.width};", file=f)
+            print(f"const uint16_t {var_name}_img_height = {img.height};", file=f)
+            print(f"const uint16_t {var_name}_img[] = {{", file=f)
             for pixel in pixels:
                 print(f"    0x{pixel:04x},", file=f)
             print("};", file=f)
