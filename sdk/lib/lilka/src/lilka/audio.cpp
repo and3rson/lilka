@@ -1,6 +1,5 @@
 #include "audio.h"
 #include "config.h"
-#include "serial.h"
 #include "ping.h"
 
 namespace lilka {
@@ -39,16 +38,20 @@ void ping_task(void* arg) {
 #if LILKA_VERSION == 1
     serial_err("This part of code should never be called. Audio not supported for this version of lilka");
 #elif LILKA_VERSION == 2
+#    ifndef LILKA_NO_AUDIO_HELLO
     // Signed 16-bit PCM
-    // const int16_t* ping = reinterpret_cast<const int16_t*>(ping_raw);
+    const int16_t* ping = reinterpret_cast<const int16_t*>(ping_raw);
 
-    // I2S.begin(I2S_PHILIPS_MODE, 22050, 16);
-    // for (int i = 0; i < ping_raw_size / 2; i++) {
-    //     // TODO: Should use i2s_write & DMA
-    //     I2S.write(ping[i] >> 2);
-    //     I2S.write(ping[i] >> 2);
-    // }
-    // I2S.end();
+    vTaskDelay(400 / portTICK_PERIOD_MS);
+
+    I2S.begin(I2S_PHILIPS_MODE, 22050, 16);
+    for (int i = 0; i < ping_raw_size / 2; i++) {
+        // TODO: Should use i2s_write & DMA
+        I2S.write(ping[i] >> 2);
+        I2S.write(ping[i] >> 2);
+    }
+    I2S.end();
+#    endif
 
     vTaskDelete(NULL);
 #endif
