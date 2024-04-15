@@ -37,7 +37,7 @@ Mixer::Mixer() :
         .communication_format =
             (esp_i2s::i2s_comm_format_t)(esp_i2s::I2S_COMM_FORMAT_STAND_I2S | esp_i2s::I2S_COMM_FORMAT_STAND_MSB),
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
-        .dma_buf_count = 3,
+        .dma_buf_count = 4,
         .dma_buf_len = MIXER_BUFFER_SIZE,
         .use_apll = false,
         .tx_desc_auto_clear = true,

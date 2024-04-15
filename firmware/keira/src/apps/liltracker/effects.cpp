@@ -56,6 +56,8 @@ void effect_vibrato(float time, float relTime, float* frequency, float* amplitud
     uint8_t vibratoDepth = param & 0x0F;
 
     // Calculate the depth of vibrato in terms of radians
+    // TODO: This is not really correct: 1 unit of phase is not 1 semitone, but 1 Hz.
+    // So we should convert below value to Hz based on the current frequency of the note.
     float phaseModulation = vibratoDepth / 15.0f * lilka::fSin360(time * vibratoFrequency * 360);
 
     // Apply the vibrato phase modulation

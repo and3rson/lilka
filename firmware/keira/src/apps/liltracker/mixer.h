@@ -7,8 +7,8 @@
 #include "waveforms.h"
 #include "effects.h"
 
-#define MIXER_BUFFER_SIZE        256
-#define SAMPLE_RATE              16000
+#define MIXER_BUFFER_SIZE        512
+#define SAMPLE_RATE              44100
 #define MIXER_BUFFER_DURATION_MS (MIXER_BUFFER_SIZE * 1000 / SAMPLE_RATE)
 #define SECONDS_PER_SAMPLE       (1.0f / SAMPLE_RATE)
 

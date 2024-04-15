@@ -21,7 +21,7 @@ float triangle(float time, float frequency, float amplitude, float phase) {
 // }
 
 float fast_sine(float time, float frequency, float amplitude, float phase) {
-    return amplitude * lilka::fSin360(frequency * 360 * time + phase);
+    return amplitude * lilka::fSin360(frequency * 360 * time + phase * 360);
 }
 
 // Square wave function
