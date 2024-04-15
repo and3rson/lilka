@@ -12,3 +12,4 @@
 
     configurations
     components
+    every_component
