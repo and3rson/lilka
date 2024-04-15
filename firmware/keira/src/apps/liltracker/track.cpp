@@ -47,7 +47,7 @@ int16_t Track::getUsedPatternCount() {
     Acquire acquire(xMutex, true);
     int16_t count = 1;
     for (int16_t i = 0; i < getPageCount(); i++) {
-        for (int8_t j = 0; j < CHANNEL_COUNT; j++) {
+        for (uint8_t j = 0; j < CHANNEL_COUNT; j++) {
             count = MAX(count, getPage(i)->patternIndices[j] + 1);
         }
     }
@@ -91,7 +91,7 @@ void Track::setPageCount(int16_t count) {
     while (getPageCount() < count) {
         page_t* lastPage = getPageCount() > 0 ? pages.back() : NULL;
         pages.push_back(new page_t());
-        for (int8_t i = 0; i < CHANNEL_COUNT; i++) {
+        for (uint8_t i = 0; i < CHANNEL_COUNT; i++) {
             if (lastPage != NULL) {
                 // Copy pattern indices from last page
                 pages.back()->patternIndices[i] = lastPage->patternIndices[i];
@@ -151,8 +151,7 @@ void Track::reset() {
 int32_t Track::calculateWriteBufferSize() {
     Acquire acquire(xMutex, true);
     int32_t size = 0;
-    size += 4; // Signature
-    size += 64; // Reserved
+    size += 64; // Signature, version, reserved bytes
     size += sizeof(bpm); // BPM
     size += sizeof(int16_t); // Pattern count
     // Patterns
@@ -196,7 +195,7 @@ int32_t Track::writeToBuffer(uint8_t* data) {
     WRITE_TO_BUFFER(data, pageCount);
     // Write pages
     for (int16_t i = 0; i < pageCount; i++) {
-        for (int8_t j = 0; j < CHANNEL_COUNT; j++) {
+        for (uint8_t j = 0; j < CHANNEL_COUNT; j++) {
             WRITE_TO_BUFFER(data, getPage(i)->patternIndices[j]);
         }
     }
@@ -235,7 +234,7 @@ int32_t Track::readFromBuffer(const uint8_t* data) {
     setPageCount(pageCount);
     // Read pages
     for (int16_t i = 0; i < pageCount; i++) {
-        for (int8_t j = 0; j < CHANNEL_COUNT; j++) {
+        for (uint8_t j = 0; j < CHANNEL_COUNT; j++) {
             READ_FROM_BUFFER(getPage(i)->patternIndices[j], data);
         }
     }

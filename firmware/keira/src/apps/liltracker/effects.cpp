@@ -21,7 +21,7 @@ void effect_arpeggio(float time, float relTime, float* frequency, float* amplitu
     (void)amplitude;
     (void)param;
 
-    constexpr int8_t count = 3; // 3 notes
+    constexpr uint8_t count = 3; // 3 notes
 
     uint8_t note2offset = (param & 0xF0) >> 4;
     uint8_t note3offset = (param & 0x0F);
@@ -30,14 +30,14 @@ void effect_arpeggio(float time, float relTime, float* frequency, float* amplitu
     float stepDurationMs = 1000.0f / 60.0f;
 
     // Calculate current arpeggio step
-    int8_t step = ((int64_t)(time / (stepDurationMs / 1000.0f))) % count;
+    uint8_t step = ((int64_t)(time / (stepDurationMs / 1000.0f))) % count;
 
     if (step == 0) {
         // No change
     } else if (step == 1) {
         // Use the second note
         *frequency = modulate_frequency(*frequency, note2offset);
-    } else if (step == 2) {
+    } else {
         // Use the third note
         *frequency = modulate_frequency(*frequency, note3offset);
     }

@@ -35,7 +35,7 @@ void noteinfo_t::fromFrequency(float frequency) {
 // Function to convert musical note to frequency
 float noteinfo_t::toFrequency() {
     // C0 is the lowest note, which is index 0 (as opposed to MIDI's 12)
-    int32_t absIndex = octave * NOTES_PER_OCTAVE + index;
+    int16_t absIndex = octave * NOTES_PER_OCTAVE + index;
     if (absIndex < 0) {
         absIndex = 0;
     }
