@@ -1,7 +1,6 @@
 //
-// ModPlayer – простий програвач MOD-файлів на базі бібліотеки ESP8266Audio для Lilka зі звуковим модулем PCM5102.
-// Автор: Олексій "Alder" Деркач
-// Github: https://github.com/alder
+// ModPlayer – програвач MOD-файлів на базі бібліотеки ESP8266Audio для Lilka зі звуковим модулем PCM5102.
+// Автори: Олексій "Alder" Деркач (https://github.com/alder) та Андрій "and3rson" Дунай (https://github.com/and3rson)
 // Детальніше про формат та його історію — https://en.wikipedia.org/wiki/MOD_(file_format)
 // Найбільший архів з музикою у форматі MOD – https://modarchive.org/
 //
@@ -119,9 +118,12 @@ void ModPlayerApp::mainWindow() {
     canvas->setCursor(32, 32 + 15);
     canvas->println("Програвач MOD");
     canvas->println("------------------------");
-    canvas->println("[A] - Play / Pause");
-    canvas->println("[Up] / [Down] - Гучність");
-    canvas->println("[B] - Вийти");
+    canvas->println("A - Відтворення / пауза");
+    canvas->setFont(FONT_9x15_SYMBOLS);
+    canvas->print("↑ / ↓");
+    canvas->setFont(FONT_9x15);
+    canvas->println(" - Гучність");
+    canvas->println("B - Вихід");
     canvas->println("------------------------");
     canvas->println("Гучність: " + String(info.gain));
     if (info.isFinished) canvas->println("Трек закінчився");

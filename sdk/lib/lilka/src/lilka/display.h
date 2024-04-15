@@ -18,6 +18,7 @@ namespace lilka {
 #define FONT_8x13       u8g2_font_8x13_t_cyrillic
 #define FONT_8x13_MONO  u8g2_font_8x13_mf
 #define FONT_9x15       u8g2_font_9x15_t_cyrillic
+#define FONT_9x15_SYMBOLS u8g2_font_9x15_t_symbols
 #define FONT_10x20      u8g2_font_10x20_t_cyrillic
 #define FONT_10x20_MONO u8g2_font_10x20_mf
 
