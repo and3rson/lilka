@@ -37,7 +37,7 @@ void effect_arpeggio(float time, float relTime, float* frequency, float* amplitu
     } else if (step == 1) {
         // Use the second note
         *frequency = modulate_frequency(*frequency, note2offset);
-    } else if (step == 2) {
+    } else {
         // Use the third note
         *frequency = modulate_frequency(*frequency, note3offset);
     }
