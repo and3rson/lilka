@@ -45,6 +45,7 @@ public:
     void reset();
     int16_t readBuffer(int16_t* targetBuffer);
     int16_t readBuffer(int16_t* targetBuffer, uint8_t channelIndex);
+    void setMasterVolume(float volume);
     float getMasterVolume();
 
 private:

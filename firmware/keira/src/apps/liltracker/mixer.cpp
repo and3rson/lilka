@@ -4,6 +4,7 @@
 // #include "WiFi.h"
 #include "mixer.h"
 #include "config.h"
+#include "utils/acquire.h"
 
 typedef struct {
     waveform_t waveform;
@@ -17,7 +18,7 @@ typedef struct {
 } channel_state_t;
 
 Mixer::Mixer() :
-    xMutex(xSemaphoreCreateBinary()),
+    xMutex(xSemaphoreCreateMutex()),
     xQueue(xQueueCreate(CHANNEL_COUNT * MIXER_COMMAND_COUNT, sizeof(mixer_command_t))),
     masterVolume(0.25) {
     constexpr uint8_t pinCount = 3;
@@ -157,6 +158,11 @@ void Mixer::mixerTask() {
             }
         }
         // Mix the channels
+        float _masterVolume;
+        {
+            Acquire lock(xMutex);
+            _masterVolume = masterVolume;
+        }
         int64_t mixStart = millis();
         // float timeSec = (float)time / SAMPLE_RATE;
         for (int16_t i = 0; i < MIXER_BUFFER_SIZE; i++) {
@@ -178,17 +184,20 @@ void Mixer::mixerTask() {
                     effect_fn_t effect_fn = effect_functions[effect.type];
                     effect_fn(timeSec, relTime, &modFrequency, &modVolume, &modPhase, effect.param);
                     channelAudioBuffers[channelIndex][i] =
-                        waveform_fn(timeSec, modFrequency, modVolume, modPhase) * masterVolume * 32767;
+                        waveform_fn(timeSec, modFrequency, modVolume, modPhase) * _masterVolume * 32767;
                 }
             }
             // audioBuffer[i] /= CHANNEL_COUNT;
         }
-        for (int16_t i = 0; i < MIXER_BUFFER_SIZE; i++) {
-            audioBuffer[i] = 0;
-            for (uint8_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-                audioBuffer[i] += channelAudioBuffers[channelIndex][i];
+        {
+            Acquire lock(xMutex);
+            for (int16_t i = 0; i < MIXER_BUFFER_SIZE; i++) {
+                audioBuffer[i] = 0;
+                for (uint8_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
+                    audioBuffer[i] += channelAudioBuffers[channelIndex][i];
+                }
+                audioBuffer[i] /= CHANNEL_COUNT;
             }
-            audioBuffer[i] /= CHANNEL_COUNT;
         }
         int64_t mixEnd = millis();
         // Check if time spent mixing is more than the duration of the buffer
@@ -204,16 +213,17 @@ void Mixer::mixerTask() {
 
         size_t bytesWritten = 0;
         esp_i2s::i2s_write(esp_i2s::I2S_NUM_0, audioBuffer, MIXER_BUFFER_SIZE * 2, &bytesWritten, portMAX_DELAY);
-        xSemaphoreTake(xMutex, portMAX_DELAY);
-        memcpy(audioBufferCopy, audioBuffer, sizeof(int16_t) * MIXER_BUFFER_SIZE);
-        for (uint8_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-            memcpy(
-                channelAudioBuffersCopy[channelIndex],
-                channelAudioBuffers[channelIndex],
-                sizeof(int16_t) * MIXER_BUFFER_SIZE
-            );
+        {
+            Acquire lock(xMutex);
+            memcpy(audioBufferCopy, audioBuffer, sizeof(int16_t) * MIXER_BUFFER_SIZE);
+            for (uint8_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
+                memcpy(
+                    channelAudioBuffersCopy[channelIndex],
+                    channelAudioBuffers[channelIndex],
+                    sizeof(int16_t) * MIXER_BUFFER_SIZE
+                );
+            }
         }
-        xSemaphoreGive(xMutex);
         time += bytesWritten / 2;
         // taskYIELD();
         vTaskDelay(1); // Needed to wait for UI to be able to acquire the mutex... Probably can go back to taskYIELD now
@@ -224,19 +234,23 @@ void Mixer::mixerTask() {
 }
 
 int16_t Mixer::readBuffer(int16_t* targetBuffer) {
-    xSemaphoreTake(xMutex, portMAX_DELAY);
+    Acquire lock(xMutex);
     memcpy(targetBuffer, audioBufferCopy, sizeof(int16_t) * MIXER_BUFFER_SIZE);
-    xSemaphoreGive(xMutex);
     return MIXER_BUFFER_SIZE;
 }
 
 int16_t Mixer::readBuffer(int16_t* targetBuffer, uint8_t channelIndex) {
-    xSemaphoreTake(xMutex, portMAX_DELAY);
+    Acquire lock(xMutex);
     memcpy(targetBuffer, channelAudioBuffersCopy[channelIndex], sizeof(int16_t) * MIXER_BUFFER_SIZE);
-    xSemaphoreGive(xMutex);
     return MIXER_BUFFER_SIZE;
 }
 
+void Mixer::setMasterVolume(float volume) {
+    Acquire lock(xMutex);
+    masterVolume = fmaxf(0.0f, fminf(1.0f, volume));
+}
+
 float Mixer::getMasterVolume() {
+    Acquire lock(xMutex);
     return masterVolume;
 }

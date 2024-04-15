@@ -2,7 +2,7 @@
 #include "lilka/serial.h"
 #include "utils/acquire.h"
 
-Sequencer::Sequencer(Mixer* mixer) : xMutex(xSemaphoreCreateBinary()), mixer(mixer) {
+Sequencer::Sequencer(Mixer* mixer) : xMutex(xSemaphoreCreateMutex()), mixer(mixer) {
     playstate.playing = false;
     playstate.eventIndex = 0;
     playstate.pageIndex = 0;

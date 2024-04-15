@@ -17,18 +17,18 @@
 // Overall layout
 constexpr int32_t ITEM_HEIGHT = 15;
 
-// Score header
-constexpr int32_t SCORE_HEADER_TOP = 64;
-
 // Title
 constexpr int32_t TITLE_HEIGHT = 20;
 
 // Controls
-constexpr int32_t CONTROL_TOP = TITLE_HEIGHT + (SCORE_HEADER_TOP - TITLE_HEIGHT - ITEM_HEIGHT * 2) / 2;
-constexpr int32_t CONTROL_ROWS = 2;
+constexpr int32_t CONTROL_TOP = TITLE_HEIGHT;
+constexpr int32_t CONTROL_ROWS = 3;
 constexpr int32_t CONTROL_COLS = 3;
 constexpr int32_t CONTROL_PADDING_LEFT = 32;
 const int32_t CONTROL_WIDTH = (lilka::display.width() - CONTROL_PADDING_LEFT) / CONTROL_COLS;
+
+// Score header
+constexpr int32_t SCORE_HEADER_TOP = CONTROL_TOP + ITEM_HEIGHT * CONTROL_ROWS;
 
 // Score
 constexpr int32_t SCORE_TOP = SCORE_HEADER_TOP + ITEM_HEIGHT;
@@ -56,6 +56,14 @@ typedef enum : uint8_t {
     SEGMENT_EFFECT_PARAM,
     SEGMENT_COUNT,
 } active_segment_t;
+
+typedef enum : uint8_t {
+    CONTROL_ROW_0_BUTTONS,
+    CONTROL_ROW_1_SETTINGS,
+    CONTROL_ROW_2_SETTINGS,
+    CONTROL_ROW_3_PATTERNS,
+    CONTROL_ROW_COUNT,
+} control_row_t;
 
 typedef enum : uint8_t {
     VISUALIZER_MODE_PER_CHANNEL,
@@ -94,7 +102,7 @@ void LilTrackerApp::run() {
     bool isPreviewing = false;
 
     int controlCursorX = 0;
-    int controlCursorY = 0;
+    int controlCursorY = CONTROL_ROW_0_BUTTONS;
 
     int visualizerMode = VISUALIZER_MODE_PER_CHANNEL;
 
@@ -118,8 +126,16 @@ void LilTrackerApp::run() {
         canvas->fillScreen(lilka::colors::Black);
         canvas->setFont(FONT);
 
+        float masterVolume = mixer.getMasterVolume();
+
         if (seqState.playing || isPreviewing) {
             // Draw visualizer
+            float graphScale = 1.0f;
+            if (masterVolume > 0.01f) {
+                graphScale = 1.0f / masterVolume;
+            } else {
+                graphScale = 0.0f;
+            }
             if (visualizerMode == VISUALIZER_MODE_PER_CHANNEL) {
                 // Draw per-channel buffers
                 for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
@@ -132,7 +148,7 @@ void LilTrackerApp::run() {
                     for (int i = 0; i < MIXER_BUFFER_SIZE; i += 4) {
                         int x = minX + i * width / MIXER_BUFFER_SIZE;
                         int index = i / 2; // Make samples wider for nicer display
-                        float amplitude = static_cast<float>(buffer[index]) / 32768 / mixer.getMasterVolume();
+                        float amplitude = static_cast<float>(buffer[index]) / 32768.0f * graphScale;
                         int y = SCORE_HEADER_TOP / 2 - static_cast<int>(amplitude * SCORE_HEADER_TOP / 2);
                         if (i > 0) {
                             canvas->drawLine(prevX, prevY, x, y, lilka::colors::White);
@@ -149,7 +165,7 @@ void LilTrackerApp::run() {
                 int16_t prevX, prevY;
                 for (int i = 0; i < MIXER_BUFFER_SIZE; i++) {
                     int x = i * lilka::display.width() / MIXER_BUFFER_SIZE;
-                    float amplitude = static_cast<float>(buffer[i]) / 32768 / mixer.getMasterVolume();
+                    float amplitude = static_cast<float>(buffer[i]) / 32768.0f * graphScale;
                     int y = SCORE_HEADER_TOP / 2 - static_cast<int>(amplitude * SCORE_HEADER_TOP / 2);
                     if (i > 0) {
                         canvas->drawLine(prevX, prevY, x, y, lilka::colors::White);
@@ -169,49 +185,10 @@ void LilTrackerApp::run() {
 
             canvas->setFont(FONT);
 
-            // Draw current page info and pattern indices
-            sprintf(str, "Page: %02X", pageIndex);
-            bool isPageSelFocused = activeBlock == BLOCK_CONTROLS && controlCursorX == 0 && controlCursorY == 0;
-            drawElement(
-                str,
-                CONTROL_PADDING_LEFT,
-                CONTROL_TOP + ITEM_HEIGHT / 2,
-                lilka::ALIGN_START,
-                lilka::ALIGN_CENTER,
-                isPageSelFocused && isEditing,
-                isPageSelFocused,
-                lilka::colors::Uranian_blue
-            );
-
-            bool isBPMFocused = activeBlock == BLOCK_CONTROLS && controlCursorX == 1 && controlCursorY == 0;
-            sprintf(str, "BPM: %3d", track.getBPM());
-            drawElement(
-                str,
-                CONTROL_PADDING_LEFT + CONTROL_WIDTH,
-                CONTROL_TOP + ITEM_HEIGHT / 2,
-                lilka::ALIGN_START,
-                lilka::ALIGN_CENTER,
-                isBPMFocused && isEditing,
-                isBPMFocused,
-                lilka::colors::Uranian_blue
-            );
-
-            bool isLengthFocused = activeBlock == BLOCK_CONTROLS && controlCursorX == 2 && controlCursorY == 0;
-            sprintf(str, "Len: %3d", track.getPageCount());
-            drawElement(
-                str,
-                CONTROL_PADDING_LEFT + CONTROL_WIDTH * 2,
-                CONTROL_TOP + ITEM_HEIGHT / 2,
-                lilka::ALIGN_START,
-                lilka::ALIGN_CENTER,
-                isLengthFocused && isEditing,
-                isLengthFocused,
-                lilka::colors::Uranian_blue
-            );
-
             // Draw buttons (load/save/reset)
             for (int i = 0; i < 3; i++) {
-                bool isFocused = activeBlock == BLOCK_CONTROLS && controlCursorX == i && controlCursorY == 1;
+                bool isFocused =
+                    activeBlock == BLOCK_CONTROLS && controlCursorX == i && controlCursorY == CONTROL_ROW_0_BUTTONS;
                 const char* buttonText;
                 if (i == 0) {
                     buttonText = "Load";
@@ -223,7 +200,7 @@ void LilTrackerApp::run() {
                 drawElement(
                     buttonText,
                     CONTROL_PADDING_LEFT + CONTROL_WIDTH * i,
-                    CONTROL_TOP + ITEM_HEIGHT * 3 / 2,
+                    CONTROL_TOP + ITEM_HEIGHT / 2,
                     lilka::ALIGN_START,
                     lilka::ALIGN_CENTER,
                     isFocused && isEditing,
@@ -231,7 +208,88 @@ void LilTrackerApp::run() {
                     lilka::colors::Uranian_blue
                 );
             }
-            canvas->setFont(FONT);
+
+            // Draw current page index, BPM and length
+            sprintf(str, "Page: %02X", pageIndex);
+            bool isPageSelFocused =
+                activeBlock == BLOCK_CONTROLS && controlCursorX == 0 && controlCursorY == CONTROL_ROW_1_SETTINGS;
+            drawElement(
+                str,
+                CONTROL_PADDING_LEFT,
+                CONTROL_TOP + ITEM_HEIGHT * 3 / 2,
+                lilka::ALIGN_START,
+                lilka::ALIGN_CENTER,
+                isPageSelFocused && isEditing,
+                isPageSelFocused,
+                lilka::colors::Uranian_blue
+            );
+
+            bool isBPMFocused =
+                activeBlock == BLOCK_CONTROLS && controlCursorX == 1 && controlCursorY == CONTROL_ROW_1_SETTINGS;
+            sprintf(str, "BPM: %3d", track.getBPM());
+            drawElement(
+                str,
+                CONTROL_PADDING_LEFT + CONTROL_WIDTH,
+                CONTROL_TOP + ITEM_HEIGHT * 3 / 2,
+                lilka::ALIGN_START,
+                lilka::ALIGN_CENTER,
+                isBPMFocused && isEditing,
+                isBPMFocused,
+                lilka::colors::Uranian_blue
+            );
+
+            bool isLengthFocused =
+                activeBlock == BLOCK_CONTROLS && controlCursorX == 2 && controlCursorY == CONTROL_ROW_1_SETTINGS;
+            sprintf(str, "Len: %3d", track.getPageCount());
+            drawElement(
+                str,
+                CONTROL_PADDING_LEFT + CONTROL_WIDTH * 2,
+                CONTROL_TOP + ITEM_HEIGHT * 3 / 2,
+                lilka::ALIGN_START,
+                lilka::ALIGN_CENTER,
+                isLengthFocused && isEditing,
+                isLengthFocused,
+                lilka::colors::Uranian_blue
+            );
+
+            // Draw 2 unused sections & master volume
+            bool isUnused0Focused =
+                activeBlock == BLOCK_CONTROLS && controlCursorX == 0 && controlCursorY == CONTROL_ROW_2_SETTINGS;
+            drawElement(
+                "-",
+                CONTROL_PADDING_LEFT,
+                CONTROL_TOP + ITEM_HEIGHT * 5 / 2,
+                lilka::ALIGN_START,
+                lilka::ALIGN_CENTER,
+                false,
+                isUnused0Focused,
+                lilka::colors::Uranian_blue
+            );
+            bool isUnused1Focused =
+                activeBlock == BLOCK_CONTROLS && controlCursorX == 1 && controlCursorY == CONTROL_ROW_2_SETTINGS;
+            drawElement(
+                "-",
+                CONTROL_PADDING_LEFT + CONTROL_WIDTH,
+                CONTROL_TOP + ITEM_HEIGHT * 5 / 2,
+                lilka::ALIGN_START,
+                lilka::ALIGN_CENTER,
+                false,
+                isUnused1Focused,
+                lilka::colors::Uranian_blue
+            );
+            sprintf(str, "Vol: %.0f%%", roundf(masterVolume * 100));
+            bool isMasterVolumeFocused =
+                activeBlock == BLOCK_CONTROLS && controlCursorX == 2 && controlCursorY == CONTROL_ROW_2_SETTINGS;
+            drawElement(
+                str,
+                CONTROL_PADDING_LEFT + CONTROL_WIDTH * 2,
+                CONTROL_TOP + ITEM_HEIGHT * 5 / 2,
+                lilka::ALIGN_START,
+                lilka::ALIGN_CENTER,
+                isMasterVolumeFocused && isEditing,
+                isMasterVolumeFocused,
+                masterVolume < 0.5 ? lilka::colors::Uranian_blue : lilka::colors::Red
+            );
         }
 
         // Draw channel waveform names
@@ -242,8 +300,8 @@ void LilTrackerApp::run() {
         );
 
         for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-            bool isChannelWaveformFocused =
-                activeBlock == BLOCK_CONTROLS && controlCursorY == 2 && controlCursorX == channelIndex;
+            bool isChannelWaveformFocused = activeBlock == BLOCK_CONTROLS && controlCursorY == CONTROL_ROW_3_PATTERNS &&
+                                            controlCursorX == channelIndex;
             sprintf(str, "%02X", page->patternIndices[channelIndex]);
             drawElement(
                 str,
@@ -380,7 +438,9 @@ void LilTrackerApp::run() {
                 }
                 if (state.up.justPressed || state.down.justPressed || state.left.justPressed ||
                     state.right.justPressed) {
-                    if (controlCursorY == 0) {
+                    if (controlCursorY == CONTROL_ROW_0_BUTTONS) {
+                        // Unreachable
+                    } else if (controlCursorY == CONTROL_ROW_1_SETTINGS) {
                         if (controlCursorX == 0) {
                             // Select page
                             if (state.up.justPressed || state.left.justPressed) {
@@ -411,9 +471,20 @@ void LilTrackerApp::run() {
                                 }
                             }
                         }
-                    } else if (controlCursorY == 1) {
-                        // Unreachable
-                    } else if (controlCursorY == 2) {
+                    } else if (controlCursorY == CONTROL_ROW_2_SETTINGS) {
+                        if (controlCursorX == 0) {
+                            // No-op
+                        } else if (controlCursorX == 1) {
+                            // No-op
+                        } else if (controlCursorX == 2) {
+                            // Adjust master volume
+                            if (state.up.justPressed) {
+                                mixer.setMasterVolume(mixer.getMasterVolume() + 0.05);
+                            } else if (state.down.justPressed) {
+                                mixer.setMasterVolume(mixer.getMasterVolume() - 0.05);
+                            }
+                        }
+                    } else if (controlCursorY == CONTROL_ROW_3_PATTERNS) {
                         // Select waveform for pattern's channel
                         if (state.left.justPressed) {
                             // Previous channel
@@ -436,7 +507,7 @@ void LilTrackerApp::run() {
                 if (state.a.justPressed) {
                     // Enter edit mode
 
-                    if (controlCursorY == 1) {
+                    if (controlCursorY == CONTROL_ROW_0_BUTTONS) {
                         if (controlCursorX == 0) {
                             // Load
                             String filename = filePicker(false);
@@ -461,6 +532,8 @@ void LilTrackerApp::run() {
                                 scoreCursorY = 0;
                             }
                         }
+                    } else if (controlCursorY == CONTROL_ROW_2_SETTINGS && (controlCursorX == 0 || controlCursorX == 1)) {
+                        // No-op
                     } else {
                         isEditing = true;
                     }
@@ -594,6 +667,13 @@ void LilTrackerApp::run() {
 
                     if (state.select.justPressed) {
                         visualizerMode = (visualizerMode + 1) % VISUALIZER_MODE_COUNT;
+                    }
+
+                    // Adjust master volume
+                    if (state.up.justPressed) {
+                        mixer.setMasterVolume(mixer.getMasterVolume() + 0.05);
+                    } else if (state.down.justPressed) {
+                        mixer.setMasterVolume(mixer.getMasterVolume() - 0.05);
                     }
                 } else {
                     // Not playing
