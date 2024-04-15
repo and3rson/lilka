@@ -91,7 +91,7 @@ void Sequencer::sequencerTask() {
             {
                 Acquire acquire(xMutex);
                 const page_t* page = playstate.track->getPage(playstate.pageIndex);
-                for (int32_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
+                for (uint8_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
                     Pattern* pattern = playstate.track->getPattern(page->patternIndices[channelIndex]);
                     event_t event = pattern->getChannelEvent(channelIndex, playstate.eventIndex);
                     // waveform_t waveform = pattern->getChannelWaveform(channelIndex);
