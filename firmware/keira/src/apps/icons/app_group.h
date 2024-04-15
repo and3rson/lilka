@@ -1,9 +1,9 @@
 // This is a generated file, do not edit.
 // clang-format off
 #include <stdint.h>
-const uint16_t app_group_width = 24;
-const uint16_t app_group_height = 24;
-const uint16_t app_group[] = {
+const uint16_t app_group_img_width = 24;
+const uint16_t app_group_img_height = 24;
+const uint16_t app_group_img[] = {
     0x0000,
     0x0000,
     0x0000,

@@ -1,9 +1,9 @@
 // This is a generated file, do not edit.
 // clang-format off
 #include <stdint.h>
-const uint16_t wifi_1_width = 24;
-const uint16_t wifi_1_height = 24;
-const uint16_t wifi_1[] = {
+const uint16_t wifi_1_img_width = 24;
+const uint16_t wifi_1_img_height = 24;
+const uint16_t wifi_1_img[] = {
     0x0000,
     0x0000,
     0x0000,

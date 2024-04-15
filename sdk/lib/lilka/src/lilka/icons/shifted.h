@@ -1,9 +1,9 @@
 // This is a generated file, do not edit.
 // clang-format off
 #include <stdint.h>
-const uint16_t shifted_width = 20;
-const uint16_t shifted_height = 20;
-const uint16_t shifted[] = {
+const uint16_t shifted_img_width = 20;
+const uint16_t shifted_img_height = 20;
+const uint16_t shifted_img[] = {
     0x0000,
     0x0000,
     0x0000,

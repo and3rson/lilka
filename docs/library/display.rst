@@ -9,6 +9,9 @@
 .. doxygenclass:: lilka::Canvas
     :members:
 
+.. doxygenclass:: lilka::GFX
+    :members:
+
 .. doxygenclass:: lilka::Image
     :members:
 

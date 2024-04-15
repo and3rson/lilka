@@ -16,7 +16,7 @@
 StatusBarApp::StatusBarApp() : App("StatusBar", 0, 0, lilka::display.width(), 24) {
 }
 
-const uint16_t* icons[] = {wifi_0, wifi_1, wifi_2, wifi_3};
+const uint16_t* icons[] = {wifi_0_img, wifi_1_img, wifi_2_img, wifi_3_img};
 
 void StatusBarApp::run() {
     lilka::Canvas iconCanvas(240, 24);
@@ -58,15 +58,15 @@ int16_t StatusBarApp::drawIcons(lilka::Canvas* iconCanvas) {
     int16_t barHeight = 10;
     int16_t barWidthUsed = barWidth * (totalRAM - freeRAM) / totalRAM;
     iconCanvas->fillRect(xOffset + padding, padding, barWidthUsed, barHeight, lilka::colors::Red);
-    iconCanvas->draw16bitRGBBitmapWithTranColor(xOffset, 0, ram, lilka::colors::Black, 24, 24);
+    iconCanvas->draw16bitRGBBitmapWithTranColor(xOffset, 0, ram_img, lilka::colors::Black, 24, 24);
     xOffset += 4 + 24;
 
     // Draw WiFi signal strength
     if (networkService != NULL) {
         if (networkService->getNetworkState() == NETWORK_STATE_OFFLINE) {
-            iconCanvas->draw16bitRGBBitmapWithTranColor(xOffset, 0, wifi_offline, 0, 24, 24);
+            iconCanvas->draw16bitRGBBitmapWithTranColor(xOffset, 0, wifi_offline_img, 0, 24, 24);
         } else if (networkService->getNetworkState() == NETWORK_STATE_CONNECTING) {
-            iconCanvas->draw16bitRGBBitmapWithTranColor(xOffset, 0, wifi_connecting, 0, 24, 24);
+            iconCanvas->draw16bitRGBBitmapWithTranColor(xOffset, 0, wifi_connecting_img, 0, 24, 24);
         } else if (networkService->getNetworkState() == NETWORK_STATE_ONLINE) {
             iconCanvas->draw16bitRGBBitmapWithTranColor(
                 xOffset, 0, icons[networkService->getSignalStrength()], 0, 24, 24
@@ -78,7 +78,7 @@ int16_t StatusBarApp::drawIcons(lilka::Canvas* iconCanvas) {
     // Draw battery
     int level = lilka::battery.readLevel();
     if (level == -1) {
-        iconCanvas->draw16bitRGBBitmapWithTranColor(xOffset, 0, battery_absent, lilka::colors::Fuchsia, 16, 24);
+        iconCanvas->draw16bitRGBBitmapWithTranColor(xOffset, 0, battery_absent_img, lilka::colors::Fuchsia, 16, 24);
         xOffset += 4 + 16;
     } else {
         int16_t x1 = 4, y1 = 6;
@@ -88,7 +88,7 @@ int16_t StatusBarApp::drawIcons(lilka::Canvas* iconCanvas) {
         int emptyHeight = fullHeight - filledHeight;
         int16_t color = level > 50 ? lilka::colors::Green : (level > 20 ? lilka::colors::Yellow : lilka::colors::Red);
         iconCanvas->draw16bitRGBBitmapWithTranColor(
-            xOffset, 0, level > 10 ? battery : battery_danger, lilka::colors::Fuchsia, 16, 24
+            xOffset, 0, level > 10 ? battery_img : battery_danger_img, lilka::colors::Fuchsia, 16, 24
         );
         iconCanvas->fillRect(xOffset + x1, y1 + emptyHeight, width, filledHeight, color);
         xOffset += 4 + 16;

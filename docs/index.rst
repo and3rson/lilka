@@ -18,12 +18,25 @@
     manual/index
     keira/index
     library/index
-    faq
+    faq/index
     glossary
+    community
 
-.. sidebar-links::
-    :caption: Посилання:
-    :github:
+.. .. sidebar-links::
+..     :caption: Посилання:
+..     :github:
+
+.. toctree::
+    :caption: Посилання
+
+    GitHub <https://github.com/and3rson/lilka>
+    Discord <https://discord.gg/HU68TaKCu6>
+
+.. toctree::
+    :caption: Проєкти нашої спільноти
+
+    "Rustilka": Rust для Лілки <https://rust.lilka.dev>
+    "MeowUI": альтернативний UI для Лілки <https://github.com/Kolodieiev/MeowUI>
 
 Indices and tables
 ==================

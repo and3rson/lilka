@@ -4,6 +4,7 @@
 class NesApp : public App {
 public:
     explicit NesApp(String path);
+    ~NesApp();
 
 private:
     void run();

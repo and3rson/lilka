@@ -25,7 +25,7 @@ private:
     App* panel;
     std::vector<App*> apps;
     static AppManager* instance;
-    SemaphoreHandle_t mutex;
+    SemaphoreHandle_t lock;
 
     String toastMessage;
     uint64_t toastStartTime;

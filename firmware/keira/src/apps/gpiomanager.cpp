@@ -43,7 +43,7 @@ void GPIOManagerApp::run() {
             for (int i = 0; i < PIN_COUNT; i++) {
                 menu.addItem(
                     String(pinNo[i]) + (pinM[i] == INPUT ? " <- IN" : " -> OUT"),
-                    pinM[i] == INPUT ? &input : &output,
+                    pinM[i] == INPUT ? &input_img : &output_img,
                     0,
                     pinData[i] == HIGH ? "HIGH" : "LOW"
                 );
