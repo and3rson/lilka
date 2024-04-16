@@ -150,7 +150,7 @@ const menu_icon_t* get_file_icon(const String& filename) {
         return &lua_img;
     } else if (lowerCasedFileName.endsWith(".js")) {
         return &js_img;
-    } else if (lowerCasedFileName.endsWith(".mod")) {
+    } else if (lowerCasedFileName.endsWith(".mod") || lowerCasedFileName.endsWith(".lt")) {
         return &music;
     } else {
         return &normalfile_img;
@@ -168,7 +168,7 @@ const uint16_t get_file_color(const String& filename) {
         return lilka::colors::Maya_blue;
     } else if (lowerCasedFileName.endsWith(".js")) {
         return lilka::colors::Butterscotch;
-    } else if (lowerCasedFileName.endsWith(".mod")) {
+    } else if (lowerCasedFileName.endsWith(".mod") || lowerCasedFileName.endsWith(".lt")) {
         return lilka::colors::Pink_lace;
     } else {
         return lilka::colors::Light_gray;

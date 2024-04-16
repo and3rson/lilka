@@ -3,6 +3,7 @@
 #include "liltracker.h"
 #include "note.h"
 #include "i2s_sink.h"
+#include "wav_sink.h"
 #include "utils/defer.h"
 
 #include "icons/liltracker_icons.h"
@@ -35,7 +36,8 @@ constexpr int32_t SCORE_HEADER_TOP = CONTROL_TOP + ITEM_HEIGHT * CONTROL_ROWS;
 constexpr int32_t SCORE_TOP = SCORE_HEADER_TOP + ITEM_HEIGHT;
 const int32_t SCORE_HEIGHT = lilka::display.height() - SCORE_TOP;
 constexpr int32_t SCORE_ITEM_HEIGHT = ITEM_HEIGHT;
-const uint8_t* FONT = FONT_8x13_MONO;
+const uint8_t* FONT = FONT_8x13;
+const uint8_t* SCORE_FONT = FONT_8x13_MONO;
 constexpr int32_t SCORE_COUNTER_WIDTH = 32;
 const int32_t SCORE_EVENT_WIDTH = (lilka::display.width() - SCORE_COUNTER_WIDTH) / CHANNEL_COUNT;
 const int32_t SCORE_ROW_COUNT = SCORE_HEIGHT / ITEM_HEIGHT;
@@ -89,8 +91,10 @@ xSemaphoreHandle xMutex;
 void LilTrackerApp::run() {
     Track track;
 
-    I2SSink sink;
-    sequencer.setSink(&sink);
+    I2SSink i2sSink;
+    sequencer.setSink(&i2sSink);
+
+    WAVSink* wavSink = NULL;
 
     if (initialPath.length()) {
         loadTrack(&track, initialPath);
@@ -120,6 +124,12 @@ void LilTrackerApp::run() {
         if (seqState.playing) {
             scoreCursorY = seqState.eventIndex;
             pageIndex = seqState.pageIndex;
+        }
+
+        if (!seqState.playing && wavSink) {
+            delete wavSink;
+            wavSink = NULL;
+            sequencer.setSink(&i2sSink);
         }
 
         int currentChannel = scoreCursorX / SEGMENT_COUNT;
@@ -195,11 +205,11 @@ void LilTrackerApp::run() {
                     activeBlock == BLOCK_CONTROLS && controlCursorX == i && controlCursorY == CONTROL_ROW_0_BUTTONS;
                 const char* buttonText;
                 if (i == 0) {
-                    buttonText = "Load";
+                    buttonText = "Відкрити";
                 } else if (i == 1) {
-                    buttonText = "Save";
+                    buttonText = "Зберегти";
                 } else {
-                    buttonText = "Reset";
+                    buttonText = "Скинути";
                 }
                 drawElement(
                     buttonText,
@@ -256,7 +266,7 @@ void LilTrackerApp::run() {
                 lilka::colors::Uranian_blue
             );
 
-            // Draw 2 unused sections & master volume
+            // Draw unused section, WAV render & master volume
             bool isUnused0Focused =
                 activeBlock == BLOCK_CONTROLS && controlCursorX == 0 && controlCursorY == CONTROL_ROW_2_SETTINGS;
             drawElement(
@@ -269,16 +279,16 @@ void LilTrackerApp::run() {
                 isUnused0Focused,
                 lilka::colors::Uranian_blue
             );
-            bool isUnused1Focused =
+            bool isWAVRenderFocused =
                 activeBlock == BLOCK_CONTROLS && controlCursorX == 1 && controlCursorY == CONTROL_ROW_2_SETTINGS;
             drawElement(
-                "-",
+                "Запис WAV",
                 CONTROL_PADDING_LEFT + CONTROL_WIDTH,
                 CONTROL_TOP + ITEM_HEIGHT * 5 / 2,
                 lilka::ALIGN_START,
                 lilka::ALIGN_CENTER,
                 false,
-                isUnused1Focused,
+                isWAVRenderFocused,
                 lilka::colors::Uranian_blue
             );
             sprintf(str, "Vol: %.0f%%", roundf(masterVolume * 100));
@@ -319,6 +329,8 @@ void LilTrackerApp::run() {
             );
         }
 
+        // Draw score
+        canvas->setFont(SCORE_FONT);
         for (int eventIndex = 0; eventIndex < CHANNEL_SIZE; eventIndex++) {
             int scoreRowIndex = eventIndex - scoreCursorY + SCORE_MIDDLE_ROW_INDEX - 1;
             if (scoreRowIndex < 0 || scoreRowIndex >= SCORE_ROW_COUNT) {
@@ -435,126 +447,136 @@ void LilTrackerApp::run() {
         lilka::State state = lilka::controller.getState();
 
         if (activeBlock == BLOCK_CONTROLS) {
-            if (isEditing) {
-                if (state.a.justPressed) {
-                    // Exit edit mode
-                    isEditing = false;
-                }
-                if (state.up.justPressed || state.down.justPressed || state.left.justPressed ||
-                    state.right.justPressed) {
-                    if (controlCursorY == CONTROL_ROW_0_BUTTONS) {
-                        // Unreachable
-                    } else if (controlCursorY == CONTROL_ROW_1_SETTINGS) {
-                        if (controlCursorX == 0) {
-                            // Select page
-                            if (state.up.justPressed || state.left.justPressed) {
-                                pageIndex = (pageIndex - 1 + track.getPageCount()) % track.getPageCount();
-                            } else if (state.down.justPressed || state.right.justPressed) {
-                                pageIndex = (pageIndex + 1) % track.getPageCount();
-                            }
-                        } else if (controlCursorX == 1) {
-                            // Adjust BPM
-                            if (state.up.justPressed) {
-                                track.setBPM(track.getBPM() + 1);
-                            } else if (state.down.justPressed) {
-                                track.setBPM(track.getBPM() - 1);
-                            } else if (state.left.justPressed) {
-                                track.setBPM(track.getBPM() - 5);
-                            } else if (state.right.justPressed) {
-                                track.setBPM(track.getBPM() + 5);
-                            }
-                        } else if (controlCursorX == 2) {
-                            // Adjust length
-                            if (state.up.justPressed) {
-                                track.setPageCount(track.getPageCount() + 1);
-                            } else if (state.down.justPressed) {
-                                track.setPageCount(track.getPageCount() - 1);
-                                if (pageIndex >= track.getPageCount()) {
-                                    // Adjust current page if it's out of bounds
-                                    pageIndex = track.getPageCount() - 1;
+            if (!seqState.playing) {
+                if (isEditing) {
+                    if (state.a.justPressed) {
+                        // Exit edit mode
+                        isEditing = false;
+                    }
+                    if (state.up.justPressed || state.down.justPressed || state.left.justPressed ||
+                        state.right.justPressed) {
+                        if (controlCursorY == CONTROL_ROW_0_BUTTONS) {
+                            // Unreachable
+                        } else if (controlCursorY == CONTROL_ROW_1_SETTINGS) {
+                            if (controlCursorX == 0) {
+                                // Select page
+                                if (state.up.justPressed || state.left.justPressed) {
+                                    pageIndex = (pageIndex - 1 + track.getPageCount()) % track.getPageCount();
+                                } else if (state.down.justPressed || state.right.justPressed) {
+                                    pageIndex = (pageIndex + 1) % track.getPageCount();
+                                }
+                            } else if (controlCursorX == 1) {
+                                // Adjust BPM
+                                if (state.up.justPressed) {
+                                    track.setBPM(track.getBPM() + 1);
+                                } else if (state.down.justPressed) {
+                                    track.setBPM(track.getBPM() - 1);
+                                } else if (state.left.justPressed) {
+                                    track.setBPM(track.getBPM() - 5);
+                                } else if (state.right.justPressed) {
+                                    track.setBPM(track.getBPM() + 5);
+                                }
+                            } else if (controlCursorX == 2) {
+                                // Adjust length
+                                if (state.up.justPressed) {
+                                    track.setPageCount(track.getPageCount() + 1);
+                                } else if (state.down.justPressed) {
+                                    track.setPageCount(track.getPageCount() - 1);
+                                    if (pageIndex >= track.getPageCount()) {
+                                        // Adjust current page if it's out of bounds
+                                        pageIndex = track.getPageCount() - 1;
+                                    }
                                 }
                             }
-                        }
-                    } else if (controlCursorY == CONTROL_ROW_2_SETTINGS) {
-                        if (controlCursorX == 0) {
-                            // No-op
-                        } else if (controlCursorX == 1) {
-                            // No-op
-                        } else if (controlCursorX == 2) {
-                            // Adjust master volume
-                            if (state.up.justPressed) {
-                                sequencer.setMasterVolume(sequencer.getMasterVolume() + 0.05);
+                        } else if (controlCursorY == CONTROL_ROW_2_SETTINGS) {
+                            if (controlCursorX == 0) {
+                                // No-op
+                            } else if (controlCursorX == 1) {
+                                // Unreachable
+                            } else if (controlCursorX == 2) {
+                                // Adjust master volume
+                                if (state.up.justPressed) {
+                                    sequencer.setMasterVolume(sequencer.getMasterVolume() + 0.05);
+                                } else if (state.down.justPressed) {
+                                    sequencer.setMasterVolume(sequencer.getMasterVolume() - 0.05);
+                                }
+                            }
+                        } else if (controlCursorY == CONTROL_ROW_3_PATTERNS) {
+                            // Select waveform for pattern's channel
+                            if (state.left.justPressed) {
+                                // Previous channel
+                                controlCursorX = (controlCursorX - 1 + CHANNEL_COUNT) % CHANNEL_COUNT;
+                            } else if (state.right.justPressed) {
+                                // Next channel
+                                controlCursorX = (controlCursorX + 1) % CHANNEL_COUNT;
+                            } else if (state.up.justPressed) {
+                                // Previous pattern
+                                page->patternIndices[controlCursorX] =
+                                    (page->patternIndices[controlCursorX] - 1 + track.getPatternCount()) %
+                                    track.getPatternCount();
                             } else if (state.down.justPressed) {
-                                sequencer.setMasterVolume(sequencer.getMasterVolume() - 0.05);
+                                // Next pattern (auto-resize, unused patterns will not be saved)
+                                page->patternIndices[controlCursorX]++;
                             }
                         }
-                    } else if (controlCursorY == CONTROL_ROW_3_PATTERNS) {
-                        // Select waveform for pattern's channel
-                        if (state.left.justPressed) {
-                            // Previous channel
-                            controlCursorX = (controlCursorX - 1 + CHANNEL_COUNT) % CHANNEL_COUNT;
-                        } else if (state.right.justPressed) {
-                            // Next channel
-                            controlCursorX = (controlCursorX + 1) % CHANNEL_COUNT;
-                        } else if (state.up.justPressed) {
-                            // Previous pattern
-                            page->patternIndices[controlCursorX] =
-                                (page->patternIndices[controlCursorX] - 1 + track.getPatternCount()) %
-                                track.getPatternCount();
-                        } else if (state.down.justPressed) {
-                            // Next pattern (auto-resize, unused patterns will not be saved)
-                            page->patternIndices[controlCursorX]++;
-                        }
                     }
-                }
-            } else {
-                if (state.a.justPressed) {
-                    // Enter edit mode
+                } else {
+                    if (state.a.justPressed) {
+                        // Enter edit mode
 
-                    if (controlCursorY == CONTROL_ROW_0_BUTTONS) {
-                        if (controlCursorX == 0) {
-                            // Load
-                            String filename = filePicker(false);
+                        if (controlCursorY == CONTROL_ROW_0_BUTTONS) {
+                            if (controlCursorX == 0) {
+                                // Load
+                                String filename = filePicker(".lt", false);
+                                if (filename.length()) {
+                                    loadTrack(&track, filename);
+                                    pageIndex = 0;
+                                    scoreCursorX = 0;
+                                    scoreCursorY = 0;
+                                }
+                            } else if (controlCursorX == 1) {
+                                // Save
+                                String filename = filePicker(".lt", true);
+                                if (filename.length()) {
+                                    saveTrack(&track, filename);
+                                }
+                            } else if (controlCursorX == 2) {
+                                // Reset
+                                if (confirm("Увага", "Очистити всі дані\nкомпозиції?")) {
+                                    track.reset();
+                                    pageIndex = 0;
+                                    scoreCursorX = 0;
+                                    scoreCursorY = 0;
+                                }
+                            }
+                        } else if (controlCursorY == CONTROL_ROW_2_SETTINGS && (controlCursorX == 0)) {
+                            // No-op
+                        } else if (controlCursorY == CONTROL_ROW_2_SETTINGS && (controlCursorX == 1)) {
+                            // Save WAV
+                            String filename = filePicker(".wav", true);
                             if (filename.length()) {
-                                loadTrack(&track, filename);
-                                pageIndex = 0;
-                                scoreCursorX = 0;
-                                scoreCursorY = 0;
+                                wavSink = new WAVSink(filename);
+                                sequencer.setSink(wavSink);
+                                sequencer.play(&track, pageIndex, false);
                             }
-                        } else if (controlCursorX == 1) {
-                            // Save
-                            String filename = filePicker(true);
-                            if (filename.length()) {
-                                saveTrack(&track, filename);
-                            }
-                        } else if (controlCursorX == 2) {
-                            // Reset
-                            if (confirm("Увага", "Очистити всі дані\nкомпозиції?")) {
-                                track.reset();
-                                pageIndex = 0;
-                                scoreCursorX = 0;
-                                scoreCursorY = 0;
-                            }
+                        } else {
+                            isEditing = true;
                         }
-                    } else if (controlCursorY == CONTROL_ROW_2_SETTINGS && (controlCursorX == 0 || controlCursorX == 1)) {
-                        // No-op
-                    } else {
-                        isEditing = true;
                     }
-                }
-                if (state.up.justPressed) {
-                    // We add 1 to CONTROL_ROWS to account for the score header row which is not part of the control, but is managed by the same cursor
-                    controlCursorY = (controlCursorY - 1 + (CONTROL_ROWS + 1)) % (CONTROL_ROWS + 1);
-                } else if (state.down.justPressed) {
-                    controlCursorY = (controlCursorY + 1) % (CONTROL_ROWS + 1);
-                } else if (state.left.justPressed) {
-                    // This assumes that control column count is the same as channel count
-                    controlCursorX = (controlCursorX - 1 + CHANNEL_COUNT) % CHANNEL_COUNT;
-                } else if (state.right.justPressed) {
-                    controlCursorX = (controlCursorX + 1) % CHANNEL_COUNT;
-                }
-                if (state.select.justPressed) {
-                    activeBlock = (activeBlock + 1) % BLOCK_COUNT;
+                    if (state.up.justPressed) {
+                        // We add 1 to CONTROL_ROWS to account for the score header row which is not part of the control, but is managed by the same cursor
+                        controlCursorY = (controlCursorY - 1 + (CONTROL_ROWS + 1)) % (CONTROL_ROWS + 1);
+                    } else if (state.down.justPressed) {
+                        controlCursorY = (controlCursorY + 1) % (CONTROL_ROWS + 1);
+                    } else if (state.left.justPressed) {
+                        // This assumes that control column count is the same as channel count
+                        controlCursorX = (controlCursorX - 1 + CHANNEL_COUNT) % CHANNEL_COUNT;
+                    } else if (state.right.justPressed) {
+                        controlCursorX = (controlCursorX + 1) % CHANNEL_COUNT;
+                    }
+                    if (state.select.justPressed) {
+                        activeBlock = (activeBlock + 1) % BLOCK_COUNT;
+                    }
                 }
             }
         } else if (activeBlock == BLOCK_EVENT_SCORE) {
@@ -672,10 +694,6 @@ void LilTrackerApp::run() {
                         sequencer.stop();
                     }
 
-                    if (state.select.justPressed) {
-                        visualizerMode = (visualizerMode + 1) % VISUALIZER_MODE_COUNT;
-                    }
-
                     // Adjust master volume
                     if (state.up.justPressed) {
                         sequencer.setMasterVolume(sequencer.getMasterVolume() + 0.05);
@@ -736,7 +754,7 @@ void LilTrackerApp::run() {
                     }
                 }
             }
-            if (state.select.justPressed && isPreviewing) {
+            if (seqState.playing && state.select.justPressed) {
                 visualizerMode = (visualizerMode + 1) % VISUALIZER_MODE_COUNT;
             }
         }
@@ -828,7 +846,7 @@ bool LilTrackerApp::confirm(String title, String message) {
     return confirmDialog.getButton() == lilka::Button::START;
 }
 
-String LilTrackerApp::filePicker(bool isSave) {
+String LilTrackerApp::filePicker(String ext, bool isSave) {
     // isSave determines whether we are writing to file or opening an existing one
 
     // List files
@@ -860,6 +878,9 @@ String LilTrackerApp::filePicker(bool isSave) {
     }
     for (int i = 0; i < fileCount; i++) {
         if (entries[i].type == lilka::EntryType::ENT_DIRECTORY) {
+            continue;
+        }
+        if (!entries[i].name.endsWith(ext)) {
             continue;
         }
         menu.addItem(entries[i].name);
@@ -895,10 +916,10 @@ String LilTrackerApp::filePicker(bool isSave) {
                     } else {
                         String lowerFilename = filename;
                         lowerFilename.toLowerCase();
-                        if (lowerFilename.endsWith(".lt")) {
+                        if (lowerFilename.endsWith(ext)) {
                             filename.remove(filename.length() - 3);
                         }
-                        filename += ".lt";
+                        filename += ext;
                         return String(LILTRACKER_DIR) + "/" + filename;
                     }
                 }
