@@ -27,6 +27,7 @@
 #include "nes/nesapp.h"
 #include "ftp/ftp_server.h"
 #include "weather/weather.h"
+#include "modplayer/modplayer.h"
 #include "liltracker/liltracker.h"
 
 #include "icons/demos.h"
@@ -44,6 +45,7 @@
 #include "icons/bin.h"
 #include "icons/lua.h"
 #include "icons/js.h"
+#include "icons/music.h"
 
 LauncherApp::LauncherApp() : App("Menu") {
 }
@@ -148,6 +150,8 @@ const menu_icon_t* get_file_icon(const String& filename) {
         return &lua_img;
     } else if (lowerCasedFileName.endsWith(".js")) {
         return &js_img;
+    } else if (lowerCasedFileName.endsWith(".mod")) {
+        return &music;
     } else {
         return &normalfile_img;
     }
@@ -164,6 +168,8 @@ const uint16_t get_file_color(const String& filename) {
         return lilka::colors::Maya_blue;
     } else if (lowerCasedFileName.endsWith(".js")) {
         return lilka::colors::Butterscotch;
+    } else if (lowerCasedFileName.endsWith(".mod")) {
+        return lilka::colors::Pink_lace;
     } else {
         return lilka::colors::Light_gray;
     }
@@ -272,6 +278,8 @@ void LauncherApp::selectFile(String path) {
         AppManager::getInstance()->runApp(new LuaFileRunnerApp(path));
     } else if (lowerCasedPath.endsWith(".js")) {
         AppManager::getInstance()->runApp(new MJSApp(path));
+    } else if (lowerCasedPath.endsWith(".mod")) {
+        AppManager::getInstance()->runApp(new ModPlayerApp(path));
     } else if (lowerCasedPath.endsWith(".lt")) {
         AppManager::getInstance()->runApp(new LilTrackerApp(path));
     } else {

@@ -99,6 +99,62 @@ void Display::setSplash(const void* splash, uint32_t rleLength) {
     this->rleLength = rleLength;
 }
 
+uint16_t Display::color565hsv(uint16_t h, uint8_t s, uint8_t v) {
+    uint8_t region, remainder, p, q, t;
+    uint16_t red, green, blue;
+
+    if (s == 0) {
+        red = green = blue = (v * 31) / 100;
+        return (red << 11) | (green << 5) | blue;
+    }
+
+    region = h / 60;
+    remainder = (h - (region * 60)) * 6;
+
+    p = (v * (100 - s)) / 100;
+    q = (v * (100 - (s * remainder) / 100)) / 100;
+    t = (v * (100 - (s * (60 - remainder)) / 100)) / 100;
+
+    switch (region) {
+        case 0:
+            red = v;
+            green = t;
+            blue = p;
+            break;
+        case 1:
+            red = q;
+            green = v;
+            blue = p;
+            break;
+        case 2:
+            red = p;
+            green = v;
+            blue = t;
+            break;
+        case 3:
+            red = p;
+            green = q;
+            blue = v;
+            break;
+        case 4:
+            red = t;
+            green = p;
+            blue = v;
+            break;
+        default:
+            red = v;
+            green = p;
+            blue = q;
+            break;
+    }
+
+    red = (red * 31) / 100;
+    green = (green * 63) / 100;
+    blue = (blue * 31) / 100;
+
+    return (red << 11) | (green << 5) | blue;
+}
+
 template <typename T>
 void GFX<T>::drawImage(Image* image, int16_t x, int16_t y) {
     Arduino_GFX* base = static_cast<T*>(this);
