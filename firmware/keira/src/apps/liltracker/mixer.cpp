@@ -6,17 +6,6 @@
 #include "config.h"
 #include "utils/acquire.h"
 
-typedef struct {
-    waveform_t waveform;
-    float frequency;
-    float volume;
-    // TODO: Research how effects should generally be handled in NES, since things seem weird:
-    // some effects are cancelled by others, some are reset by OFF, etc... /AD
-    effect_t effect;
-    float effectStartTime;
-    // float time; // TODO
-} channel_state_t;
-
 Mixer::Mixer() :
     xMutex(xSemaphoreCreateMutex()),
     xQueue(xQueueCreate(CHANNEL_COUNT * MIXER_COMMAND_COUNT, sizeof(mixer_command_t))),
@@ -129,14 +118,12 @@ void Mixer::reset() {
 }
 
 void Mixer::mixerTask() {
-    channel_state_t channelStates[CHANNEL_COUNT];
     int16_t audioBuffer[MIXER_BUFFER_SIZE];
-    int16_t channelAudioBuffers[CHANNEL_COUNT][MIXER_BUFFER_SIZE];
-    for (uint8_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-        channelStates[channelIndex] = {WAVEFORM_SQUARE, 0.0, 1.0, {EFFECT_TYPE_NONE, 0}};
-    }
+    int16_t channel0AudioBuffer[MIXER_BUFFER_SIZE];
+    int16_t channel1AudioBuffer[MIXER_BUFFER_SIZE];
+    int16_t channel2AudioBuffer[MIXER_BUFFER_SIZE];
+    int16_t* channelAudioBuffers[CHANNEL_COUNT] = {channel0AudioBuffer, channel1AudioBuffer, channel2AudioBuffer};
 
-    int64_t time = 0;
     while (1) { // TODO: make this stoppable
         // TODO: Handle envelopes, effects and stuff in this loop
         // Check if queue has a new pattern and event index to play
@@ -145,16 +132,15 @@ void Mixer::mixerTask() {
         while (xQueueReceive(xQueue, &command, 0) == pdTRUE) {
             // channelStates[request.channelIndex] = {request.waveform, request.frequency, request.volume, request.effect};
             if (command.type == MIXER_COMMAND_SET_WAVEFORM) {
-                channelStates[command.channelIndex].waveform = command.waveform;
+                synth.setWaveform(command.channelIndex, command.waveform);
             } else if (command.type == MIXER_COMMAND_SET_FREQUENCY) {
-                channelStates[command.channelIndex].frequency = command.frequency;
+                synth.setFrequency(command.channelIndex, command.frequency);
             } else if (command.type == MIXER_COMMAND_SET_VOLUME) {
-                channelStates[command.channelIndex].volume = command.volume;
+                synth.setVolume(command.channelIndex, command.volume);
             } else if (command.type == MIXER_COMMAND_SET_EFFECT) {
-                channelStates[command.channelIndex].effect = command.effect;
-                channelStates[command.channelIndex].effectStartTime = ((float)time) / SAMPLE_RATE;
+                synth.setEffect(command.channelIndex, command.effect);
             } else if (command.type == MIXER_COMMAND_SET_OFF) {
-                channelStates[command.channelIndex].frequency = 0.0f;
+                synth.setOff(command.channelIndex);
             }
         }
         // Mix the channels
@@ -164,41 +150,7 @@ void Mixer::mixerTask() {
             _masterVolume = masterVolume;
         }
         int64_t mixStart = millis();
-        // float timeSec = (float)time / SAMPLE_RATE;
-        for (int16_t i = 0; i < MIXER_BUFFER_SIZE; i++) {
-            float timeSec = ((float)time + i) / SAMPLE_RATE;
-            // timeSec += SECONDS_PER_SAMPLE;
-            // audioBuffer[i] = 0;
-            for (uint8_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-                // event_t event = events[channelIndex];
-                const channel_state_t* channelState = &channelStates[channelIndex];
-                waveform_fn_t waveform_fn = waveform_functions[channelState->waveform];
-                float relTime = timeSec - channelState->effectStartTime;
-                float modFrequency = channelState->frequency;
-                if (modFrequency == 0.0f) {
-                    channelAudioBuffers[channelIndex][i] = 0;
-                } else {
-                    float modVolume = channelState->volume;
-                    float modPhase = 0.0;
-                    effect_t effect = channelState->effect;
-                    effect_fn_t effect_fn = effect_functions[effect.type];
-                    effect_fn(timeSec, relTime, &modFrequency, &modVolume, &modPhase, effect.param);
-                    channelAudioBuffers[channelIndex][i] =
-                        waveform_fn(timeSec, modFrequency, modVolume, modPhase) * _masterVolume * 32767;
-                }
-            }
-            // audioBuffer[i] /= CHANNEL_COUNT;
-        }
-        {
-            Acquire lock(xMutex);
-            for (int16_t i = 0; i < MIXER_BUFFER_SIZE; i++) {
-                audioBuffer[i] = 0;
-                for (uint8_t channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-                    audioBuffer[i] += channelAudioBuffers[channelIndex][i];
-                }
-                audioBuffer[i] /= CHANNEL_COUNT;
-            }
-        }
+        synth.render(audioBuffer, channelAudioBuffers, MIXER_BUFFER_SIZE, _masterVolume);
         int64_t mixEnd = millis();
         // Check if time spent mixing is more than the duration of the buffer
         // Duration of the buffer in microseconds: 1 / SAMPLE_RATE * 1000 * MIXER_BUFFER_SIZE
@@ -224,7 +176,7 @@ void Mixer::mixerTask() {
                 );
             }
         }
-        time += bytesWritten / 2;
+        synth.advanceTime(bytesWritten / 2);
         // taskYIELD();
         vTaskDelay(1); // Needed to wait for UI to be able to acquire the mutex... Probably can go back to taskYIELD now
     }

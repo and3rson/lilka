@@ -6,6 +6,7 @@
 #include "config.h"
 #include "waveforms.h"
 #include "effects.h"
+#include "synth.h"
 
 #define MIXER_BUFFER_SIZE        512
 #define SAMPLE_RATE              44100
@@ -55,4 +56,5 @@ private:
     int16_t audioBufferCopy[MIXER_BUFFER_SIZE];
     int16_t channelAudioBuffersCopy[CHANNEL_COUNT][MIXER_BUFFER_SIZE];
     float masterVolume;
+    Synth synth;
 };
