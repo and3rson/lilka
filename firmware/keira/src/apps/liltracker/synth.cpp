@@ -5,8 +5,8 @@ Synth::Synth() : xMutex(xSemaphoreCreateMutex()), currentSample(0) {
     for (int i = 0; i < CHANNEL_COUNT; i++) {
         channelStates[i] = {
             .waveform = WAVEFORM_SQUARE,
-            .frequency = 440.0f,
-            .volume = 0.0f,
+            .frequency = 0.0f,
+            .volume = 1.0f,
             .effect = {EFFECT_TYPE_NONE, 0},
             .effectStartTime = 0.0f,
         };
@@ -20,8 +20,8 @@ void Synth::reset() {
     for (int i = 0; i < CHANNEL_COUNT; i++) {
         channelStates[i] = {
             .waveform = WAVEFORM_SQUARE,
-            .frequency = 440.0f,
-            .volume = 0.0f,
+            .frequency = 0.0f,
+            .volume = 1.0f,
             .effect = {EFFECT_TYPE_NONE, 0},
             .effectStartTime = 0.0f,
         };
@@ -55,7 +55,8 @@ void Synth::advanceTime(uint64_t sampleCount) {
 }
 
 void Synth::render(
-    int16_t* combinedBuffer, int16_t* channelBuffers[CHANNEL_COUNT], uint32_t sampleCount, float masterVolume
+    int16_t combinedBuffer[SYNTH_BUFFER_SIZE], int16_t channelBuffers[CHANNEL_COUNT][SYNTH_BUFFER_SIZE],
+    uint32_t sampleCount, float masterVolume
 ) {
     Acquire lock(xMutex);
     for (int16_t i = 0; i < sampleCount; i++) {

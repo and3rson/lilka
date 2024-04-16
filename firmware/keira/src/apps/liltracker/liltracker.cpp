@@ -2,6 +2,7 @@
 
 #include "liltracker.h"
 #include "note.h"
+#include "i2s_sink.h"
 #include "utils/defer.h"
 
 #include "icons/liltracker_icons.h"
@@ -72,7 +73,7 @@ typedef enum : uint8_t {
 } visualizer_mode_t;
 
 LilTrackerApp::LilTrackerApp() :
-    App("LilTracker", 0, 0, lilka::display.width(), lilka::display.height()), mixer(), sequencer(&mixer) {
+    App("LilTracker", 0, 0, lilka::display.width(), lilka::display.height()), sequencer(NULL) {
     this->setFlags(APP_FLAG_FULLSCREEN);
     this->setCore(1);
     this->setStackSize(16384);
@@ -87,6 +88,9 @@ xSemaphoreHandle xMutex;
 
 void LilTrackerApp::run() {
     Track track;
+
+    I2SSink sink;
+    sequencer.setSink(&sink);
 
     if (initialPath.length()) {
         loadTrack(&track, initialPath);
@@ -126,9 +130,9 @@ void LilTrackerApp::run() {
         canvas->fillScreen(lilka::colors::Black);
         canvas->setFont(FONT);
 
-        float masterVolume = mixer.getMasterVolume();
+        float masterVolume = sequencer.getMasterVolume();
 
-        if (seqState.playing || isPreviewing) {
+        if (seqState.playing) {
             // Draw visualizer
             float graphScale = 1.0f;
             if (masterVolume > 0.01f) {
@@ -139,14 +143,14 @@ void LilTrackerApp::run() {
             if (visualizerMode == VISUALIZER_MODE_PER_CHANNEL) {
                 // Draw per-channel buffers
                 for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-                    int16_t buffer[MIXER_BUFFER_SIZE];
-                    mixer.readBuffer(buffer, channelIndex);
+                    int16_t buffer[SYNTH_BUFFER_SIZE];
+                    sequencer.readBuffer(buffer, channelIndex);
                     int16_t prevX, prevY;
                     int16_t minX = SCORE_COUNTER_WIDTH + channelIndex * SCORE_EVENT_WIDTH;
                     int16_t width = SCORE_EVENT_WIDTH;
 
-                    for (int i = 0; i < MIXER_BUFFER_SIZE; i += 4) {
-                        int x = minX + i * width / MIXER_BUFFER_SIZE;
+                    for (int i = 0; i < SYNTH_BUFFER_SIZE; i += 4) {
+                        int x = minX + i * width / SYNTH_BUFFER_SIZE;
                         int index = i / 2; // Make samples wider for nicer display
                         float amplitude = static_cast<float>(buffer[index]) / 32768.0f * graphScale;
                         int y = SCORE_HEADER_TOP / 2 - static_cast<int>(amplitude * SCORE_HEADER_TOP / 2);
@@ -159,12 +163,12 @@ void LilTrackerApp::run() {
                 }
             } else {
                 // Draw mixed buffer
-                int16_t buffer[MIXER_BUFFER_SIZE];
-                mixer.readBuffer(buffer);
+                int16_t buffer[SYNTH_BUFFER_SIZE];
+                sequencer.readBuffer(buffer);
 
                 int16_t prevX, prevY;
-                for (int i = 0; i < MIXER_BUFFER_SIZE; i++) {
-                    int x = i * lilka::display.width() / MIXER_BUFFER_SIZE;
+                for (int i = 0; i < SYNTH_BUFFER_SIZE; i++) {
+                    int x = i * lilka::display.width() / SYNTH_BUFFER_SIZE;
                     float amplitude = static_cast<float>(buffer[i]) / 32768.0f * graphScale;
                     int y = SCORE_HEADER_TOP / 2 - static_cast<int>(amplitude * SCORE_HEADER_TOP / 2);
                     if (i > 0) {
@@ -479,9 +483,9 @@ void LilTrackerApp::run() {
                         } else if (controlCursorX == 2) {
                             // Adjust master volume
                             if (state.up.justPressed) {
-                                mixer.setMasterVolume(mixer.getMasterVolume() + 0.05);
+                                sequencer.setMasterVolume(sequencer.getMasterVolume() + 0.05);
                             } else if (state.down.justPressed) {
-                                mixer.setMasterVolume(mixer.getMasterVolume() - 0.05);
+                                sequencer.setMasterVolume(sequencer.getMasterVolume() - 0.05);
                             }
                         }
                     } else if (controlCursorY == CONTROL_ROW_3_PATTERNS) {
@@ -544,7 +548,7 @@ void LilTrackerApp::run() {
                 } else if (state.down.justPressed) {
                     controlCursorY = (controlCursorY + 1) % (CONTROL_ROWS + 1);
                 } else if (state.left.justPressed) {
-                    // TODO: This assumes that control column count is the same as channel count
+                    // This assumes that control column count is the same as channel count
                     controlCursorX = (controlCursorX - 1 + CHANNEL_COUNT) % CHANNEL_COUNT;
                 } else if (state.right.justPressed) {
                     controlCursorX = (controlCursorX + 1) % CHANNEL_COUNT;
@@ -558,7 +562,7 @@ void LilTrackerApp::run() {
                 // Edit mode
                 if (state.a.justPressed) {
                     // Exit edit mode
-                    mixer.stop();
+                    sequencer.stop();
                     isPreviewing = false;
                     isEditing = false;
                 }
@@ -643,16 +647,18 @@ void LilTrackerApp::run() {
                     pattern->setChannelEvent(currentChannel, scoreCursorY, event);
                     if (isPreviewing) {
                         // Update preview
-                        startPreview(&track, page, currentChannel, scoreCursorY);
+                        sequencer.stop();
+                        sequencer.play(&track, pageIndex, currentChannel, scoreCursorY);
                     }
                 }
                 if (state.b.justPressed) {
                     // Play single event
-                    startPreview(&track, page, currentChannel, scoreCursorY);
+                    sequencer.stop();
+                    sequencer.play(&track, pageIndex, currentChannel, scoreCursorY);
                     isPreviewing = true;
                 } else if (state.b.justReleased) {
                     // Stop playing single event
-                    mixer.stop();
+                    sequencer.stop();
                     isPreviewing = false;
                 }
             } else {
@@ -660,8 +666,9 @@ void LilTrackerApp::run() {
                 if (seqState.playing) {
                     // Is playing
                     scoreCursorY = seqState.eventIndex;
-                    if (state.start.justPressed) {
+                    if (state.start.justPressed || (isPreviewing && state.b.justReleased)) {
                         // Stop playing
+                        isPreviewing = false;
                         sequencer.stop();
                     }
 
@@ -671,19 +678,20 @@ void LilTrackerApp::run() {
 
                     // Adjust master volume
                     if (state.up.justPressed) {
-                        mixer.setMasterVolume(mixer.getMasterVolume() + 0.05);
+                        sequencer.setMasterVolume(sequencer.getMasterVolume() + 0.05);
                     } else if (state.down.justPressed) {
-                        mixer.setMasterVolume(mixer.getMasterVolume() - 0.05);
+                        sequencer.setMasterVolume(sequencer.getMasterVolume() - 0.05);
                     }
                 } else {
                     // Not playing
                     if (state.b.justPressed) {
                         // Play all events from this row
-                        startPreview(&track, page, -1, scoreCursorY);
+                        sequencer.stop();
+                        sequencer.play(&track, pageIndex, -1, scoreCursorY);
                         isPreviewing = true;
                     } else if (state.b.justReleased) {
                         // Stop playing all events from this row
-                        mixer.stop();
+                        sequencer.stop();
                         isPreviewing = false;
                     }
 
@@ -699,7 +707,7 @@ void LilTrackerApp::run() {
 
                     if (state.a.justPressed) {
                         // Enter edit mode
-                        mixer.stop();
+                        sequencer.stop();
                         isEditing = true;
                         isPreviewing = false;
                     }
@@ -771,33 +779,34 @@ int LilTrackerApp::drawElement(
     return canvas->drawTextAligned(text, x, y, hAlign, vAlign);
 }
 
-void LilTrackerApp::startPreview(
-    Track* track, page_t* page, int8_t requestedChannelIndex, uint16_t requestedEventIndex
-) {
-    for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
-        Pattern* pattern = track->getPattern(page->patternIndices[channelIndex]);
-        event_t event = pattern->getChannelEvent(channelIndex, requestedEventIndex);
-        bool shouldPlayThisChannel = requestedChannelIndex == -1 || requestedChannelIndex == channelIndex;
-        if (shouldPlayThisChannel && event.type == EVENT_TYPE_NORMAL) {
-            // Find waveform for this event by iterating up
-            waveform_t waveform = WAVEFORM_SQUARE; // Default to square if no waveform found
-            for (int i = requestedEventIndex; i >= 0; i--) {
-                event_t prevEvent = pattern->getChannelEvent(channelIndex, i);
-                if (prevEvent.waveform != WAVEFORM_CONT) {
-                    waveform = prevEvent.waveform;
-                    break;
-                }
-            }
-            mixer.start(
-                channelIndex,
-                waveform,
-                event.note.toFrequency(),
-                event.volume > 0 ? ((float)event.volume) / MAX_VOLUME : 1.0,
-                event.effect
-            );
-        }
-    }
-}
+// void LilTrackerApp::startPreview(
+//     Track* track, page_t* page, int8_t requestedChannelIndex, uint16_t requestedEventIndex
+// ) {
+//     for (int channelIndex = 0; channelIndex < CHANNEL_COUNT; channelIndex++) {
+//         Pattern* pattern = track->getPattern(page->patternIndices[channelIndex]);
+//         event_t event = pattern->getChannelEvent(channelIndex, requestedEventIndex);
+//         bool shouldPlayThisChannel = requestedChannelIndex == -1 || requestedChannelIndex == channelIndex;
+//         if (shouldPlayThisChannel && event.type == EVENT_TYPE_NORMAL) {
+//             // Find waveform for this event by iterating up
+//             waveform_t waveform = WAVEFORM_SQUARE; // Default to square if no waveform found
+//             for (int i = requestedEventIndex; i >= 0; i--) {
+//                 event_t prevEvent = pattern->getChannelEvent(channelIndex, i);
+//                 if (prevEvent.waveform != WAVEFORM_CONT) {
+//                     waveform = prevEvent.waveform;
+//                     break;
+//                 }
+//             }
+//             sequencer.play(
+//                 &track,
+//                 channelIndex,
+//                 waveform,
+//                 event.note.toFrequency(),
+//                 event.volume > 0 ? ((float)event.volume) / MAX_VOLUME : 1.0,
+//                 event.effect
+//             );
+//         }
+//     }
+// }
 
 void LilTrackerApp::alert(String title, String message) {
     lilka::Alert alertDialog(title, message);

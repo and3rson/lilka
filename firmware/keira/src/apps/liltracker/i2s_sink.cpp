@@ -3,7 +3,7 @@
 
 #include "i2s_sink.h"
 
-void I2SSink::start() {
+I2SSink::I2SSink() {
     constexpr uint8_t pinCount = 3;
     uint8_t pins[pinCount] = {LILKA_I2S_BCLK, LILKA_I2S_LRCK, LILKA_I2S_DOUT};
     uint8_t funcs[pinCount] = {I2S0O_BCK_OUT_IDX, I2S0O_WS_OUT_IDX, I2S0O_SD_OUT_IDX};
@@ -36,12 +36,22 @@ void I2SSink::start() {
     }
 }
 
+I2SSink::~I2SSink() {
+    // Deinit I2S (free DMA buffers & uninstall driver)
+    // TODO: Seems like this does not free the DMA buffers and causes a memory leak!
+    if (esp_i2s::i2s_driver_uninstall(esp_i2s::I2S_NUM_0) != ESP_OK) {
+        lilka::serial_err("Failed to uninstall I2S driver");
+    }
+}
+
+void I2SSink::start() {
+}
+
 size_t I2SSink::write(const int16_t* data, size_t size) {
     size_t bytesWritten = 0;
-    esp_i2s::i2s_write(esp_i2s::I2S_NUM_0, data, SYNTH_BUFFER_SIZE * 2, &bytesWritten, portMAX_DELAY);
-    return bytesWritten / 2;
+    esp_i2s::i2s_write(esp_i2s::I2S_NUM_0, data, size * sizeof(int16_t), &bytesWritten, portMAX_DELAY);
+    return bytesWritten / sizeof(int16_t);
 }
 
 void I2SSink::stop() {
-    esp_i2s::i2s_driver_uninstall(esp_i2s::I2S_NUM_0);
 }

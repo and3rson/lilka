@@ -34,7 +34,10 @@ public:
     void setEffect(uint8_t channelIndex, effect_t effect);
     void setOff(uint8_t channelIndex);
     void advanceTime(uint64_t sampleCount);
-    void render(int16_t* combinedBuffer, int16_t* channelBuffers[CHANNEL_COUNT], uint32_t sampleCount, float masterVolume);
+    void render(
+        int16_t combinedBuffer[SYNTH_BUFFER_SIZE], int16_t channelBuffers[CHANNEL_COUNT][SYNTH_BUFFER_SIZE],
+        uint32_t sampleCount, float masterVolume
+    );
 
 private:
     SemaphoreHandle_t xMutex;
