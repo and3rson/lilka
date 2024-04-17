@@ -7,8 +7,6 @@ public:
     TelnetService();
     ~TelnetService();
 
-    static ESPTelnet telnet;
-
 private:
     void run() override;
 };

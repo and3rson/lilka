@@ -1,16 +1,13 @@
 #pragma once
 #include <ff.h>
-#include "config.h"
 #include <SPIFFS.h>
 #include <SD.h>
-#include "config.h"
 #include <dirent.h>
 #include <sd_diskio.h>
 
 #define LILKA_SD_ROOT      "/sd"
 #define LILKA_SPIFFS_ROOT  "/spiffs"
 #define LILKA_SLASH        "/"
-#define H_FILE_SIZE        6
 #define LILKA_SD_FREQUENCY 20000000
 
 namespace lilka {
@@ -137,12 +134,13 @@ public:
     /// Повернути розмір в читабельному форматі (наприклад, 101 MB).
     ///
     /// @param size Розмір (в байтах)
+    /// @param compact Чи виводити розмір компактно (наприклад, 1.23MB замість 1.23 MB)
     /// @return Рядок, що містить читабельний розмір з суфіксами одиниць виміру
     ///
     /// @code
     /// fileutils.getHumanFriendlySize(1234567); // Поверне "1.23 MB"
     /// @endcode
-    const String getHumanFriendlySize(const size_t size);
+    const String getHumanFriendlySize(const size_t size, bool compact = false);
 
 private:
     SemaphoreHandle_t sdMutex = NULL;

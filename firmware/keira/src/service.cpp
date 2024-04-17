@@ -7,14 +7,14 @@ Service::~Service() {
 }
 
 void Service::start() {
-    Serial.println("Starting service " + String(name));
+    lilka::serial_log("Starting service %s", name);
     xTaskCreate(_run, name, stackSize, this, 1, &taskHandle);
 }
 
 void Service::_run(void* arg) {
     Service* service = static_cast<Service*>(arg);
     service->run();
-    Serial.println("Service " + String(service->name) + " died");
+    lilka::serial_err("Service %s died", service->name);
 }
 
 void Service::setStackSize(uint32_t stackSize) {

@@ -6,6 +6,11 @@
 
 #include "network.h"
 
+// Macro magic used to convert decimal constant to char[] constant
+#define STRX(x)               #x
+#define STR(x)                STRX(x)
+#define LILKA_HOSTNAME_PREFIX "LilkaV"
+
 // EEPROM preferences used:
 // - network.last_ssid - last connected SSID
 // - network.[SSID_hash]_pw - password of known network with a given SSID
