@@ -203,7 +203,7 @@ void LauncherApp::sdBrowserMenu(FS* fSysDriver, const String& path) {
         uint16_t color = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? lilka::colors::Arylide_yellow
                                                                             : get_file_color(filename);
         if (entries[i].type != lilka::EntryType::ENT_DIRECTORY)
-            menu.addItem(filename, icon, color, lilka::fileutils.getHumanFriendlySize(entries[i].size));
+            menu.addItem(filename, icon, color, lilka::fileutils.getHumanFriendlySize(entries[i].size, true));
         else menu.addItem(filename, icon, color);
     }
     menu.addItem("<< Назад", 0, 0);

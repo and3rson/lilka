@@ -8,6 +8,7 @@
 #include "services/clock.h"
 #include "services/network.h"
 #include "services/screenshot.h"
+#include "services/telnet.h"
 #include "apps/statusbar.h"
 #include "apps/launcher.h"
 
@@ -20,6 +21,7 @@ void setup() {
     serviceManager->addService(new NetworkService());
     serviceManager->addService(new ClockService());
     serviceManager->addService(new ScreenshotService());
+    serviceManager->addService(new TelnetService());
     appManager->setPanel(new StatusBarApp());
     appManager->runApp(new LauncherApp());
 }

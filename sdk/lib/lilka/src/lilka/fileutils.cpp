@@ -1,6 +1,8 @@
 #include "fileutils.h"
 #include "serial.h"
 #include "spi.h"
+#include "config.h"
+
 namespace lilka {
 FileUtils::FileUtils() : sdMutex(xSemaphoreCreateMutex()) {
     sdfs = &SD;
@@ -205,12 +207,12 @@ const String FileUtils::getSDRoot() {
 const String FileUtils::getSPIFFSRoot() {
     return LILKA_SPIFFS_ROOT;
 }
-const String FileUtils::getHumanFriendlySize(const size_t size) {
+const String FileUtils::getHumanFriendlySize(const size_t size, bool compact) {
     // Max length of file size
 
     const char* suffixes[] = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
     const int numSuffixes = sizeof(suffixes) / sizeof(suffixes[0]);
-    if (size == 0) return "0B";
+    if (size == 0) return String("0") + (compact ? "" : "  ") + suffixes[0];
 
     int exp = 0;
     double dsize = (double)(size);
@@ -221,13 +223,13 @@ const String FileUtils::getHumanFriendlySize(const size_t size) {
     }
 
     char buffer[50];
-    snprintf(buffer, sizeof(buffer), "%.0f%s", dsize, suffixes[exp]);
-    String hFileSize(buffer);
-    while (hFileSize.length() != H_FILE_SIZE) {
-        hFileSize = hFileSize + " ";
+    if (compact) {
+        snprintf(buffer, sizeof(buffer), "%.0f%s", dsize, suffixes[exp]);
+    } else {
+        snprintf(buffer, sizeof(buffer), "%.0f %2s", dsize, suffixes[exp]);
     }
 
-    return hFileSize;
+    return String(buffer);
 }
 
 bool FileUtils::createSDPartTable() {
