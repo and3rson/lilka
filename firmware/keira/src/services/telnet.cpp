@@ -67,7 +67,9 @@ Command commands[] = {
                 count++;
                 file.isDirectory() ? telnet.print("DIR ") : telnet.print("FILE");
                 telnet.print("  ");
-                telnet.printf("%8s  ", lilka::fileutils.getHumanFriendlySize(file.size()).c_str());
+                telnet.printf(
+                    "%8s  ", !file.isDirectory() ? lilka::fileutils.getHumanFriendlySize(file.size()).c_str() : "-"
+                );
                 telnet.println(file.name());
                 file.close();
             }
@@ -172,6 +174,8 @@ void TelnetService::run() {
         }
         if (isOnline) {
             telnet.loop();
+        } else {
+            vTaskDelay(500 / portTICK_PERIOD_MS);
         }
     }
 }
