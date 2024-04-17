@@ -16,23 +16,21 @@ App::App(const char* name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) :
     // Clear buffers
     canvas->fillScreen(0);
     backCanvas->fillScreen(0);
-    Serial.println(
-        "Created app " + String(name) + " at " + String(x) + ", " + String(y) + " with size " + String(w) + "x" +
-        String(h) + " on core " + String(appCore)
-    );
+    lilka::serial_log("Created app %s at %d, %d with size %dx%d on core %d", name, x, y, w, h, appCore);
     xSemaphoreGive(backCanvasMutex);
 }
 
 void App::start() {
     if (taskHandle != NULL) {
-        Serial.println("App " + String(name) + " is already running");
+        lilka::serial_err("App %s is already running", name);
         return;
     }
-    Serial.println("Starting app " + String(name));
+    lilka::serial_log("Starting app %s", name);
     if (xTaskCreatePinnedToCore(_run, name, stackSize, this, 1, &taskHandle, appCore) != pdPASS) {
-        Serial.println(
-            "Failed to create task for app " + String(name) +
-            " - not enough memory? Try increasing stack size with setStackSize()"
+        lilka::serial_err(
+            "Failed to create task for app %s"
+            " - not enough memory? Try increasing stack size with setStackSize()",
+            name
         );
     }
 }
@@ -48,30 +46,30 @@ void App::_run(void* data) {
 
 void App::suspend() {
     if (taskHandle == NULL) {
-        Serial.println("App " + String(name) + " is not running, cannot suspend");
+        lilka::serial_err("App %s is not running, cannot suspend", name);
         return;
     }
-    Serial.println("Suspending app " + String(name) + " (state = " + String(getState()) + ")");
+    lilka::serial_log("Suspending app %s (state = %d)", name, getState());
     onSuspend();
     vTaskSuspend(taskHandle);
 }
 
 void App::resume() {
     if (taskHandle == NULL) {
-        Serial.println("App " + String(name) + " is not running, cannot resume");
+        lilka::serial_err("App %s is not running, cannot resume", name);
         return;
     }
-    Serial.println("Resuming app " + String(name) + " (state = " + String(getState()) + ")");
+    lilka::serial_log("Resuming app %s (state = %d)", name, getState());
     onResume();
     vTaskResume(taskHandle);
 }
 
 void App::stop() {
     if (taskHandle == NULL) {
-        Serial.println("App " + String(name) + " is not running, cannot stop");
+        lilka::serial_err("App %s is not running, cannot stop", name);
         return;
     }
-    Serial.println("Stopping app " + String(name) + " (state = " + String(getState()) + ")");
+    lilka::serial_log("Stopping app %s (state = %d)", name, getState());
     onStop();
     vTaskDelete(taskHandle);
     taskHandle = NULL;

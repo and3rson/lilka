@@ -126,7 +126,7 @@
    * - 1
      - U2
      - 280x240 1.69\" TFT
-     - 1.7\" TFT Display (ST7789)
+     - 1.7\" IPS TFT Display (ST7789)
      - `arduino.ua <https://arduino.ua/prod6568-tft-displei-1-7-spi-240x280-rgb>`__
      - 176
      -

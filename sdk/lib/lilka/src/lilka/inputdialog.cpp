@@ -130,7 +130,7 @@ void InputDialog::draw(Arduino_GFX* canvas) {
     canvas->setFont(FONT_10x20);
 
     canvas->setTextBound(4, 4, canvas->width() - 8, canvas->height() - 8);
-    canvas->setCursor(4, 20);
+    canvas->setCursor(16, 20);
     canvas->println(title);
 
     canvas->setTextBound(16, 16, canvas->width() - 32, canvas->height() - 32);
@@ -172,11 +172,11 @@ void InputDialog::draw(Arduino_GFX* canvas) {
                     const uint16_t iconWidth = 20;
                     const uint16_t iconHeight = 20;
                     if (key == K_L0 || key == K_L1) {
-                        icon = layer == 0 ? shift : shifted;
+                        icon = layer == 0 ? shift_img : shifted_img;
                     } else if (key == K_BS) {
-                        icon = backspace;
+                        icon = backspace_img;
                     } else if (key == ' ') {
-                        icon = whitespace;
+                        icon = whitespace_img;
                     }
                     if (icon) {
                         canvas->draw16bitRGBBitmapWithTranColor(

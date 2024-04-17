@@ -22,8 +22,10 @@ void Buzzer::begin() {
 #else
     _stop();
     pinMode(LILKA_BUZZER, OUTPUT);
+#    ifndef LILKA_NO_BUZZER_HELLO
     const Tone helloTune[] = {{NOTE_C3, 8}, {NOTE_C4, 8}, {NOTE_C5, 8}, {NOTE_C7, 4}, {0, 8}, {NOTE_C6, 4}};
     playMelody(helloTune, sizeof(helloTune) / sizeof(Tone), 160);
+#    endif
 #endif
 }
 

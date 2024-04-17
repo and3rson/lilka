@@ -29,46 +29,16 @@ typedef struct int_vector_t {
     int32_t y;
 } int_vector_t;
 
-/// Клас для роботи з дисплеєм.
-///
-/// Використовується для відображення графічних об'єктів.
-///
-/// Цей клас є підкласом `Arduino_GFX` з бібліотеки `Arduino_GFX_Library`.
-/// Детальніше про доступні методи можна дізнатися в документації бібліотеки ``Arduino_GFX_Library`` -
-/// https://github.com/moononournation/Arduino_GFX.
-///
-/// Приклад використання:
-///
-/// @code
-/// #include <lilka.h>
-///
-/// void setup() {
-///     lilka.begin();
-/// }
-///
-/// void loop() {
-///    lilka::display.fillScreen(lilka::colors::Red); // Заповнити екран червоним кольором
-///    lilka::display.setCursor(32, 32);
-///    lilka::display.setTextColor(lilka::colors::Green); // Зелений текст
-///    lilka::display.print("Привіт, Лілка!");
-/// }
-/// @endcode
-class Display : public Arduino_ST7789 {
+typedef enum {
+    ALIGN_START,
+    ALIGN_CENTER,
+    ALIGN_END,
+} Alignment;
+
+/// Цей клас описує спільні методи для класів `Display` та `Canvas`, оскільки вони обидва є підкласами `GFX`.
+template <typename T>
+class GFX {
 public:
-    Display();
-    /// Почати роботу з дисплеєм.
-    /// \warning Цей метод викликається автоматично при виклику `lilka::begin()`.
-    void begin();
-    /// Встановити зображення, яке буде відображатися при запуску.
-    ///
-    /// За замовчуванням відображається вітальний екран Лілки.
-    ///
-    /// @note Якщо викликати цей метод, то вітальний екран буде відображатись навіть якщо `LILKA_NO_SPLASH` встановлено в `true`.
-    ///
-    /// Його потрібно викликати перед викликом `lilka::begin()` або не викликати взагалі.
-    /// @param splash Масив 16-бітних кольорів (5-6-5) з розміром 280*240 (або масив байтів, закодованих алгоритмом RLE, з довжиною rleLength).
-    /// @param rleLength Якщо використовується RLE-кодування, цей аргумент вказує довжину масиву splash. Зображення повинне бути згенероване за допомогою утиліти `sdk/tools/image2code` з прапорцем `--rle`.
-    void setSplash(const void* splash, uint32_t rleLength = 0);
 #ifdef DOXYGEN
     // `Arduino_GFX_Library` має купу гарних методів, але вони погано документовані.
     // Ця секція - лише для документації цих методів. Вона буде прочитана інструментом `doxygen` при генерації
@@ -101,8 +71,6 @@ public:
     ///
     /// Також можна використати будь-який інший шрифт з бібліотеки `U8g2`: https://github.com/olikraus/u8g2/wiki/fntlistallplain
     ///
-    /// Наприклад:
-    ///
     /// @code
     /// lilka::display.setFont(FONT_6x12);
     /// lilka::display.setCursor(0, 32);
@@ -128,11 +96,10 @@ public:
     /// Відобразити текст.
     /// @param ... Текст.
     ///
-    /// Наприклад:
     /// @code
     /// lilka::display.setCursor(0, 32);
     /// lilka::display.setTextColor(lilka::colors::Black); // Чорний текст
-    /// lilka::display.print("Привіт,j ");
+    /// lilka::display.print("Привіт, ");
     /// lilka::display.print(String("Лілка!\n"));
     /// lilka::display.print(42);
     /// @endcode
@@ -179,14 +146,46 @@ public:
     /// Намалювати заповнену дугу.
     /// @see drawArc
     void fillArc(int16_t x, int16_t y, int16_t r1, int16_t r2, int16_t start, int16_t end, uint16_t color);
+    /// Намалювати зображення з масиву 16-бітних точок.
+    /// @param x Координата X лівого верхнього кута зображення.
+    /// @param y Координата Y лівого верхнього кута зображення.
+    /// @param bitmap Масив 16-бітних кольорів.
+    /// @param w Ширина зображення.
+    /// @param h Висота зображення.
+    ///
+    /// @code
+    /// lilka::Image *image = lilka::resources.loadImage("image.bmp");
+    /// lilka::display.drawBitmap(0, 0, image->pixels, image->width, image->height);
+    /// @endcode
+    void draw16bitRGBBitmap(int16_t x, int16_t y, uint16_t* bitmap, int16_t w, int16_t h);
+    /// @see draw16bitRGBBitmap
+    void draw16bitRGBBitmap(int16_t x, int16_t y, const uint16_t bitmap[], int16_t w, int16_t h);
+    /// Намалювати зображення з масиву 16-бітних точок і вказати колір, який буде вважатися прозорим.
+    /// @param x Координата X лівого верхнього кута зображення.
+    /// @param y Координата Y лівого верхнього кута зображення.
+    /// @param bitmap Масив 16-бітних кольорів.
+    /// @param transparent_color Колір, який буде вважатися прозорим.
+    /// @param w Ширина зображення.
+    /// @param h Висота зображення.
+    ///
+    /// @code
+    /// // Завантажити зображення з файлу "image.bmp", використовуючи білий колір як прозорий.
+    /// lilka::Image *image = lilka::resources.loadImage("image.bmp", lilka::colors::White);
+    /// lilka::display.draw16bitRGBBitmapWithTranColor(
+    ///     0, 0, image->pixels, image->transparentColor, image->width, image->height
+    /// );
+    /// @endcode
+    void draw16bitRGBBitmapWithTranColor(
+        int16_t x, int16_t y, uint16_t* bitmap, uint16_t transparent_color, int16_t w, int16_t h
+    );
 #endif
+    /// Відобразити буфер на екрані (див. `lilka::Canvas`).
+    void drawCanvas(Canvas* canvas);
 
     /// Намалювати зображення.
     /// @param image Вказівник на зображення (об'єкт класу `lilka::Image`).
     /// @param x Координата X осі зображення.
     /// @param y Координата Y осі зображення.
-    ///
-    /// Приклад використання:
     ///
     /// @code
     /// lilka::Image *image = lilka::resources.loadImage("image.bmp");
@@ -207,78 +206,80 @@ public:
     /// @note Зверніть увагу, що перетворення - це повільніше, ніж звичайне малювання зображення, оскільки обчислює координати пікселів "на льоту". Використовуйте його лише тоді, коли не можете заздалегідь створити обернені копії зображеня за допомогою методів `lilka::Image::rotate`, `lilka::Image::flipX` та `lilka::Image::flipY`.
     /// @see lilka::Transform
     void drawImageTransformed(Image* image, int16_t x, int16_t y, Transform transform);
-
-#ifdef DOXYGEN
-    /// Намалювати зображення з масиву 16-бітних точок.
-    /// @param x Координата X лівого верхнього кута зображення.
-    /// @param y Координата Y лівого верхнього кута зображення.
-    /// @param bitmap Масив 16-бітних кольорів.
-    /// @param w Ширина зображення.
-    /// @param h Висота зображення.
-    ///
-    /// Приклад використання:
-    /// @code
-    /// lilka::Image *image = lilka::resources.loadImage("image.bmp");
-    /// lilka::display.drawBitmap(0, 0, image->pixels, image->width, image->height);
-    /// @endcode
-    void draw16bitRGBBitmap(int16_t x, int16_t y, uint16_t* bitmap, int16_t w, int16_t h);
-    /// @see draw16bitRGBBitmap
-    void draw16bitRGBBitmap(int16_t x, int16_t y, const uint16_t bitmap[], int16_t w, int16_t h);
-
-    /// Намалювати зображення з масиву 16-бітних точок і вказати колір, який буде вважатися прозорим.
-    /// @param x Координата X лівого верхнього кута зображення.
-    /// @param y Координата Y лівого верхнього кута зображення.
-    /// @param bitmap Масив 16-бітних кольорів.
-    /// @param transparent_color Колір, який буде вважатися прозорим.
-    /// @param w Ширина зображення.
-    /// @param h Висота зображення.
-    ///
-    /// Приклад використання:
-    /// @code
-    /// // Завантажити зображення з файлу "image.bmp", використовуючи білий колір як прозорий.
-    /// lilka::Image *image = lilka::resources.loadImage("image.bmp", lilka::colors::White);
-    /// lilka::display.draw16bitRGBBitmapWithTranColor(
-    ///     0, 0, image->pixels, image->transparentColor, image->width, image->height
-    /// );
-    /// @endcode
-    void draw16bitRGBBitmapWithTranColor(
-        int16_t x, int16_t y, uint16_t* bitmap, uint16_t transparent_color, int16_t w, int16_t h
+    int drawTextAligned(const char* text, int16_t x, int16_t y, Alignment hAlign, Alignment vAlign);
+    void getTextBoundsAligned(
+        const char* text, int16_t x, int16_t y, Alignment hAlign, Alignment vAlign, int16_t* x1, int16_t* y1,
+        uint16_t* w, uint16_t* h
     );
-#endif
-    /// @see draw16bitRGBBitmapWithTranColor
+};
+
+/// @see GFX
+///
+/// Клас для роботи з дисплеєм.
+///
+/// Використовується для відображення графічних об'єктів.
+///
+/// Цей клас наслідує `Arduino_GFX` з бібліотеки `Arduino_GFX_Library`, а також клас `GFX`.
+///
+/// Детальніше про доступні методи можна дізнатися в документації бібліотеки ``Arduino_GFX_Library`` -
+/// https://github.com/moononournation/Arduino_GFX.
+///
+/// @code
+/// #include <lilka.h>
+///
+/// void setup() {
+///     lilka.begin();
+/// }
+///
+/// void loop() {
+///    lilka::display.fillScreen(lilka::colors::Red); // Заповнити екран червоним кольором
+///    lilka::display.setCursor(32, 32);
+///    lilka::display.setTextColor(lilka::colors::Green); // Зелений текст
+///    lilka::display.print("Привіт, Лілка!");
+/// }
+/// @endcode
+class Display : public Arduino_ST7789, public GFX<Display> {
+public:
+    Display();
+    /// Почати роботу з дисплеєм.
+    /// \warning Цей метод викликається автоматично при виклику `lilka::begin()`.
+    void begin();
+    /// Встановити зображення, яке буде відображатися при запуску.
+    ///
+    /// За замовчуванням відображається вітальний екран Лілки.
+    ///
+    /// @note Якщо викликати цей метод, то вітальний екран буде відображатись навіть якщо `LILKA_NO_SPLASH` встановлено в `true`.
+    ///
+    /// Його потрібно викликати перед викликом `lilka::begin()` або не викликати взагалі.
+    /// @param splash Масив 16-бітних кольорів (5-6-5) з розміром 280*240 (або масив байтів, закодованих алгоритмом RLE, з довжиною rleLength).
+    /// @param rleLength Якщо використовується RLE-кодування, цей аргумент вказує довжину масиву splash. Зображення повинне бути згенероване за допомогою утиліти `sdk/tools/image2code` з прапорцем `--rle`.
+    void setSplash(const void* splash, uint32_t rleLength = 0);
     void draw16bitRGBBitmapWithTranColor(
         int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
     );
-    /// Відобразити буфер на екрані (див. `lilka::Canvas`).
-    void drawCanvas(Canvas* canvas);
+    uint8_t* getFont();
 
 private:
     const void* splash;
     uint32_t rleLength;
 };
 
-typedef enum {
-    ALIGN_START,
-    ALIGN_CENTER,
-    ALIGN_END,
-} Alignment;
-
-/// Клас для роботи з графічним буфером.
+/// @see GFX
+///
+/// Клас для роботи з графічним буфером. Він наслідує клас `Arduino_Canvas` з бібліотеки `Arduino_GFX_Library`, а також клас `GFX`.
 ///
 /// При частому перемальовуванні екрану без використання буфера може спостерігатися мерехтіння.
 /// Наприклад, якщо використовувати метод `fillScreen` для очищення екрану перед кожним викликом `print`,
 /// то текст буде мерехтіти.
 ///
-/// Щоб уникнути цього, можна використовувати буфер. Цей клас дозволяє малювати графічні об'єкти на буфері,
-/// а потім відобразити його на екрані за допомогою методу `lilka::display.drawCanvas`.
+/// Щоб уникнути цього, можна використовувати графічний буфер. Цей клас дозволяє малювати графічні об'єкти на буфері,
+/// а потім відобразити його на екрані за допомогою методу `lilka::display.drawCanvas`. Фактично, цей клас і є графічним буфером.
 ///
 /// Такий підхід дозволяє зменшити мерехтіння, але збільшує використання пам'яті. Він називається "буферизація",
 /// оскільки ми спершу малюємо на буфері, а тоді відображаємо буфер на екрані.
 ///
 /// Цей клас, як і `Display`, є підкласом `Arduino_GFX` з бібліотеки `Arduino_GFX_Library`.
 /// Це означає, що майже всі методи, які доступні в `Display`, також доступні в `Canvas`.
-///
-/// Приклад використання:
 ///
 /// @code
 /// #include <lilka.h>
@@ -303,24 +304,26 @@ typedef enum {
 ///     }
 /// }
 /// @endcode
-class Canvas : public Arduino_Canvas {
+class Canvas : public Arduino_Canvas, public GFX<Canvas> {
 public:
+    /// Створити буфер зі стандартним розміром (який дорівнює розміру дисплею).
     Canvas();
+    /// Створити буфер з заданими розмірами.
+    /// @param w Ширина буфера.
+    /// @param h Висота буфера.
     Canvas(uint16_t w, uint16_t h);
+    /// Створити буфер з заданими розмірами та позицією.
+    /// @param x Координата X лівого верхнього кута буфера.
+    /// @param y Координата Y лівого верхнього кута буфера.
+    /// @param w Ширина буфера.
+    /// @param h Висота буфера.
     Canvas(uint16_t x, uint16_t y, uint16_t w, uint16_t h);
-    /// Намалювати зображення.
-    /// @see Display::drawImage
-    void drawImage(Image* image, int16_t x, int16_t y);
-    /// Намалювати зображення з афінними перетвореннями.
-    /// @see Display::drawImageTransformed
-    void drawImageTransformed(Image* image, int16_t x, int16_t y, Transform transform);
+    int16_t x();
+    int16_t y();
     void draw16bitRGBBitmapWithTranColor(
         int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
     );
-    void drawCanvas(Canvas* canvas);
-    int drawTextAligned(const char* text, int16_t x, int16_t y, Alignment hAlign, Alignment vAlign);
-    int16_t x();
-    int16_t y();
+    uint8_t* getFont();
 };
 
 // Dirty (and painfully slow!) workaround to calculate text width (since getTextBounds clips result to canvas width)
@@ -332,7 +335,7 @@ int16_t getTextWidth(const uint8_t* font, const char* text);
 /// Містить розміри, прозорий колір та пікселі зображення (в 16-бітному форматі, 5-6-5).
 /// Пікселі зберігаються в рядку зліва направо, зверху вниз.
 ///
-/// Вісь зображення - це точка, яка вказує на центр зображення. Це дозволяє вам встановити точку, відносно якої буде відображатися зображення, а також навколо якої буде відбуватися перетворення зображення.
+/// Вісь зображення (pivot) - це точка, яка вказує на центр зображення. Це дозволяє вам встановити точку, відносно якої буде відображатися зображення, а також навколо якої буде відбуватися перетворення зображення.
 ///
 /// @note Основна відмінність Image від поняття "bitmap" погялає в тому, що Image містить масив пікселів, розміри зображення і прозорий колір, в той час як "bitmap" - це просто масив пікселів.
 class Image {
@@ -340,6 +343,12 @@ public:
     /// Створити зображення з заданими розмірами та прозорим кольором.
     ///
     /// Якщо `transparentColor` встановлено в `-1`, то прозорість відсутня.
+    ///
+    /// @param width Ширина зображення.
+    /// @param height Висота зображення.
+    /// @param transparentColor 16-бітний колір (5-6-5), який буде вважатися прозорим. За замовчуванням -1 (прозорість відсутня).
+    /// @param pivotX Координата X центральної осі зображення. За замовчуванням 0.
+    /// @param pivotY Координата Y центральної осі зображення. За замовчуванням 0.
     Image(uint32_t width, uint32_t height, int32_t transparentColor = -1, int16_t pivotX = 0, int16_t pivotY = 0);
     ~Image();
     /// Створити зображення з масиву 16-бітних точок, стисненого алгоритмом RLE.
@@ -357,8 +366,6 @@ public:
     /// @param dest Вказівник на Image, в яке буде записано обернуте зображення.
     /// @param blankColor 16-бітний колір (5-6-5), який буде використаний для заповнення пікселів, які виходять за межі зображення.
     /// @warning `dest` повинен бути ініціалізований заздалегідь.
-    ///
-    /// Приклад:
     ///
     /// @code
     /// lilka::Image *image = lilka::resources.loadImage("image.bmp");
@@ -400,9 +407,8 @@ public:
 ///
 /// Перетворення - це всього лиш матриця 2x2. Застосування перетворення до вектора - це множення цього вектора на матрицю перетворення. Магія!
 ///
-/// Наприклад, ось цей код обертає зображення на 30 градусів і тоді віддзеркалює його по горизонталі:
-///
 /// @code
+/// // Цей код обертає зображення на 30 градусів і тоді віддзеркалює його по горизонталі
 /// lilka::Transform transform = lilka::Transform().rotate(30).flipX();
 /// lilka::display.drawImageTransformed(image, 32, 64, transform);
 /// @endcode

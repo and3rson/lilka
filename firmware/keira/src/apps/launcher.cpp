@@ -27,6 +27,7 @@
 #include "nes/nesapp.h"
 #include "ftp/ftp_server.h"
 #include "weather/weather.h"
+#include "liltracker/liltracker.h"
 
 #include "icons/demos.h"
 #include "icons/sdcard.h"
@@ -66,6 +67,7 @@ ITEM_LIST app_items = {
          ITEM_APP("I2C-сканер", ScanI2CApp),
          ITEM_APP("GPIO-мененджер", GPIOManagerApp)},
     ),
+    ITEM_APP("ЛілТрекер", LilTrackerApp),
     ITEM_APP("Летріс", LetrisApp),
     ITEM_APP("Тамагочі", TamagotchiApp),
     ITEM_APP("Погода", WeatherApp),
@@ -78,12 +80,15 @@ ITEM_LIST dev_items = {
 };
 
 void LauncherApp::run() {
+    for (lilka::Button button : {lilka::Button::UP, lilka::Button::DOWN, lilka::Button::LEFT, lilka::Button::RIGHT}) {
+        lilka::controller.setAutoRepeat(button, 10, 300);
+    }
     lilka::Menu menu("Головне меню");
-    menu.addItem("Додатки", &demos, lilka::colors::Pink);
-    menu.addItem("Браузер SD-карти", &sdcard, lilka::colors::Arylide_yellow);
-    menu.addItem("Браузер SPIFFS", &memory, lilka::colors::Dark_sea_green);
-    menu.addItem("Розробка", &dev, lilka::colors::Jasmine);
-    menu.addItem("Налаштування", &settings, lilka::colors::Orchid);
+    menu.addItem("Додатки", &demos_img, lilka::colors::Pink);
+    menu.addItem("Браузер SD-карти", &sdcard_img, lilka::colors::Arylide_yellow);
+    menu.addItem("Браузер SPIFFS", &memory_img, lilka::colors::Dark_sea_green);
+    menu.addItem("Розробка", &dev_img, lilka::colors::Jasmine);
+    menu.addItem("Налаштування", &settings_img, lilka::colors::Orchid);
 
     while (1) {
         while (!menu.isFinished()) {
@@ -110,7 +115,7 @@ void LauncherApp::appsMenu(const char* title, ITEM_LIST& list) {
     int itemCount = list.size();
     lilka::Menu menu(title);
     for (int i = 0; i < list.size(); i++) {
-        menu.addItem(list[i].name, list[i].type == APP_ITEM_TYPE_SUBMENU ? &app_group : &app);
+        menu.addItem(list[i].name, list[i].type == APP_ITEM_TYPE_SUBMENU ? &app_group_img : &app_img);
     }
     menu.addItem("<< Назад");
     while (1) {
@@ -136,15 +141,15 @@ const menu_icon_t* get_file_icon(const String& filename) {
     String lowerCasedFileName = filename;
     lowerCasedFileName.toLowerCase();
     if (lowerCasedFileName.endsWith(".rom") || lowerCasedFileName.endsWith(".nes")) {
-        return &nes;
+        return &nes_img;
     } else if (lowerCasedFileName.endsWith(".bin")) {
-        return &bin;
+        return &bin_img;
     } else if (lowerCasedFileName.endsWith(".lua")) {
-        return &lua;
+        return &lua_img;
     } else if (lowerCasedFileName.endsWith(".js")) {
-        return &js;
+        return &js_img;
     } else {
-        return &normalfile;
+        return &normalfile_img;
     }
 }
 
@@ -188,7 +193,7 @@ void LauncherApp::sdBrowserMenu(FS* fSysDriver, const String& path) {
     for (int i = 0; i < numEntries; i++) {
         String filename = entries[i].name;
         const menu_icon_t* icon =
-            entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(filename);
+            entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder_img : get_file_icon(filename);
         uint16_t color = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? lilka::colors::Arylide_yellow
                                                                             : get_file_color(filename);
         if (entries[i].type != lilka::EntryType::ENT_DIRECTORY)
@@ -267,6 +272,8 @@ void LauncherApp::selectFile(String path) {
         AppManager::getInstance()->runApp(new LuaFileRunnerApp(path));
     } else if (lowerCasedPath.endsWith(".js")) {
         AppManager::getInstance()->runApp(new MJSApp(path));
+    } else if (lowerCasedPath.endsWith(".lt")) {
+        AppManager::getInstance()->runApp(new LilTrackerApp(path));
     } else {
         // Get file size
         // lilka::serial_log(path.c_str());

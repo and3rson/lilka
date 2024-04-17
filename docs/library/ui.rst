@@ -11,3 +11,6 @@
 
 .. doxygenclass:: lilka::ProgressDialog
     :members:
+
+.. doxygenclass:: lilka::InputDialog
+    :members:

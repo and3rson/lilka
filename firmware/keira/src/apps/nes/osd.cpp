@@ -151,6 +151,8 @@ int osd_init_sound() {
         return OSD_INIT_FAILED;
     }
 
+    lilka::audio.initPins();
+
     esp_i2s::i2s_config_t cfg = {
         .mode = (esp_i2s::i2s_mode_t)(esp_i2s::I2S_MODE_MASTER | esp_i2s::I2S_MODE_TX),
         .sample_rate = HW_AUDIO_SAMPLERATE,

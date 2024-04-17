@@ -35,6 +35,9 @@ typedef struct {
     /// `true`, якщо кнопка була вперше відпущена в момент виклику `lilka::controller.getState()` (до цього була натиснута).
     bool justReleased;
     uint64_t time;
+    uint64_t nextRepeatTime;
+    uint32_t repeatRate;
+    uint32_t repeatDelay;
 } ButtonState;
 
 /// Містить стани всіх кнопок, які були виміряні в певний момент часу.
@@ -97,6 +100,20 @@ public:
     void setHandler(Button button, void (*handler)(bool));
     /// Видалити всі обробники подій.
     void clearHandlers();
+    /// Налаштувати автоматичне повторення натискання кнопки.
+    ///
+    /// Після виклику цього методу кнопка буде автоматично натискатися з певною затримкою та частотою.
+    ///
+    /// Щоб вимкнути автоматичне повторення натискання кнопки, викличте цей метод з параметрами `delay = 0` та `rate = 0`.
+    ///
+    /// \param button Кнопка, для якої налаштовується автоматичне повторення натискання.
+    /// \param rate Частота автоматичного повторення натискання (кількість натискань на секунду).
+    /// \param delay Затримка перед початком автоматичного повторення натискання (в мілісекундах).
+    /// \code
+    /// // Натискання кнопки "Вгору" буде повторюватись з частотою 5 натискань на секунду після початкової затримки 500 мс:
+    /// lilka::controller.setAutoRepeat(lilka::Button::UP, 5, 500);
+    /// \endcode
+    void setAutoRepeat(Button button, uint32_t rate, uint32_t delay);
 
 private:
     // Input task FreeRTOS semaphore

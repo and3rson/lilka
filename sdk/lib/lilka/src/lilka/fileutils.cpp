@@ -241,9 +241,8 @@ bool FileUtils::createSDPartTable() {
     std::unique_ptr<uint8_t[]> workbufPtr(workbuf);
 
     // init without mount
-    SPI1.beginTransaction(SPISettings(LILKA_SD_FREQUENCY, MSBFIRST, SPI_MODE0));
     uint8_t pdrv = sdcard_init(LILKA_SDCARD_CS, &SPI1, LILKA_SD_FREQUENCY);
-    SPI1.endTransaction();
+
     if (pdrv == 0xFF) {
         xSemaphoreGive(sdMutex);
         return false;
@@ -252,9 +251,7 @@ bool FileUtils::createSDPartTable() {
     // SD card uninitializer (RAII)
     std::unique_ptr<void, void (*)(void*)> sdcardUninit(nullptr, [](void* pdrv) {
         // C++ is beautiful and ugly at the same time
-        SPI1.beginTransaction(SPISettings(LILKA_SD_FREQUENCY, MSBFIRST, SPI_MODE0));
         sdcard_uninit(*static_cast<uint8_t*>(pdrv));
-        SPI1.endTransaction();
     });
 
     // Create partition table
