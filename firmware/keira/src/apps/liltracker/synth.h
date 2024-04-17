@@ -20,7 +20,6 @@ typedef struct {
     // some effects are cancelled by others, some are reset by OFF, etc... /AD
     effect_t effect;
     float effectStartTime;
-    // float time; // TODO
 } channel_state_t;
 
 class Synth {

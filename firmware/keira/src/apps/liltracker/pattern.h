@@ -21,12 +21,12 @@ typedef struct {
     uint8_t volume;
     event_type_t type;
     effect_t effect;
-} event_t;
+} PACKED event_t;
 
 typedef struct {
     uint8_t volume;
     event_t events[CHANNEL_SIZE];
-} channel_t;
+} PACKED channel_t;
 
 class Pattern {
 public:

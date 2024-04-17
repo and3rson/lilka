@@ -114,7 +114,7 @@ void LilTrackerApp::run() {
 
     int visualizerMode = VISUALIZER_MODE_PER_CHANNEL;
 
-    event_t copiedEvent = {N_C0, WAVEFORM_CONT, MAX_VOLUME, EVENT_TYPE_CONT, {EFFECT_TYPE_NONE, 0}};
+    event_t copiedEvent = {NOTE_ZERO, WAVEFORM_CONT, MAX_VOLUME, EVENT_TYPE_CONT, {EFFECT_TYPE_NONE, 0}};
 
     char str[64];
 
@@ -381,7 +381,6 @@ void LilTrackerApp::run() {
                 int8_t fontShiftY = 0;
                 if (event.waveform == WAVEFORM_CONT) {
                     sprintf(str, ".");
-                    canvas->setFont(FONT);
                 } else {
                     sprintf(str, "%d", event.waveform - 1);
                     canvas->setFont(FONT_ICONS);
@@ -398,7 +397,7 @@ void LilTrackerApp::run() {
                     eventFocused && currentSegment == SEGMENT_WAVEFORM,
                     event.waveform == WAVEFORM_CONT ? lilka::colors::Battleship_gray : lilka::colors::Cyan
                 );
-                canvas->setFont(FONT);
+                canvas->setFont(SCORE_FONT);
                 xOffset += 9;
                 // Volume
                 if (event.volume == 0) {
@@ -610,7 +609,7 @@ void LilTrackerApp::run() {
                                     }
                                 }
                                 if (!found) {
-                                    event.note = N_C0;
+                                    event.note = NOTE_ZERO;
                                 }
                             }
                             if (state.up.justPressed) {

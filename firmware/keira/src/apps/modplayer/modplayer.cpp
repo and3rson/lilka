@@ -96,7 +96,7 @@ void ModPlayerApp::mainWindow() {
         for (int i = 0; i < ANALYZER_BUFFER_SIZE; i += 4) {
             int x = i * width / ANALYZER_BUFFER_SIZE;
             int index = (i + head) % ANALYZER_BUFFER_SIZE;
-            float amplitude = static_cast<float>(analyzerBuffer[index]) / 32768 * gain;
+            float amplitude = static_cast<float>(analyzerBuffer[index]) / 32768 * fmaxf(gain, 1.0f);
             int y = yCenter + static_cast<int>(amplitude * height / 2);
             if (i > 0) {
                 int16_t hue = (time / HUE_SPEED_DIV + i / HUE_SCALE) % 360;

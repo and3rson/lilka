@@ -1,12 +1,13 @@
 #include <lilka.h>
 
 #include "sink.h"
+#include "config.h"
 
 typedef struct {
     char chunkID[4]; // "RIFF"
     unsigned int chunkSize; // size of the entire file minus 8 bytes
     char format[4]; // "WAVE"
-} riff_header_t;
+} PACKED riff_header_t;
 
 typedef struct {
     char subchunk1ID[4]; // "fmt "
@@ -17,12 +18,12 @@ typedef struct {
     unsigned int byteRate; // = SampleRate * NumChannels * BitsPerSample/8
     unsigned short blockAlign; // = NumChannels * BitsPerSample/8
     unsigned short bitsPerSample; // 16 for PCM
-} fmt_subchunk_t;
+} PACKED fmt_subchunk_t;
 
 typedef struct {
     char subchunk2ID[4]; // "data"
     unsigned int subchunk2Size; // num samples * num channels * bits per sample/8
-} data_subchunk_t;
+} PACKED data_subchunk_t;
 
 class WAVSink : public Sink {
 public:

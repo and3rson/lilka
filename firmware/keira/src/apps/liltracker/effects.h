@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+#include "config.h"
+
 typedef enum : uint8_t {
     EFFECT_TYPE_NONE,
     EFFECT_TYPE_ARPEGGIO, // NES: 00xy
@@ -30,7 +32,7 @@ const char effect_signs[EFFECT_TYPE_COUNT] = {
 typedef struct {
     effect_type_t type;
     uint8_t param;
-} effect_t;
+} PACKED effect_t;
 
 typedef void (*effect_fn_t)(
     const float time, const float relTime, float* frequency, float* amplitude, float* phase, uint8_t param

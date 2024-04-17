@@ -23,7 +23,7 @@ Pattern::Pattern() : xMutex(xSemaphoreCreateMutex()) {
         channels[channelIndex].volume = 1.0f;
         for (int16_t eventIndex = 0; eventIndex < CHANNEL_SIZE; eventIndex++) {
             event_t event = {
-                N_C0,
+                NOTE_ZERO,
                 eventIndex == 0 ? defaultWaveforms[channelIndex] : WAVEFORM_CONT,
                 MAX_VOLUME,
                 EVENT_TYPE_CONT,

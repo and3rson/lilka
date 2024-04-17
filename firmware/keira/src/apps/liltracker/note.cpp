@@ -19,7 +19,7 @@ const char* note_names[] = {"C-", "C#", "D-", "D#", "E-", "F-", "F#", "G-", "G#"
 
 void noteinfo_t::fromFrequency(float frequency) {
     // 16.35 Hz is the lowest note, which is C0 (returned as octave 0, index 0)
-    int absIndex = round(log2(frequency / A4_FREQUENCY) * NOTES_PER_OCTAVE) + 57;
+    int absIndex = roundf(log2f(frequency / A4_FREQUENCY) * NOTES_PER_OCTAVE) + 57;
 
     if (absIndex < 0) {
         absIndex = 0;

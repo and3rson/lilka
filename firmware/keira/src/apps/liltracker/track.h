@@ -8,7 +8,7 @@
 // Each page tells which patterns to play.
 typedef struct page_t {
     int16_t patternIndices[CHANNEL_COUNT] = {0, 0, 0};
-} page_t;
+} PACKED page_t;
 
 // Track is the top-level container for a song.
 // It contains patterns and pages.
