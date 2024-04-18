@@ -20,6 +20,7 @@
 #include "demos/keyboard.h"
 #include "demos/user_spi.h"
 #include "demos/scan_i2c.h"
+#include "demos/petpet.h"
 #include "gpiomanager.h"
 #include "tamagotchi/tamagotchi.h"
 #include "lua/luarunner.h"
@@ -60,6 +61,7 @@ ITEM_LIST app_items = {
             ITEM_APP("М'ячик", BallApp),
             ITEM_APP("Куб", CubeApp),
             ITEM_APP("Епілепсія", EpilepsyApp),
+            ITEM_APP("PetPet", PetPetApp),
         }
     ),
     ITEM_SUBMENU(
