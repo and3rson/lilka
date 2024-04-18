@@ -13,3 +13,4 @@
     configurations
     components
     every_component
+    instructions

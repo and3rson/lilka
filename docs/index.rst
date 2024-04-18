@@ -15,7 +15,7 @@
     about/index
     hardware/index
     assembly/index
-    manual/index
+    programming/index
     keira/index
     library/index
     faq/index

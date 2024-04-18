@@ -95,3 +95,10 @@ extensions.append("sphinx.ext.graphviz")
 
 # -- Sphinx-Design ------------------------------------------------------------
 extensions.append("sphinx_design")
+
+# -- Hoverxref ---------------------------------------------------------------
+extensions.append("hoverxref.extension")
+hoverxref_roles = ["term"]
+hoverxref_role_types = {
+    "term": "tooltip",
+}
