@@ -70,7 +70,7 @@ String FTPServerApp::createPassword() {
     password[pwdLen] = '\0';
 
     Preferences prefs;
-    prefs.begin("ftp", false);
+    prefs.begin("keira", false);
     prefs.putString("password", password);
     prefs.end();
 
@@ -79,7 +79,7 @@ String FTPServerApp::createPassword() {
 
 String FTPServerApp::getPassword() {
     Preferences prefs;
-    prefs.begin("ftp", true);
+    prefs.begin("keira", true);
     String password;
     if (!prefs.isKey("password")) {
         password = "";
