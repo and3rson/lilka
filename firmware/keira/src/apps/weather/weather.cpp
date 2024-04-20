@@ -310,7 +310,7 @@ bool WeatherApp::runSettings() {
     }
     if (saveSettings) {
         Preferences prefs;
-        prefs.begin("weather", false);
+        prefs.begin("keira", false);
         prefs.putFloat("lat", settings.lat);
         prefs.putFloat("lon", settings.lon);
         prefs.end();
@@ -322,7 +322,7 @@ bool WeatherApp::runSettings() {
 settings_t WeatherApp::getSettings() {
     Preferences prefs;
     settings_t settings = {false, 0, 0};
-    prefs.begin("weather", false);
+    prefs.begin("keira", false);
     if (prefs.isKey("lat") && prefs.isKey("lon")) {
         settings.lat = prefs.getFloat("lat", settings.lat);
         settings.lon = prefs.getFloat("lon", settings.lon);

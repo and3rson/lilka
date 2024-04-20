@@ -2,6 +2,7 @@
 #include "icons/battery.h"
 #include "icons/battery_danger.h"
 #include "icons/battery_absent.h"
+#include "icons/wifi_disabled.h"
 #include "icons/wifi_offline.h"
 #include "icons/wifi_connecting.h"
 #include "icons/wifi_0.h"
@@ -63,7 +64,9 @@ int16_t StatusBarApp::drawIcons(lilka::Canvas* iconCanvas) {
 
     // Draw WiFi signal strength
     if (networkService != NULL) {
-        if (networkService->getNetworkState() == NETWORK_STATE_OFFLINE) {
+        if (networkService->getNetworkState() == NETWORK_STATE_DISABLED) {
+            iconCanvas->draw16bitRGBBitmapWithTranColor(xOffset, 0, wifi_disabled_img, 0, 24, 24);
+        } else if (networkService->getNetworkState() == NETWORK_STATE_OFFLINE) {
             iconCanvas->draw16bitRGBBitmapWithTranColor(xOffset, 0, wifi_offline_img, 0, 24, 24);
         } else if (networkService->getNetworkState() == NETWORK_STATE_CONNECTING) {
             iconCanvas->draw16bitRGBBitmapWithTranColor(xOffset, 0, wifi_connecting_img, 0, 24, 24);

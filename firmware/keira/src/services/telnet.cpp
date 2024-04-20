@@ -1,6 +1,7 @@
 #include <EscapeCodes.h>
 
 #include "telnet.h"
+#include "Preferences.h"
 #include "servicemanager.h"
 #include "network.h"
 
@@ -18,26 +19,29 @@ TelnetService::~TelnetService() {
 
 typedef struct {
     const char* command;
-    void (*function)(String);
+    void (*function)(std::vector<String>);
 } Command;
 
 Command commands[] = {
     {
         "help",
-        [](String args) {
+        [](std::vector<String> args) {
             telnet.println("Доступні команди:");
-            telnet.println("  help          - показати цей список команд");
-            telnet.println("  reboot        - перезавантажити пристрій");
-            telnet.println("  uptime        - показати час роботи пристрою");
-            telnet.println("  free          - показати стан пам'яті");
-            telnet.println("  ls [DIR]      - показати список файлів на SD-картці");
-            telnet.println("  find [TEXT]   - знайти файли на SD-картці, які містять TEXT в назві");
-            telnet.println("  exit          - розірвати з'єднання");
+            telnet.println("  help               - показати цей список команд");
+            telnet.println("  reboot             - перезавантажити пристрій");
+            telnet.println("  uptime             - показати час роботи пристрою");
+            telnet.println("  free               - показати стан пам'яті");
+            telnet.println("  ls [DIR]           - показати список файлів на SD-картці");
+            telnet.println("  find [TEXT]        - знайти файли на SD-картці, які містять TEXT в назві");
+            telnet.println("  nvs get [NS] [KEY] - отримати значення ключа з NVS");
+            telnet.println("  nvs rm [NS] [KEY]  - видалити ключ з NVS");
+            telnet.println("  nvs rm [NS]        - видалити всі ключі з namespace в NVS");
+            telnet.println("  exit               - розірвати з'єднання");
         },
     },
     {
         "reboot",
-        [](String args) {
+        [](std::vector<String> args) {
             telnet.println("Система перезавантажується...");
             telnet.disconnectClient();
             esp_restart();
@@ -45,22 +49,23 @@ Command commands[] = {
     },
     {
         "uptime",
-        [](String args) { telnet.println("Uptime: " + String(millis() / 1000) + " seconds"); },
+        [](std::vector<String> args) { telnet.println("Uptime: " + String(millis() / 1000) + " seconds"); },
     },
     {
         "free",
-        [](String args) {
+        [](std::vector<String> args) {
             telnet.println("Heap: " + String(ESP.getFreeHeap()) + " / " + String(ESP.getHeapSize()) + " bytes free");
             telnet.println("PSRAM: " + String(ESP.getFreePsram()) + " / " + String(ESP.getPsramSize()) + " bytes free");
         },
     },
     {
         "ls",
-        [](String args) {
-            File dir = SD.open(args.isEmpty() ? "/" : ("/" + args));
+        [](std::vector<String> args) {
+            String dirName = args.empty() ? "/" : ("/" + args[0]);
+            File dir = SD.open(dirName);
             int count = 0;
             if (!dir) {
-                telnet.println("Не вдалося відкрити директорію: " + args);
+                telnet.println("Не вдалося відкрити директорію: " + dirName);
                 return;
             }
             while (File file = dir.openNextFile()) {
@@ -79,7 +84,7 @@ Command commands[] = {
     },
     {
         "find",
-        [](String args) {
+        [](std::vector<String> args) {
             std::vector<String> dirs;
             dirs.push_back("/");
             int count = 0;
@@ -95,7 +100,7 @@ Command commands[] = {
                     String fullPath = (!dir.equals("/") ? dir : "") + "/" + file.name();
                     if (file.isDirectory()) {
                         dirs.push_back(fullPath);
-                    } else if (args.isEmpty() || String(file.name()).indexOf(args) != -1) {
+                    } else if (args.empty() || String(file.name()).indexOf(args[0]) != -1) {
                         count++;
                         telnet.print("FILE  ");
                         telnet.printf("%8s  ", lilka::fileutils.getHumanFriendlySize(file.size()).c_str());
@@ -109,8 +114,134 @@ Command commands[] = {
         },
     },
     {
+        "nvs",
+        [](std::vector<String> args) {
+            if (args.size() == 0) {
+                telnet.println("Помилка: не вказано підкоманду");
+                return;
+            }
+
+            String subcommand = args[0];
+            subcommand.toLowerCase();
+
+            if (subcommand == "get") {
+                if (args.size() != 3) {
+                    telnet.println("Помилка: невірна кількість параметрів");
+                    return;
+                }
+                String ns = args[1];
+                String key = args[2];
+                Preferences prefs;
+                prefs.begin(ns.c_str(), true);
+                if (!prefs.isKey(key.c_str())) {
+                    telnet.println("Помилка: ключ не знайдено");
+                } else {
+                    PreferenceType type = prefs.getType(key.c_str());
+                    String typeStr;
+                    String valueStr;
+                    // Ah sh1t, here we go again
+                    switch (type) {
+                        case PreferenceType::PT_I8: {
+                            typeStr = "int8";
+                            valueStr = String(prefs.getChar(key.c_str()));
+                            break;
+                        }
+                        case PreferenceType::PT_U8: {
+                            typeStr = "uint8";
+                            valueStr = String(prefs.getUChar(key.c_str()));
+                            break;
+                        }
+                        case PreferenceType::PT_I16: {
+                            typeStr = "int16";
+                            valueStr = String(prefs.getShort(key.c_str()));
+                            break;
+                        }
+                        case PreferenceType::PT_U16: {
+                            typeStr = "uint16";
+                            valueStr = String(prefs.getUShort(key.c_str()));
+                            break;
+                        }
+                        case PreferenceType::PT_I32: {
+                            typeStr = "int32";
+                            valueStr = String(prefs.getInt(key.c_str()));
+                            break;
+                        }
+                        case PreferenceType::PT_U32: {
+                            typeStr = "uint32";
+                            valueStr = String(prefs.getUInt(key.c_str()));
+                            break;
+                        }
+                        case PreferenceType::PT_I64: {
+                            typeStr = "int64";
+                            valueStr = String(prefs.getLong(key.c_str()));
+                            break;
+                        }
+                        case PreferenceType::PT_U64: {
+                            typeStr = "uint64";
+                            valueStr = String(prefs.getULong(key.c_str()));
+                            break;
+                        }
+                        case PreferenceType::PT_STR: {
+                            typeStr = "string";
+                            valueStr = prefs.getString(key.c_str());
+                            break;
+                        }
+                        case PreferenceType::PT_BLOB: {
+                            typeStr = "blob";
+                            size_t size = prefs.getBytesLength(key.c_str());
+                            uint8_t* value = new uint8_t[size];
+                            std::unique_ptr<uint8_t[]> valuePtr(value);
+                            prefs.getBytes(key.c_str(), value, size);
+                            for (size_t i = 0; i < size; i++) {
+                                if (i > 0) {
+                                    valueStr += " ";
+                                }
+                                valueStr += String(value[i], HEX);
+                            }
+                            valueStr = "???";
+                            break;
+                        }
+                        case PreferenceType::PT_INVALID: {
+                            typeStr = "invalid";
+                            valueStr = "???";
+                            break;
+                        }
+                    }
+                    telnet.printf("Тип: %s, значення: %s", typeStr.c_str(), valueStr.c_str());
+                    telnet.println();
+                }
+                prefs.end();
+            } else if (subcommand == "rm") {
+                if (args.size() != 2 && args.size() != 3) {
+                    telnet.println("Помилка: невірна кількість параметрів");
+                    return;
+                }
+                String ns = args[1];
+                Preferences prefs;
+                prefs.begin(ns.c_str(), false);
+                if (args.size() == 2) {
+                    if (prefs.clear()) {
+                        telnet.println("Всі ключі в namespace " + ns + " видалено");
+                    } else {
+                        telnet.println("Помилка: не вдалося видалити namespace");
+                    }
+                } else {
+                    String key = args[2];
+                    if (prefs.remove(key.c_str())) {
+                        telnet.println("Ключ " + key + " видалено");
+                    } else {
+                        telnet.println("Помилка: не вдалося видалити ключ");
+                    }
+                }
+                prefs.end();
+            } else {
+                telnet.println("Помилка: невідома підкоманда");
+            }
+        },
+    },
+    {
         "exit",
-        [](String args) { telnet.disconnectClient(); },
+        [](std::vector<String> args) { telnet.disconnectClient(); },
     },
 };
 
@@ -127,6 +258,7 @@ void TelnetService::run() {
         telnet.println(ansi.setBG(ANSI_BLUE) + "      " + ansi.reset() + " Keira OS @ Lilka v" STR(LILKA_VERSION));
         telnet.println(ansi.setBG(ANSI_YELLOW) + "      " + ansi.reset() + " Слава Україні! ");
         telnet.println();
+        telnet.println("Введіть 'help' для отримання списку команд");
         telnet.print("> ");
     });
     telnet.onReconnect([](String ip) { lilka::serial_log("TelnetService: %s reconnected", ip.c_str()); });
@@ -142,8 +274,29 @@ void TelnetService::run() {
             String command = input.substring(0, spaceIndex);
             command.toLowerCase();
             command.trim();
-            String args = input.substring(spaceIndex + 1);
-            args.trim();
+            String argsString = input.substring(spaceIndex + 1);
+            argsString.trim();
+
+            std::vector<String> args;
+            // Split args by space
+            while (argsString.length()) {
+                spaceIndex = argsString.indexOf(' ');
+                if (spaceIndex == -1) {
+                    String param = argsString;
+                    param.trim();
+                    if (!param.isEmpty()) {
+                        args.push_back(param);
+                    }
+                    break;
+                }
+                String param = argsString.substring(0, spaceIndex);
+                param.trim();
+                if (!param.isEmpty()) {
+                    args.push_back(param);
+                }
+                argsString = argsString.substring(spaceIndex + 1);
+            }
+
             Command* cmd = &commands[0];
             for (int i = 0; i < sizeof(commands) / sizeof(Command); i++) {
                 if (command.equals(commands[i].command)) {
@@ -174,6 +327,7 @@ void TelnetService::run() {
         }
         if (isOnline) {
             telnet.loop();
+            taskYIELD();
         } else {
             vTaskDelay(500 / portTICK_PERIOD_MS);
         }

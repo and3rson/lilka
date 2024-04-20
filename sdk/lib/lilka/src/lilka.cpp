@@ -18,7 +18,6 @@ void begin() {
 
     battery.begin();
     // TODO: I2S
-    esp_wifi_deinit();
     // TODO: Delete Task Watchdog Timer - we'll be running long tasks
     // TODO: Maybe keep it?
     TaskHandle_t idle_0 = xTaskGetIdleTaskHandleForCPU(0);

@@ -5,7 +5,6 @@
 #include "launcher.h"
 #include "appmanager.h"
 
-#include "lilka/config.h"
 #include "servicemanager.h"
 #include "services/network.h"
 
@@ -153,7 +152,7 @@ const menu_icon_t* get_file_icon(const String& filename) {
     } else if (lowerCasedFileName.endsWith(".js")) {
         return &js_img;
     } else if (lowerCasedFileName.endsWith(".mod") || lowerCasedFileName.endsWith(".lt")) {
-        return &music;
+        return &music_img;
     } else {
         return &normalfile_img;
     }
@@ -301,7 +300,8 @@ void LauncherApp::selectFile(String path) {
 
 void LauncherApp::settingsMenu() {
     String titles[] = {
-        "WiFi",
+        "WiFi-адаптер",
+        "Мережі WiFi",
         "Про систему",
         "Інфо про пристрій",
         "Таблиця розділів",
@@ -317,8 +317,14 @@ void LauncherApp::settingsMenu() {
     for (int i = 0; i < count; i++) {
         menu.addItem(titles[i]);
     }
+    NetworkService* networkService =
+        static_cast<NetworkService*>(ServiceManager::getInstance()->getService<NetworkService>("network"));
     while (1) {
         while (!menu.isFinished()) {
+            lilka::MenuItem wifiItem;
+            menu.getItem(0, &wifiItem);
+            wifiItem.postfix = networkService->getEnabled() ? "ON" : "OFF";
+            menu.setItem(0, wifiItem.title, wifiItem.icon, wifiItem.color, wifiItem.postfix);
             menu.update();
             menu.draw(canvas);
             queueDraw();
@@ -331,14 +337,17 @@ void LauncherApp::settingsMenu() {
             return;
         }
         if (index == 0) {
-            AppManager::getInstance()->runApp(new WiFiConfigApp());
+            networkService->setEnabled(!networkService->getEnabled());
         } else if (index == 1) {
-            alert("Keira OS", "by Андерсон & friends");
+            if (!networkService->getEnabled()) {
+                alert("Помилка", "Спочатку увімкніть WiFi-адаптер");
+                continue;
+            }
+            AppManager::getInstance()->runApp(new WiFiConfigApp());
         } else if (index == 2) {
+            alert("Keira OS", "by Андерсон & friends");
+        } else if (index == 3) {
             char buf[256];
-            NetworkService* networkService =
-                static_cast<NetworkService*>(ServiceManager::getInstance()->getService<NetworkService>("network"));
-            // TODO: use dynamic_cast and assert networkService != nullptr
             sprintf(
                 buf,
                 "Модель: %s\n"
@@ -355,7 +364,7 @@ void LauncherApp::settingsMenu() {
                 networkService->getIpAddr().c_str()
             );
             alert("Інфо про пристрій", buf);
-        } else if (index == 3) {
+        } else if (index == 4) {
             String labels[16];
             int labelCount = lilka::sys.get_partition_labels(labels);
             labels[labelCount++] = "<< Назад";
@@ -380,7 +389,7 @@ void LauncherApp::settingsMenu() {
                         "Розмір: 0x" + String(lilka::sys.get_partition_size(labels[partitionIndex].c_str()), HEX)
                 );
             }
-        } else if (index == 4) {
+        } else if (index == 5) {
             lilka::Alert confirm(
                 "Форматування",
                 "УВАГА: Це очистить ВСІ дані з SD-карти!\n"
@@ -423,13 +432,13 @@ void LauncherApp::settingsMenu() {
                 "Систему буде перезавантажено."
             );
             esp_restart();
-        } else if (index == 5) {
-            lilka::board.enablePowerSavingMode();
-            esp_light_sleep_start();
         } else if (index == 6) {
             lilka::board.enablePowerSavingMode();
-            esp_deep_sleep_start();
+            esp_light_sleep_start();
         } else if (index == 7) {
+            lilka::board.enablePowerSavingMode();
+            esp_deep_sleep_start();
+        } else if (index == 8) {
             esp_restart();
         }
     }
