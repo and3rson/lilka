@@ -12,5 +12,5 @@
 
     environment
     keira
-    development
+    custom_firmware
     extension

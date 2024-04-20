@@ -28,11 +28,11 @@ and https://github.com/readthedocs/sphinx_rtd_theme/issues/295
 }
 
 /* Softer icons in navbar */
-li.toctree-l1 svg {
+wy-nav-side li.toctree-l1 svg {
     opacity: 0.5;
     color: #FFFF00;
 }
-li.toctree-l1.current svg {
+wy-nav-side li.toctree-l1.current svg {
     color: #444400;
     opacity: 0.8;
 }
