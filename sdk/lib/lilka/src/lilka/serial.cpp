@@ -2,6 +2,9 @@
 
 #include "serial.h"
 
+#define ANSI_COLOR(x) "\033[1;" #x "m"
+#define ANSI_RESET    "\033[0m"
+
 namespace lilka {
 
 void serial_begin() {
@@ -16,7 +19,7 @@ void serial_log(const char* format, ...) {
     va_start(args, format);
     vsnprintf(buffer, sizeof(buffer), format, args);
     va_end(args);
-    printf("[lilka] INFO: %s\n", buffer);
+    printf("[lilka] " ANSI_COLOR(32) "INFO:" ANSI_RESET " %s\n", buffer);
 }
 void serial_err(const char* format, ...) {
     // TODO: printf cannot be called from an ISR
@@ -25,7 +28,7 @@ void serial_err(const char* format, ...) {
     va_start(args, format);
     vsnprintf(buffer, sizeof(buffer), format, args);
     va_end(args);
-    printf("[lilka] ERROR: %s\n", buffer);
+    printf("[lilka] " ANSI_COLOR(31) "ERROR:" ANSI_RESET " %s\n", buffer);
 }
 
 } // namespace lilka

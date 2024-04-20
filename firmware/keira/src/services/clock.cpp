@@ -17,6 +17,8 @@ void ClockService::run() {
             configTzTime(MYTZ, "ua.pool.ntp.org", "pool.ntp.org");
             // Delay for 12 hours
             vTaskDelay(1000 * 60 * 60 * 12 / portTICK_PERIOD_MS);
+        } else {
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
     }
 }
