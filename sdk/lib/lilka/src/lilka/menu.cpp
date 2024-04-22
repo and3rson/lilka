@@ -146,7 +146,7 @@ void Menu::draw(Arduino_GFX* canvas) {
     const uint16_t titleWidthAvailable = canvas->width() - 64;
     if (titleWidth > titleWidthAvailable) {
         // Marquee
-        Canvas marquee(titleWidthAvailable, titleTextHeight);
+        Canvas marquee(titleWidthAvailable, titleTextHeight + 8);
         marquee.fillScreen(lilka::colors::Black);
         marquee.setFont(FONT_6x13);
         marquee.setTextSize(2);
@@ -156,7 +156,7 @@ void Menu::draw(Arduino_GFX* canvas) {
         marquee.setTextColor(lilka::colors::White);
         marquee.println(title);
         canvas->draw16bitRGBBitmapWithTranColor(
-            32, 0, marquee.getFramebuffer(), lilka::colors::Black, titleWidthAvailable, titleTextHeight
+            32, 0, marquee.getFramebuffer(), lilka::colors::Black, marquee.width(), marquee.height()
         );
     } else {
         // Text fits
@@ -164,7 +164,7 @@ void Menu::draw(Arduino_GFX* canvas) {
         canvas->setTextSize(2);
         canvas->setCursor(32, 40);
         canvas->setTextColor(lilka::colors::White);
-        canvas->setTextBound(32, 8, titleWidthAvailable, 32);
+        canvas->setTextBound(32, 8, titleWidthAvailable, titleTextHeight);
         canvas->println(title);
     }
 
