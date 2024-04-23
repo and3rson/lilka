@@ -50,6 +50,8 @@ int lualilka_gpio_register(lua_State* L) {
     lua_setfield(L, -2, "OUTPUT");
     lua_pushinteger(L, INPUT_PULLUP);
     lua_setfield(L, -2, "INPUT_PULLUP");
+    lua_pushinteger(L, INPUT_PULLDOWN);
+    lua_setfield(L, -2, "INPUT_PULLDOWN");
     lua_setglobal(L, "gpio");
     return 0;
 }

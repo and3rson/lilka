@@ -30,7 +30,7 @@ for i = 10, 1, -1 do
     local scaleX = math.min({ math.random(), 0.1 })
     local scaleY = math.min({ math.random(), 0.1 })
 
-    local transform = imageTransform()
+    local transform = transforms.new()
 
     transform = transform:rotate(rot)
 

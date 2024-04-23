@@ -99,8 +99,15 @@ static int lualilka_imageTransform_set_matrix(lua_State* L) {
     return 0;
 }
 
+static const luaL_Reg lualilka_transforms[] = {
+    {"new", lualilka_create_object_imageTransform},
+    {nullptr, nullptr},
+};
+
 int lualilka_imageTransform_register(lua_State* L) {
-    lua_register(L, IMAGE_TRANSFORM, lualilka_create_object_imageTransform);
+    luaL_newlib(L, lualilka_transforms);
+    lua_setglobal(L, "transforms");
+
     luaL_newmetatable(L, IMAGE_TRANSFORM);
     lua_pushcfunction(L, lualilka_delete_object_imageTransform);
     lua_setfield(L, -2, "__gc");
@@ -124,5 +131,6 @@ int lualilka_imageTransform_register(lua_State* L) {
     lua_setfield(L, -2, "vtransform");
 
     lua_pop(L, 1);
+
     return 0;
 }
