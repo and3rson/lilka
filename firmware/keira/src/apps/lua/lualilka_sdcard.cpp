@@ -160,11 +160,14 @@ static const luaL_Reg lualilka_sdcard[] = {
     {"ls", lualilka_sdcard_list_dir},
     {"remove", lualilka_sdcard_remove},
     {"rename", lualilka_sdcard_rename},
+    {"open", lualilka_create_object_file},
     {NULL, NULL},
 };
 
 int lualilka_sdcard_register(lua_State* L) {
-    lua_register(L, FILE_OBJECT, lualilka_create_object_file);
+    luaL_newlib(L, lualilka_sdcard);
+    lua_setglobal(L, "sdcard");
+
     luaL_newmetatable(L, FILE_OBJECT);
     lua_pushcfunction(L, lualilka_delete_object_file);
     lua_setfield(L, -2, "__gc");
@@ -181,9 +184,6 @@ int lualilka_sdcard_register(lua_State* L) {
     lua_setfield(L, -2, "write");
 
     lua_pop(L, 1);
-
-    luaL_newlib(L, lualilka_sdcard);
-    lua_setglobal(L, "sdcard");
 
     return 0;
 }

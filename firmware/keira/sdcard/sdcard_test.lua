@@ -1,19 +1,15 @@
 local file_dir = sdcard.ls("/")
 
 print(#file_dir)
-
-for i = 0, #file_dir do 
-    print(file_dir[i])
+for i = 0, #file_dir do
+    print('*', file_dir[i])
 end
 
-file = file("/test.txt", "a+") 
+local file = sdcard.open("/test.txt", "a+")
+file:write("HELLOWORLD")
 
-file:write("HELLOWORLD") 
+local text = file:read(5)
+print(text)
 
-text = file:read(5) 
-
-print(text) 
-
-size = file:size()
+local size = file:size()
 print(size)
-

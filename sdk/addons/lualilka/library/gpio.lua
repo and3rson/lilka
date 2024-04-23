@@ -6,11 +6,12 @@
 ---@field INPUT integer режим введення
 ---@field OUTPUT integer режим виведення
 ---@field INPUT_PULLUP integer режим введення з підтяжкою вгору
+---@field INPUT_PULLDOWN integer режим введення з підтяжкою вниз
 gpio = {}
 
 ---Налаштовує режим GPIO-піна.
 ---@param pin integer номер піна
----@param mode integer режим піна, може бути ``gpio.INPUT``, ``gpio.OUTPUT`` або ``gpio.INPUT_PULLUP``
+---@param mode integer режим піна, може бути ``gpio.INPUT``, ``gpio.OUTPUT``, ``gpio.INPUT_PULLUP`` або ``gpio.INPUT_PULLDOWN``
 function gpio.set_mode(pin, mode) end
 
 ---Записує цифрове зрачення в GPIO-пін.

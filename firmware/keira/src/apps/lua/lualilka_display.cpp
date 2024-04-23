@@ -257,7 +257,7 @@ int lualilka_display_drawImage(lua_State* L) {
 };
 
 int lualilka_display_drawImageTransformed(lua_State* L) {
-    // Args are image table, X & Y, imageTransform object
+    // Args are image table, X & Y, Transform object
     // First argument is table that contains image width, height and pointer. We only need the pointer.
     lua_getfield(L, 1, "pointer");
 
