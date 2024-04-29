@@ -4,9 +4,10 @@
 #include <Arduino.h>
 #include <lilka.h>
 
-typedef enum {
+typedef enum : uint32_t {
     APP_FLAG_NONE = 0,
-    APP_FLAG_FULLSCREEN = 1,
+    APP_FLAG_FULLSCREEN = 1 << 0,
+    APP_FLAG_INTERLACED = 1 << 1,
 } AppFlags;
 
 /// Клас, що представляє додаток для Кіри.
@@ -80,6 +81,7 @@ protected:
     void releaseBackCanvas();
 
     lilka::Canvas* backCanvas;
+    uint64_t frame;
 
 private:
     static void _run(void* data);

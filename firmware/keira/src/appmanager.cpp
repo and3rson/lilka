@@ -131,7 +131,11 @@ void AppManager::loop() {
                 renderToast(topApp->backCanvas);
             }
             if (app->needsRedraw()) {
-                lilka::display.drawCanvas(app->backCanvas);
+                if (app->flags & AppFlags::APP_FLAG_INTERLACED) {
+                    lilka::display.drawCanvasInterlaced(app->backCanvas, app->frame % 2);
+                } else {
+                    lilka::display.drawCanvas(app->backCanvas);
+                }
                 app->markClean();
             }
             app->releaseBackCanvas();

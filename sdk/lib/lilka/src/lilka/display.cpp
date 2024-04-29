@@ -229,6 +229,15 @@ uint8_t* Display::getFont() {
     return u8g2Font;
 }
 
+void Display::drawCanvasInterlaced(Canvas* canvas, bool odd) {
+    this->startWrite();
+    for (int y = odd ? 1 : 0; y < canvas->height(); y += 2) {
+        this->writeAddrWindow(canvas->x(), canvas->y() + y, canvas->width(), 1);
+        this->writePixels(canvas->getFramebuffer() + y * canvas->width(), canvas->width());
+    }
+    this->endWrite();
+}
+
 void Canvas::draw16bitRGBBitmapWithTranColor(
     int16_t x, int16_t y, const uint16_t bitmap[], uint16_t transparent_color, int16_t w, int16_t h
 ) {

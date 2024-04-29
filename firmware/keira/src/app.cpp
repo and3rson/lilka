@@ -12,7 +12,8 @@ App::App(const char* name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) :
     isDrawQueued(false),
     backCanvasMutex(xSemaphoreCreateMutex()),
     stackSize(8192),
-    appCore(0) {
+    appCore(0),
+    frame(0) {
     // Clear buffers
     canvas->fillScreen(0);
     backCanvas->fillScreen(0);
@@ -88,6 +89,7 @@ void App::queueDraw() {
     canvas = backCanvas;
     backCanvas = temp;
     isDrawQueued = true;
+    frame++;
     xSemaphoreGive(backCanvasMutex);
     taskYIELD();
 }
