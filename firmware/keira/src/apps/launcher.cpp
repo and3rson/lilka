@@ -68,7 +68,7 @@ ITEM_LIST app_items = {
         {ITEM_APP("Клавіатура", KeyboardApp),
          ITEM_APP("Тест SPI", UserSPIApp),
          ITEM_APP("I2C-сканер", ScanI2CApp),
-         ITEM_APP("GPIO-мененджер", GPIOManagerApp)},
+         ITEM_APP("GPIO-менеджер", GPIOManagerApp)},
     ),
     ITEM_APP("ЛілТрекер", LilTrackerApp),
     ITEM_APP("Летріс", LetrisApp),
