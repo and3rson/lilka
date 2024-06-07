@@ -41,7 +41,7 @@ void ComboButtonSequence::loopAction(State& state) {
     if (areAllButtonsProcessed()) {
         return;
     }
-    _StateButtons& buttonStates = *reinterpret_cast<_StateButtons*>(&state);
+    const _StateButtons& buttonStates = *reinterpret_cast<const _StateButtons*>(&state);
     if (firstComboButtonAlreadyPressed && !isCompleted()) {
         if (buttonStage.isWaiting() && isTimeout(buttonStage.getPrevReleaseTime()) ||
             buttonStage.isPressed() && isTimeout(buttonStage.getPressTime()) ||
@@ -52,7 +52,7 @@ void ComboButtonSequence::loopAction(State& state) {
         }
     }
 
-    ButtonState& bs = buttonStates[buttonStage.getButton()];
+    const ButtonState& bs = buttonStates[buttonStage.getButton()];
     switch (buttonStage.getStage()) {
         case WAITING:
             if (bs.justPressed) {

@@ -36,7 +36,7 @@ void ComboConcurrentButtons::loopAction(State& state) {
     if (buttonStage.isReleased()) {
         return;
     }
-    _StateButtons& buttonStates = *reinterpret_cast<_StateButtons*>(&state);
+    const _StateButtons& buttonStates = *reinterpret_cast<const _StateButtons*>(&state);
     switch (buttonStage.getStage()) {
         case WAITING:
             checkAllButtonsPressed(buttonStates);

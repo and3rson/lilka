@@ -39,14 +39,14 @@ void ComboOneHoldDownButton::loopAction(State& state) {
     if (buttonStage.isReleased()) {
         return;
     }
-    _StateButtons& buttonStates = *reinterpret_cast<_StateButtons*>(&state);
+    const _StateButtons& buttonStates = *reinterpret_cast<const _StateButtons*>(&state);
     if (checkNonTargetButtons && buttonStage.isPressed() && !isCompleted() &&
         isNonTargetButtonPressed(buttonStage.getButton(), buttonStates)) {
         resetAction();
         onReset();
         return;
     }
-    ButtonState& bs = buttonStates[buttonStage.getButton()];
+    const ButtonState& bs = buttonStates[buttonStage.getButton()];
     switch (buttonStage.getStage()) {
         case WAITING:
             if (bs.justPressed) {

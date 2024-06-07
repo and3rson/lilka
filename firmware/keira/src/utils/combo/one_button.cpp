@@ -19,8 +19,8 @@ void ComboOneButton::loopAction(State& state) {
     if (buttonStage.isReleased()) {
         return;
     }
-    _StateButtons& buttonStates = *reinterpret_cast<_StateButtons*>(&state);
-    ButtonState& bs = buttonStates[buttonStage.getButton()];
+    const _StateButtons& buttonStates = *reinterpret_cast<const _StateButtons*>(&state);
+    const ButtonState& bs = buttonStates[buttonStage.getButton()];
     switch (buttonStage.getStage()) {
         case WAITING:
             if (bs.justPressed) {
