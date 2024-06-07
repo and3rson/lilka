@@ -7,7 +7,7 @@ using ComboOneButtonProgressEventHandler = void (*)(const Button button, const B
 
 class ComboOneButton : public ComboBase {
 public:
-    ComboOneButton(Button button);
+    explicit ComboOneButton(Button button);
     ~ComboOneButton();
 
     void setProgressEventHandler(ComboOneButtonProgressEventHandler handler) {

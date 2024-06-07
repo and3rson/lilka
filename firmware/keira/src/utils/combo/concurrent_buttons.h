@@ -23,9 +23,9 @@ private:
 
     void initButtons(std::initializer_list<Button> buttonList);
     bool isTargetButton(size_t buttonIndex);
-    bool isNonTargetButtonsPressed(_StateButtons& buttonStates);
-    void checkAllButtonsPressed(_StateButtons& buttonStates);
-    void checkAllButtonsReleased(_StateButtons& buttonStates);
+    bool isNonTargetButtonsPressed(const _StateButtons& buttonStates);
+    void checkAllButtonsPressed(const _StateButtons& buttonStates);
+    void checkAllButtonsReleased(const _StateButtons& buttonStates);
     void onProgress();
     void loopAction(State& state) override;
     void resetAction() override;

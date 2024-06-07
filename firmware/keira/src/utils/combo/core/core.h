@@ -31,9 +31,7 @@ public:
         return started;
     }
     void start() {
-        if (!started) {
-            started = true;
-        }
+        started = true;
     }
     bool isAutoStart() {
         return autoStart;
@@ -62,15 +60,11 @@ public:
         }
     };
     void reset() {
-        if (started) {
-            started = false;
-        }
-        if (completed) {
-            completed = false;
-        }
+        started = false;
+        completed = false;
         resetAction();
     };
-    static bool isNonTargetButtonPressed(Button target, _StateButtons& buttonStates) {
+    static bool isNonTargetButtonPressed(Button target, const _StateButtons& buttonStates) {
         bool anyButtonPressed = buttonStates[Button::ANY].pressed;
         if (!anyButtonPressed || target == Button::ANY) {
             return false;

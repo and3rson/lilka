@@ -56,9 +56,7 @@ void ComboButtonSequence::loopAction(State& state) {
     switch (buttonStage.getStage()) {
         case WAITING:
             if (bs.justPressed) {
-                if (!firstComboButtonAlreadyPressed) {
-                    firstComboButtonAlreadyPressed = true;
-                }
+                firstComboButtonAlreadyPressed = true;
                 buttonStage.setPressedStage(bs.time);
                 onProgress();
                 if (isLastButtonProcessed()) {

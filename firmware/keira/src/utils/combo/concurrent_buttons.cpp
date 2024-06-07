@@ -63,8 +63,8 @@ bool ComboConcurrentButtons::isTargetButton(size_t buttonIndex) {
     return false;
 }
 
-bool ComboConcurrentButtons::isNonTargetButtonsPressed(_StateButtons& buttonStates) {
-    if(!buttonStates[Button::ANY].pressed) {
+bool ComboConcurrentButtons::isNonTargetButtonsPressed(const _StateButtons& buttonStates) {
+    if (!buttonStates[Button::ANY].pressed) {
         return false;
     }
     size_t size = Button::COUNT - 1; // exclude ANY button
@@ -76,14 +76,14 @@ bool ComboConcurrentButtons::isNonTargetButtonsPressed(_StateButtons& buttonStat
     return false;
 }
 
-void ComboConcurrentButtons::checkAllButtonsPressed(_StateButtons& buttonStates) {
+void ComboConcurrentButtons::checkAllButtonsPressed(const _StateButtons& buttonStates) {
     if (isNonTargetButtonsPressed(buttonStates)) {
         return;
     }
     bool allButtonsPressed = true;
     bool anyButtonJustPressed = false;
     for (size_t i = 0; i < NUM_BUTTONS; i++) {
-        ButtonState& bs = buttonStates[buttons[i]];
+        const ButtonState& bs = buttonStates[buttons[i]];
         if (!bs.pressed) {
             allButtonsPressed = false;
             break;
@@ -99,11 +99,11 @@ void ComboConcurrentButtons::checkAllButtonsPressed(_StateButtons& buttonStates)
     }
 }
 
-void ComboConcurrentButtons::checkAllButtonsReleased(_StateButtons& buttonStates) {
+void ComboConcurrentButtons::checkAllButtonsReleased(const _StateButtons& buttonStates) {
     bool allButtonsReleased = true;
     bool anyButtonJustReleased = false;
     for (size_t i = 0; i < NUM_BUTTONS; i++) {
-        ButtonState& bs = buttonStates[buttons[i]];
+        const ButtonState& bs = buttonStates[buttons[i]];
         if (bs.pressed) {
             allButtonsReleased = false;
             break;
