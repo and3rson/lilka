@@ -4,7 +4,7 @@ namespace ble_gamepad_app {
 
 class Timer {
 public:
-    Timer(int periodMillis);
+    explicit Timer(int periodMillis);
     static unsigned long getTime();
     unsigned long go();
     bool isTime(bool triggerOnFirstCall = false);

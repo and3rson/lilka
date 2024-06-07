@@ -26,7 +26,7 @@ bool Controller::start() {
         "bleControllerTimer",
         pdMS_TO_TICKS(CONTROLLER_TIMER_DELAY_MILLIS),
         pdTRUE,
-        (void*)this,
+        static_cast<void*>(this),
         Controller::controllerTimerCallback
     );
     if (controllerTimer != NULL) {

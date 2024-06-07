@@ -38,10 +38,6 @@ void MainApp::uiLoop() {
     }
 }
 
-void MainApp::onStop() {
-    bleGamepadController.stop();
-}
-
 bool MainApp::isExitHotkeyPressed() {
     lilka::State st = lilka::controller.peekState();
     lilka::ButtonState hotkeyState = st.select;
@@ -53,14 +49,22 @@ bool MainApp::isExitHotkeyPressed() {
     uint64_t curTime = millis();
     uint64_t delta = curTime - hotkeyPressTime;
     lastSecondsToExit = EXIT_BUTTON_PRESS_SECONDS - delta / ONE_SECOND;
-    if(lastSecondsToExit < 0) {
+    if (lastSecondsToExit < 0) {
         lastSecondsToExit = 0;
     }
     return lastSecondsToExit == 0;
 }
 
+void MainApp::cleanUp() {
+    bleGamepadController.stop();
+}
+
+void MainApp::onStop() {
+    cleanUp();
+}
+
 MainApp::~MainApp() {
-    onStop();
+    cleanUp();
 }
 
 } // namespace ble_gamepad_app

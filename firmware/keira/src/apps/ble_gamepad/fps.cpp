@@ -36,7 +36,7 @@ unsigned long FPS::getDelta() {
 unsigned long FPS::getLimitMillis() {
     unsigned long delta = getDelta();
     // Incorrect delay time. Using default limits
-    if (delta <= 0) {
+    if (delta == 0) {
         return delayLimitMillis;
     }
     // Too long delay time. Using min limits

@@ -16,6 +16,7 @@ private:
     void uiLoop();
     void onStop() override;
     bool isExitHotkeyPressed();
+    void cleanUp();
 
     Controller bleGamepadController;
     FPS uiFps;
