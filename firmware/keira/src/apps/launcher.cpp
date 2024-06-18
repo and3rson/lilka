@@ -20,6 +20,7 @@
 #include "demos/user_spi.h"
 #include "demos/scan_i2c.h"
 #include "demos/petpet.h"
+#include "demos/combo.h"
 #include "gpiomanager.h"
 #include "tamagotchi/tamagotchi.h"
 #include "lua/luarunner.h"
@@ -68,7 +69,8 @@ ITEM_LIST app_items = {
         {ITEM_APP("Клавіатура", KeyboardApp),
          ITEM_APP("Тест SPI", UserSPIApp),
          ITEM_APP("I2C-сканер", ScanI2CApp),
-         ITEM_APP("GPIO-менеджер", GPIOManagerApp)},
+         ITEM_APP("GPIO-менеджер", GPIOManagerApp),
+         ITEM_APP("Combo", ComboApp)},
     ),
     ITEM_APP("ЛілТрекер", LilTrackerApp),
     ITEM_APP("Летріс", LetrisApp),
