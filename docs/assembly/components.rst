@@ -93,7 +93,7 @@
      - J3
      - uSD
      - SD Card Interface Module
-     - `diyshop.com.ua <https://diyshop.com.ua/en/modul-interfejsa-mini-sd-karty-kardrider>`__
+     - `prom.ua <https://prom.ua/ua/p2148810072-modul-plata-mini.html>`__
      - `Посилання <https://www.aliexpress.com/item/1005005302035188.html>`__
      -
      - 24
