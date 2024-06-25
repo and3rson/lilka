@@ -51,7 +51,7 @@
 
    * - 1
      - BZ1
-     - Buzzer (2.54mm між контактами)
+     - Buzzer (2.54-7.62mm між контактами)
      - Passive Buzzer 
      - `mini-tech.com.ua <https://www.mini-tech.com.ua/ua/passivnyj-zummer>`__
      - `Посилання <https://www.aliexpress.com/item/1005005626151673.html>`__
