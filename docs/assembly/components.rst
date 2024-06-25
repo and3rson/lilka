@@ -145,7 +145,7 @@
      - SW11
      - Power
      - Toggle Switch
-     - `arduino.ua <https://arduino.ua/prod5124-perekluchatel-polzynkovii-ms-22d18g2-dip>`__
+     - `imrad.com.ua <https://imrad.com.ua/ua/msk-05g2-0-6>`__
      - `Посилання <https://www.aliexpress.com/item/4000030382277.html>`__
      -
      - 10
