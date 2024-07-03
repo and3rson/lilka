@@ -81,7 +81,7 @@
 		(pad_to_mask_clearance 0)
 		(allow_soldermask_bridges_in_footprints no)
 		(pcbplotparams
-			(layerselection 0x4000000_7ffffffe)
+			(layerselection 0x00010f0_ffffffff)
 			(plot_on_all_layers_selection 0x0000000_00000000)
 			(disableapertmacros no)
 			(usegerberextensions no)
@@ -111,7 +111,7 @@
 			(plotinvisibletext no)
 			(sketchpadsonfab no)
 			(subtractmaskfromsilk no)
-			(outputformat 3)
+			(outputformat 1)
 			(mirror no)
 			(drillshape 0)
 			(scaleselection 1)
@@ -19315,7 +19315,7 @@
 			)
 		)
 	)
-	(gr_text "v2.2 by Андерсон & шляхта"
+	(gr_text "v2.3 by Андерсон & шляхта"
 		(at 43.942 93.218 0)
 		(layer "F.SilkS")
 		(uuid "fe21f085-fa2c-4853-a8eb-7b5a361b6329")
