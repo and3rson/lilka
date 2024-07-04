@@ -56,7 +56,7 @@ latex_elements = {
 
 def setup(app):
     app.add_css_file("extra_style.css")
-    # app.add_js_file("custom.js")
+    app.add_js_file("custom.js")
 
 
 # -- Breathe configuration ---------------------------------------------------

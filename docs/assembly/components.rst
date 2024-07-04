@@ -60,6 +60,7 @@
      - 5
      -
      - .. thumbnail:: ./images/parts/buzzer.jpg
+          :group: base
 
    * - 3
      - C1, C2, C3
@@ -71,6 +72,7 @@
      - 9
      - Можна комплектувати `з цього набору <https://arduino.ua/prod2798-nabor-mnogosloinih-keramicheskih-kondensatorov-180-sht>`__
      - .. thumbnail:: ./images/parts/cap.jpg
+          :group: base
 
    * - 1
      - J1
@@ -82,6 +84,7 @@
      - 12
      -
      - .. thumbnail:: ./images/parts/usb.jpg
+          :group: base
 
    * - 1
      - J2
@@ -93,6 +96,7 @@
      - 5
      - Варіант з AliExpress містить пари тато+мама, тому задовольняє ``J2`` та ``U2J1``
      - .. thumbnail:: ./images/parts/header.jpg
+          :group: base
 
    * - 1
      - J3
@@ -104,6 +108,7 @@
      - 24
      -
      - .. thumbnail:: ./images/parts/sd.jpg
+          :group: base
 
    * - 1
      - R1
@@ -115,6 +120,7 @@
      - 3
      -
      - .. thumbnail:: ./images/parts/r10k.jpg
+          :group: base
 
    * - 1
      - R2
@@ -126,6 +132,7 @@
      - 2
      -
      - .. thumbnail:: ./images/parts/r100k.jpg
+          :group: base
 
    * - 1
      - SW1-SW8
@@ -139,6 +146,7 @@
      - 36
      - В комплекті від arduino.ua лише 6 шт
      - .. thumbnail:: ./images/parts/12mm.jpg
+          :group: base
 
    * - 2
      - SW9, SW10
@@ -150,6 +158,7 @@
      - 4
      -
      - .. thumbnail:: ./images/parts/6mm.jpg
+          :group: base
 
    * - 1
      - SW11
@@ -161,6 +170,7 @@
      - 10
      - Кнопка має бути кутова
      - .. thumbnail:: ./images/parts/toggle.jpg
+          :group: base
 
    * - 1
      - SW12
@@ -172,6 +182,7 @@
      - 2
      -
      - .. thumbnail:: ./images/parts/6mm.jpg
+          :group: base
 
    * - 1
      - U1
@@ -184,6 +195,7 @@
      - 200
      -
      - .. thumbnail:: ./images/parts/mcu.jpg
+          :group: base
 
    * - 1
      - U2
@@ -195,6 +207,7 @@
      - 176
      -
      - .. thumbnail:: ./images/parts/display.jpg
+          :group: base
 
    * - 1
      - U2J1
@@ -206,6 +219,7 @@
      - 7
      - Варіант з AliExpress містить пари тато+мама, тому задовольняє ``J2`` та ``U2J1``
      - .. thumbnail:: ./images/parts/socket.jpg
+          :group: base
 
    * - 1
      - U3
@@ -217,6 +231,7 @@
      - 26
      -
      - .. thumbnail:: ./images/parts/reg.jpg
+          :group: base
 
    * - Разом
      -
@@ -263,6 +278,7 @@
      - 6
      -
      - .. thumbnail:: ./images/parts/1n4001.jpg
+          :group: battery
 
    * - 1
      - J4
@@ -274,6 +290,7 @@
      - 16
      - Бажано брати варіант з micro USB (займає менше місця, а гніздо USB Type-C вже є на платі Лілки)
      - .. thumbnail:: ./images/parts/tp4056.jpg
+          :group: battery
 
    * - 1
      - Q1
@@ -286,6 +303,7 @@
      - 4
      -
      - .. thumbnail:: ./images/parts/irlml6401.jpg
+          :group: battery
 
    * - 1
      - R3
@@ -297,6 +315,7 @@
      - 2
      -
      - .. thumbnail:: ./images/parts/r100k.jpg
+          :group: battery
 
    * - 1
      - R4
@@ -308,6 +327,7 @@
      - 2.1
      -
      - .. thumbnail:: ./images/parts/r33k.jpg
+          :group: battery
 
    * - 1
      - \-
@@ -319,6 +339,7 @@
      - 116
      - Рекомендуємо брати невелику батарею (6x30x48), щоб вона помістилась в корпус
      - .. thumbnail:: ./images/parts/lipo.jpg
+          :group: battery
 
    * - Разом
      -
@@ -365,6 +386,7 @@
      - 92
      -
      - .. thumbnail:: ./images/parts/max98357.jpg
+          :group: audio
 
    * - 1
      - \-
@@ -376,6 +398,7 @@
      - 17
      - Або гніздо (див. наст. пункт), або будь-який інший динамік на ваш розсуд
      - .. thumbnail:: ./images/parts/speaker.jpg
+          :group: audio
 
    * - 1
      - \-
@@ -387,6 +410,7 @@
      - 8
      - Лише якщо ви вирішили використовувати навушники замість динаміка
      - .. thumbnail:: ./images/parts/jack.jpg
+          :group: audio
 
    * - Разом
      -
