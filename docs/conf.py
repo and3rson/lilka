@@ -51,11 +51,12 @@ latex_elements = {
     """,
 }
 
-# -- Custom CSS --------------------------------------------------------------
+# -- Custom CSS/JS -----------------------------------------------------------
 
 
 def setup(app):
     app.add_css_file("extra_style.css")
+    # app.add_js_file("custom.js")
 
 
 # -- Breathe configuration ---------------------------------------------------
@@ -102,3 +103,6 @@ hoverxref_roles = ["term"]
 hoverxref_role_types = {
     "term": "tooltip",
 }
+
+# -- Images ------------------------------------------------------------------
+extensions.append("sphinxcontrib.images")

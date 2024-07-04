@@ -36,7 +36,7 @@
 ----------------
 
 .. list-table:: Базовий комплект
-   :widths: 5 10 15 10 15 10 10 10 15
+   :widths: 5 10 15 10 15 10 10 10 15 1
    :header-rows: 1
 
    * - К-сть
@@ -48,6 +48,7 @@
      - |mouser| Mouser
      - Ціна в |ua|
      - Примітка
+     - Зображення
 
    * - 1
      - BZ1
@@ -58,6 +59,7 @@
      -
      - 5
      -
+     - .. thumbnail:: ./images/parts/buzzer.jpg
 
    * - 3
      - C1, C2, C3
@@ -68,6 +70,7 @@
      -
      - 9
      - Можна комплектувати `з цього набору <https://arduino.ua/prod2798-nabor-mnogosloinih-keramicheskih-kondensatorov-180-sht>`__
+     - .. thumbnail:: ./images/parts/cap.jpg
 
    * - 1
      - J1
@@ -78,6 +81,7 @@
      -
      - 12
      -
+     - .. thumbnail:: ./images/parts/usb.jpg
 
    * - 1
      - J2
@@ -88,6 +92,7 @@
      -
      - 5
      - Варіант з AliExpress містить пари тато+мама, тому задовольняє ``J2`` та ``U2J1``
+     - .. thumbnail:: ./images/parts/header.jpg
 
    * - 1
      - J3
@@ -98,6 +103,7 @@
      -
      - 24
      -
+     - .. thumbnail:: ./images/parts/sd.jpg
 
    * - 1
      - R1
@@ -108,6 +114,7 @@
      -
      - 3
      -
+     - .. thumbnail:: ./images/parts/r10k.jpg
 
    * - 1
      - R2
@@ -118,6 +125,7 @@
      -
      - 2
      -
+     - .. thumbnail:: ./images/parts/r100k.jpg
 
    * - 1
      - SW1-SW8
@@ -130,6 +138,7 @@
      -
      - 36
      - В комплекті від arduino.ua лише 6 шт
+     - .. thumbnail:: ./images/parts/12mm.jpg
 
    * - 2
      - SW9, SW10
@@ -140,6 +149,7 @@
      -
      - 4
      -
+     - .. thumbnail:: ./images/parts/6mm.jpg
 
    * - 1
      - SW11
@@ -150,6 +160,7 @@
      -
      - 10
      - Кнопка має бути кутова
+     - .. thumbnail:: ./images/parts/toggle.jpg
 
    * - 1
      - SW12
@@ -160,6 +171,7 @@
      -
      - 2
      -
+     - .. thumbnail:: ./images/parts/6mm.jpg
 
    * - 1
      - U1
@@ -171,6 +183,7 @@
      - `Посилання <https://eu.mouser.com/ProductDetail/Espressif-Systems/ESP32-S3-WROOM-1-N16R8>`__
      - 200
      -
+     - .. thumbnail:: ./images/parts/mcu.jpg
 
    * - 1
      - U2
@@ -181,6 +194,7 @@
      -
      - 176
      -
+     - .. thumbnail:: ./images/parts/display.jpg
 
    * - 1
      - U2J1
@@ -191,6 +205,7 @@
      -
      - 7
      - Варіант з AliExpress містить пари тато+мама, тому задовольняє ``J2`` та ``U2J1``
+     - .. thumbnail:: ./images/parts/socket.jpg
 
    * - 1
      - U3
@@ -201,6 +216,7 @@
      - `Посилання <https://eu.mouser.com/ProductDetail/Texas-Instruments/TLV1117LV33DCYR>`__
      - 26
      -
+     - .. thumbnail:: ./images/parts/reg.jpg
 
    * - Разом
      -
@@ -215,6 +231,7 @@
             <script>calculateTotal(document.querySelector('#total-base'), 8);
             </script>
      -
+     -
 
 .. _battery:
 
@@ -222,7 +239,7 @@
 ----------------------
 
 .. list-table:: Компоненти для батареї
-   :widths: 5 10 15 10 15 10 10 10 15
+   :widths: 5 10 15 10 15 10 10 10 15 1
    :header-rows: 1
 
    * - К-сть
@@ -234,6 +251,7 @@
      - |mouser| Mouser
      - Ціна в |ua|
      - Примітка
+     - Зображення
 
    * - 1
      - D1
@@ -244,6 +262,7 @@
      -
      - 6
      -
+     - .. thumbnail:: ./images/parts/1n4001.jpg
 
    * - 1
      - J4
@@ -254,6 +273,7 @@
      -
      - 16
      - Бажано брати варіант з micro USB (займає менше місця, а гніздо USB Type-C вже є на платі Лілки)
+     - .. thumbnail:: ./images/parts/tp4056.jpg
 
    * - 1
      - Q1
@@ -265,6 +285,7 @@
      - `Посилання <https://eu.mouser.com/ProductDetail/Infineon-Technologies/IRLML6401TRPBF>`__
      - 4
      -
+     - .. thumbnail:: ./images/parts/irlml6401.jpg
 
    * - 1
      - R3
@@ -275,6 +296,7 @@
      -
      - 2
      -
+     - .. thumbnail:: ./images/parts/r100k.jpg
 
    * - 1
      - R4
@@ -285,6 +307,7 @@
      -
      - 2.1
      -
+     - .. thumbnail:: ./images/parts/r33k.jpg
 
    * - 1
      - \-
@@ -294,7 +317,8 @@
      -
      -
      - 116
-     -
+     - Рекомендуємо брати невелику батарею (6x30x48), щоб вона помістилась в корпус
+     - .. thumbnail:: ./images/parts/lipo.jpg
 
    * - Разом
      -
@@ -309,6 +333,7 @@
             <script>calculateTotal(document.querySelector('#total-battery'), 8);
             </script>
      -
+     -
 
 .. _audio:
 
@@ -316,7 +341,7 @@
 --------------------
 
 .. list-table:: Компоненти для звуку
-   :widths: 5 10 15 10 15 10 10 10 15
+   :widths: 5 10 15 10 15 10 10 10 15 1
    :header-rows: 1
 
    * - К-сть
@@ -328,6 +353,7 @@
      - |mouser| Mouser
      - Ціна в |ua|
      - Примітка
+     - Зображення
 
    * - 1
      - J5
@@ -338,6 +364,7 @@
      - `Посилання <https://eu.mouser.com/ProductDetail/Adafruit/3006>`__
      - 92
      -
+     - .. thumbnail:: ./images/parts/max98357.jpg
 
    * - 1
      - \-
@@ -348,6 +375,7 @@
      -
      - 17
      - Або гніздо (див. наст. пункт), або будь-який інший динамік на ваш розсуд
+     - .. thumbnail:: ./images/parts/speaker.jpg
 
    * - 1
      - \-
@@ -358,6 +386,7 @@
      -
      - 8
      - Лише якщо ви вирішили використовувати навушники замість динаміка
+     - .. thumbnail:: ./images/parts/jack.jpg
 
    * - Разом
      -
@@ -371,6 +400,7 @@
             <div id="total-audio"></div>
             <script>calculateTotal(document.querySelector('#total-audio'), 8);
             </script>
+     -
      -
 
 .. _other:
