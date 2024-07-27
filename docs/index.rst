@@ -21,6 +21,7 @@
     faq/index
     glossary
     community
+    contributing/index
 
 .. .. sidebar-links::
 ..     :caption: Посилання:

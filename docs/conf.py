@@ -106,3 +106,10 @@ hoverxref_role_types = {
 
 # -- Images ------------------------------------------------------------------
 extensions.append("sphinxcontrib.images")
+
+# -- Custom extensions -------------------------------------------------------
+import sys
+
+sys.path.append("./extensions/")
+
+extensions.append("todos")
