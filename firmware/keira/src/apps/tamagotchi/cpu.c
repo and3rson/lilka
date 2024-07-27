@@ -1679,7 +1679,7 @@ static void op_not_cb(u8_t arg0, u8_t arg1) {
 }
 
 /* The E0C6S46 supported instructions */
-static const op_t0 ops0[] PROGMEM = {
+static const op_t0 ops0[] = {
     {0xE40, MASK_7B, 5}, // PSET
     {0x000, MASK_4B, 5}, // JP
     {0x200, MASK_4B, 5}, // JP_C
@@ -1793,7 +1793,7 @@ static const op_t0 ops0[] PROGMEM = {
 };
 
 /* The E0C6S46 supported instructions */
-static const op_t1 ops1[] PROGMEM = {
+static const op_t1 ops1[] = {
     {&op_pset_cb}, // PSET
     {&op_jp_cb}, // JP
     {&op_jp_c_cb}, // JP_C

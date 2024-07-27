@@ -72,7 +72,7 @@ void InputDialog::update() {
 
     State state = controller.getState();
     if (state.a.justPressed) {
-        // TODO: Handle key press
+        // \todo Handle key press
         const uint8_t* layerKeys = keyboard[layer];
         uint8_t key = layerKeys[cy * LILKA_KB_COLS + cx];
         if (key == K_L0) {

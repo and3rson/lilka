@@ -222,7 +222,7 @@ public:
 ///
 /// Цей клас наслідує `Arduino_GFX` з бібліотеки `Arduino_GFX_Library`, а також клас `GFX`.
 ///
-/// Детальніше про доступні методи можна дізнатися в документації бібліотеки ``Arduino_GFX_Library`` -
+/// Детальніше про доступні методи можна дізнатися в документації бібліотеки `Arduino_GFX_Library` -
 /// https://github.com/moononournation/Arduino_GFX.
 ///
 /// @code
