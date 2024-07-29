@@ -6,6 +6,9 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import sys
+from os import path
+
 project = "Лілка"
 copyright = "2024, Andrew Dunai"
 author = "Andrew Dunai"
@@ -51,12 +54,15 @@ latex_elements = {
     """,
 }
 
-# -- Custom CSS/JS -----------------------------------------------------------
+# -- Custom CSS/JS and Ukrainian locale for sphinx_rtd_theme -----------------
 
 
 def setup(app):
     app.add_css_file("extra_style.css")
     app.add_js_file("custom.js")
+
+    custom_locale_path = path.join(path.abspath(path.dirname(__file__)), "locale")
+    app.add_message_catalog("sphinx", custom_locale_path)
 
 
 # -- Breathe configuration ---------------------------------------------------
@@ -108,8 +114,6 @@ hoverxref_role_types = {
 extensions.append("sphinxcontrib.images")
 
 # -- Custom extensions -------------------------------------------------------
-import sys
-
 sys.path.append("./extensions/")
 
 extensions.append("todos")
