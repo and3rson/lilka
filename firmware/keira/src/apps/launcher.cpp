@@ -452,6 +452,11 @@ void LauncherApp::alert(String title, String message) {
     lilka::Alert alert(title, message);
     alert.draw(canvas);
     queueDraw();
+    // We need to ensure that backcanvas and canvas both have rendered
+    // our alert, or in case of long operation(file size detection),
+    // there's probability that nothing would be shown
+    alert.draw(canvas);
+    queueDraw();
     while (!alert.isFinished()) {
         alert.update();
         taskYIELD();
