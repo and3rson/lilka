@@ -199,7 +199,7 @@ void FileManagerApp::readDir(const String& path) {
     std::sort(dirContents.begin(), dirContents.end(), [](FMEntry a, FMEntry b) {
         if (S_ISDIR(a.stat.st_mode) && !S_ISDIR(b.stat.st_mode)) return true;
         else if (!S_ISDIR(a.stat.st_mode) && S_ISDIR(b.stat.st_mode)) return false;
-        return a.name.compareTo(b.name) == 1;
+        return a.name.compareTo(b.name) < 0;
     });
     auto sortEnd = millis();
     lilka::serial_log("Sorted for %d msec", sortEnd - loadEnd);
