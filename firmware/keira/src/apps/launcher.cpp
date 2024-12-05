@@ -48,6 +48,7 @@
 #include "icons/lua.h"
 #include "icons/js.h"
 #include "icons/music.h"
+#include "fmanager.h"
 
 LauncherApp::LauncherApp() : App("Menu") {
 }
@@ -106,11 +107,21 @@ void LauncherApp::run() {
         int16_t index = menu.getCursor();
         if (index == 0) {
             appsMenu("Додатки", app_items);
-        } else if (index == 1) {
-            sdBrowserMenu(&SD, "/");
+        } 
+    
+        else if (index == 1) {
+            AppManager::getInstance()->runApp(new FileManagerApp(&SD,"/"));
         } else if (index == 2) {
-            sdBrowserMenu(&SPIFFS, "/");
-        } else if (index == 3) {
+            AppManager::getInstance()->runApp(new FileManagerApp(&SPIFFS,"/"));
+        }
+    
+            // else if (index == 1) {
+            //     sdBrowserMenu(&SD, "/");
+            // } else if (index == 2) {
+            //     sdBrowserMenu(&SPIFFS, "/");
+            // }
+        
+        else if (index == 3) {
             appsMenu("Розробка", dev_items);
         } else if (index == 4) {
             settingsMenu();
