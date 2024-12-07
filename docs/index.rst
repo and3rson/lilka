@@ -37,7 +37,7 @@
     :caption: Проєкти нашої спільноти
 
     "Rustilka": Rust для Лілки <https://rust.lilka.dev>
-    "MeowUI": альтернативний UI для Лілки <https://github.com/Kolodieiev/MeowUI>
+    "Meowui": альтернативний UI для Лілки <https://github.com/Kolodieiev/lilka_v2_meowui>
 
 Indices and tables
 ==================
