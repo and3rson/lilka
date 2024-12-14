@@ -84,14 +84,10 @@ uint32_t FileUtils::getEntryCount(FS* driver, const String& localPath) {
     }
 
     size_t countFiles = 0;
-    File file = root.openNextFile();
 
-    while (file) {
-        file = root.openNextFile();
+    while (root.getNextFileName() != "") {
         countFiles++;
     }
-
-    root.close();
 
     return countFiles;
 }
@@ -122,17 +118,14 @@ size_t FileUtils::listDir(FS* driver, const String& localPath, Entry entries[]) 
     }
 
     int i = 0;
-    File file = root.openNextFile();
-    while (file) {
-        entries[i].name = file.name();
-        if (file.isDirectory()) {
-            entries[i].type = ENT_DIRECTORY;
-        } else {
-            entries[i].type = ENT_FILE;
-        }
-        entries[i].size = file.size();
-        file.close();
-        file = root.openNextFile();
+    bool isDir;
+    String name = "";
+    while ((name = root.getNextFileName(&isDir)) != "") {
+        entries[i].name = basename(name.c_str());
+        //lilka::serial_log("New name = %s", name.c_str());
+
+        if (isDir) entries[i].type = ENT_DIRECTORY;
+        else entries[i].type = ENT_FILE;
         i++;
     }
     root.close();
