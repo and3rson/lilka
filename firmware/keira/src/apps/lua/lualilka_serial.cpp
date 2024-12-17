@@ -1,6 +1,9 @@
 #include <HardwareSerial.h>
 #include "lualilka_serial.h"
 
+#define DEFAULT_BAUD    115200
+#define DEFAULT_CONFIG  SERIAL_8N1
+
 HardwareSerial LuaLilkaSerial(1);
 
 static int lualilka_serial_avaliable(lua_State* L) {
@@ -10,8 +13,9 @@ static int lualilka_serial_avaliable(lua_State* L) {
 }
 
 static int lualilka_serial_begin(lua_State* L) {
-    int baud = luaL_checkinteger(L, 1);
-    LuaLilkaSerial.begin(baud, SERIAL_8N1, LILKA_P4, LILKA_P3);
+    int baud = luaL_optinteger(L, 1, DEFAULT_BAUD);
+    int config = luaL_optinteger(L, 2, DEFAULT_CONFIG);
+    LuaLilkaSerial.begin(baud, config, LILKA_P4, LILKA_P3);
     return 0;
 }
 
@@ -40,6 +44,8 @@ static int lualilka_serial_print(lua_State* L) {
             LuaLilkaSerial.print(lua_tointeger(L, i));
         } else if (lua_isnumber(L, i)) {
             LuaLilkaSerial.print(lua_tonumber(L, i));
+        // } else if (lua_islightuserdata(L, i)) {
+        //     LuaLilkaSerial.print(lua_topointer(L, i));
         } else {
             LuaLilkaSerial.print(lua_typename(L, lua_type(L, i)));
         }
@@ -56,6 +62,8 @@ static int lualilka_serial_println(lua_State* L) {
             LuaLilkaSerial.println(lua_tointeger(L, i));
         } else if (lua_isnumber(L, i)) {
             LuaLilkaSerial.println(lua_tonumber(L, i));
+        // } else if (lua_islightuserdata(L, i)) {
+        //     LuaLilkaSerial.println(lua_topointer(L, i));
         } else {
             LuaLilkaSerial.println(lua_typename(L, lua_type(L, i)));
         }
@@ -64,8 +72,17 @@ static int lualilka_serial_println(lua_State* L) {
 }
 
 static int lualilka_serial_read(lua_State* L) {
-    int value = LuaLilkaSerial.read();
-    lua_pushinteger(L, value);
+    int bytes = luaL_optinteger(L, 1, 0);
+    if (bytes <= 0) {
+        int value = LuaLilkaSerial.read();
+        lua_pushinteger(L, value);
+    } else {
+        char *buffer = new char[bytes + 1];
+        bytes = LuaLilkaSerial.read(buffer, bytes);
+        buffer[bytes] = 0;
+        lua_pushstring(L, buffer);
+        delete [] buffer;
+    }
     return 1;
 }
 
@@ -113,6 +130,55 @@ static const struct luaL_Reg lualilka_serial[] = {
 
 int lualilka_serial_register(lua_State* L) {
     luaL_newlib(L, lualilka_serial);
+    // Add SerialConfig constants
+    lua_pushinteger(L, SERIAL_5N1);
+    lua_setfield(L, -2, "SERIAL_5N1");
+    lua_pushinteger(L, SERIAL_6N1);
+    lua_setfield(L, -2, "SERIAL_6N1");
+    lua_pushinteger(L, SERIAL_7N1);
+    lua_setfield(L, -2, "SERIAL_7N1");
+    lua_pushinteger(L, SERIAL_8N1);
+    lua_setfield(L, -2, "SERIAL_8N1");
+    lua_pushinteger(L, SERIAL_5N2);
+    lua_setfield(L, -2, "SERIAL_5N2");
+    lua_pushinteger(L, SERIAL_6N2);
+    lua_setfield(L, -2, "SERIAL_6N2");
+    lua_pushinteger(L, SERIAL_7N2);
+    lua_setfield(L, -2, "SERIAL_7N2");
+    lua_pushinteger(L, SERIAL_8N2);
+    lua_setfield(L, -2, "SERIAL_8N2");
+    lua_pushinteger(L, SERIAL_5E1);
+    lua_setfield(L, -2, "SERIAL_5E1");
+    lua_pushinteger(L, SERIAL_6E1);
+    lua_setfield(L, -2, "SERIAL_6E1");
+    lua_pushinteger(L, SERIAL_7E1);
+    lua_setfield(L, -2, "SERIAL_7E1");
+    lua_pushinteger(L, SERIAL_8E1);
+    lua_setfield(L, -2, "SERIAL_8E1");
+    lua_pushinteger(L, SERIAL_5E2);
+    lua_setfield(L, -2, "SERIAL_5E2");
+    lua_pushinteger(L, SERIAL_6E2);
+    lua_setfield(L, -2, "SERIAL_6E2");
+    lua_pushinteger(L, SERIAL_7E2);
+    lua_setfield(L, -2, "SERIAL_7E2");
+    lua_pushinteger(L, SERIAL_8E2);
+    lua_setfield(L, -2, "SERIAL_8E2");
+    lua_pushinteger(L, SERIAL_5O1);
+    lua_setfield(L, -2, "SERIAL_5O1");
+    lua_pushinteger(L, SERIAL_6O1);
+    lua_setfield(L, -2, "SERIAL_6O1");
+    lua_pushinteger(L, SERIAL_7O1);
+    lua_setfield(L, -2, "SERIAL_7O1");
+    lua_pushinteger(L, SERIAL_8O1);
+    lua_setfield(L, -2, "SERIAL_8O1");
+    lua_pushinteger(L, SERIAL_5O2);
+    lua_setfield(L, -2, "SERIAL_5O2");
+    lua_pushinteger(L, SERIAL_6O2);
+    lua_setfield(L, -2, "SERIAL_6O2");
+    lua_pushinteger(L, SERIAL_7O2);
+    lua_setfield(L, -2, "SERIAL_7O2");
+    lua_pushinteger(L, SERIAL_8O2);
+    lua_setfield(L, -2, "SERIAL_8O2");
     lua_setglobal(L, "serial");
     return 0;
 }

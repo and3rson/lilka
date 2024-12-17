@@ -14,8 +14,8 @@ end
 
 function lilka.update(delta)
     while serial.avaliable() > 0 do
-        local byte = serial.read()
-        buffer = buffer .. string.char(byte)
+        buffer = buffer .. serial.read(serial.avaliable())
+
         local start, len, lsys, llat, llat_dir, llon, llon_dir, lsats = string.find(buffer,'$G(%u)GGA,[%d%.]*,([%d%.]*),(%u?),([%d%.]*),(%u?),%d*,(%d+).+%*')
         if start ~= nil then
             sys = lsys
