@@ -14,7 +14,7 @@
 #define ANSI_RESET        "\033[0m"
 #define LILKA_LOG_FORMAT  "[ Lilka V" STR(LILKA_VERSION) " ][ " ANSI_COLOR(32) "INFO " ANSI_RESET " ]-> "
 #define LILKA_ERR_FORMAT  "[ Lilka V" STR(LILKA_VERSION) " ][ " ANSI_COLOR(31) "ERROR" ANSI_RESET " ]-> "
-#define LILKA_IDF_FORMAT  "[ Lilka V" STR(LILKA_VERSION) " ][ " ANSI_COLOR(31) " IDF " ANSI_RESET " ]-> "
+#define LILKA_IDF_FORMAT  "[ Lilka V" STR(LILKA_VERSION) " ][ " ANSI_COLOR(34) "IDF  " ANSI_RESET " ]-> "
 
 #define TX_BUFFER_SIZE    256
 #define STDIN_FD          0

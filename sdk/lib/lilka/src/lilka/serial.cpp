@@ -54,6 +54,7 @@ int stdio_vfs_close(int fd) {
 
 ssize_t stdio_vfs_read(int fd, void* dst, size_t size) {
     // read nothing, return nothing
+    // TODO: implement reading from uart
     return 0;
 }
 
@@ -102,7 +103,7 @@ void SerialInterface::begin(unsigned long baud) {
     Serial.begin(baud);
     Serial.setTimeout(SERIAL_TX_TIMEOUT);
     // redirect esp logs ->
-    esp_log_set_vprintf(&serial_idf);
+    esp_log_set_vprintf(serial_idf);
 
     // redirect stdio
     register_stdio_vfs();
