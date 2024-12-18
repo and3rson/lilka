@@ -6,8 +6,6 @@
 Вітаємо вас у документації проєкту Lilka!
 =========================================
 
-.. warning:: Ця документація знаходиться в розробці. Інформація є неповною, може бути недостовірною і/або застарілою, і може значно змінюватися в майбутньому.
-
 .. toctree::
     :maxdepth: 2
     :caption: Зміст:
@@ -37,7 +35,7 @@
     :caption: Проєкти нашої спільноти
 
     "Rustilka": Rust для Лілки <https://rust.lilka.dev>
-    "MeowUI": альтернативний UI для Лілки <https://github.com/Kolodieiev/MeowUI>
+    "Meowui": альтернативний UI для Лілки <https://github.com/Kolodieiev/lilka_v2_meowui>
 
 Indices and tables
 ==================
