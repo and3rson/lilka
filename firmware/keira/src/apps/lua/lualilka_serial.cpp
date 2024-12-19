@@ -1,8 +1,8 @@
 #include <HardwareSerial.h>
 #include "lualilka_serial.h"
 
-#define DEFAULT_BAUD    115200
-#define DEFAULT_CONFIG  SERIAL_8N1
+#define DEFAULT_BAUD   115200
+#define DEFAULT_CONFIG SERIAL_8N1
 
 HardwareSerial LuaLilkaSerial(1);
 
@@ -44,8 +44,8 @@ static int lualilka_serial_print(lua_State* L) {
             LuaLilkaSerial.print(lua_tointeger(L, i));
         } else if (lua_isnumber(L, i)) {
             LuaLilkaSerial.print(lua_tonumber(L, i));
-        // } else if (lua_islightuserdata(L, i)) {
-        //     LuaLilkaSerial.print(lua_topointer(L, i));
+            // } else if (lua_islightuserdata(L, i)) {
+            //     LuaLilkaSerial.print(lua_topointer(L, i));
         } else {
             LuaLilkaSerial.print(lua_typename(L, lua_type(L, i)));
         }
@@ -62,8 +62,8 @@ static int lualilka_serial_println(lua_State* L) {
             LuaLilkaSerial.println(lua_tointeger(L, i));
         } else if (lua_isnumber(L, i)) {
             LuaLilkaSerial.println(lua_tonumber(L, i));
-        // } else if (lua_islightuserdata(L, i)) {
-        //     LuaLilkaSerial.println(lua_topointer(L, i));
+            // } else if (lua_islightuserdata(L, i)) {
+            //     LuaLilkaSerial.println(lua_topointer(L, i));
         } else {
             LuaLilkaSerial.println(lua_typename(L, lua_type(L, i)));
         }
@@ -77,11 +77,11 @@ static int lualilka_serial_read(lua_State* L) {
         int value = LuaLilkaSerial.read();
         lua_pushinteger(L, value);
     } else {
-        char *buffer = new char[bytes + 1];
+        char* buffer = new char[bytes + 1];
         bytes = LuaLilkaSerial.read(buffer, bytes);
         buffer[bytes] = 0;
         lua_pushstring(L, buffer);
-        delete [] buffer;
+        delete[] buffer;
     }
     return 1;
 }
@@ -99,8 +99,8 @@ static int lualilka_serial_write(lua_State* L) {
             LuaLilkaSerial.write(lua_tostring(L, i));
         } else if (lua_isinteger(L, i)) {
             LuaLilkaSerial.write(lua_tointeger(L, i));
-        // } else if (lua_isnumber(L, i)) {
-        //     LuaLilkaSerial.write(lua_tonumber(L, i));
+            // } else if (lua_isnumber(L, i)) {
+            //     LuaLilkaSerial.write(lua_tonumber(L, i));
         } else {
             LuaLilkaSerial.write(lua_typename(L, lua_type(L, i)));
         }
