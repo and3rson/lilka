@@ -140,14 +140,14 @@ void ScreenshotService::run() {
             std::vector<uint8_t> image;
             image.resize(width * height * 4);
             for (int y = 0; y < height; ++y)
-            for (int x = 0; x < width; ++x) {
-                const uint16_t* framebufferLine = canvas->getFramebuffer() + y * canvas->width();
-                uint16_t rgb565 = framebufferLine[x];
-                image[4 * width * y + 4 * x + 0] = (rgb565 >> 11 & 0x1F) * 255 / 31;
-                image[4 * width * y + 4 * x + 1] = (rgb565 >> 5 & 0x3F) * 255 / 63;
-                image[4 * width * y + 4 * x + 2] = (rgb565 & 0x1F) * 255 / 31;
-                image[4 * width * y + 4 * x + 3] = 255;
-            }
+                for (int x = 0; x < width; ++x) {
+                    const uint16_t* framebufferLine = canvas->getFramebuffer() + y * canvas->width();
+                    uint16_t rgb565 = framebufferLine[x];
+                    image[4 * width * y + 4 * x + 0] = (rgb565 >> 11 & 0x1F) * 255 / 31;
+                    image[4 * width * y + 4 * x + 1] = (rgb565 >> 5 & 0x3F) * 255 / 63;
+                    image[4 * width * y + 4 * x + 2] = (rgb565 & 0x1F) * 255 / 31;
+                    image[4 * width * y + 4 * x + 3] = 255;
+                }
 
             std::vector<uint8_t> pngData;
             success = !lodepng::encode(pngData, image, width, height);
