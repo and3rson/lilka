@@ -1,4 +1,4 @@
-#include <PNGenc.h>
+#include <lodepng.h>
 
 #include "screenshot.h"
 #include "appmanager.h"
@@ -134,50 +134,51 @@ void ScreenshotService::run() {
 #elif defined(KEIRA_SCREENSHOT_PNG)
             const char* ext = "png";
 
-            const uint32_t bufferSize = canvas->width() * canvas->height() * 4;
-            buffer = new uint8_t[bufferSize];
-            std::unique_ptr<uint8_t[]> bufferPtr(buffer);
+            int16_t width = canvas->width();
+            int16_t height = canvas->height();
 
-            PNG* png = new PNG();
-            std::unique_ptr<PNG> pngPtr(png);
-            if (png->open(buffer, bufferSize) != PNG_SUCCESS) {
-                success = false;
-            } else {
-                uint8_t* tempLine = new uint8_t[canvas->width() * 4];
-                std::unique_ptr<uint8_t[]> tempLinePtr(tempLine);
-                // TODO: Handle errors
-                png->encodeBegin(canvas->width(), canvas->height(), PNG_PIXEL_TRUECOLOR, 24, NULL, 3);
-                for (int y = 0; y < canvas->height(); y++) {
-                    if (png->addRGB565Line(canvas->getFramebuffer() + y * canvas->width(), tempLine) != PNG_SUCCESS) {
-                        success = false;
-                        break;
-                    }
-                }
-                length = png->close();
+            std::vector<uint8_t> image;
+            image.resize(width * height * 4);
+            for (int y = 0; y < height; ++y)
+            for (int x = 0; x < width; ++x) {
+                const uint16_t* framebufferLine = canvas->getFramebuffer() + y * canvas->width();
+                uint16_t rgb565 = framebufferLine[x];
+                image[4 * width * y + 4 * x + 0] = (rgb565 >> 11 & 0x1F) * 255 / 31;
+                image[4 * width * y + 4 * x + 1] = (rgb565 >> 5 & 0x3F) * 255 / 63;
+                image[4 * width * y + 4 * x + 2] = (rgb565 & 0x1F) * 255 / 31;
+                image[4 * width * y + 4 * x + 3] = 255;
+            }
+
+            std::vector<uint8_t> pngData;
+            success = !lodepng::encode(pngData, image, width, height);
+            if (success) {
+                length = pngData.size();
+                buffer = new uint8_t[length];
+                std::unique_ptr<uint8_t[]> bufferPtr(buffer);
+                std::copy(pngData.begin(), pngData.end(), buffer);
             }
 #else
 #    error "Either KEIRA_SCREENSHOT_BMP or KEIRA_SCREENSHOT_PNG must be defined"
 #endif
-            // Generate filename
-            struct tm time = ServiceManager::getInstance()->getService<ClockService>("clock")->getTime();
-            char filename[64];
-            snprintf(
-                filename,
-                sizeof(filename),
-                "/screenshots/screenshot_%04d%02d%02d_%02d%02d%02d.%s",
-                time.tm_year + 1900,
-                time.tm_mon + 1,
-                time.tm_mday,
-                time.tm_hour,
-                time.tm_min,
-                time.tm_sec,
-                ext
-            );
-
-            lilka::serial_log("Screenshot filename: %s", filename);
-
             // Write to file
             if (success) {
+                // Generate filename
+                struct tm time = ServiceManager::getInstance()->getService<ClockService>("clock")->getTime();
+                char filename[64];
+                snprintf(
+                    filename,
+                    sizeof(filename),
+                    "/screenshots/screenshot_%04d%02d%02d_%02d%02d%02d.%s",
+                    time.tm_year + 1900,
+                    time.tm_mon + 1,
+                    time.tm_mday,
+                    time.tm_hour,
+                    time.tm_min,
+                    time.tm_sec,
+                    ext
+                );
+                lilka::serial_log("Screenshot filename: %s", filename);
+
                 File file = SD.open(filename, FILE_WRITE, true);
                 if (file) {
                     file.write(buffer, length);
