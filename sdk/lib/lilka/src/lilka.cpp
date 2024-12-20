@@ -9,13 +9,12 @@ void begin() {
     serial.begin();
     board.begin();
     multiboot.begin();
-    spi_begin();
     buzzer.begin(); // Play notification sound
     audio.begin();
-    display.begin(); // Must be initialized BEFORE SD card
+    spi_begin();
     fileutils.begin();
+    display.begin(); // Must be initialized AFTER SD card
     controller.begin(); // Must be initialized AFTER SD card (since SD card somehow messes with GPIO)
-
     battery.begin();
     // TODO: I2S
     // TODO: Delete Task Watchdog Timer - we'll be running long tasks
