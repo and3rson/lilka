@@ -164,7 +164,7 @@ void FileManagerApp::readDir(const String& path) {
     lilka::serial_log("Trying to load dir %s", path.c_str());
     auto dir = opendir(path.c_str());
     if (dir == NULL) return; // Can't open dir
-
+    currentPath = path; // change path
     struct dirent* dir_entry = NULL;
     // Readdir
     while ((dir_entry = readdir(dir)) != NULL) {
@@ -174,9 +174,10 @@ void FileManagerApp::readDir(const String& path) {
             struct stat fileStat;
             String sizeStr;
             // Geting filesize and filetype
+            //   lilka::serial_log("Trying to check stat for %s", lilka::fileutils.joinPath(currentPath, filename).c_str());
+            //lilka::serial_log("lpath = %s\trpath = %s", currentPath.c_str(), filename.c_str());
             if (stat(lilka::fileutils.joinPath(currentPath, filename).c_str(), &fileStat) != 0) sizeStr = "!!!";
             else sizeStr = fileStat.st_size;
-
             const menu_icon_t* icon;
             uint16_t color;
             if (S_ISDIR(fileStat.st_mode)) {
@@ -188,12 +189,10 @@ void FileManagerApp::readDir(const String& path) {
                 color = getFileColor(filename);
             }
             dirContents.push_back({detectFileType(filename), icon, color, filename, fileStat});
-            // Fast add without sorting
-            // fileListMenu.addItem(filename, icon, color, sizeStr);
         }
     }
     auto loadEnd = millis();
-    lilka::serial_log("Loaded %d entries in %d msec", dirContents.size(), loadEnd - loadBegin);
+    //   lilka::serial_log("Loaded %d entries in %d msec", dirContents.size(), loadEnd - loadBegin);
 
     // Sorting directory entries
     std::sort(dirContents.begin(), dirContents.end(), [](FMEntry a, FMEntry b) {
@@ -202,7 +201,7 @@ void FileManagerApp::readDir(const String& path) {
         return a.name.compareTo(b.name) < 0;
     });
     auto sortEnd = millis();
-    lilka::serial_log("Sorted for %d msec", sortEnd - loadEnd);
+    //lilka::serial_log("Sorted for %d msec", sortEnd - loadEnd);
 
     // Adding entries to menu
     for (auto dirEntry : dirContents) {
@@ -219,8 +218,8 @@ void FileManagerApp::readDir(const String& path) {
     // Add Back button
     fileListMenu.addItem("<< Назад", 0, 0);
     auto addEnd = millis();
-    lilka::serial_log("Added to ui for %d msec", addEnd - sortEnd);
-    lilka::serial_log("Full load consumed %d msec", addEnd - loadBegin);
+    //lilka::serial_log("Added to ui for %d msec", addEnd - sortEnd);
+    //lilka::serial_log("Full load consumed %d msec", addEnd - loadBegin);
 
     while (1) {
         // Do Draw !
@@ -234,9 +233,12 @@ void FileManagerApp::readDir(const String& path) {
         int16_t index = fileListMenu.getCursor();
         if (index == dirContents.size()) break;
         if (S_ISDIR(dirContents[index].stat.st_mode)) {
-            readDir(lilka::fileutils.joinPath(path, dirContents[index].name));
+            readDir(lilka::fileutils.joinPath(currentPath, dirContents[index].name));
+            // Restore old path
+            currentPath = lilka::fileutils.getParentDirectory(currentPath);
+            lilka::serial_log("Restored path %s", currentPath.c_str());
         } else {
-            openFile(lilka::fileutils.joinPath(path, dirContents[index].name));
+            openFile(lilka::fileutils.joinPath(currentPath, dirContents[index].name));
         }
     }
 }

@@ -293,5 +293,21 @@ const String FileUtils::joinPath(const String& lPath, const String& rPath) {
     return path;
 }
 
+const String FileUtils::getParentDirectory(const String& path) {
+    String cleanPath = path;
+    // Remove trailing '/' if it exists
+    if (cleanPath.endsWith("/")) {
+        cleanPath.remove(cleanPath.length() - 1);
+    }
+    // Find the last '/'
+    int lastSlash = cleanPath.lastIndexOf('/');
+    if (lastSlash == -1) {
+        // No '/' found, assume it's at the top level
+        return "/";
+    }
+    // Return the substring up to the last '/'
+    return cleanPath.substring(0, lastSlash);
+}
+
 FileUtils fileutils;
 } // namespace lilka

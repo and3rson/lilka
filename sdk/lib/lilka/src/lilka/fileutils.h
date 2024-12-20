@@ -116,6 +116,11 @@ public:
     /// @param rPath права половина шляху
     /// @return повний шлях
     const String joinPath(const String& lPath, const String& rPath);
+    /// Отримати шлях до директорії в якій лежить файл
+    /// @param path Шлях до файлу
+    /// @return шлях
+    // TODO: задокументувати
+    const String getParentDirectory(const String& path);
     /// Створити нову таблицю розділів на SD картці
     /// @warning Після виклику цієї функції необхідно перезавантажити систему
     /// @return true у разі успіху
