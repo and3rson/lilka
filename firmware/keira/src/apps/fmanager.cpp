@@ -2,6 +2,9 @@
 
 // DEPS:
 #include "appmanager.h"
+#include <mbedtls/md5.h>
+#include "esp_log.h"
+#include "esp_err.h"
 
 // APPS:
 #include "modplayer/modplayer.h"
@@ -18,9 +21,6 @@
 #include "icons/lua.h"
 #include "icons/js.h"
 #include "icons/music.h"
-#include <mbedtls/md5.h>
-#include "esp_log.h"
-#include "esp_err.h"
 
 #define MD5_CHUNK_SIZE 1024
 void FileManagerApp::alert(const String& title, const String& message) {
@@ -53,16 +53,36 @@ String FileManagerApp::getFileMD5(const String& file_path) {
         lilka::serial_err("MD5: Failed to open file: %s", file_path.c_str());
         return String(); // Return an empty string on failure
     }
+    lilka::ProgressDialog dialog("Обчислення МD5", file_path);
+
+    // Get file size
+    fseek(file, 0, SEEK_END);
+    size_t fileSize = ftell(file);
+    fseek(file, 0, SEEK_SET);
 
     mbedtls_md5_context ctx;
     mbedtls_md5_init(&ctx);
     mbedtls_md5_starts_ret(&ctx);
 
     unsigned char buffer[MD5_CHUNK_SIZE];
-    size_t bytes_read;
 
-    while ((bytes_read = fread(buffer, 1, sizeof(buffer), file)) > 0) {
-        mbedtls_md5_update_ret(&ctx, buffer, bytes_read);
+    size_t bytesReadChunk = 0;
+    size_t bytesRead = 0;
+
+    while ((bytesReadChunk = fread(buffer, 1, sizeof(buffer), file)) > 0) {
+        mbedtls_md5_update_ret(&ctx, buffer, bytesReadChunk);
+
+        bytesRead += bytesReadChunk;
+        int progress = bytesRead * 100 / fileSize;
+        dialog.setProgress(progress);
+
+        if (lilka::controller.getState().a.justPressed) {
+            fclose(file);
+            return "Не обчислено";
+        }
+        //  Draw dialog
+        dialog.draw(canvas);
+        queueDraw();
     }
 
     if (ferror(file)) {
