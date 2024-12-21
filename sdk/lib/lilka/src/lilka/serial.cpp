@@ -44,8 +44,9 @@ void SerialInterface::unlock() {
 void SerialInterface::begin(unsigned long baud) {
     Serial.begin(baud);
     Serial.setTimeout(SERIAL_TX_TIMEOUT);
-
+#ifndef NO_GREETING_MESSAGE
     writeGreetingMessage();
+#endif
     // redirect esp logs ->
     esp_log_set_vprintf(serial_idf);
 
