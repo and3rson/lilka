@@ -107,20 +107,20 @@ void LauncherApp::run() {
         int16_t index = menu.getCursor();
         if (index == 0) {
             appsMenu("Додатки", app_items);
-        } 
-    
-        else if (index == 1) {
-            AppManager::getInstance()->runApp(new FileManagerApp(&SD,"/"));
-        } else if (index == 2) {
-            AppManager::getInstance()->runApp(new FileManagerApp(&SPIFFS,"/"));
         }
-    
-            // else if (index == 1) {
-            //     sdBrowserMenu(&SD, "/");
-            // } else if (index == 2) {
-            //     sdBrowserMenu(&SPIFFS, "/");
-            // }
-        
+
+        else if (index == 1) {
+            AppManager::getInstance()->runApp(new FileManagerApp(&SD, "/"));
+        } else if (index == 2) {
+            AppManager::getInstance()->runApp(new FileManagerApp(&SPIFFS, "/"));
+        }
+
+        // else if (index == 1) {
+        //     sdBrowserMenu(&SD, "/");
+        // } else if (index == 2) {
+        //     sdBrowserMenu(&SPIFFS, "/");
+        // }
+
         else if (index == 3) {
             appsMenu("Розробка", dev_items);
         } else if (index == 4) {
@@ -152,163 +152,6 @@ void LauncherApp::appsMenu(const char* title, ITEM_LIST& list) {
         } else {
             AppManager::getInstance()->runApp(list[index].construct());
         }
-    }
-}
-
-const menu_icon_t* get_file_icon(const String& filename) {
-    String lowerCasedFileName = filename;
-    lowerCasedFileName.toLowerCase();
-    if (lowerCasedFileName.endsWith(".rom") || lowerCasedFileName.endsWith(".nes")) {
-        return &nes_img;
-    } else if (lowerCasedFileName.endsWith(".bin")) {
-        return &bin_img;
-    } else if (lowerCasedFileName.endsWith(".lua")) {
-        return &lua_img;
-    } else if (lowerCasedFileName.endsWith(".js")) {
-        return &js_img;
-    } else if (lowerCasedFileName.endsWith(".mod") || lowerCasedFileName.endsWith(".lt")) {
-        return &music_img;
-    } else {
-        return &normalfile_img;
-    }
-}
-
-const uint16_t get_file_color(const String& filename) {
-    String lowerCasedFileName = filename;
-    lowerCasedFileName.toLowerCase();
-    if (lowerCasedFileName.endsWith(".rom") || lowerCasedFileName.endsWith(".nes")) {
-        return lilka::colors::Candy_pink;
-    } else if (lowerCasedFileName.endsWith(".bin")) {
-        return lilka::colors::Mint_green;
-    } else if (lowerCasedFileName.endsWith(".lua")) {
-        return lilka::colors::Maya_blue;
-    } else if (lowerCasedFileName.endsWith(".js")) {
-        return lilka::colors::Butterscotch;
-    } else if (lowerCasedFileName.endsWith(".mod") || lowerCasedFileName.endsWith(".lt")) {
-        return lilka::colors::Pink_lace;
-    } else {
-        return lilka::colors::Light_gray;
-    }
-}
-
-void LauncherApp::sdBrowserMenu(FS* fSysDriver, const String& path) {
-    String currentPath = lilka::fileutils.stripPath(path);
-    size_t _numEntries = lilka::fileutils.getEntryCount(fSysDriver, currentPath);
-    if (_numEntries == 0) {
-        alert("Помилка", "Директорія пуста або сталася помилка читання директорії");
-        return;
-    }
-
-    lilka::Entry* entries = new lilka::Entry[_numEntries];
-
-    int numEntries = lilka::fileutils.listDir(fSysDriver, currentPath, entries);
-    std::unique_ptr<lilka::Entry[]> entriesPtr(entries);
-
-    // Так як listDir має повертати -1 в разі помилки
-    // а countFilesIndir size_t >= 0 додаткові перевірки не потрібні
-    if (_numEntries != numEntries) {
-        alert("Помилка", "Не вдалося прочитати директорію");
-        return;
-    }
-    String menuTitle = (fSysDriver == &SD ? "SD: " : (fSysDriver == &SPIFFS ? "SPIFFS: " : "?")) + currentPath;
-    lilka::Menu menu(menuTitle);
-    for (int i = 0; i < numEntries; i++) {
-        String filename = entries[i].name;
-        const menu_icon_t* icon =
-            entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder_img : get_file_icon(filename);
-        uint16_t color = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? lilka::colors::Arylide_yellow
-                                                                            : get_file_color(filename);
-        if (entries[i].type != lilka::EntryType::ENT_DIRECTORY) menu.addItem(filename, icon, color);
-        else menu.addItem(filename, icon, color);
-    }
-    menu.addItem("<< Назад", 0, 0);
-
-    while (1) {
-        while (!menu.isFinished()) {
-            menu.update();
-            menu.draw(canvas);
-            queueDraw();
-        }
-        int16_t index = menu.getCursor();
-        if (index == numEntries) break;
-        if (entries[index].type == lilka::EntryType::ENT_DIRECTORY) {
-            if (currentPath == "/") sdBrowserMenu(fSysDriver, currentPath + entries[index].name);
-            else sdBrowserMenu(fSysDriver, currentPath + "/" + entries[index].name);
-        } else {
-            if (currentPath == "/") {
-                selectFile(lilka::fileutils.getCannonicalPath(fSysDriver, currentPath + entries[index].name));
-            } else {
-                selectFile(lilka::fileutils.getCannonicalPath(fSysDriver, currentPath + "/" + entries[index].name));
-            }
-        }
-    }
-
-    return;
-}
-
-void LauncherApp::selectFile(String path) {
-    String lowerCasedPath = path;
-    lowerCasedPath.toLowerCase();
-    //lilka::serial_log("FileBrowser : Selected path %s", path.c_str());
-    if (lowerCasedPath.endsWith(".rom") || lowerCasedPath.endsWith(".nes")) {
-        AppManager::getInstance()->runApp(new NesApp(path));
-    } else if (lowerCasedPath.endsWith(".bin")) {
-#if LILKA_VERSION < 2
-        alert("Помилка", "Ця операція потребує Лілку 2.0");
-        return;
-#else
-        lilka::ProgressDialog dialog("Завантаження", path + "\n\nПочинаємо...");
-        dialog.draw(canvas);
-        queueDraw();
-        int error;
-        error = lilka::multiboot.start(path);
-        if (error) {
-            alert("Помилка", String("Етап: 1\nКод: ") + error);
-            return;
-        }
-        dialog.setMessage(path + "\n\nРозмір: " + String(lilka::multiboot.getBytesTotal()) + " Б");
-        dialog.draw(canvas);
-        queueDraw();
-        while ((error = lilka::multiboot.process()) > 0) {
-            int progress = lilka::multiboot.getBytesWritten() * 100 / lilka::multiboot.getBytesTotal();
-            dialog.setProgress(progress);
-            dialog.draw(canvas);
-            queueDraw();
-            if (lilka::controller.getState().a.justPressed) {
-                lilka::multiboot.cancel();
-                return;
-            }
-        }
-        if (error < 0) {
-            alert("Помилка", String("Етап: 2\nКод: ") + error);
-            return;
-        }
-        error = lilka::multiboot.finishAndReboot();
-        if (error) {
-            alert("Помилка", String("Етап: 3\nКод: ") + error);
-            return;
-        }
-#endif
-    } else if (lowerCasedPath.endsWith(".lua")) {
-        AppManager::getInstance()->runApp(new LuaFileRunnerApp(path));
-    } else if (lowerCasedPath.endsWith(".js")) {
-        AppManager::getInstance()->runApp(new MJSApp(path));
-    } else if (lowerCasedPath.endsWith(".mod")) {
-        AppManager::getInstance()->runApp(new ModPlayerApp(path));
-    } else if (lowerCasedPath.endsWith(".lt")) {
-        AppManager::getInstance()->runApp(new LilTrackerApp(path));
-    } else {
-        // Get file size
-        // lilka::serial_log(path.c_str());
-        FILE* file = fopen(path.c_str(), "r");
-        if (!file) {
-            alert("Помилка", "Не вдалося відкрити файл");
-            return;
-        }
-        fseek(file, 0, SEEK_END);
-        long size = ftell(file);
-        fclose(file);
-        alert(path, String("Розмір:\n") + size + " байт");
     }
 }
 

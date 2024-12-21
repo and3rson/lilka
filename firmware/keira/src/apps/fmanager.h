@@ -28,7 +28,9 @@ private:
     const menu_icon_t* getFileIcon(const String& filename);
     const uint16_t getFileColor(const String& filename);
     void openFile(const String& path);
+    void showFileInfo(const String& path);
     //void openFileWith(String &path);
+    static String getFileMD5(const String& file_path);
     String truncatedPath;
     String currentPath;
     String menuPrefix;

@@ -236,7 +236,7 @@ void FileManagerApp::readDir(const String& path) {
     auto dir = opendir(path.c_str());
     if (dir == NULL) return; // Can't open dir
     currentPath = path; // change path
-    struct dirent* dir_entry = NULL;
+    const struct dirent* dir_entry = NULL;
     // Readdir
     while ((dir_entry = readdir(dir)) != NULL) {
         String filename = dir_entry->d_name;
