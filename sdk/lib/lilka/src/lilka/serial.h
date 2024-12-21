@@ -3,6 +3,8 @@
 #include <queue>
 #include "fileutils.h"
 
+#include <esp32/clk.h>
+
 // Serial configuration:
 #define SERIAL_BAUD_RATE  115200
 #define SERIAL_TX_TIMEOUT 0
@@ -22,11 +24,11 @@
 #define STDERR_FD         2
 #define STDIO_PATH        "/dev/stdio"
 
-#define STDIN_PATH        "/dev/stdio/in"
+#define STDIN_PATH        STDIO_PATH "/in"
 #define STDIN_LOCAL_PATH  "/in"
-#define STDOUT_PATH       "/dev/stdio/out"
+#define STDOUT_PATH       STDIO_PATH "/out"
 #define STDOUT_LOCAL_PATH "/out"
-#define STDERR_PATH       "/dev/stdio/err"
+#define STDERR_PATH       STDIO_PATH "/err"
 #define STDERR_LOCAL_PATH "/err"
 
 namespace lilka {
@@ -40,14 +42,33 @@ public:
     void idf(const char* format, ...);
 
 private:
-    SemaphoreHandle_t serialMutex = xSemaphoreCreateMutex();
-    std::queue<String> serialQueue;
+    // Doing all work in a separate task
     void run();
+    // Some fun
+    void writeGreetingMessage();
+
+    // Mutex lock
     void lock();
     void unlock();
+
+    // STDIO VFS :
+    static void register_stdio_vfs();
+
+    static int stdio_vfs_open(const char* path, int flags, int mode);
+    static int stdio_vfs_close(int fd);
+    static ssize_t stdio_vfs_read(int fd, void* dst, size_t size);
+    static ssize_t stdio_vfs_write(int fd, const void* data, size_t size);
+
+    // Storage and mutex for this storage
+    SemaphoreHandle_t serialMutex = xSemaphoreCreateMutex();
+    std::queue<String> serialQueue;
 };
 
+// TODO: replace serial_log/serial_err everywhere on serial.log and serial.err
+[[deprecated("Use serial.log instead")]]
 void serial_log(const char* message, ...);
+
+[[deprecated("Use serial.err instead")]]
 void serial_err(const char* message, ...);
 
 extern SerialInterface serial;
