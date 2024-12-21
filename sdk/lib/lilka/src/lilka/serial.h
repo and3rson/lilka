@@ -22,14 +22,15 @@
 #define STDIN_FD          0
 #define STDOUT_FD         1
 #define STDERR_FD         2
-#define STDIO_PATH        "/dev/stdio"
 
-#define STDIN_PATH        STDIO_PATH "/in"
+#define STDIO_PATH        "/dev/stdio"
 #define STDIN_LOCAL_PATH  "/in"
-#define STDOUT_PATH       STDIO_PATH "/out"
 #define STDOUT_LOCAL_PATH "/out"
-#define STDERR_PATH       STDIO_PATH "/err"
 #define STDERR_LOCAL_PATH "/err"
+
+#define STDIN_PATH        STDIO_PATH STDIN_LOCAL_PATH
+#define STDOUT_PATH       STDIO_PATH STDOUT_LOCAL_PATH
+#define STDERR_PATH       STDIO_PATH STDERR_LOCAL_PATH
 
 namespace lilka {
 
