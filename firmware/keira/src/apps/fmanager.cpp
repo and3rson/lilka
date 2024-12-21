@@ -18,7 +18,11 @@
 #include "icons/lua.h"
 #include "icons/js.h"
 #include "icons/music.h"
+#include <mbedtls/md5.h>
+#include "esp_log.h"
+#include "esp_err.h"
 
+#define MD5_CHUNK_SIZE 1024
 void FileManagerApp::alert(const String& title, const String& message) {
     lilka::Alert alert(title, message);
     alert.draw(canvas);
@@ -42,6 +46,51 @@ FileManagerApp::FileManagerApp(FS* fSysDriver, const String& path) : App("FileMa
     }
     truncatedPath = path;
 }
+
+String FileManagerApp::getFileMD5(const String& file_path) {
+    FILE* file = fopen(file_path.c_str(), "rb"); // Use c_str() for Arduino String compatibility
+    if (!file) {
+        lilka::serial_err("MD5: Failed to open file: %s", file_path.c_str());
+        return String(); // Return an empty string on failure
+    }
+
+    mbedtls_md5_context ctx;
+    mbedtls_md5_init(&ctx);
+    mbedtls_md5_starts_ret(&ctx);
+
+    unsigned char buffer[MD5_CHUNK_SIZE];
+    size_t bytes_read;
+
+    while ((bytes_read = fread(buffer, 1, sizeof(buffer), file)) > 0) {
+        mbedtls_md5_update_ret(&ctx, buffer, bytes_read);
+    }
+
+    if (ferror(file)) {
+        ESP_LOGE("MD5", "Error reading file: %s", file_path.c_str());
+        fclose(file);
+        mbedtls_md5_free(&ctx);
+        return String(); // Return an empty string on error
+    }
+
+    fclose(file);
+
+    unsigned char output[16];
+    mbedtls_md5_finish_ret(&ctx, output);
+    mbedtls_md5_free(&ctx);
+
+    // Convert the MD5 hash to a hexadecimal string
+    String md5_hex;
+    for (int i = 0; i < 16; i++) {
+        md5_hex += String(output[i], HEX);
+        if (output[i] < 16) {
+            // Add a leading zero for single-digit values
+            md5_hex = md5_hex.substring(0, md5_hex.length() - 2) + "0" + md5_hex.substring(md5_hex.length() - 2);
+        }
+    }
+    md5_hex.toUpperCase();
+    return md5_hex;
+}
+
 FileType FileManagerApp::detectFileType(const String& filename) {
     String lowerCasedFileName = filename;
     lowerCasedFileName.toLowerCase();
@@ -115,7 +164,27 @@ void FileManagerApp::openFile(const String& path) {
         case FT_MOD:
             AppManager::getInstance()->runApp(new LilTrackerApp(path));
             break;
+        case FT_OTHER:
+            showFileInfo(path);
+            break;
     }
+}
+void FileManagerApp::showFileInfo(const String& path) {
+    String info;
+    struct stat fileStat;
+    if (stat(path.c_str(), &fileStat) != 0) {
+        lilka::serial_log("showFileInfo failed. No stat data for %s", path.c_str());
+        return;
+    }
+    if (S_ISDIR(fileStat.st_mode)) {
+        info = "Тип: директорія\n";
+    } else {
+        info = "Тип: файл\n";
+        info += "Розмір: " + lilka::fileutils.getHumanFriendlySize(fileStat.st_size) + "\n";
+        info += "MD5: " + getFileMD5(path) + "\n";
+    }
+
+    alert(basename(path.c_str()), info);
 }
 
 void FileManagerApp::loadRom(const String& path) {
@@ -160,6 +229,8 @@ void FileManagerApp::readDir(const String& path) {
     std::vector<FMEntry> dirContents;
     lilka::Menu fileListMenu;
     fileListMenu.setTitle(menuPrefix + lilka::fileutils.getLocalPathInfo(path).path);
+    fileListMenu.addActivationButton(lilka::Button::C); // Info Button
+    fileListMenu.addActivationButton(lilka::Button::B); // Back Button
     auto loadBegin = millis();
     lilka::serial_log("Trying to load dir %s", path.c_str());
     auto dir = opendir(path.c_str());
@@ -231,15 +302,22 @@ void FileManagerApp::readDir(const String& path) {
 
         //Do magic!
         int16_t index = fileListMenu.getCursor();
-        if (index == dirContents.size()) break;
-        if (S_ISDIR(dirContents[index].stat.st_mode)) {
-            readDir(lilka::fileutils.joinPath(currentPath, dirContents[index].name));
-            // Restore old path
-            currentPath = lilka::fileutils.getParentDirectory(currentPath);
-            lilka::serial_log("Restored path %s", currentPath.c_str());
-        } else {
-            openFile(lilka::fileutils.joinPath(currentPath, dirContents[index].name));
-        }
+
+        if (index == dirContents.size()) break; // Back option selected
+
+        auto button = fileListMenu.getButton();
+        if (button == lilka::Button::A) {
+            if (S_ISDIR(dirContents[index].stat.st_mode)) {
+                readDir(lilka::fileutils.joinPath(currentPath, dirContents[index].name));
+                // Restore old path
+                currentPath = lilka::fileutils.getParentDirectory(currentPath);
+                lilka::serial_log("Restored path %s", currentPath.c_str());
+            } else {
+                openFile(lilka::fileutils.joinPath(currentPath, dirContents[index].name));
+            }
+        } else if (button == lilka::Button::C) {
+            showFileInfo(lilka::fileutils.joinPath(currentPath, dirContents[index].name));
+        } else break; // B button
     }
 }
 void FileManagerApp::run() {
