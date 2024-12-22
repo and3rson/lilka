@@ -259,10 +259,9 @@ int SerialInterface::stdio_vfs_close(int fd) {
 }
 
 ssize_t SerialInterface::stdio_vfs_read(int fd, void* dst, size_t size) {
-    size_t bytesRead = 0;
-    uint8_t* dataPtr = static_cast<uint8_t*>(dst);
-
     if (fd == STDIN_FD) {
+        size_t bytesRead = 0;
+        uint8_t* dataPtr = static_cast<uint8_t*>(dst);
         //serial.log("trying to read %d bytes. Waiting for data...", size);
         while (bytesRead < size) {
             if (Serial.available() > 0) {
