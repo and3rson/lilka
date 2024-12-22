@@ -7,7 +7,7 @@
 
 // Serial configuration:
 #define SERIAL_BAUD_RATE  115200
-#define SERIAL_TX_TIMEOUT 0
+#define SERIAL_TIMEOUT    0
 
 #define STRX(x)           #x
 #define STR(x)            STRX(x)

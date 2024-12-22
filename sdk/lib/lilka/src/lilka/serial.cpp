@@ -43,7 +43,7 @@ void SerialInterface::unlock() {
 
 void SerialInterface::begin(unsigned long baud) {
     Serial.begin(baud);
-    Serial.setTimeout(SERIAL_TX_TIMEOUT);
+    Serial.setTimeout(SERIAL_TIMEOUT);
 #ifndef NO_GREETING_MESSAGE
     writeGreetingMessage();
 #endif
@@ -58,6 +58,13 @@ void SerialInterface::begin(unsigned long baud) {
     // serial.log("STDIN FD = %d", fileno(_GLOBAL_REENT->_stdin));
     // serial.log("STDOUT FD = %d", fileno(_GLOBAL_REENT->_stdout));
     // serial.log("STDERR FD = %d", fileno(_GLOBAL_REENT->_stderr));
+
+    //Test printf and scanf
+    // printf("Testing printf and scanf:\n");
+    // printf("Enter an integer: ");
+    // int num;
+    // scanf("%d", &num);
+    // printf("You entered: %d\n", num);
 }
 
 void SerialInterface::log(const char* format, ...) {
@@ -146,23 +153,22 @@ void SerialInterface::writeGreetingMessage() {
 }
 
 void SerialInterface::run() {
-    size_t CHUNK_SIZE = TX_BUFFER_SIZE - 32;
     while (1) {
         if (millis() < 1000) {
             // sleep a while, to not miss something
             vTaskDelay(5 / portTICK_PERIOD_MS);
             continue;
         }
-        Serial.flush(); // Be sure we've a clean TX buffer
+
         lock();
         while (!serialQueue.empty()) {
             // lock
             String outputLine = serialQueue.front();
             size_t len = outputLine.length();
             size_t sent = 0;
-            Serial.flush();
+            size_t availableSpace = Serial.availableForWrite();
             while (sent < len) {
-                size_t toSend = (len - sent) > CHUNK_SIZE ? CHUNK_SIZE : (len - sent);
+                size_t toSend = (len - sent) > availableSpace ? availableSpace : (len - sent);
                 Serial.write(outputLine.c_str() + sent, toSend);
                 Serial.flush();
 
@@ -173,7 +179,7 @@ void SerialInterface::run() {
             serialQueue.pop();
         }
         unlock();
-        taskYIELD();
+        vTaskDelay(5 / portTICK_PERIOD_MS);
     }
 }
 
@@ -188,10 +194,6 @@ void SerialInterface::register_stdio_vfs() {
         .open = stdio_vfs_open,
         .close = stdio_vfs_close,
     };
-
-    // Register the stdio VFS for stdin, stdout, and stderr
-    // We could theoreticaly pass *this inside our vfs
-    // as ctx parameter, though we don't need it
 
     if (esp_vfs_register(STDIO_PATH, &stdio_vfs, NULL) == ESP_OK) {
         serial.log("STDIO VFS Register OK");
@@ -257,9 +259,23 @@ int SerialInterface::stdio_vfs_close(int fd) {
 }
 
 ssize_t SerialInterface::stdio_vfs_read(int fd, void* dst, size_t size) {
-    // read nothing, return nothing
-    // TODO: implement reading from uart
-    return 0;
+    size_t bytesRead = 0;
+    uint8_t* dataPtr = static_cast<uint8_t*>(dst);
+
+    if (fd == STDIN_FD) {
+        //serial.log("trying to read %d bytes. Waiting for data...", size);
+        while (bytesRead < size) {
+            if (Serial.available() > 0) {
+                size_t ReadChunk = Serial.readBytes(dataPtr, size - bytesRead);
+                // move forward
+                dataPtr += ReadChunk;
+                bytesRead += ReadChunk;
+                //serial.log("Read in this chunk %d, left %d", ReadChunk, size - bytesRead);
+            }
+            taskYIELD();
+        }
+        return bytesRead;
+    } else return 0; // Can't read something
 }
 
 ssize_t SerialInterface::stdio_vfs_write(int fd, const void* data, size_t size) {
