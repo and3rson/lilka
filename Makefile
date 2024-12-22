@@ -15,6 +15,7 @@ todo: ## Find all TODO, FIXME, XXX comments
 		-not \( -name bak -prune \) \
 		-not \( -name mJS -prune \) \
 		-not \( -name SimpleFTPServer -prune \) \
+		-not \( -name LodePNG -prune \) \
 		-iname *.h \
 		-o -iname *.cpp \
 		-o -iname *.c \
@@ -36,6 +37,7 @@ icons:
 		-not \( -name bak -prune \) \
 		-not \( -name mJS -prune \) \
 		-not \( -name SimpleFTPServer -prune \) \
+		-not \( -name LodePNG -prune \) \
 		-not \( -name *splash* -prune \) \
 		-not \( -name *weather* -prune \) \
 		-iname '*.png' \
@@ -63,6 +65,7 @@ clang-format: ## Run clang-format check
 		-not \( -name bak -prune \) \
 		-not \( -name mJS -prune \) \
 		-not \( -name SimpleFTPServer -prune \) \
+		-not \( -name LodePNG -prune \) \
 		-iname *.h \
 		-o -iname *.cpp \
 		-o -iname *.c \
