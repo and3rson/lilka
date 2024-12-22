@@ -3,7 +3,7 @@
 #include <dirent.h>
 #include <vector>
 
-typedef enum { FT_NES_ROM, FT_BIN, FT_LUA_SCRIPT, FT_JS_SCRIPT, FT_MOD, FT_OTHER } FileType;
+typedef enum { FT_NES_ROM, FT_BIN, FT_LUA_SCRIPT, FT_JS_SCRIPT, FT_MOD, FT_LT, FT_OTHER } FileType;
 
 // We already 've similar structure in lilka/sdk/fileutils,
 // though cause we use here a bit different way to achieve same results
@@ -29,9 +29,8 @@ private:
     const uint16_t getFileColor(const String& filename);
     void openFile(const String& path);
     void showFileInfo(const String& path);
-    //void openFileWith(String &path);
+    // TODO: void openFileWith(String &path);
     String getFileMD5(const String& file_path);
-    String truncatedPath;
     String currentPath;
     String menuPrefix;
     void run() override;

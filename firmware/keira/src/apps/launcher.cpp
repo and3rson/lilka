@@ -113,15 +113,7 @@ void LauncherApp::run() {
             AppManager::getInstance()->runApp(new FileManagerApp(&SD, "/"));
         } else if (index == 2) {
             AppManager::getInstance()->runApp(new FileManagerApp(&SPIFFS, "/"));
-        }
-
-        // else if (index == 1) {
-        //     sdBrowserMenu(&SD, "/");
-        // } else if (index == 2) {
-        //     sdBrowserMenu(&SPIFFS, "/");
-        // }
-
-        else if (index == 3) {
+        } else if (index == 3) {
             appsMenu("Розробка", dev_items);
         } else if (index == 4) {
             settingsMenu();

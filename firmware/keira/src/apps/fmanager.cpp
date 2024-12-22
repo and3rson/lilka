@@ -12,6 +12,7 @@
 #include "lua/luarunner.h"
 #include "mjs/mjsrunner.h"
 #include "nes/nesapp.h"
+
 // ICONS:
 #include "lilka/fileutils.h"
 #include "icons/normalfile.h"
@@ -44,7 +45,6 @@ FileManagerApp::FileManagerApp(FS* fSysDriver, const String& path) : App("FileMa
         currentPath = path; // if fSysDriver is zero, we just assume it's a canonical path
         menuPrefix = "R: ";
     }
-    truncatedPath = path;
 }
 
 String FileManagerApp::getFileMD5(const String& file_path) {
@@ -123,8 +123,10 @@ FileType FileManagerApp::detectFileType(const String& filename) {
         return FT_LUA_SCRIPT;
     } else if (lowerCasedFileName.endsWith(".js")) {
         return FT_JS_SCRIPT;
-    } else if (lowerCasedFileName.endsWith(".mod") || lowerCasedFileName.endsWith(".lt")) {
+    } else if (lowerCasedFileName.endsWith(".mod")) {
         return FT_MOD;
+    } else if (lowerCasedFileName.endsWith(".lt")) {
+        return FT_LT;
     } else {
         return FT_OTHER;
     }
@@ -143,6 +145,8 @@ const menu_icon_t* FileManagerApp::getFileIcon(const String& filename) {
             return &js_img;
         case FT_MOD:
             return &music_img;
+        case FT_LT: // TODO: add separate icon for FT_MOD or for FT_LT
+            return &music_img;
         default:
             return &normalfile_img;
     }
@@ -160,6 +164,8 @@ const uint16_t FileManagerApp::getFileColor(const String& filename) {
         case FT_JS_SCRIPT:
             return lilka::colors::Butterscotch;
         case FT_MOD:
+            return lilka::colors::Plum_web;
+        case FT_LT:
             return lilka::colors::Pink_lace;
         default:
             return lilka::colors::Light_gray;
@@ -182,6 +188,9 @@ void FileManagerApp::openFile(const String& path) {
             AppManager::getInstance()->runApp(new MJSApp(path));
             break;
         case FT_MOD:
+            AppManager::getInstance()->runApp(new ModPlayerApp(path));
+            break;
+        case FT_LT:
             AppManager::getInstance()->runApp(new LilTrackerApp(path));
             break;
         case FT_OTHER:
@@ -247,16 +256,19 @@ void FileManagerApp::loadRom(const String& path) {
 
 void FileManagerApp::readDir(const String& path) {
     std::vector<FMEntry> dirContents;
+
     lilka::Menu fileListMenu;
     fileListMenu.setTitle(menuPrefix + lilka::fileutils.getLocalPathInfo(path).path);
     fileListMenu.addActivationButton(lilka::Button::C); // Info Button
     fileListMenu.addActivationButton(lilka::Button::B); // Back Button
-    auto loadBegin = millis();
+
     lilka::serial_log("Trying to load dir %s", path.c_str());
+
     auto dir = opendir(path.c_str());
     if (dir == NULL) return; // Can't open dir
     currentPath = path; // change path
     const struct dirent* dir_entry = NULL;
+
     // Readdir
     while ((dir_entry = readdir(dir)) != NULL) {
         String filename = dir_entry->d_name;
@@ -265,8 +277,6 @@ void FileManagerApp::readDir(const String& path) {
             struct stat fileStat;
             String sizeStr;
             // Geting filesize and filetype
-            //   lilka::serial_log("Trying to check stat for %s", lilka::fileutils.joinPath(currentPath, filename).c_str());
-            //lilka::serial_log("lpath = %s\trpath = %s", currentPath.c_str(), filename.c_str());
             if (stat(lilka::fileutils.joinPath(currentPath, filename).c_str(), &fileStat) != 0) sizeStr = "!!!";
             else sizeStr = fileStat.st_size;
             const menu_icon_t* icon;
@@ -282,8 +292,6 @@ void FileManagerApp::readDir(const String& path) {
             dirContents.push_back({detectFileType(filename), icon, color, filename, fileStat});
         }
     }
-    auto loadEnd = millis();
-    //   lilka::serial_log("Loaded %d entries in %d msec", dirContents.size(), loadEnd - loadBegin);
 
     // Sorting directory entries
     std::sort(dirContents.begin(), dirContents.end(), [](FMEntry a, FMEntry b) {
@@ -291,8 +299,6 @@ void FileManagerApp::readDir(const String& path) {
         else if (!S_ISDIR(a.stat.st_mode) && S_ISDIR(b.stat.st_mode)) return false;
         return a.name.compareTo(b.name) < 0;
     });
-    auto sortEnd = millis();
-    //lilka::serial_log("Sorted for %d msec", sortEnd - loadEnd);
 
     // Adding entries to menu
     for (auto dirEntry : dirContents) {
@@ -308,9 +314,6 @@ void FileManagerApp::readDir(const String& path) {
 
     // Add Back button
     fileListMenu.addItem("<< Назад", 0, 0);
-    auto addEnd = millis();
-    //lilka::serial_log("Added to ui for %d msec", addEnd - sortEnd);
-    //lilka::serial_log("Full load consumed %d msec", addEnd - loadBegin);
 
     while (1) {
         // Do Draw !
