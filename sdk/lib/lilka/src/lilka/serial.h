@@ -66,10 +66,13 @@ private:
 };
 
 // TODO: replace serial_log/serial_err everywhere on serial.log and serial.err
+// clang-format off
 [[deprecated("Use serial.log instead")]]
+// clang-format on
 void serial_log(const char* message, ...);
-
+// clang-format off
 [[deprecated("Use serial.err instead")]]
+// clang-format on
 void serial_err(const char* message, ...);
 
 extern SerialInterface serial;
