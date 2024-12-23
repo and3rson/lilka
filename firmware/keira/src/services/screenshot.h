@@ -8,4 +8,6 @@ public:
 
 private:
     void run() override;
+    bool saveScreenshot(lilka::Canvas* canvas);
+    bool writeScreenshot(uint8_t* buffer, uint32_t length, const char* ext);
 };
