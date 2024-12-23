@@ -86,8 +86,7 @@ Image* Resources::loadImage(String filename, int32_t transparentColor, int32_t p
         if (fread(fileSignature, 1, 4, file) == 4) {
             if (fileSignature[0] == 'B' && fileSignature[1] == 'M') {
                 image = loadImageBMP(file, transparentColor, pivotX, pivotY);
-            } else if (fileSignature[0] == 0x89 && fileSignature[1] == 'P' && fileSignature[2] == 'N' &&
-                       fileSignature[3] == 'G') {
+            } else if (fileSignature[0] == 0x89 && fileSignature[1] == 'P' && fileSignature[2] == 'N' && fileSignature[3] == 'G') {
                 image = loadImagePNG(file, transparentColor, pivotX, pivotY);
             } else {
                 // serial_err("Invalid file type: %d %d %d %d\n", fileSignature[0], fileSignature[1], fileSignature[2], fileSignature[3]);
