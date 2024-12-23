@@ -127,9 +127,9 @@ bool ScreenshotService::saveScreenshot(lilka::Canvas* canvas) {
             image[4 * width * y + 4 * x + 3] = 255;
         }
     }
-    std::vector<uint8_t> pngData;
-    if (!lodepng::encode(pngData, image, width, height)) {
-        return writeScreenshot(pngData.data(), pngData.size(), "png");
+    std::vector<uint8_t> compressedImage;
+    if (!lodepng::encode(compressedImage, image, width, height)) {
+        return writeScreenshot(compressedImage.data(), compressedImage.size(), "png");
     }
 
     return false;
@@ -158,9 +158,9 @@ bool ScreenshotService::writeScreenshot(uint8_t* buffer, uint32_t length, const 
 
     File file = SD.open(filename, FILE_WRITE, true);
     if (file) {
-        file.write(buffer, length);
+        size_t bytes = file.write(buffer, length);
         file.close();
-        return true;
+        return bytes > 0;
     }
     return false;
 }
