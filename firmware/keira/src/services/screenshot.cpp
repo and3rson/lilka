@@ -167,21 +167,17 @@ bool ScreenshotService::writeScreenshot(uint8_t* buffer, uint32_t length, const 
 
 void ScreenshotService::run() {
     bool activated = false;
-    lilka::Canvas* canvas;
+    lilka::Canvas canvas(lilka::display.width(), lilka::display.height());
     while (1) {
         lilka::State state = lilka::controller.peekState();
         if (state.select.pressed && state.start.pressed && !activated) {
             activated = true;
 
-            // Init canvas
-            canvas = new lilka::Canvas(lilka::display.width(), lilka::display.height());
-            std::unique_ptr<lilka::Canvas> canvasPtr(canvas);
-
             // Take screenshot
             AppManager* appManager = AppManager::getInstance();
-            appManager->renderToCanvas(canvas);
+            appManager->renderToCanvas(&canvas);
 
-            if (saveScreenshot(canvas)) {
+            if (saveScreenshot(&canvas)) {
                 AppManager::getInstance()->startToast("Скріншот збережено");
             } else {
                 AppManager::getInstance()->startToast("Помилка збереження скріншоту");
