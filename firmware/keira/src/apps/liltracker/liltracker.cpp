@@ -5,6 +5,7 @@
 #include "i2s_sink.h"
 #include "wav_sink.h"
 #include "utils/defer.h"
+#include "Preferences.h"
 
 #include "icons/liltracker_icons.h"
 
@@ -117,6 +118,13 @@ void LilTrackerApp::run() {
     event_t copiedEvent = {NOTE_ZERO, WAVEFORM_CONT, MAX_VOLUME, EVENT_TYPE_CONT, {EFFECT_TYPE_NONE, 0}};
 
     char str[64];
+
+    // Set initial volume
+    Preferences prefs;
+    prefs.begin("sound", true);
+    int volumeLevel = prefs.getUInt("volumeLevel", 100);
+    prefs.end();
+    sequencer.setMasterVolume(0.25f * volumeLevel / 100);
 
     while (1) {
         seq_state_t seqState = sequencer.getSeqState();

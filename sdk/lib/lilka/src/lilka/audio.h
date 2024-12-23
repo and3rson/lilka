@@ -18,6 +18,11 @@ public:
     /// Налаштувує піни для I2S.
     /// Цей метод варто викликати перед викликом `i2s_driver_install()`.
     void initPins();
+    /// Регулює гучність до рівня, збереженого в налаштуваннях
+    /// Цей метод бажано викликати перед `i2s_write`.
+    void adjustVolume(void* buffer, size_t size, int bitsPerSample);
+    /// Зчитує збережені налаштування звуку
+    void updateSettings();
 };
 
 extern Audio audio;

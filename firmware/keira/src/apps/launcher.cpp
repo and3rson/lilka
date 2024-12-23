@@ -31,6 +31,7 @@
 #include "modplayer/modplayer.h"
 #include "liltracker/liltracker.h"
 #include "ble_gamepad/app.h"
+#include "settings/sound.h"
 
 #include "icons/demos.h"
 #include "icons/sdcard.h"
@@ -305,6 +306,7 @@ void LauncherApp::settingsMenu() {
     String titles[] = {
         "WiFi-адаптер",
         "Мережі WiFi",
+        "Звук",
         "Про систему",
         "Інфо про пристрій",
         "Таблиця розділів",
@@ -348,8 +350,10 @@ void LauncherApp::settingsMenu() {
             }
             AppManager::getInstance()->runApp(new WiFiConfigApp());
         } else if (index == 2) {
-            alert("Keira OS", "by Андерсон & friends");
+            AppManager::getInstance()->runApp(new SonudConfigApp());
         } else if (index == 3) {
+            alert("Keira OS", "by Андерсон & friends");
+        } else if (index == 4) {
             char buf[256];
             sprintf(
                 buf,
@@ -367,7 +371,7 @@ void LauncherApp::settingsMenu() {
                 networkService->getIpAddr().c_str()
             );
             alert("Інфо про пристрій", buf);
-        } else if (index == 4) {
+        } else if (index == 5) {
             String labels[16];
             int labelCount = lilka::sys.get_partition_labels(labels);
             labels[labelCount++] = "<< Назад";
@@ -392,7 +396,7 @@ void LauncherApp::settingsMenu() {
                         "Розмір: 0x" + String(lilka::sys.get_partition_size(labels[partitionIndex].c_str()), HEX)
                 );
             }
-        } else if (index == 5) {
+        } else if (index == 6) {
             lilka::Alert confirm(
                 "Форматування",
                 "УВАГА: Це очистить ВСІ дані з SD-карти!\n"
@@ -435,13 +439,13 @@ void LauncherApp::settingsMenu() {
                 "Систему буде перезавантажено."
             );
             esp_restart();
-        } else if (index == 6) {
-            lilka::board.enablePowerSavingMode();
-            esp_light_sleep_start();
         } else if (index == 7) {
             lilka::board.enablePowerSavingMode();
-            esp_deep_sleep_start();
+            esp_light_sleep_start();
         } else if (index == 8) {
+            lilka::board.enablePowerSavingMode();
+            esp_deep_sleep_start();
+        } else if (index == 9) {
             esp_restart();
         }
     }
