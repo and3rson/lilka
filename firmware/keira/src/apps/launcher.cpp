@@ -31,7 +31,7 @@
 #include "modplayer/modplayer.h"
 #include "liltracker/liltracker.h"
 #include "ble_gamepad/app.h"
-#include "pastebin/pastebin_app.h"
+#include "pastebin/pastebinApp.h"
 
 #include "icons/demos.h"
 #include "icons/sdcard.h"
@@ -80,7 +80,7 @@ ITEM_LIST app_items = {
     ITEM_APP("Тамагочі", TamagotchiApp),
     ITEM_APP("Погода", WeatherApp),
     ITEM_APP("BLE Геймпад", ble_gamepad_app::MainApp),
-    ITEM_APP("Pastebin", pastebin_app::MainApp)
+    ITEM_APP("Pastebin", pastebinApp)
 };
 
 ITEM_LIST dev_items = {

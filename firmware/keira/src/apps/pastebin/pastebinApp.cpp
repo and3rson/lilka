@@ -1,20 +1,15 @@
-#include "pastebin_app.h"
+#include "pastebinApp.h"
 #include <HTTPClient.h>
 #include <lilka/config.h>
 
-namespace pastebin_app {
-
-MainApp::MainApp() : App("pastebin loader") {
+pastebinApp::pastebinApp() : App("pastebin loader") {
 }
 
-MainApp::~MainApp() {
-}
-
-void MainApp::run() {
+void pastebinApp::run() {
     uiLoop();
 }
 
-void MainApp::uiLoop() {
+void pastebinApp::uiLoop() {
     WiFiClientSecure client;
     HTTPClient http;
     String link_code = "";
@@ -65,20 +60,18 @@ void MainApp::uiLoop() {
                     if (res != FR_OK) {
                         lilka::Alert alert("pastebin", "Error creating directory");
                         alert.draw(canvas);
+                        queueDraw();
                         while (!alert.isFinished()) {
                             alert.update();
-                            queueDraw();
-                            taskYIELD();
                         }
                         printf("Error creating directory: %d\n", res);
                     }
                 } else if (res != FR_OK) {
                     lilka::Alert alert("pastebin", "Error creating directory");
                     alert.draw(canvas);
+                    queueDraw();
                     while (!alert.isFinished()) {
                         alert.update();
-                        queueDraw();
-                        taskYIELD();
                     }
                 } else {
                     String url = "https://pastebin.com/raw/" + link_code;
@@ -94,15 +87,14 @@ void MainApp::uiLoop() {
                         if (!file) {
                             lilka::Alert alert("pastebin", "Failed to open file for writing");
                             alert.draw(canvas);
+                            queueDraw();
                             while (!alert.isFinished()) {
                                 alert.update();
-                                queueDraw();
-                                taskYIELD();
                             }
                             printf("Failed to open file for writing");
                             return;
                         }
-                        if (file) {
+                        if (file != NULL) {
                             // Write the file content
                             fprintf(file, "%s", http.getString().c_str());
                             fclose(file);
@@ -112,11 +104,9 @@ void MainApp::uiLoop() {
 
                         lilka::Alert alert("pastebin", "File downloaded and written successfully!");
                         alert.draw(canvas);
-
+                        queueDraw();
                         while (!alert.isFinished()) {
                             alert.update();
-                            queueDraw();
-                            taskYIELD();
                         }
 
                         printf("File downloaded and written successfully!");
@@ -124,10 +114,9 @@ void MainApp::uiLoop() {
                     } else {
                         lilka::Alert alert("pastebin", "HTTP GET failed, error: " + http.errorToString(httpCode));
                         alert.draw(canvas);
+                        queueDraw();
                         while (!alert.isFinished()) {
                             alert.update();
-                            queueDraw();
-                            taskYIELD();
                         }
 
                         printf("HTTP GET failed, error: %s\n", http.errorToString(httpCode).c_str());
@@ -137,5 +126,3 @@ void MainApp::uiLoop() {
         }
     }
 }
-
-} // namespace pastebin_app
