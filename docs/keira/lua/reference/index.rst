@@ -19,3 +19,5 @@ Lua API
     sdcard
     state
     wifi
+    serial
+    http
