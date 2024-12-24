@@ -1,6 +1,7 @@
 #include "audio.h"
 #include "config.h"
 #include "ping.h"
+#include "Preferences.h"
 
 namespace lilka {
 
@@ -9,12 +10,17 @@ Audio::Audio() {
 
 void ping_task(void* arg);
 
+uint32_t volumeLevel;
+bool startupSound;
+int gain;
+
 void Audio::begin() {
 #if LILKA_VERSION == 1
     serial_err("Audio not supported in this version of lilka. Try to use Buzzer instead");
 #elif LILKA_VERSION == 2
 
     initPins();
+    updateSettings();
 
     I2S.setAllPins(LILKA_I2S_BCLK, LILKA_I2S_LRCK, LILKA_I2S_DOUT, LILKA_I2S_DOUT, -1);
 
@@ -34,23 +40,67 @@ void Audio::initPins() {
     }
 }
 
+void Audio::updateSettings() {
+    Preferences prefs;
+    prefs.begin("sound", true);
+    volumeLevel = prefs.getUInt("volumeLevel", 100);
+    startupSound = prefs.getBool("startupSound", true);
+    prefs.end();
+
+    gain = (volumeLevel * 1024.0) / 100.0;
+}
+
+void Audio::adjustVolume(void* buffer, size_t size, int bitsPerSample) {
+    int samples = size / (bitsPerSample / 8);
+
+    if (bitsPerSample == 8) {
+        uint8_t* smp = static_cast<uint8_t*>(buffer);
+
+        for (int i = 0; i < samples; i++) {
+            *smp = (*smp * gain) >> 10;
+            smp++;
+        }
+    } else if (bitsPerSample == 16) {
+        int16_t* smp = static_cast<int16_t*>(buffer);
+
+        for (int i = 0; i < samples; i++) {
+            *smp = (*smp * gain) >> 10;
+            smp++;
+        }
+    } else if (bitsPerSample == 32) {
+        int32_t* smp = static_cast<int32_t*>(buffer);
+
+        for (int i = 0; i < samples; i++) {
+            *smp = (*smp * gain) >> 10;
+            smp++;
+        }
+    }
+}
+
 void ping_task(void* arg) {
 #if LILKA_VERSION == 1
     serial_err("This part of code should never be called. Audio not supported for this version of lilka");
 #elif LILKA_VERSION == 2
 #    ifndef LILKA_NO_AUDIO_HELLO
-    // Signed 16-bit PCM
-    const int16_t* ping = reinterpret_cast<const int16_t*>(ping_raw);
 
-    vTaskDelay(400 / portTICK_PERIOD_MS);
+    if (startupSound) {
+        // Signed 16-bit PCM
+        const int16_t* ping = reinterpret_cast<const int16_t*>(ping_raw);
 
-    I2S.begin(I2S_PHILIPS_MODE, 22050, 16);
-    for (int i = 0; i < ping_raw_size / 2; i++) {
-        // TODO: Should use i2s_write & DMA
-        I2S.write(ping[i] >> 2);
-        I2S.write(ping[i] >> 2);
+        vTaskDelay(400 / portTICK_PERIOD_MS);
+
+        int16_t buf;
+        I2S.begin(I2S_PHILIPS_MODE, 22050, 16);
+        for (int i = 0; i < ping_raw_size / 2; i++) {
+            memcpy(&buf, &ping[i], 2);
+            lilka::audio.adjustVolume(&buf, 2, 16);
+
+            I2S.write(buf >> 2);
+            I2S.write(buf >> 2);
+        }
+        I2S.end();
     }
-    I2S.end();
+
 #    endif
 
     vTaskDelete(NULL);

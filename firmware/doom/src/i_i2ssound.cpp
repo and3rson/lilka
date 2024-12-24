@@ -1,6 +1,7 @@
 #include <lilka.h>
 #include <I2S.h>
 #include "driver/i2s.h"
+#include "Preferences.h"
 
 extern "C" {
 #include "config.h"
@@ -21,6 +22,7 @@ SemaphoreHandle_t soundMutexHandle = NULL;
 int16_t* mixerBuffer;
 uint32_t mixerBufferStart = 0;
 uint32_t mixerBufferEnd = 0;
+uint32_t volumeLevel;
 
 extern SemaphoreHandle_t backBufferMutex;
 
@@ -47,6 +49,12 @@ static boolean32 I_I2S_InitSound(boolean32 _use_sfx_prefix) {
         backBufferMutex, portMAX_DELAY
     ); // Acquire back buffer mutex to prevent drawing while initializing I2S
     lilka::audio.initPins();
+
+    Preferences prefs;
+    prefs.begin("sound", true);
+    volumeLevel = prefs.getUInt("volumeLevel", 100);
+    prefs.end();
+
     esp_i2s::i2s_config_t cfg = {
         .mode = (esp_i2s::i2s_mode_t)(esp_i2s::I2S_MODE_MASTER | esp_i2s::I2S_MODE_TX),
         .sample_rate = 11025,
@@ -187,6 +195,7 @@ void queueSound(const uint8_t* data, uint32_t length, uint32_t sample_rate, uint
     // Number of samples to add unmixed beyond buffered samples
     int unmixedLength = length - mixedLength;
 
+    vol = vol * volumeLevel / 100;
     uint32_t pos = mixerBufferStart;
     for (int i = 0; i < mixedLength; i++) {
         uint16_t rawSample =

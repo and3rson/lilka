@@ -242,7 +242,7 @@ void WeatherApp::run() {
                 canvas->print(String(temp, 1) + " °C");
                 canvas->setFont(FONT_10x20);
                 canvas->setCursor(canvas->width() / 2, canvas->height() / 2 + 20 / 2 + 10);
-                canvas->print(String(wind, 1) + " м/с");
+                canvas->print(String(wind, 1) + " км/год");
                 queueDraw();
             }
         } else {
