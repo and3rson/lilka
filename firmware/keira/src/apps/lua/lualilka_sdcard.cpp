@@ -3,7 +3,7 @@
 
 static int lualilka_create_object_file(lua_State* L) {
     String path = luaL_checkstring(L, 1);
-    String mode = luaL_checkstring(L, 2);
+    String mode = luaL_optstring(L, 2, "r");
     *reinterpret_cast<FILE**>(lua_newuserdata(L, sizeof(FILE*))) =
         fopen((lilka::fileutils.getSDRoot() + path).c_str(), mode.c_str());
     luaL_setmetatable(L, FILE_OBJECT);
@@ -59,6 +59,12 @@ static int lualilka_file_read(lua_State* L) {
         return 1;
     }
     return luaL_error(L, "read error");
+}
+
+static int lualilka_file_exists(lua_State* L) {
+    const FILE* filePointer = *reinterpret_cast<FILE**>(luaL_checkudata(L, 1, FILE_OBJECT));
+    lua_pushboolean(L, !!filePointer);
+    return 1;
 }
 
 static int lualilka_file_write(lua_State* L) {
@@ -182,6 +188,8 @@ int lualilka_sdcard_register(lua_State* L) {
     lua_setfield(L, -2, "read");
     lua_pushcfunction(L, lualilka_file_write);
     lua_setfield(L, -2, "write");
+    lua_pushcfunction(L, lualilka_file_exists);
+    lua_setfield(L, -2, "exists");
 
     lua_pop(L, 1);
 
