@@ -92,6 +92,7 @@ void pastebinApp::uiLoop() {
                                 alert.update();
                             }
                             printf("Failed to open file for writing");
+                            break;
                         }
 
                         fprintf(file, "%s", http.getString().c_str());
