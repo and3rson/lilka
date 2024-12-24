@@ -4,11 +4,11 @@
 
 namespace pastebin_app {
 
-MainApp::MainApp() :
-    App("pastebin loader") {
+MainApp::MainApp() : App("pastebin loader") {
 }
 
-MainApp::~MainApp() {}
+MainApp::~MainApp() {
+}
 
 void MainApp::run() {
     uiLoop();
@@ -33,9 +33,7 @@ void MainApp::uiLoop() {
         if (settingsMenu.getButton() == lilka::Button::B) {
         } else {
             if (settingsMenu.getCursor() == 0) {
-                lilka::InputDialog inputDialog(
-                    String("Введіть код")
-                );
+                lilka::InputDialog inputDialog(String("Введіть код"));
                 inputDialog.setValue(link_code);
                 while (!inputDialog.isFinished()) {
                     inputDialog.update();
@@ -44,9 +42,7 @@ void MainApp::uiLoop() {
                 }
                 link_code = inputDialog.getValue();
             } else if (settingsMenu.getCursor() == 1) {
-                lilka::InputDialog inputDialog(
-                    String("Введіть назву")
-                );
+                lilka::InputDialog inputDialog(String("Введіть назву"));
                 inputDialog.setValue(filename);
                 while (!inputDialog.isFinished()) {
                     inputDialog.update();
@@ -55,7 +51,7 @@ void MainApp::uiLoop() {
                 }
                 filename = inputDialog.getValue();
             } else if (settingsMenu.getCursor() == 2) {
-                if(filename.length() == 0){
+                if (filename.length() == 0) {
                     filename = link_code;
                     continue;
                 }
@@ -84,10 +80,9 @@ void MainApp::uiLoop() {
                         queueDraw();
                         taskYIELD();
                     }
-                }
-                else{
+                } else {
                     String url = "https://pastebin.com/raw/" + link_code;
-                    String fullPath = path_pastebin_folder + "/" +filename;
+                    String fullPath = path_pastebin_folder + "/" + filename;
 
                     client.setInsecure();
                     http.begin(client, url);
@@ -127,7 +122,7 @@ void MainApp::uiLoop() {
                         printf("File downloaded and written successfully!");
                         break;
                     } else {
-                        lilka::Alert alert("pastebin", "HTTP GET failed, error: "+http.errorToString(httpCode));
+                        lilka::Alert alert("pastebin", "HTTP GET failed, error: " + http.errorToString(httpCode));
                         alert.draw(canvas);
                         while (!alert.isFinished()) {
                             alert.update();

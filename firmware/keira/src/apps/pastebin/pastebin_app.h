@@ -12,7 +12,6 @@ public:
 private:
     void run() override;
     void uiLoop();
-
 };
 
-}
+} // namespace pastebin_app
