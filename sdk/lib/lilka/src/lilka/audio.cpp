@@ -54,21 +54,21 @@ void Audio::adjustVolume(void* buffer, size_t size, int bitsPerSample) {
     int samples = size / (bitsPerSample / 8);
 
     if (bitsPerSample == 8) {
-        uint8_t* smp = (uint8_t*)buffer;
+        uint8_t* smp = static_cast<uint8_t*>(buffer);
 
         for (int i = 0; i < samples; i++) {
             *smp = (*smp * gain) >> 10;
             smp++;
         }
     } else if (bitsPerSample == 16) {
-        int16_t* smp = (int16_t*)buffer;
+        int16_t* smp = static_cast<int16_t*>(buffer);
 
         for (int i = 0; i < samples; i++) {
             *smp = (*smp * gain) >> 10;
             smp++;
         }
     } else if (bitsPerSample == 32) {
-        int32_t* smp = (int32_t*)buffer;
+        int32_t* smp = static_cast<int32_t*>(buffer);
 
         for (int i = 0; i < samples; i++) {
             *smp = (*smp * gain) >> 10;

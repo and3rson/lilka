@@ -49,7 +49,7 @@ static boolean32 I_I2S_InitSound(boolean32 _use_sfx_prefix) {
         backBufferMutex, portMAX_DELAY
     ); // Acquire back buffer mutex to prevent drawing while initializing I2S
     lilka::audio.initPins();
-    
+
     Preferences prefs;
     prefs.begin("sound", true);
     volumeLevel = prefs.getUInt("volumeLevel", 100);
