@@ -14,6 +14,10 @@ void pastebinApp::uiLoop() {
     HTTPClient http;
     String link_code = "";
     String filename = "";
+
+    String path_pastebin_folder = "/pastebin";
+    String pastebin_url = "https://pastebin.com/raw/";
+
     while (1) {
         lilka::Menu settingsMenu("Pastebin");
         settingsMenu.addActivationButton(lilka::Button::B);
@@ -51,30 +55,28 @@ void pastebinApp::uiLoop() {
                     continue;
                 }
 
-                String path_pastebin_folder = "/pastebin";
-
                 FRESULT res = f_stat(path_pastebin_folder.c_str(), nullptr);
 
                 if (res == FR_NO_FILE) {
                     res = f_mkdir(path_pastebin_folder.c_str());
                     if (res != FR_OK) {
-                        lilka::Alert alert("pastebin", "Error creating directory");
+                        lilka::Alert alert("pastebin", "Помилка створення директорії");
                         alert.draw(canvas);
                         queueDraw();
                         while (!alert.isFinished()) {
                             alert.update();
                         }
-                        printf("Error creating directory: %d\n", res);
+                        printf("Помилка створення директорії %d\n", res);
                     }
                 } else if (res != FR_OK) {
-                    lilka::Alert alert("pastebin", "Error creating directory");
+                    lilka::Alert alert("pastebin", "Помилка створення директорії");
                     alert.draw(canvas);
                     queueDraw();
                     while (!alert.isFinished()) {
                         alert.update();
                     }
                 } else {
-                    String url = "https://pastebin.com/raw/" + link_code;
+                    String url = pastebin_url + link_code;
                     String fullPath = path_pastebin_folder + "/" + filename;
 
                     client.setInsecure();
@@ -85,13 +87,13 @@ void pastebinApp::uiLoop() {
                         // Open file for writing
                         FILE* file = fopen((lilka::fileutils.getSDRoot() + fullPath).c_str(), FILE_WRITE);
                         if (!file) {
-                            lilka::Alert alert("pastebin", "Failed to open file for writing");
+                            lilka::Alert alert("pastebin", "Помилка відкривання файлу");
                             alert.draw(canvas);
                             queueDraw();
                             while (!alert.isFinished()) {
                                 alert.update();
                             }
-                            printf("Failed to open file for writing");
+                            printf("Помилка відкривання файлу");
                             break;
                         }
 
@@ -100,14 +102,14 @@ void pastebinApp::uiLoop() {
 
                         delay(10);
 
-                        lilka::Alert alert("pastebin", "File downloaded and written successfully!");
+                        lilka::Alert alert("pastebin", "Файл завантажено, та збережено");
                         alert.draw(canvas);
                         queueDraw();
                         while (!alert.isFinished()) {
                             alert.update();
                         }
 
-                        printf("File downloaded and written successfully!");
+                        printf("Файл завантажено, та збережено");
                         break;
                     } else {
                         lilka::Alert alert("pastebin", "HTTP GET failed, error: " + http.errorToString(httpCode));
