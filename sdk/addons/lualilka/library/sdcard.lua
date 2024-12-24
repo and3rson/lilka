@@ -36,7 +36,7 @@ File = {}
 ---Відкрити файл за вказаним шляхом.
 ---
 ---@param path string шлях до файлу (відносно кореня SD-картки)
----@param mode string режим відкриття файлу (див. функцію ``fopen`` у документації ANSI C)
+---@param mode string режим відкриття файлу (за замовчуванням r) (див. функцію ``fopen`` у документації ANSI C)
 ---@return File
 ---
 ---@usage
@@ -48,6 +48,11 @@ function sdcard.open(path, mode) end
 ---
 ---@return integer
 function File:size() end
+
+---Повернути наявність файлу.
+---
+---@return boolean
+function File:exists() end
 
 ---Перемістити вказівник файлу на певну позицію.
 ---
