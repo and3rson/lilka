@@ -92,13 +92,10 @@ void pastebinApp::uiLoop() {
                                 alert.update();
                             }
                             printf("Failed to open file for writing");
-                            return;
                         }
-                        if (file != NULL) {
-                            // Write the file content
-                            fprintf(file, "%s", http.getString().c_str());
-                            fclose(file);
-                        }
+
+                        fprintf(file, "%s", http.getString().c_str());
+                        fclose(file);
 
                         delay(10);
 
