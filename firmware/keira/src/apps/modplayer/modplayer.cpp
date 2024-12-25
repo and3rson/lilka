@@ -180,6 +180,9 @@ void ModPlayerApp::playTask() {
     AudioFileSourcePROGMEM* modBufferSource = new AudioFileSourcePROGMEM(modFileData, modSource->getSize());
     std::unique_ptr<AudioFileSource> modBufferSourcePtr(modBufferSource);
 
+    // Set initial volume
+    float initialGain = (1.0f * lilka::audio.getVolume() / 100);
+
     // Create MOD player
     AudioGeneratorMOD* mod = new AudioGeneratorMOD();
     std::unique_ptr<AudioGeneratorMOD> modPtr(mod);
@@ -188,7 +191,8 @@ void ModPlayerApp::playTask() {
     xSemaphoreTake(playerMutex, portMAX_DELAY);
     playerTaskData.isPaused = false;
     playerTaskData.isFinished = false;
-    playerTaskData.gain = 1.0f;
+    playerTaskData.gain = initialGain;
+    out->SetGain(initialGain);
     xSemaphoreGive(playerMutex);
 
     while (1) {

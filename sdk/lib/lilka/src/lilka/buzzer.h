@@ -87,12 +87,19 @@ public:
     void stop();
     /// Відтворити мелодію з DOOM - E1M1, At Doom's Gate (Bobby Prince).
     void playDoom();
+    /// Перевірити чи увімкнено звук вітання
+    bool getStartupBuzzerEnabled();
+    /// Увімкнути чи вимкнути звук вітання
+    void setStartupBuzzerEnabled(bool enable);
 
     static void melodyTask(void* arg);
 
 private:
     // cppcheck-suppress unusedPrivateFunction
     void _stop();
+    void saveSettings();
+
+    bool startupBuzzer = true;
 
     SemaphoreHandle_t buzzerMutex;
     TaskHandle_t melodyTaskHandle;
