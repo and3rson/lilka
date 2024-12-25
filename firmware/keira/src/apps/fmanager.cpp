@@ -5,6 +5,7 @@
 #include <mbedtls/md5.h>
 #include "esp_log.h"
 #include "esp_err.h"
+#include <errno.h>
 
 // APPS:
 #include "modplayer/modplayer.h"
@@ -265,7 +266,10 @@ void FileManagerApp::readDir(const String& path) {
     lilka::serial_log("Trying to load dir %s", path.c_str());
 
     auto dir = opendir(path.c_str());
-    if (dir == NULL) return; // Can't open dir
+    if (dir == NULL) { // Can't open dir
+        alert("Помилка читання", String(errno) + ": " + strerror(errno));
+        return;
+    }
     currentPath = path; // change path
     const struct dirent* dir_entry = NULL;
 
