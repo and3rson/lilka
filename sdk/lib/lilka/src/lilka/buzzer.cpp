@@ -3,6 +3,7 @@
 #include "buzzer.h"
 #include "config.h"
 #include "serial.h"
+#include "Preferences.h"
 
 namespace lilka {
 
@@ -20,11 +21,17 @@ void Buzzer::begin() {
     serial_err("Buzzer is not supported on this board");
     return;
 #else
+
+    Preferences prefs;
+    prefs.begin("sound", true);
+    startupBuzzer = prefs.getBool("startupBuzzer", true);
+    prefs.end();
+
     _stop();
     pinMode(LILKA_BUZZER, OUTPUT);
 #    ifndef LILKA_NO_BUZZER_HELLO
     const Tone helloTune[] = {{NOTE_C3, 8}, {NOTE_C4, 8}, {NOTE_C5, 8}, {NOTE_C7, 4}, {0, 8}, {NOTE_C6, 4}};
-    playMelody(helloTune, sizeof(helloTune) / sizeof(Tone), 160);
+    if (startupBuzzer) playMelody(helloTune, sizeof(helloTune) / sizeof(Tone), 160);
 #    endif
 #endif
 }
@@ -252,6 +259,22 @@ void Buzzer::playDoom() {
     playMelody(
         doom_e1m1, sizeof(doom_e1m1) / sizeof(doom_e1m1[0]), 60
     ); // TODO - Should be 160... But note durations seem to be off
+}
+
+bool Buzzer::getStartupBuzzerEnabled() {
+    return startupBuzzer;
+}
+
+void Buzzer::setStartupBuzzerEnabled(bool enable) {
+    startupBuzzer = enable;
+    saveSettings();
+}
+
+void Buzzer::saveSettings() {
+    Preferences prefs;
+    prefs.begin("sound", false);
+    prefs.putBool("startupBuzzer", startupBuzzer);
+    prefs.end();
 }
 
 Buzzer buzzer;

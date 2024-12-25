@@ -118,6 +118,9 @@ void LilTrackerApp::run() {
 
     char str[64];
 
+    // Set initial volume
+    sequencer.setMasterVolume(0.25f * lilka::audio.getVolume() / 100);
+
     while (1) {
         seq_state_t seqState = sequencer.getSeqState();
 
