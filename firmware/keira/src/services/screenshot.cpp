@@ -1,4 +1,4 @@
-#include <PNGenc.h>
+#include <lodepng.h>
 
 #include "screenshot.h"
 #include "appmanager.h"
@@ -94,105 +94,95 @@ private:
 };
 #endif
 
-ScreenshotService::ScreenshotService() : Service("clock") {
+ScreenshotService::ScreenshotService() : Service("screenshot") {
+}
+
+bool ScreenshotService::saveScreenshot(lilka::Canvas* canvas) {
+#if defined(KEIRA_SCREENSHOT_BMP)
+    BMPEncoder encoder(canvas->getFramebuffer(), canvas->width(), canvas->height());
+
+    uint32_t length = encoder.getLength();
+    uint8_t* buffer = new uint8_t[length];
+    std::unique_ptr<uint8_t[]> bufferPtr(buffer);
+
+    if (encoder.encode(buffer)) {
+        return writeScreenshot(buffer, length, "bmp");
+    }
+
+    return false;
+
+#elif defined(KEIRA_SCREENSHOT_PNG)
+    int16_t width = canvas->width();
+    int16_t height = canvas->height();
+
+    uint8_t* image = new uint8_t[width * height * 4];
+    std::unique_ptr<uint8_t[]> imagePtr(image);
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            const uint16_t* framebufferLine = canvas->getFramebuffer() + y * canvas->width();
+            uint16_t rgb565 = framebufferLine[x];
+            image[4 * width * y + 4 * x + 0] = (rgb565 >> 11 & 0x1F) * 255 / 31;
+            image[4 * width * y + 4 * x + 1] = (rgb565 >> 5 & 0x3F) * 255 / 63;
+            image[4 * width * y + 4 * x + 2] = (rgb565 & 0x1F) * 255 / 31;
+            image[4 * width * y + 4 * x + 3] = 255;
+        }
+    }
+    std::vector<uint8_t> compressedImage;
+    if (!lodepng::encode(compressedImage, image, width, height)) {
+        return writeScreenshot(compressedImage.data(), compressedImage.size(), "png");
+    }
+
+    return false;
+#else
+#    error "Either KEIRA_SCREENSHOT_BMP or KEIRA_SCREENSHOT_PNG must be defined"
+#endif
+}
+
+bool ScreenshotService::writeScreenshot(uint8_t* buffer, uint32_t length, const char* ext) {
+    // Generate filename
+    struct tm time = ServiceManager::getInstance()->getService<ClockService>("clock")->getTime();
+    char filename[64];
+    snprintf(
+        filename,
+        sizeof(filename),
+        "/screenshots/screenshot_%04d%02d%02d_%02d%02d%02d.%s",
+        time.tm_year + 1900,
+        time.tm_mon + 1,
+        time.tm_mday,
+        time.tm_hour,
+        time.tm_min,
+        time.tm_sec,
+        ext
+    );
+    lilka::serial_log("Screenshot filename: %s", filename);
+
+    File file = SD.open(filename, FILE_WRITE, true);
+    if (file) {
+        size_t bytes = file.write(buffer, length);
+        file.close();
+        return bytes > 0;
+    }
+    return false;
 }
 
 void ScreenshotService::run() {
     bool activated = false;
-    lilka::Canvas* canvas;
+    lilka::Canvas canvas(lilka::display.width(), lilka::display.height());
     while (1) {
         lilka::State state = lilka::controller.peekState();
         if (state.select.pressed && state.start.pressed && !activated) {
             activated = true;
 
-            // Init canvas
-            canvas = new lilka::Canvas(lilka::display.width(), lilka::display.height());
-            std::unique_ptr<lilka::Canvas> canvasPtr(canvas);
-
             // Take screenshot
             AppManager* appManager = AppManager::getInstance();
-            appManager->renderToCanvas(canvas);
+            appManager->renderToCanvas(&canvas);
 
-            uint32_t length = 0;
-            uint8_t* buffer = NULL;
-
-            bool success = true;
-
-#if defined(KEIRA_SCREENSHOT_BMP)
-            const char* ext = "bmp";
-
-            // Init BMP encoder
-            BMPEncoder encoder(canvas->getFramebuffer(), canvas->width(), canvas->height());
-
-            // Init buffer
-            length = encoder.getLength();
-            buffer = new uint8_t[length];
-            std::unique_ptr<uint8_t[]> bufferPtr(buffer);
-
-            // Encode & write BMP
-            success = encoder.encode(buffer);
-#elif defined(KEIRA_SCREENSHOT_PNG)
-            const char* ext = "png";
-
-            const uint32_t bufferSize = canvas->width() * canvas->height() * 4;
-            buffer = new uint8_t[bufferSize];
-            std::unique_ptr<uint8_t[]> bufferPtr(buffer);
-
-            PNG* png = new PNG();
-            std::unique_ptr<PNG> pngPtr(png);
-            if (png->open(buffer, bufferSize) != PNG_SUCCESS) {
-                success = false;
-            } else {
-                uint8_t* tempLine = new uint8_t[canvas->width() * 4];
-                std::unique_ptr<uint8_t[]> tempLinePtr(tempLine);
-                // TODO: Handle errors
-                png->encodeBegin(canvas->width(), canvas->height(), PNG_PIXEL_TRUECOLOR, 24, NULL, 3);
-                for (int y = 0; y < canvas->height(); y++) {
-                    if (png->addRGB565Line(canvas->getFramebuffer() + y * canvas->width(), tempLine) != PNG_SUCCESS) {
-                        success = false;
-                        break;
-                    }
-                }
-                length = png->close();
-            }
-#else
-#    error "Either KEIRA_SCREENSHOT_BMP or KEIRA_SCREENSHOT_PNG must be defined"
-#endif
-            // Generate filename
-            struct tm time = ServiceManager::getInstance()->getService<ClockService>("clock")->getTime();
-            char filename[64];
-            snprintf(
-                filename,
-                sizeof(filename),
-                "/screenshots/screenshot_%04d%02d%02d_%02d%02d%02d.%s",
-                time.tm_year + 1900,
-                time.tm_mon + 1,
-                time.tm_mday,
-                time.tm_hour,
-                time.tm_min,
-                time.tm_sec,
-                ext
-            );
-
-            lilka::serial_log("Screenshot filename: %s", filename);
-
-            // Write to file
-            if (success) {
-                File file = SD.open(filename, FILE_WRITE, true);
-                if (file) {
-                    file.write(buffer, length);
-                    file.close();
-                } else {
-                    success = false;
-                }
-            }
-
-            if (success) {
+            if (saveScreenshot(&canvas)) {
                 AppManager::getInstance()->startToast("Скріншот збережено");
             } else {
                 AppManager::getInstance()->startToast("Помилка збереження скріншоту");
             }
-        } else {
+        } else if (!state.select.pressed || !state.start.pressed) {
             activated = false;
         }
         vTaskDelay(100 / portTICK_PERIOD_MS);

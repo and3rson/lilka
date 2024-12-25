@@ -15,7 +15,7 @@ function lilka.update(delta)
     local dir_x = 0
     local dir_y = 0
 
-    if serial.avaliable() > 0 then
+    if serial.available() > 0 then
         if buffer_finished then
             buffer = ''
             buffer_finished = false

@@ -6,7 +6,7 @@
 
 HardwareSerial LuaLilkaSerial(1);
 
-static int lualilka_serial_avaliable(lua_State* L) {
+static int lualilka_serial_available(lua_State* L) {
     int value = LuaLilkaSerial.available();
     lua_pushinteger(L, value);
     return 1;
@@ -109,7 +109,7 @@ static int lualilka_serial_write(lua_State* L) {
 }
 
 static const struct luaL_Reg lualilka_serial[] = {
-    {"avaliable", lualilka_serial_avaliable},
+    {"available", lualilka_serial_available},
     {"begin", lualilka_serial_begin},
     {"end", lualilka_serial_end},
     //{"find", lualilka_serial_find},
