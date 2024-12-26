@@ -117,9 +117,19 @@ String FileManagerApp::getFileMD5(const String& file_path) {
 
 FMEntry FileManagerApp::pathToEntry(const String& path) {
     FMEntry newEntry;
+    bool statPerformed = false;
     newEntry.path = lilka::fileutils.getParentDirectory(path);
     newEntry.name = basename(path.c_str());
-    if (stat(path.c_str(), &(newEntry.stat)) == 0) {
+
+    // Perform stat
+    // . dir needs specific way to do that
+    if (newEntry.name == "." && stat(newEntry.path.c_str(), &(newEntry.stat)) == 0) {
+        statPerformed = true;
+    } else {
+        if (stat(path.c_str(), &(newEntry.stat)) == 0) statPerformed = true;
+    }
+
+    if (statPerformed) {
         if (S_ISDIR(newEntry.stat.st_mode)) {
             newEntry.type = FT_DIR;
             newEntry.icon = FT_DIR_ICON;
@@ -168,6 +178,7 @@ FMEntry FileManagerApp::pathToEntry(const String& path) {
 void FileManagerApp::openEntry(const FMEntry& entry) {
     String path = lilka::fileutils.joinPath(entry.path, entry.name);
     lilka::serial_log("Opening path %s", path.c_str());
+    delay(20);
     switch (entry.type) {
         case FT_NES_ROM:
             AppManager::getInstance()->runApp(new NesApp(path));
@@ -366,21 +377,21 @@ void FileManagerApp::readDir(const String& path) {
 
     lilka::serial_log("Trying to load dir %s", path.c_str());
 
-    auto dir = opendir(path.c_str());
-    if (dir == NULL) { // Can't open dir
-        alert("Помилка читання", String(errno) + ": " + strerror(errno));
-        return;
-    }
-    currentPath = path; // change path
-    const struct dirent* dir_entry = NULL;
-    int16_t index = 0;
     while (1) {
         // Readdir
+        auto dir = opendir(path.c_str());
+        if (dir == NULL) { // Can't open dir
+            alert("Помилка читання", String(errno) + ": " + strerror(errno));
+            return;
+        }
+        currentPath = path; // change path
+        const struct dirent* dir_entry = NULL;
+        int16_t index = 0;
 
         while ((dir_entry = readdir(dir)) != NULL) {
             String filename = dir_entry->d_name;
             // Skip current directory and top level entries
-            if (filename != "." || filename == "..") {
+            if (filename != "." || filename != "..") {
                 FMEntry newEntry = pathToEntry(lilka::fileutils.joinPath(currentPath, filename));
                 dirContents.push_back(newEntry);
                 lilka::serial_log(
@@ -426,36 +437,48 @@ void FileManagerApp::readDir(const String& path) {
             vTaskDelay(5 / portTICK_PERIOD_MS); // Do not consume all resources
         }
 
-        //Do magic!
-        index = fileListMenu.getCursor();
+        // Set selected entry to . at first
+        FMEntry selectedEntry; // pass . as entry by default
+        selectedEntry = pathToEntry(lilka::fileutils.joinPath(currentPath, "."));
 
-        // TODO: fix bug with passing last item
-        // parameter to showEntryInfo\showEntryOptions
+        // try to save selected entry
+        index = fileListMenu.getCursor();
         auto button = fileListMenu.getButton();
-        if (button == lilka::Button::A) { // Open
-            if (index == dirContents.size()) {
-                // restore parent dir before exit
-                currentPath = lilka::fileutils.getParentDirectory(currentPath);
-                closedir(dir);
-                break; // Back option selected
-            }
-            openEntry(dirContents[index]);
-        } else if (button == lilka::Button::C) { // Info
-            showEntryInfo(dirContents[index]);
-        } else if (button == lilka::Button::D) { // Options
-            showEntryOptions(dirContents[index]);
-        } else { // B button
-            // restore parent dir before exit
-            currentPath = lilka::fileutils.getParentDirectory(currentPath);
-            closedir(dir); // never forget!
-            break;
+
+        FMEntry* pselectedEntry = NULL;
+        if (index != dirContents.size()) {
+            selectedEntry = dirContents[index];
+            pselectedEntry = &selectedEntry;
         }
 
-        // Clear memory
-        // Return to begining of directory
-        rewinddir(dir);
+        // clear memory
         dirContents.clear();
         fileListMenu.clearItems();
+        closedir(dir); // unfortunately we can't reuse same dir
+
+        bool exiting = false;
+
+        if (button == lilka::Button::A) { // Open
+            if (pselectedEntry) openEntry(*pselectedEntry);
+            else exiting = true;
+        } else if (button == lilka::Button::C) { // Info
+            if (pselectedEntry) showEntryInfo(*pselectedEntry);
+            else exiting = true;
+        } else if (button == lilka::Button::D) { // Options
+            // if folder has no entries
+            // pass . entry to allow mkdir
+            if (pselectedEntry) showEntryOptions(*pselectedEntry);
+            else showEntryOptions(selectedEntry);
+        } else { // B button
+            exiting = true;
+        }
+
+        // Do some work on exit
+        if (exiting) {
+            // restore parent dir before exit
+            currentPath = lilka::fileutils.getParentDirectory(currentPath);
+            break;
+        }
     }
 }
 
