@@ -344,19 +344,26 @@ void FileManagerApp::showEntryOptions(const FMEntry& entry) {
 
         auto index = fileOptionsMenu.getCursor();
         if (index == 0) { // Open
-            openEntry(entry);
+            if (entry.name == ".") alert("Помилка", "Колумбе, Америку вже відкрито!");
+            else openEntry(entry);
         } else if (index == 1) { // OpenWith
-            openEntryWith(entry);
+            if (entry.name == ".") alert("Помилка", "Колумбе, Америку вже відкрито!");
+            else openEntryWith(entry);
         } else if (index == 2) { // Rename
-            alertNotImplemented();
+            if (entry.name == ".") alert("Помилка", "Неможливо перейменувати <нічого>");
+            else alertNotImplemented();
         } else if (index == 3) { // Copy
-            alertNotImplemented();
+            if (entry.name == ".") alert("Помилка", "Неможливо копіювати <нічого>");
+            else alertNotImplemented();
         } else if (index == 4) { // Move
-            alertNotImplemented();
+            if (entry.name == ".") alert("Помилка", "Переміщати <нічого> дуже важка робота");
+            else alertNotImplemented();
         } else if (index == 5) { // Delete
-            alertNotImplemented();
+            if (entry.name == ".") alert("Помилка", "Неможливо видалити <нічого>");
+            else alertNotImplemented();
         } else if (index == 6) { // Select
-            alertNotImplemented();
+            if (entry.name == ".") alert("Помилка", "Неможливо вибрати <нічого>");
+            else alertNotImplemented();
         } else if (index == 7) { // mkdir
             makeDir(entry.path);
             return;
@@ -377,6 +384,7 @@ void FileManagerApp::readDir(const String& path) {
 
     lilka::serial_log("Trying to load dir %s", path.c_str());
 
+    int16_t index = 0;
     while (1) {
         // Readdir
         auto dir = opendir(path.c_str());
@@ -386,7 +394,6 @@ void FileManagerApp::readDir(const String& path) {
         }
         currentPath = path; // change path
         const struct dirent* dir_entry = NULL;
-        int16_t index = 0;
 
         while ((dir_entry = readdir(dir)) != NULL) {
             String filename = dir_entry->d_name;
@@ -422,12 +429,15 @@ void FileManagerApp::readDir(const String& path) {
                     lilka::fileutils.getHumanFriendlySize(dirEntry.stat.st_size)
                 );
         }
-        // Try to restore old menuCursor:
-        if (fileListMenu.getItemCount() >= index) fileListMenu.setCursor(index);
-        else fileListMenu.setCursor(fileListMenu.getItemCount() - 1); // Select last
 
         // Add Back button
         fileListMenu.addItem("<< Назад", 0, 0);
+
+        // Try to restore old menuCursor:
+        // last option should be selected cause something should be deleted
+        // if this happens. here we assume that we deleted single item
+        if (fileListMenu.getItemCount() >= index) fileListMenu.setCursor(index);
+        else fileListMenu.setCursor(fileListMenu.getItemCount() - 1); // Select last
 
         // Do Draw !
         while (!fileListMenu.isFinished()) {
