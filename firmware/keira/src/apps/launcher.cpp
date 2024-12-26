@@ -53,250 +53,157 @@
 #include "fmanager.h"
 
 LauncherApp::LauncherApp() : App("Menu") {
+    networkService = static_cast<NetworkService*>(ServiceManager::getInstance()->getService<NetworkService>("network"));
 }
-
-ITEM_LIST app_items = {
-    ITEM_SUBMENU(
-        "Демо",
-        {
-            ITEM_APP("Лінії", DemoLines),
-            ITEM_APP("Диск", DiskApp),
-            ITEM_APP("Перетворення", TransformApp),
-            ITEM_APP("М'ячик", BallApp),
-            ITEM_APP("Куб", CubeApp),
-            ITEM_APP("Епілепсія", EpilepsyApp),
-            ITEM_APP("PetPet", PetPetApp),
-        }
-    ),
-    ITEM_SUBMENU(
-        "Тести",
-        {ITEM_APP("Клавіатура", KeyboardApp),
-         ITEM_APP("Тест SPI", UserSPIApp),
-         ITEM_APP("I2C-сканер", ScanI2CApp),
-         ITEM_APP("GPIO-менеджер", GPIOManagerApp),
-         ITEM_APP("Combo", ComboApp)},
-    ),
-    ITEM_APP("ЛілТрекер", LilTrackerApp),
-    ITEM_APP("Летріс", LetrisApp),
-    ITEM_APP("Тамагочі", TamagotchiApp),
-    ITEM_APP("Погода", WeatherApp),
-    ITEM_APP("BLE Геймпад", ble_gamepad_app::MainApp),
-    ITEM_APP("Pastebin", pastebinApp)
-};
-
-ITEM_LIST dev_items = {
-    ITEM_APP("Live Lua", LuaLiveRunnerApp),
-    ITEM_APP("Lua REPL", LuaReplApp),
-    ITEM_APP("FTP сервер", FTPServerApp),
-};
 
 void LauncherApp::run() {
     for (lilka::Button button : {lilka::Button::UP, lilka::Button::DOWN, lilka::Button::LEFT, lilka::Button::RIGHT}) {
         lilka::controller.setAutoRepeat(button, 10, 300);
     }
-    lilka::Menu menu("Головне меню");
-    menu.addItem("Додатки", &demos_img, lilka::colors::Pink);
-    menu.addItem("Браузер SD-карти", &sdcard_img, lilka::colors::Arylide_yellow);
-    menu.addItem("Браузер SPIFFS", &memory_img, lilka::colors::Dark_sea_green);
-    menu.addItem("Розробка", &dev_img, lilka::colors::Jasmine);
-    menu.addItem("Налаштування", &settings_img, lilka::colors::Orchid);
 
-    while (1) {
-        while (!menu.isFinished()) {
-            menu.update();
-            menu.draw(canvas);
-            queueDraw();
+    item_t root_item = ITEM::SUBMENU(
+        "Головне меню",
+        {
+            ITEM::SUBMENU(
+                "Додатки",
+                {
+                    ITEM::SUBMENU(
+                        "Демо",
+                        {
+                            ITEM::MENU("Лінії", [this]() { this->runApp<DemoLines>(); }),
+                            ITEM::MENU("Диск", [this]() { this->runApp<DiskApp>(); }),
+                            ITEM::MENU("Перетворення", [this]() { this->runApp<TransformApp>(); }),
+                            ITEM::MENU("М'ячик", [this]() { this->runApp<BallApp>(); }),
+                            ITEM::MENU("Куб", [this]() { this->runApp<CubeApp>(); }),
+                            ITEM::MENU("Епілепсія", [this]() { this->runApp<EpilepsyApp>(); }),
+                            ITEM::MENU("PetPet", [this]() { this->runApp<PetPetApp>(); }),
+                        }
+                    ),
+                    ITEM::SUBMENU(
+                        "Тести",
+                        {
+                            ITEM::MENU("Клавіатура", [this]() { this->runApp<KeyboardApp>(); }),
+                            ITEM::MENU("Тест SPI", [this]() { this->runApp<UserSPIApp>(); }),
+                            ITEM::MENU("I2C-сканер", [this]() { this->runApp<ScanI2CApp>(); }),
+                            ITEM::MENU("GPIO-менеджер", [this]() { this->runApp<GPIOManagerApp>(); }),
+                            ITEM::MENU("Combo", [this]() { this->runApp<ComboApp>(); }),
+                        }
+                    ),
+                    ITEM::MENU("ЛілТрекер", [this]() { this->runApp<LilTrackerApp>(); }),
+                    ITEM::MENU("Летріс", [this]() { this->runApp<LetrisApp>(); }),
+                    ITEM::MENU("Тамагочі", [this]() { this->runApp<TamagotchiApp>(); }),
+                    ITEM::MENU("Погода", [this]() { this->runApp<WeatherApp>(); }),
+                    ITEM::MENU("BLE Геймпад", [this]() { this->runApp<ble_gamepad_app::MainApp>(); }),
+                    ITEM::MENU("Pastebin", [this]() { this->runApp<pastebinApp>(); }),
+                },
+                &demos_img,
+                lilka::colors::Pink
+            ),
+            ITEM::MENU(
+                "Браузер SD-карти",
+                [this]() { this->runApp<FileManagerApp>(&SD, "/"); },
+                &sdcard_img,
+                lilka::colors::Arylide_yellow
+            ),
+            ITEM::MENU(
+                "Браузер SPIFFS",
+                [this]() { this->runApp<FileManagerApp>(&SPIFFS, "/"); },
+                &memory_img,
+                lilka::colors::Dark_sea_green
+            ),
+            ITEM::SUBMENU(
+                "Розробка",
+                {
+                    ITEM::MENU("Live Lua", [this]() { this->runApp<LuaLiveRunnerApp>(); }),
+                    ITEM::MENU("Lua REPL", [this]() { this->runApp<LuaReplApp>(); }),
+                    ITEM::MENU("FTP сервер", [this]() { this->runApp<FTPServerApp>(); }),
+                },
+                &dev_img,
+                lilka::colors::Jasmine
+            ),
+            ITEM::SUBMENU(
+                "Налаштування",
+                {
+                    ITEM::MENU(
+                        "WiFi-адаптер",
+                        [this]() { this->wifiToggle(); },
+                        nullptr,
+                        0,
+                        [this](void* item) {
+                            lilka::MenuItem* menuItem = static_cast<lilka::MenuItem*>(item);
+                            menuItem->postfix = networkService->getEnabled() ? "ON" : "OFF";
+                        }
+                    ),
+                    ITEM::MENU("Мережі WiFi", [this]() { this->wifiManager(); }),
+                    ITEM::MENU("Звук", [this]() { this->runApp<SoundConfigApp>(); }),
+                    ITEM::MENU("Про систему", [this]() { this->about(); }),
+                    ITEM::MENU("Інфо про пристрій", [this]() { this->info(); }),
+                    ITEM::MENU("Таблиця розділів", [this]() { this->partitions(); }),
+                    ITEM::MENU("Форматування SD-карти", [this]() { this->formatSD(); }),
+                    ITEM::MENU("Light sleep", []() { 
+                        lilka::board.enablePowerSavingMode();
+                        esp_light_sleep_start();
+                    }),
+                    ITEM::MENU("Deep sleep", []() { 
+                        lilka::board.enablePowerSavingMode();
+                        esp_deep_sleep_start();
+                     }),
+                    ITEM::MENU("Перезавантаження", []() {
+                            esp_restart();
+                     }),
+                },
+                &settings_img,
+                lilka::colors::Orchid
+            ),
         }
-        int16_t index = menu.getCursor();
-        if (index == 0) {
-            appsMenu("Додатки", app_items);
-        } else if (index == 1) {
-            AppManager::getInstance()->runApp(new FileManagerApp(&SD, "/"));
-        } else if (index == 2) {
-            AppManager::getInstance()->runApp(new FileManagerApp(&SPIFFS, "/"));
-        } else if (index == 3) {
-            appsMenu("Розробка", dev_items);
-        } else if (index == 4) {
-            settingsMenu();
-        }
-    }
+    );
+    showMenu(root_item.name, root_item.submenu, false);
 }
-
-void LauncherApp::appsMenu(const char* title, ITEM_LIST& list) {
+void LauncherApp::showMenu(const char* title, ITEM_LIST& list, bool back) {
     int itemCount = list.size();
     lilka::Menu menu(title);
     for (int i = 0; i < list.size(); i++) {
-        menu.addItem(list[i].name, list[i].type == APP_ITEM_TYPE_SUBMENU ? &app_group_img : &app_img);
+        menu_icon_t* icon = list[i].icon;
+        if (icon == NULL) {
+            icon = list[i].submenu.empty() ? &app_img : &app_group_img;
+        }
+        menu.addItem(list[i].name, icon, list[i].color);
     }
-    menu.addItem("<< Назад");
+    if (back) {
+        menu.addActivationButton(lilka::Button::B);
+        menu.addItem("<< Назад");
+    }
     while (1) {
         while (!menu.isFinished()) {
-            menu.update();
-            menu.draw(canvas);
-            queueDraw();
-        }
-        int16_t index = menu.getCursor();
-        if (index == itemCount) {
-            break;
-        }
-        item_t item = list[index];
-        if (item.type == APP_ITEM_TYPE_SUBMENU) {
-            appsMenu(item.name, item.submenu);
-        } else {
-            AppManager::getInstance()->runApp(list[index].construct());
-        }
-    }
-}
-
-void LauncherApp::settingsMenu() {
-    String titles[] = {
-        "WiFi-адаптер",
-        "Мережі WiFi",
-        "Звук",
-        "Про систему",
-        "Інфо про пристрій",
-        "Таблиця розділів",
-        "Форматування SD-карти",
-        "Light sleep",
-        "Deep sleep",
-        "Перезавантаження",
-        "<< Назад",
-    };
-    int count = sizeof(titles) / sizeof(titles[0]);
-    lilka::Menu menu("Системні утиліти");
-    menu.addActivationButton(lilka::Button::B);
-    for (int i = 0; i < count; i++) {
-        menu.addItem(titles[i]);
-    }
-    NetworkService* networkService =
-        static_cast<NetworkService*>(ServiceManager::getInstance()->getService<NetworkService>("network"));
-    while (1) {
-        while (!menu.isFinished()) {
-            lilka::MenuItem wifiItem;
-            menu.getItem(0, &wifiItem);
-            wifiItem.postfix = networkService->getEnabled() ? "ON" : "OFF";
-            menu.setItem(0, wifiItem.title, wifiItem.icon, wifiItem.color, wifiItem.postfix);
+            for (int i = 0; i < list.size(); i++) {
+                if (list[i].update != nullptr) {
+                    lilka::MenuItem menuItem;
+                    menu.getItem(i, &menuItem);
+                    list[i].update(&menuItem);
+                    menu.setItem(i, menuItem.title, menuItem.icon, menuItem.color, menuItem.postfix);
+                }
+            }
             menu.update();
             menu.draw(canvas);
             queueDraw();
         }
         if (menu.getButton() == lilka::Button::B) {
-            return;
+            break;
         }
         int16_t index = menu.getCursor();
-        if (index == count - 1) {
-            return;
+        if (back && index == itemCount) {
+            break;
         }
-        if (index == 0) {
-            networkService->setEnabled(!networkService->getEnabled());
-        } else if (index == 1) {
-            if (!networkService->getEnabled()) {
-                alert("Помилка", "Спочатку увімкніть WiFi-адаптер");
-                continue;
-            }
-            AppManager::getInstance()->runApp(new WiFiConfigApp());
-        } else if (index == 2) {
-            AppManager::getInstance()->runApp(new SoundConfigApp());
-        } else if (index == 3) {
-            alert("Keira OS", "by Андерсон & friends");
-        } else if (index == 4) {
-            char buf[256];
-            sprintf(
-                buf,
-                "Модель: %s\n"
-                "Ревізія: %d\n"
-                "Версія ESP-IDF: %s\n"
-                "Частота: %d МГц\n"
-                "Кількість ядер: %d\n"
-                "IP: %s",
-                ESP.getChipModel(),
-                ESP.getChipRevision(),
-                esp_get_idf_version(),
-                ESP.getCpuFreqMHz(),
-                ESP.getChipCores(),
-                networkService->getIpAddr().c_str()
-            );
-            alert("Інфо про пристрій", buf);
-        } else if (index == 5) {
-            String labels[16];
-            int labelCount = lilka::sys.get_partition_labels(labels);
-            labels[labelCount++] = "<< Назад";
-            lilka::Menu partitionMenu("Таблиця розділів");
-            for (int i = 0; i < labelCount; i++) {
-                partitionMenu.addItem(labels[i]);
-            }
-            while (1) {
-                while (!partitionMenu.isFinished()) {
-                    partitionMenu.update();
-                    partitionMenu.draw(canvas);
-                    queueDraw();
-                }
-                int16_t partitionIndex = partitionMenu.getCursor();
-                if (partitionIndex == labelCount - 1) {
-                    break;
-                }
-                alert(
-                    labels[partitionIndex],
-                    String("Адреса: 0x") +
-                        String(lilka::sys.get_partition_address(labels[partitionIndex].c_str()), HEX) + "\n" +
-                        "Розмір: 0x" + String(lilka::sys.get_partition_size(labels[partitionIndex].c_str()), HEX)
-                );
-            }
-        } else if (index == 6) {
-            lilka::Alert confirm(
-                "Форматування",
-                "УВАГА: Це очистить ВСІ дані з SD-карти!\n"
-                "\nПродовжити?\n\nSTART - продовжити\nA - скасувати"
-            );
-            confirm.addActivationButton(lilka::Button::START);
-            confirm.draw(canvas);
-            queueDraw();
-            while (!confirm.isFinished()) {
-                confirm.update();
-                taskYIELD();
-            }
-            if (confirm.getButton() != lilka::Button::START) {
-                continue;
-            }
 
-            lilka::ProgressDialog dialog("Форматування", "Будь ласка, зачекайте...");
-            dialog.draw(canvas);
-            queueDraw();
-            if (!lilka::fileutils.createSDPartTable()) {
-                alert(
-                    "Помилка",
-                    "Не вдалося створити нову таблицю розділів. "
-                    "Можливо відсутня карта.\n\n"
-                    "Систему буде перезавантажено."
-                );
-                esp_restart();
-            }
-            if (!lilka::fileutils.formatSD()) {
-                this->alert(
-                    "Помилка",
-                    "Не вдалося форматувати SD-карту.\n\n"
-                    "Систему буде перезавантажено."
-                );
-                esp_restart();
-            }
-            this->alert(
-                "Форматування",
-                "Форматування SD-карти завершено!\n\n"
-                "Систему буде перезавантажено."
-            );
-            esp_restart();
-        } else if (index == 7) {
-            lilka::board.enablePowerSavingMode();
-            esp_light_sleep_start();
-        } else if (index == 8) {
-            lilka::board.enablePowerSavingMode();
-            esp_deep_sleep_start();
-        } else if (index == 9) {
-            esp_restart();
+        item_t item = list[index];
+        if (item.callback != nullptr) {
+            item.callback();
+        }
+        if (!item.submenu.empty()) {
+            showMenu(item.name, item.submenu);
         }
     }
 }
-
 void LauncherApp::alert(String title, String message) {
     lilka::Alert alert(title, message);
     alert.draw(canvas);
@@ -305,4 +212,102 @@ void LauncherApp::alert(String title, String message) {
         alert.update();
         taskYIELD();
     }
+}
+template <typename T, typename... Args>
+void LauncherApp::runApp(Args&&... args) {
+    AppManager::getInstance()->runApp(new T(std::forward<Args>(args)...));
+}
+
+void LauncherApp::wifiToggle() {
+    networkService->setEnabled(!networkService->getEnabled());
+}
+void LauncherApp::wifiManager() {
+    if (!networkService->getEnabled()) {
+        alert("Помилка", "Спочатку увімкніть WiFi-адаптер");
+        return;
+    }
+    AppManager::getInstance()->runApp(new WiFiConfigApp());
+}
+void LauncherApp::about() {
+    alert("Keira OS", "by Андерсон & friends");
+}
+void LauncherApp::info() {
+    char buf[256];
+    sprintf(
+        buf,
+        "Модель: %s\n"
+        "Ревізія: %d\n"
+        "Версія ESP-IDF: %s\n"
+        "Частота: %d МГц\n"
+        "Кількість ядер: %d\n"
+        "IP: %s",
+        ESP.getChipModel(),
+        ESP.getChipRevision(),
+        esp_get_idf_version(),
+        ESP.getCpuFreqMHz(),
+        ESP.getChipCores(),
+        networkService->getIpAddr().c_str()
+    );
+    alert("Інфо про пристрій", buf);
+}
+void LauncherApp::partitions() {
+    String names[16];
+    int partitionCount = lilka::sys.get_partition_labels(names);
+
+    ITEM_LIST partitionsMenu;
+    for (int i = 0; i < partitionCount; i++) {
+        String partition = names[i];
+        partitionsMenu.push_back(ITEM::MENU(names[i].c_str(), [this, partition]() {
+            alert(
+                partition,
+                String("Адреса: 0x") + String(lilka::sys.get_partition_address(partition.c_str()), HEX) + "\n" +
+                    "Розмір: 0x" + String(lilka::sys.get_partition_size(partition.c_str()), HEX)
+            );
+        }));
+    }
+    showMenu("Таблиця розділів", partitionsMenu);
+}
+void LauncherApp::formatSD() {
+    lilka::Alert confirm(
+        "Форматування",
+        "УВАГА: Це очистить ВСІ дані з SD-карти!\n"
+        "\nПродовжити?\n\nSTART - продовжити\nA - скасувати"
+    );
+    confirm.addActivationButton(lilka::Button::START);
+    confirm.draw(canvas);
+    queueDraw();
+    while (!confirm.isFinished()) {
+        confirm.update();
+        taskYIELD();
+    }
+    if (confirm.getButton() != lilka::Button::START) {
+        return;
+    }
+
+    lilka::ProgressDialog dialog("Форматування", "Будь ласка, зачекайте...");
+    dialog.draw(canvas);
+    queueDraw();
+    if (!lilka::fileutils.createSDPartTable()) {
+        alert(
+            "Помилка",
+            "Не вдалося створити нову таблицю розділів. "
+            "Можливо відсутня карта.\n\n"
+            "Систему буде перезавантажено."
+        );
+        esp_restart();
+    }
+    if (!lilka::fileutils.formatSD()) {
+        this->alert(
+            "Помилка",
+            "Не вдалося форматувати SD-карту.\n\n"
+            "Систему буде перезавантажено."
+        );
+        esp_restart();
+    }
+    this->alert(
+        "Форматування",
+        "Форматування SD-карти завершено!\n\n"
+        "Систему буде перезавантажено."
+    );
+    esp_restart();
 }
