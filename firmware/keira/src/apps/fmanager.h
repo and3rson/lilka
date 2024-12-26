@@ -64,8 +64,11 @@ private:
     void loadRom(const String& path);
     String getFileMD5(const String& file_path);
     void showEntryInfo(const FMEntry& entry);
-    void openEntry(const FMEntry& entry); //TODO check on dir
+    void openEntryWith(const FMEntry& entry);
+    void openEntry(const FMEntry& entry);
     void alert(const String& title, const String& message);
+
+    void alertNotImplemented();
 
     // Main loop:
     void run() override;

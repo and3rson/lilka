@@ -34,6 +34,10 @@ void FileManagerApp::alert(const String& title, const String& message) {
     }
 }
 
+void FileManagerApp::alertNotImplemented() {
+    alert("Помилка", "Ця функція перебуває в розробці");
+}
+
 FileManagerApp::FileManagerApp(FS* fSysDriver, const String& path) : App("FileManager") {
     if (fSysDriver == &SD) {
         currentPath = lilka::fileutils.joinPath(LILKA_SD_ROOT, path);
@@ -190,6 +194,47 @@ void FileManagerApp::openEntry(const FMEntry& entry) {
             break;
     }
 }
+void FileManagerApp::openEntryWith(const FMEntry& entry) {
+    lilka::Menu openWithMenu;
+    openWithMenu.setTitle("Оберіть додаток");
+    openWithMenu.addActivationButton(lilka::Button::B); // Back Button
+    openWithMenu.addItem("Файловий менеджер");
+    openWithMenu.addItem("Емулятор NES");
+    openWithMenu.addItem("Загрузчик прошивок");
+    openWithMenu.addItem("Lua");
+    openWithMenu.addItem("mJS");
+    openWithMenu.addItem("ЛілТрекер");
+    openWithMenu.addItem("Програвач MOD");
+
+    while (1) {
+        while (!openWithMenu.isFinished()) {
+            openWithMenu.update();
+            openWithMenu.draw(canvas);
+            queueDraw();
+            vTaskDelay(5 / portTICK_PERIOD_MS); // Do not consume all resources
+        }
+        auto button = openWithMenu.getButton();
+        if (button == lilka::Button::B) return; // BACK
+
+        auto index = openWithMenu.getCursor();
+        String path = lilka::fileutils.joinPath(entry.path, entry.name);
+        if (index == 0) { // FileManager
+            readDir(path);
+        } else if (index == 1) { // Nes Emulator
+            AppManager::getInstance()->runApp(new NesApp(path));
+        } else if (index == 2) { // ROM Loader
+            loadRom(path);
+        } else if (index == 3) { // Lua
+            AppManager::getInstance()->runApp(new LuaFileRunnerApp(path));
+        } else if (index == 4) { // mJS
+            AppManager::getInstance()->runApp(new MJSApp(path));
+        } else if (index == 5) { // LilTracker
+            AppManager::getInstance()->runApp(new LilTrackerApp(path));
+        } else if (index == 6) { // ModPlayer
+            AppManager::getInstance()->runApp(new ModPlayerApp(path));
+        }
+    }
+}
 
 void FileManagerApp::showEntryInfo(const FMEntry& entry) {
     String info;
@@ -264,7 +309,7 @@ bool FileManagerApp::isSelectedPath(const String& filename) {
 
 void FileManagerApp::showEntryOptions(const FMEntry& entry) {
     lilka::Menu fileOptionsMenu;
-    fileOptionsMenu.setTitle(entry.name);
+    fileOptionsMenu.setTitle("Опції");
     fileOptionsMenu.addActivationButton(lilka::Button::B); // Back Button
     // TODO : add callback based api to lilka:Menu
     fileOptionsMenu.addItem("Відкрити");
@@ -272,26 +317,37 @@ void FileManagerApp::showEntryOptions(const FMEntry& entry) {
     fileOptionsMenu.addItem("Перейменувати");
     fileOptionsMenu.addItem("Копіювати");
     fileOptionsMenu.addItem("Перемістити");
+    fileOptionsMenu.addItem("Видалити");
     fileOptionsMenu.addItem("Вибрати");
     fileOptionsMenu.addItem("Створити папку");
+    while (1) {
+        while (!fileOptionsMenu.isFinished()) {
+            fileOptionsMenu.update();
+            fileOptionsMenu.draw(canvas);
+            queueDraw();
+            vTaskDelay(5 / portTICK_PERIOD_MS); // Do not consume all resources
+        }
+        auto button = fileOptionsMenu.getButton();
+        if (button == lilka::Button::B) return; // BACK
 
-    while (!fileOptionsMenu.isFinished()) {
-        fileOptionsMenu.update();
-        fileOptionsMenu.draw(canvas);
-        queueDraw();
-        vTaskDelay(5 / portTICK_PERIOD_MS); // Do not consume all resources
-    }
-    auto button = fileOptionsMenu.getButton();
-    auto index = fileOptionsMenu.getCursor();
-    if (index == 0) { // Open
-        openEntry(entry);
-    } else if (index == 1) { // OpenWith
-    } else if (index == 2) { // Rename
-    } else if (index == 3) { // Copy
-    } else if (index == 4) { // Move
-    } else if (index == 5) { // Select
-        //selectEntry(entry);
-    } else if (index == 6) { // mkdir
+        auto index = fileOptionsMenu.getCursor();
+        if (index == 0) { // Open
+            openEntry(entry);
+        } else if (index == 1) { // OpenWith
+            openEntryWith(entry);
+        } else if (index == 2) { // Rename
+            alertNotImplemented();
+        } else if (index == 3) { // Copy
+            alertNotImplemented();
+        } else if (index == 4) { // Move
+            alertNotImplemented();
+        } else if (index == 5) { // Delete
+            alertNotImplemented();
+        } else if (index == 6) { // Select
+            alertNotImplemented();
+        } else if (index == 7) { // mkdir
+            alertNotImplemented();
+        }
     }
 }
 // ReadDir -> Detect Directories -> Sort names -> Draw
