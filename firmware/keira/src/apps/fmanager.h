@@ -2,7 +2,7 @@
 #include "app.h"
 #include <dirent.h>
 #include <vector>
-
+#include <sys/stat.h>
 #define MD5_CHUNK_SIZE 1024
 
 typedef enum { FT_NONE, FT_NES_ROM, FT_BIN, FT_LUA_SCRIPT, FT_JS_SCRIPT, FT_MOD, FT_LT, FT_DIR, FT_OTHER } FileType;
@@ -68,6 +68,10 @@ private:
     void openEntry(const FMEntry& entry);
     void alert(const String& title, const String& message);
 
+    void deleteEntry(const FMEntry& entry);
+    void copyEntry(const FMEntry& entry, const String& path);
+    void moveEntry(const FMEntry& entry, const String& path);
+    void makeDir(const String& path); // path where to create dir, not a path to dir
     void alertNotImplemented();
 
     // Main loop:

@@ -151,8 +151,8 @@ FMEntry FileManagerApp::pathToEntry(const String& path) {
         newEntry.color = FT_JS_SCRIPT_COLOR;
     } else if (lowerCasedPath.endsWith(".mod")) {
         newEntry.type = FT_MOD;
-        newEntry.icon = FT_BIN_ICON;
-        newEntry.color = FT_BIN_COLOR;
+        newEntry.icon = FT_MOD_ICON;
+        newEntry.color = FT_MOD_COLOR;
     } else if (lowerCasedPath.endsWith(".lt")) {
         newEntry.type = FT_LT;
         newEntry.icon = FT_LT_ICON;
@@ -167,6 +167,7 @@ FMEntry FileManagerApp::pathToEntry(const String& path) {
 
 void FileManagerApp::openEntry(const FMEntry& entry) {
     String path = lilka::fileutils.joinPath(entry.path, entry.name);
+    lilka::serial_log("Opening path %s", path.c_str());
     switch (entry.type) {
         case FT_NES_ROM:
             AppManager::getInstance()->runApp(new NesApp(path));
@@ -346,7 +347,8 @@ void FileManagerApp::showEntryOptions(const FMEntry& entry) {
         } else if (index == 6) { // Select
             alertNotImplemented();
         } else if (index == 7) { // mkdir
-            alertNotImplemented();
+            makeDir(entry.path);
+            return;
         }
     }
 }
@@ -371,47 +373,51 @@ void FileManagerApp::readDir(const String& path) {
     }
     currentPath = path; // change path
     const struct dirent* dir_entry = NULL;
-
-    // Readdir
-    while ((dir_entry = readdir(dir)) != NULL) {
-        String filename = dir_entry->d_name;
-        // Skip current directory and top level entries
-        if (filename != "." || filename == "..") {
-            FMEntry newEntry = pathToEntry(lilka::fileutils.joinPath(currentPath, filename));
-            dirContents.push_back(newEntry);
-            lilka::serial_log(
-                "Added new entry with type:%d, name:%s, path:%s, ",
-                newEntry.type,
-                newEntry.name.c_str(),
-                newEntry.path.c_str()
-            );
-        }
-    }
-
-    // Sorting directory entries
-    std::sort(dirContents.begin(), dirContents.end(), [](FMEntry a, FMEntry b) {
-        if (a.type == FT_DIR && b.type != FT_DIR) return true;
-        else if (a.type != FT_DIR && b.type == FT_DIR) return false;
-        return a.name.compareTo(b.name) < 0;
-    });
-
-    // Adding entries to menu
-    for (auto dirEntry : dirContents) {
-        // TODO: check mode, select proper icon if FM_MODE_SELECT and dirEntry in selectedEbtries
-        if (dirEntry.type == FT_DIR) fileListMenu.addItem(dirEntry.name, dirEntry.icon, dirEntry.color);
-        else
-            fileListMenu.addItem(
-                dirEntry.name,
-                dirEntry.icon,
-                dirEntry.color,
-                lilka::fileutils.getHumanFriendlySize(dirEntry.stat.st_size)
-            );
-    }
-
-    // Add Back button
-    fileListMenu.addItem("<< Назад", 0, 0);
-
+    int16_t index = 0;
     while (1) {
+        // Readdir
+
+        while ((dir_entry = readdir(dir)) != NULL) {
+            String filename = dir_entry->d_name;
+            // Skip current directory and top level entries
+            if (filename != "." || filename == "..") {
+                FMEntry newEntry = pathToEntry(lilka::fileutils.joinPath(currentPath, filename));
+                dirContents.push_back(newEntry);
+                lilka::serial_log(
+                    "Added new entry with type:%d, name:%s, path:%s, ",
+                    newEntry.type,
+                    newEntry.name.c_str(),
+                    newEntry.path.c_str()
+                );
+            }
+        }
+
+        // Sorting directory entries
+        std::sort(dirContents.begin(), dirContents.end(), [](FMEntry a, FMEntry b) {
+            if (a.type == FT_DIR && b.type != FT_DIR) return true;
+            else if (a.type != FT_DIR && b.type == FT_DIR) return false;
+            return a.name.compareTo(b.name) < 0;
+        });
+
+        // Adding entries to menu
+        for (auto dirEntry : dirContents) {
+            // TODO: check mode, select proper icon if FM_MODE_SELECT and dirEntry in selectedEbtries
+            if (dirEntry.type == FT_DIR) fileListMenu.addItem(dirEntry.name, dirEntry.icon, dirEntry.color);
+            else
+                fileListMenu.addItem(
+                    dirEntry.name,
+                    dirEntry.icon,
+                    dirEntry.color,
+                    lilka::fileutils.getHumanFriendlySize(dirEntry.stat.st_size)
+                );
+        }
+        // Try to restore old menuCursor:
+        if (fileListMenu.getItemCount() >= index) fileListMenu.setCursor(index);
+        else fileListMenu.setCursor(fileListMenu.getItemCount() - 1); // Select last
+
+        // Add Back button
+        fileListMenu.addItem("<< Назад", 0, 0);
+
         // Do Draw !
         while (!fileListMenu.isFinished()) {
             fileListMenu.update();
@@ -421,18 +427,52 @@ void FileManagerApp::readDir(const String& path) {
         }
 
         //Do magic!
-        int16_t index = fileListMenu.getCursor();
+        index = fileListMenu.getCursor();
 
-        if (index == dirContents.size()) break; // Back option selected
-
+        // TODO: fix bug with passing last item
+        // parameter to showEntryInfo\showEntryOptions
         auto button = fileListMenu.getButton();
         if (button == lilka::Button::A) { // Open
+            if (index == dirContents.size()) {
+                // restore parent dir before exit
+                currentPath = lilka::fileutils.getParentDirectory(currentPath);
+                closedir(dir);
+                break; // Back option selected
+            }
             openEntry(dirContents[index]);
         } else if (button == lilka::Button::C) { // Info
             showEntryInfo(dirContents[index]);
         } else if (button == lilka::Button::D) { // Options
             showEntryOptions(dirContents[index]);
-        } else break; // B button
+        } else { // B button
+            // restore parent dir before exit
+            currentPath = lilka::fileutils.getParentDirectory(currentPath);
+            closedir(dir); // never forget!
+            break;
+        }
+
+        // Clear memory
+        // Return to begining of directory
+        rewinddir(dir);
+        dirContents.clear();
+        fileListMenu.clearItems();
+    }
+}
+
+void FileManagerApp::makeDir(const String& path) {
+    lilka::InputDialog dirNameInput("Введіть назву нової папки");
+    while (!dirNameInput.isFinished()) {
+        dirNameInput.update();
+        dirNameInput.draw(canvas);
+        queueDraw();
+    }
+    auto dirName = dirNameInput.getValue();
+    if (dirName != "") {
+        if (mkdir(lilka::fileutils.joinPath(path, dirName).c_str(), 0777) != 0) {
+            lilka::serial_err(
+                "Can't make dir in %s with name %s. %d: %s", path.c_str(), dirName.c_str(), errno, strerror(errno)
+            );
+        }
     }
 }
 void FileManagerApp::run() {
