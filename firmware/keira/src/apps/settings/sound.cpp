@@ -10,16 +10,19 @@ void SoundConfigApp::run() {
 
     lilka::Menu menu("Звук");
     menu.addActivationButton(lilka::Button::B);
-    menu.addItem("Гучність:", 0, 0U, (String)volumeLevel);
+    menu.addActivationButton(lilka::Button::D);
+    menu.addItem("Гучність:", 0, 0U, "< " + (String)volumeLevel + " >");
     menu.addItem("Звук вітання:", 0, 0U, (startupSound) ? "ON" : "OFF");
     menu.addItem("Вітання бузером:", 0, 0U, (startupBuzzer) ? "ON" : "OFF");
-    menu.addItem("<< Зберегти");
+    menu.addItem("<< Назад");
 
     while (true) {
         while (!menu.isFinished()) {
             menu.update();
             menu.draw(canvas);
             queueDraw();
+            lilka::controller.setAutoRepeat(lilka::Button::A, 0, 0);
+            lilka::controller.setAutoRepeat(lilka::Button::D, 0, 0);
         }
 
         if (menu.getButton() == lilka::Button::B) {
@@ -27,16 +30,21 @@ void SoundConfigApp::run() {
         }
         int16_t index = menu.getCursor();
         if (index == 0) {
-            if (volumeLevel < 100) {
-                volumeLevel += 10;
-            } else {
-                volumeLevel = 0;
-            }
+            int increment = 5;
+            if (menu.getButton() == lilka::Button::D) increment = -increment;
+
+            volumeLevel += increment;
+            if (volumeLevel > 100) volumeLevel = 0;
+            if (volumeLevel < 0) volumeLevel = 100;
 
             lilka::MenuItem volumeItem;
             menu.getItem(0, &volumeItem);
-            volumeItem.postfix = volumeLevel;
+            volumeItem.postfix = "< " + (String)volumeLevel + " >";
             menu.setItem(0, volumeItem.title, volumeItem.icon, volumeItem.color, volumeItem.postfix);
+
+            delay(100); // AutoRepeat чомусь не працює правильно в меню
+            lilka::controller.setAutoRepeat(lilka::Button::A, 100, 500);
+            lilka::controller.setAutoRepeat(lilka::Button::D, 100, 500);
         } else if (index == 1) {
             startupSound = !startupSound;
 
