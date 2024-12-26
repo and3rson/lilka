@@ -13,13 +13,13 @@ typedef struct item_t {
 
 public:
     static item_t SUBMENU(
-        const char* name, std::vector<item_t> submenu, const menu_icon_t* icon = NULL, uint16_t color = 0
+        const char* name, const std::vector<item_t>& submenu, const menu_icon_t* icon = NULL, uint16_t color = 0
     ) {
         return item_t{
-            name : name,
-            icon : icon,
-            color : color,
-            submenu : submenu,
+            name,
+            icon,
+            color,
+            submenu,
         };
     }
 
@@ -28,11 +28,12 @@ public:
         std::function<void(void*)> update = nullptr
     ) {
         return item_t{
-            name : name,
-            icon : icon,
-            color : color,
-            callback : callback,
-            update : update,
+            name,
+            icon,
+            color,
+            {},
+            callback,
+            update,
         };
     }
 } ITEM;
