@@ -53,6 +53,7 @@ int16_t StatusBarApp::drawIcons(lilka::Canvas* iconCanvas) {
 
     // Draw RAM usage
     uint32_t freeRAM = ESP.getFreeHeap();
+#ifdef KEIRA_RAM_ICON
     uint32_t totalRAM = ESP.getHeapSize();
     int16_t padding = 2;
     int16_t barWidth = 24 - padding * 2;
@@ -60,6 +61,12 @@ int16_t StatusBarApp::drawIcons(lilka::Canvas* iconCanvas) {
     int16_t barWidthUsed = barWidth * (totalRAM - freeRAM) / totalRAM;
     iconCanvas->fillRect(xOffset + padding, padding, barWidthUsed, barHeight, lilka::colors::Red);
     iconCanvas->draw16bitRGBBitmapWithTranColor(xOffset, 0, ram_img, lilka::colors::Black, 24, 24);
+#else
+    char ram_buf[32];
+    sprintf(ram_buf, " %ukB", freeRAM / 1024);
+    canvas->print(ram_buf);
+#endif
+
     xOffset += 4 + 24;
 
     // Draw WiFi signal strength
