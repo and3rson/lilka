@@ -178,7 +178,6 @@ FMEntry FileManagerApp::pathToEntry(const String& path) {
 void FileManagerApp::openEntry(const FMEntry& entry) {
     String path = lilka::fileutils.joinPath(entry.path, entry.name);
     lilka::serial_log("Opening path %s", path.c_str());
-    delay(20);
     switch (entry.type) {
         case FT_NES_ROM:
             AppManager::getInstance()->runApp(new NesApp(path));
@@ -591,4 +590,6 @@ void FileManagerApp::makeDir(const String& path) {
 void FileManagerApp::run() {
     lilka::serial_log("Opening path %s", currentPath.c_str());
     readDir(currentPath);
+    // uint32_t maxReachedStack = uxTaskGetStackHighWaterMark(NULL);
+    // lilka::serial_log("exiting fmanager. reached stacksize %u", maxReachedStack);
 }
