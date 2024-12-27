@@ -496,23 +496,28 @@ void FileManagerApp::deleteEntry(const FMEntry& entry, bool force) {
     auto path = lilka::fileutils.joinPath(entry.path, entry.name);
     // Perform check on user sureness
     if (!force) {
-        lilka::Alert alert(
+        lilka::Alert checkAlert(
             "Ви впевнені?", String("Ця операція видалить файл\n") + path + "\nПродовжити: START\nВихід: A/B"
         );
-        alert.addActivationButton(lilka::Button::A);
-        alert.addActivationButton(lilka::Button::B);
-        alert.addActivationButton(lilka::Button::START);
-        while (!alert.isFinished()) {
-            alert.update();
-            alert.draw(canvas);
+        checkAlert.addActivationButton(lilka::Button::A);
+        checkAlert.addActivationButton(lilka::Button::B);
+        checkAlert.addActivationButton(lilka::Button::START);
+        while (!checkAlert.isFinished()) {
+            checkAlert.update();
+            checkAlert.draw(canvas);
             queueDraw();
             vTaskDelay(5 / portTICK_PERIOD_MS); // Do not consume all resources
         }
-        if (alert.getButton() != lilka::Button::START) return; //Exit
+        if (checkAlert.getButton() != lilka::Button::START) return; //Exit
     }
     // Do job
     if (entry.type == FT_DIR) { // Directory
         auto dir = opendir(path.c_str());
+        if (dir == NULL) {
+            lilka::serial_err("Can't open dir %s. %d: %s", path.c_str(), errno, strerror(errno));
+            alert("Помилка", String("Не можу видалити\n") + path);
+            return; // some shit happened. run!
+        }
         struct dirent* dirEntry;
         while ((dirEntry = readdir(dir)) != NULL) {
             String filename = dirEntry->d_name;
@@ -523,14 +528,14 @@ void FileManagerApp::deleteEntry(const FMEntry& entry, bool force) {
         // Delete dir itself
         if (unlink(path.c_str()) != 0) {
             lilka::serial_err("Tried to delete %s. %d: %s", path.c_str(), errno, strerror(errno));
-            alert("Помилка", "Не можу видалити\n%s", path.c_str());
+            alert("Помилка", String("Не можу видалити\n") + path);
             return; // some shit happened. run!
         }
 
     } else { // Regular file
         if (unlink(path.c_str()) != 0) {
             lilka::serial_err("Tried to delete %s. %d: %s", path.c_str(), errno, strerror(errno));
-            alert("Помилка", "Не можу видалити\n%s", path.c_str());
+            alert("Помилка", String("Не можу видалити\n") + path);
             return; // some shit happened. run!
         }
     }
