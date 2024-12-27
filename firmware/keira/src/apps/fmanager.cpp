@@ -582,6 +582,7 @@ void FileManagerApp::makeDir(const String& path) {
     auto dirName = dirNameInput.getValue();
     if (dirName != "") {
         if (mkdir(lilka::fileutils.joinPath(path, dirName).c_str(), 0777) != 0) {
+            alert("Помилка", String("Не можу створити папку") + dirName);
             lilka::serial_err(
                 "Can't make dir in %s with name %s. %d: %s", path.c_str(), dirName.c_str(), errno, strerror(errno)
             );
