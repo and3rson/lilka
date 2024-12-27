@@ -29,6 +29,7 @@ void Alert::update() {
         button = *it;
         done = true;
     }
+    vTaskDelay(LILKA_UI_UPDATE_DELAY_MS / portTICK_PERIOD_MS);
 }
 
 void Alert::draw(Arduino_GFX* canvas) {

@@ -85,6 +85,7 @@ void Menu::update() {
             done = true;
         }
     }
+    vTaskDelay(LILKA_UI_UPDATE_DELAY_MS / portTICK_PERIOD_MS);
 }
 
 // Scroll marquee back and forth based on time, pausing at start and end
