@@ -41,8 +41,6 @@
 #include "icons/settings.h"
 #include "icons/info.h"
 
-#include "icons/app_group.h"
-#include "icons/app.h"
 #include "icons/normalfile.h"
 #include "icons/folder.h"
 #include "icons/nes.h"
@@ -70,42 +68,42 @@ void LauncherApp::run() {
                     ITEM::SUBMENU(
                         "Демо",
                         {
-                            ITEM::MENU("Лінії", [this]() { this->runApp<DemoLines>(); }),
-                            ITEM::MENU("Диск", [this]() { this->runApp<DiskApp>(); }),
-                            ITEM::MENU("Перетворення", [this]() { this->runApp<TransformApp>(); }),
-                            ITEM::MENU("М'ячик", [this]() { this->runApp<BallApp>(); }),
-                            ITEM::MENU("Куб", [this]() { this->runApp<CubeApp>(); }),
-                            ITEM::MENU("Епілепсія", [this]() { this->runApp<EpilepsyApp>(); }),
-                            ITEM::MENU("PetPet", [this]() { this->runApp<PetPetApp>(); }),
+                            ITEM::APP("Лінії", [this]() { this->runApp<DemoLines>(); }),
+                            ITEM::APP("Диск", [this]() { this->runApp<DiskApp>(); }),
+                            ITEM::APP("Перетворення", [this]() { this->runApp<TransformApp>(); }),
+                            ITEM::APP("М'ячик", [this]() { this->runApp<BallApp>(); }),
+                            ITEM::APP("Куб", [this]() { this->runApp<CubeApp>(); }),
+                            ITEM::APP("Епілепсія", [this]() { this->runApp<EpilepsyApp>(); }),
+                            ITEM::APP("PetPet", [this]() { this->runApp<PetPetApp>(); }),
                         }
                     ),
                     ITEM::SUBMENU(
                         "Тести",
                         {
-                            ITEM::MENU("Клавіатура", [this]() { this->runApp<KeyboardApp>(); }),
-                            ITEM::MENU("Тест SPI", [this]() { this->runApp<UserSPIApp>(); }),
-                            ITEM::MENU("I2C-сканер", [this]() { this->runApp<ScanI2CApp>(); }),
-                            ITEM::MENU("GPIO-менеджер", [this]() { this->runApp<GPIOManagerApp>(); }),
-                            ITEM::MENU("Combo", [this]() { this->runApp<ComboApp>(); }),
+                            ITEM::APP("Клавіатура", [this]() { this->runApp<KeyboardApp>(); }),
+                            ITEM::APP("Тест SPI", [this]() { this->runApp<UserSPIApp>(); }),
+                            ITEM::APP("I2C-сканер", [this]() { this->runApp<ScanI2CApp>(); }),
+                            ITEM::APP("GPIO-менеджер", [this]() { this->runApp<GPIOManagerApp>(); }),
+                            ITEM::APP("Combo", [this]() { this->runApp<ComboApp>(); }),
                         }
                     ),
-                    ITEM::MENU("ЛілТрекер", [this]() { this->runApp<LilTrackerApp>(); }),
-                    ITEM::MENU("Летріс", [this]() { this->runApp<LetrisApp>(); }),
-                    ITEM::MENU("Тамагочі", [this]() { this->runApp<TamagotchiApp>(); }),
-                    ITEM::MENU("Погода", [this]() { this->runApp<WeatherApp>(); }),
-                    ITEM::MENU("BLE Геймпад", [this]() { this->runApp<ble_gamepad_app::MainApp>(); }),
-                    ITEM::MENU("Pastebin", [this]() { this->runApp<pastebinApp>(); }),
+                    ITEM::APP("ЛілТрекер", [this]() { this->runApp<LilTrackerApp>(); }),
+                    ITEM::APP("Летріс", [this]() { this->runApp<LetrisApp>(); }),
+                    ITEM::APP("Тамагочі", [this]() { this->runApp<TamagotchiApp>(); }),
+                    ITEM::APP("Погода", [this]() { this->runApp<WeatherApp>(); }),
+                    ITEM::APP("BLE Геймпад", [this]() { this->runApp<ble_gamepad_app::MainApp>(); }),
+                    ITEM::APP("Pastebin", [this]() { this->runApp<pastebinApp>(); }),
                 },
                 &demos_img,
                 lilka::colors::Pink
             ),
-            ITEM::MENU(
+            ITEM::APP(
                 "Браузер SD-карти",
                 [this]() { this->runApp<FileManagerApp>(&SD, "/"); },
                 &sdcard_img,
                 lilka::colors::Arylide_yellow
             ),
-            ITEM::MENU(
+            ITEM::APP(
                 "Браузер SPIFFS",
                 [this]() { this->runApp<FileManagerApp>(&SPIFFS, "/"); },
                 &memory_img,
@@ -114,9 +112,9 @@ void LauncherApp::run() {
             ITEM::SUBMENU(
                 "Розробка",
                 {
-                    ITEM::MENU("Live Lua", [this]() { this->runApp<LuaLiveRunnerApp>(); }),
-                    ITEM::MENU("Lua REPL", [this]() { this->runApp<LuaReplApp>(); }),
-                    ITEM::MENU("FTP сервер", [this]() { this->runApp<FTPServerApp>(); }),
+                    ITEM::APP("Live Lua", [this]() { this->runApp<LuaLiveRunnerApp>(); }),
+                    ITEM::APP("Lua REPL", [this]() { this->runApp<LuaReplApp>(); }),
+                    ITEM::APP("FTP сервер", [this]() { this->runApp<FTPServerApp>(); }),
                 },
                 &dev_img,
                 lilka::colors::Jasmine
@@ -149,7 +147,7 @@ void LauncherApp::run() {
                         esp_deep_sleep_start();
                      }),
                     ITEM::MENU("Перезавантаження", []() {
-                            esp_restart();
+                        esp_restart();
                      }),
                 },
                 &settings_img,
@@ -163,11 +161,7 @@ void LauncherApp::showMenu(const char* title, ITEM_LIST& list, bool back) {
     int itemCount = list.size();
     lilka::Menu menu(title);
     for (int i = 0; i < list.size(); i++) {
-        menu_icon_t* icon = list[i].icon;
-        if (icon == NULL) {
-            icon = list[i].submenu.empty() ? &app_img : &app_group_img;
-        }
-        menu.addItem(list[i].name, icon, list[i].color);
+        menu.addItem(list[i].name, list[i].icon, list[i].color);
     }
     if (back) {
         menu.addActivationButton(lilka::Button::B);

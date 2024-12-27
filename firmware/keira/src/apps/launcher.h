@@ -1,6 +1,8 @@
 #pragma once
 
 #include "services/network.h"
+#include "icons/app.h"
+#include "icons/app_group.h"
 #include "app.h"
 
 typedef struct item_t {
@@ -17,7 +19,7 @@ public:
     ) {
         return item_t{
             name,
-            icon,
+            icon ? icon : &app_group_img,
             color,
             submenu,
         };
@@ -36,6 +38,14 @@ public:
             update,
         };
     }
+
+    static item_t APP(
+        const char* name, std::function<void()> callback, const menu_icon_t* icon = NULL, uint16_t color = 0,
+        std::function<void(void*)> update = nullptr
+    ) {
+        return item_t::MENU(name, callback, icon ? icon : &app_img, color, update);
+    }
+
 } ITEM;
 
 #define ITEM_LIST std::vector<item_t>
