@@ -243,8 +243,12 @@ bool FileUtils::createSDPartTable() {
     std::unique_ptr<uint8_t[]> workbufPtr(workbuf);
 
     // init without mount
+    // clang-format off
+#ifdef USE_EXT_SPI_FOR_SD
+    uint8_t pdrv = sdcard_init(SPI2_DEV1_CS, &SPI2, LILKA_SD_FREQUENCY);
+#else
     uint8_t pdrv = sdcard_init(LILKA_SDCARD_CS, &SPI1, LILKA_SD_FREQUENCY);
-
+#endif
     if (pdrv == 0xFF) {
         xSemaphoreGive(sdMutex);
         return false;
