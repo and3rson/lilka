@@ -5,6 +5,18 @@
 #include <sys/stat.h>
 #define MD5_CHUNK_SIZE 1024
 
+//////////////////////////////////////////////////////////////
+// File manager for Keira OS header file
+//////////////////////////////////////////////////////////////
+// Used Buttons:
+// A -> Okay/Enter
+// B -> Back/Exit
+// C -> Info
+// D -> Options
+// Start -> Force Okay (Delete)
+// Start -> Paste (Move/Copy) // To implement
+//////////////////////////////////////////////////////////////
+
 typedef enum { FT_NONE, FT_NES_ROM, FT_BIN, FT_LUA_SCRIPT, FT_JS_SCRIPT, FT_MOD, FT_LT, FT_DIR, FT_OTHER } FileType;
 typedef enum { FM_MODE_VIEW, FM_MODE_SELECT } FmMode;
 
@@ -68,6 +80,7 @@ private:
     void openEntry(const FMEntry& entry);
     void alert(const String& title, const String& message);
 
+    void renameEntry(const FMEntry& entry);
     void deleteEntry(const FMEntry& entry, bool force = false);
     void copyEntry(const FMEntry& entry, const String& path);
     void moveEntry(const FMEntry& entry, const String& path);

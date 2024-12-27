@@ -351,7 +351,7 @@ void FileManagerApp::showEntryOptions(const FMEntry& entry) {
             else openEntryWith(entry);
         } else if (index == 2) { // Rename
             if (entry.name == ".") alert("Помилка", "Неможливо перейменувати <нічого>");
-            else alertNotImplemented();
+            else renameEntry(entry);
         } else if (index == 3) { // Copy
             if (entry.name == ".") alert("Помилка", "Неможливо копіювати <нічого>");
             else alertNotImplemented();
@@ -489,6 +489,30 @@ void FileManagerApp::readDir(const String& path) {
             currentPath = lilka::fileutils.getParentDirectory(currentPath);
             break;
         }
+    }
+}
+
+void FileManagerApp::renameEntry(const FMEntry& entry) {
+    lilka::InputDialog newNameInput("Введіть нову назву");
+    newNameInput.setValue(entry.name); // pass old name
+
+    while (!newNameInput.isFinished()) {
+        newNameInput.update();
+        newNameInput.draw(canvas);
+        queueDraw();
+    }
+    auto newName = newNameInput.getValue();
+
+    // Check name
+    // TODO: check on invalid characters in user's input
+    if (newName == "" || newName == entry.name) return;
+    auto path = lilka::fileutils.joinPath(entry.path, entry.name);
+    auto newPath = lilka::fileutils.joinPath(entry.path, newName);
+    // Perform rename
+    if (rename(path.c_str(), newPath.c_str()) != 0) {
+        // Handle errors:
+        lilka::serial_err("Can't rename %s to %s. %d: %s", path.c_str(), newPath.c_str(), errno, strerror(errno));
+        alert("Помилка", String("Не можу перейменувати\n") + path);
     }
 }
 
