@@ -139,6 +139,8 @@ FMEntry FileManagerApp::pathToEntry(const String& path) {
     } else {
         lilka::serial_err("Can't check stat for %s\n%d: %s", path.c_str(), errno, strerror(errno));
         newEntry.type = FT_NONE;
+        newEntry.icon = FT_NONE_ICON;
+        newEntry.color = FT_NONE_COLOR;
         return newEntry;
     }
     String lowerCasedPath = path;
@@ -303,7 +305,7 @@ void FileManagerApp::selectPath(const String& filename) {
 }
 
 void FileManagerApp::deselectPath(const String& filename) {
-    for (auto it = selectedPaths.begin(); it != selectedPaths.end();) {
+    for (auto it = selectedPaths.begin(); it != selectedPaths.end(); it++) {
         if (*it == filename) {
             it = selectedPaths.erase(it);
             lilka::serial_log("Removing %s from selected paths", filename.c_str());
@@ -314,9 +316,9 @@ void FileManagerApp::deselectPath(const String& filename) {
 }
 
 bool FileManagerApp::isSelectedPath(const String& filename) {
-    for (auto selPath : selectedPaths) {
-        if (selPath == filename) return true;
-    }
+    // for (auto selPath : selectedPaths) {
+    // if (selPath == filename) return true;
+    // }
     return false;
 }
 
@@ -460,7 +462,7 @@ void FileManagerApp::readDir(const String& path) {
         index = fileListMenu.getCursor();
         auto button = fileListMenu.getButton();
 
-        FMEntry* pselectedEntry = NULL;
+        const FMEntry* pselectedEntry = NULL;
         if (index != dirContents.size()) {
             selectedEntry = dirContents[index];
             pselectedEntry = &selectedEntry;
@@ -548,7 +550,7 @@ void FileManagerApp::deleteEntry(const FMEntry& entry, bool force) {
             alert("Помилка", String("Не можу видалити\n") + path);
             return; // some shit happened. run!
         }
-        struct dirent* dirEntry;
+        const struct dirent* dirEntry;
         while ((dirEntry = readdir(dir)) != NULL) {
             String filename = dirEntry->d_name;
             FMEntry fEntry = pathToEntry(lilka::fileutils.joinPath(path, filename));
