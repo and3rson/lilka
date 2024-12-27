@@ -204,6 +204,7 @@ void FileManagerApp::openEntry(const FMEntry& entry) {
             showEntryInfo(entry);
             break;
     }
+    vTaskDelay(SUSPEND_AWAIT_TIME / portTICK_RATE_MS);
 }
 void FileManagerApp::openEntryWith(const FMEntry& entry) {
     lilka::Menu openWithMenu;

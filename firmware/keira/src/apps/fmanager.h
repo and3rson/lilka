@@ -4,7 +4,9 @@
 #include <vector>
 #include <sys/stat.h>
 #define MD5_CHUNK_SIZE 1024
-
+// There's a big chance, that task won't be suspended immediately, which could cause a bug
+// If ui hangs up after trying to open file, increase this value
+#define SUSPEND_AWAIT_TIME 100
 //////////////////////////////////////////////////////////////
 // File manager for Keira OS header file
 //////////////////////////////////////////////////////////////
