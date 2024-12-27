@@ -39,6 +39,7 @@ while true do
         break
     end
 end
+
 which_key = alert_test:getButton()
 
 if which_key == "a" then
