@@ -20,6 +20,7 @@
 #include "lualilka_imageTransform.h"
 #include "lualilka_serial.h"
 #include "lualilka_http.h"
+#include "lualilka_dialog.h"
 
 jmp_buf stopjmp;
 
@@ -165,6 +166,9 @@ void AbstractLuaRunnerApp::luaSetup(const char* dir) {
     lualilka_imageTransform_register(L);
     lualilka_serial_register(L);
     lualilka_http_register(L);
+    lualilka_dialog_register_keyboardDialog(L);
+    lualilka_dialog_register_alertDialog(L);
+    lualilka_dialog_register_progressDialog(L);
 
     // lilka::serial_log("lua: init canvas");
     // lilka::Canvas* canvas = new lilka::Canvas();
