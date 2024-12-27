@@ -68,7 +68,7 @@ private:
     void openEntry(const FMEntry& entry);
     void alert(const String& title, const String& message);
 
-    void deleteEntry(const FMEntry& entry);
+    void deleteEntry(const FMEntry& entry, bool force = false);
     void copyEntry(const FMEntry& entry, const String& path);
     void moveEntry(const FMEntry& entry, const String& path);
     void makeDir(const String& path); // path where to create dir, not a path to dir
