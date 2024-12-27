@@ -19,8 +19,8 @@ function serial.begin(baud, config) end
 
 ---Зупиняє послідовний порт.
 ---@usage
---- serial.end()
-function serial.end() end
+--- serial.stop()
+function serial.stop() end
 
 ---Очікує завершення передачі всіх даних.
 ---@usage
