@@ -18,6 +18,23 @@ public:
     /// Налаштувує піни для I2S.
     /// Цей метод варто викликати перед викликом `i2s_driver_install()`.
     void initPins();
+    /// Регулює гучність до рівня, збереженого в налаштуваннях
+    /// Цей метод бажано викликати перед `i2s_write`.
+    void adjustVolume(void* buffer, size_t size, int bitsPerSample);
+    /// Повертає рівень гучності
+    int getVolume();
+    /// Встановлює рівень гучності
+    void setVolume(int level);
+    /// Перевіряє чи увімкнено звук вітання
+    bool getStartupSoundEnabled();
+    /// Вмикає чи вимикає звук вітання
+    void setStartupSoundEnabled(bool enable);
+
+private:
+    /// Глобальна гучність
+    uint32_t volumeLevel = 100;
+    bool startupSound = true;
+    void saveSettings();
 };
 
 extern Audio audio;

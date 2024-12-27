@@ -187,6 +187,7 @@ void queueSound(const uint8_t* data, uint32_t length, uint32_t sample_rate, uint
     // Number of samples to add unmixed beyond buffered samples
     int unmixedLength = length - mixedLength;
 
+    vol = vol * lilka::audio.getVolume() / 100;
     uint32_t pos = mixerBufferStart;
     for (int i = 0; i < mixedLength; i++) {
         uint16_t rawSample =

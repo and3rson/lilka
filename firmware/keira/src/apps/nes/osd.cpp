@@ -216,6 +216,8 @@ void do_audio_frame() {
         }
 
         size_t i2s_bytes_write;
+        // adjust volume
+        lilka::audio.adjustVolume(audio_frame, 4 * n, 16);
         i2s_write(esp_i2s::I2S_NUM_0, static_cast<int16_t*>(audio_frame), 4 * n, &i2s_bytes_write, portMAX_DELAY);
         left -= i2s_bytes_write / 4;
     }
