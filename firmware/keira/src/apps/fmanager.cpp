@@ -305,14 +305,14 @@ void FileManagerApp::selectPath(const String& filename) {
 }
 
 void FileManagerApp::deselectPath(const String& filename) {
-    for (auto it = selectedPaths.begin(); it != selectedPaths.end(); it++) {
-        if (*it == filename) {
-            it = selectedPaths.erase(it);
-            lilka::serial_log("Removing %s from selected paths", filename.c_str());
-            if (selectedPaths.size() == 0) mode = FM_MODE_VIEW; // no selected paths
-            return; // Assume we don't have duplicates in vector, cause if we've them [-_-]
-        }
-    }
+    // for (auto it = selectedPaths.begin(); it != selectedPaths.end(); it++) {
+    //     if (*it == filename) {
+    //         it = selectedPaths.erase(it);
+    //         lilka::serial_log("Removing %s from selected paths", filename.c_str());
+    //         if (selectedPaths.size() == 0) mode = FM_MODE_VIEW; // no selected paths
+    //         return; // Assume we don't have duplicates in vector, cause if we've them [-_-]
+    //     }
+    // }
 }
 
 bool FileManagerApp::isSelectedPath(const String& filename) {
