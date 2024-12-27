@@ -401,7 +401,7 @@ void FileManagerApp::readDir(const String& path) {
         while ((dir_entry = readdir(dir)) != NULL) {
             String filename = dir_entry->d_name;
             // Skip current directory and top level entries
-            if (filename != "." || filename != "..") {
+            if (filename != "." && filename != "..") {
                 FMEntry newEntry = pathToEntry(lilka::fileutils.joinPath(currentPath, filename));
                 dirContents.push_back(newEntry);
                 lilka::serial_log(
