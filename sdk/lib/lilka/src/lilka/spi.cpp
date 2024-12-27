@@ -19,15 +19,11 @@ SPIClass SPI1(SPI1_NUM); // Системний SPI (Дисплей та SD-ка�
 ///
 /// // Визначення пінів для SPI2. Можна використовувати будь-які піни,
 /// // які виведені на роз'єм розширення:
-// clang-format off
-#ifdef USE_EXT_SPI_FOR_SD
-    #define SPI2_SCK     12
-    #define SPI2_MISO    13
-    #define SPI2_MOSI    14
-    #define SPI2_DEV1_CS 21 // Chip Select для пристрою 1
-    #define SPI2_DEV2_CS 47 // Chip Select для пристрою 2
-#endif
-// clang-format on
+// #define SPI2_SCK     12
+// #define SPI2_MISO    13
+// #define SPI2_MOSI    14
+// #define SPI2_DEV1_CS 21 // Chip Select для пристрою 1
+// #define SPI2_DEV2_CS 47 // Chip Select для пристрою 2
 ///
 /// void setup() {
 ///     lilka::begin();
@@ -58,6 +54,16 @@ SPIClass SPI1(SPI1_NUM); // Системний SPI (Дисплей та SD-ка�
 ///     delay(1000);
 /// }
 /// @endcode
+// clang-format off
+#ifdef USE_EXT_SPI_FOR_SD
+    #define SPI2_SCK     12
+    #define SPI2_MISO    13
+    #define SPI2_MOSI    14
+    #define SPI2_DEV1_CS 21 // Chip Select для пристрою 1
+    //#define SPI2_DEV2_CS 47 // Chip Select для пристрою 2
+#endif
+// clang-format on
+
 SPIClass SPI2(SPI2_NUM); // Користувацький SPI
 #endif
 
