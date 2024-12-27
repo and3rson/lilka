@@ -68,8 +68,6 @@ private:
     void deselectPath(const String& filename);
     bool isSelectedPath(const String& filename);
 
-    FmMode mode = FM_MODE_VIEW;
-
     // UI:
     void showEntryOptions(const FMEntry& entry);
     void readDir(const String& path);
@@ -94,4 +92,7 @@ private:
     String currentPath;
     String menuPrefix;
     std::vector<String> selectedPaths;
+    //  State:
+    bool exitChildDialogs = false;
+    FmMode mode = FM_MODE_VIEW;
 };

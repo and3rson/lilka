@@ -219,6 +219,7 @@ void FileManagerApp::openEntryWith(const FMEntry& entry) {
     openWithMenu.addItem("Програвач MOD");
 
     while (1) {
+        if (exitChildDialogs) return;
         while (!openWithMenu.isFinished()) {
             openWithMenu.update();
             openWithMenu.draw(canvas);
@@ -333,6 +334,7 @@ void FileManagerApp::showEntryOptions(const FMEntry& entry) {
     fileOptionsMenu.addItem("Вибрати");
     fileOptionsMenu.addItem("Створити папку");
     while (1) {
+        if (exitChildDialogs) return;
         while (!fileOptionsMenu.isFinished()) {
             fileOptionsMenu.update();
             fileOptionsMenu.draw(canvas);
@@ -386,6 +388,8 @@ void FileManagerApp::readDir(const String& path) {
 
     int16_t index = 0;
     while (1) {
+        // restore showEntryOptions and openEntryWith avalibility
+        exitChildDialogs = false;
         // Readdir
         auto dir = opendir(path.c_str());
         if (dir == NULL) { // Can't open dir
@@ -493,6 +497,7 @@ void FileManagerApp::readDir(const String& path) {
 }
 
 void FileManagerApp::renameEntry(const FMEntry& entry) {
+    exitChildDialogs = true;
     lilka::InputDialog newNameInput("Введіть нову назву");
     newNameInput.setValue(entry.name); // pass old name
 
@@ -517,6 +522,7 @@ void FileManagerApp::renameEntry(const FMEntry& entry) {
 }
 
 void FileManagerApp::deleteEntry(const FMEntry& entry, bool force) {
+    exitChildDialogs = true;
     auto path = lilka::fileutils.joinPath(entry.path, entry.name);
     // Perform check on user sureness
     if (!force) {
@@ -566,6 +572,7 @@ void FileManagerApp::deleteEntry(const FMEntry& entry, bool force) {
 }
 
 void FileManagerApp::makeDir(const String& path) {
+    exitChildDialogs = true;
     lilka::InputDialog dirNameInput("Введіть назву нової папки");
     while (!dirNameInput.isFinished()) {
         dirNameInput.update();
