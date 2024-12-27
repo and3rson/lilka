@@ -412,6 +412,7 @@ void FileManagerApp::readDir(const String& path) {
                 );
             }
         }
+        closedir(dir); // unfortunately we can't reuse same dir
 
         // Sorting directory entries
         std::sort(dirContents.begin(), dirContents.end(), [](FMEntry a, FMEntry b) {
@@ -467,7 +468,6 @@ void FileManagerApp::readDir(const String& path) {
         // clear memory
         dirContents.clear();
         fileListMenu.clearItems();
-        closedir(dir); // unfortunately we can't reuse same dir
 
         bool exiting = false;
 
