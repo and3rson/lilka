@@ -266,7 +266,7 @@ P_ChangeSwitchTexture
 // Called when a thing uses a special line.
 // Only the front sides of lines are usable.
 //
-boolean
+boolean32
 P_UseSpecialLine
 ( mobj_t*	thing,
   line_t*	line,

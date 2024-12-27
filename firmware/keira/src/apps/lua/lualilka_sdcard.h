@@ -2,7 +2,7 @@
 
 #include <lua.hpp>
 #include <Arduino.h>
-
-#define FILE_OBJECT "file"
+#include <SD.h>
+#define FILE_OBJECT "File"
 
 int lualilka_sdcard_register(lua_State* L);

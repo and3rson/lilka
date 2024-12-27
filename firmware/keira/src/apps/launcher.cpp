@@ -1,5 +1,7 @@
 #include <ff.h>
-
+#include <FS.h>
+#include <SD.h>
+#include <SPIFFS.h>
 #include "launcher.h"
 #include "appmanager.h"
 
@@ -11,15 +13,26 @@
 #include "demos/disk.h"
 #include "demos/ball.h"
 #include "demos/transform.h"
+#include "demos/cube.h"
 #include "demos/epilepsy.h"
 #include "demos/letris.h"
 #include "demos/keyboard.h"
 #include "demos/user_spi.h"
 #include "demos/scan_i2c.h"
+#include "demos/petpet.h"
+#include "demos/combo.h"
+#include "gpiomanager.h"
+#include "tamagotchi/tamagotchi.h"
 #include "lua/luarunner.h"
 #include "mjs/mjsrunner.h"
 #include "nes/nesapp.h"
 #include "ftp/ftp_server.h"
+#include "weather/weather.h"
+#include "modplayer/modplayer.h"
+#include "liltracker/liltracker.h"
+#include "ble_gamepad/app.h"
+#include "pastebin/pastebinApp.h"
+#include "settings/sound.h"
 
 #include "icons/demos.h"
 #include "icons/sdcard.h"
@@ -28,23 +41,65 @@
 #include "icons/settings.h"
 #include "icons/info.h"
 
+#include "icons/app_group.h"
+#include "icons/app.h"
 #include "icons/normalfile.h"
 #include "icons/folder.h"
 #include "icons/nes.h"
 #include "icons/bin.h"
 #include "icons/lua.h"
 #include "icons/js.h"
+#include "icons/music.h"
+#include "fmanager.h"
 
 LauncherApp::LauncherApp() : App("Menu") {
 }
 
+ITEM_LIST app_items = {
+    ITEM_SUBMENU(
+        "Демо",
+        {
+            ITEM_APP("Лінії", DemoLines),
+            ITEM_APP("Диск", DiskApp),
+            ITEM_APP("Перетворення", TransformApp),
+            ITEM_APP("М'ячик", BallApp),
+            ITEM_APP("Куб", CubeApp),
+            ITEM_APP("Епілепсія", EpilepsyApp),
+            ITEM_APP("PetPet", PetPetApp),
+        }
+    ),
+    ITEM_SUBMENU(
+        "Тести",
+        {ITEM_APP("Клавіатура", KeyboardApp),
+         ITEM_APP("Тест SPI", UserSPIApp),
+         ITEM_APP("I2C-сканер", ScanI2CApp),
+         ITEM_APP("GPIO-менеджер", GPIOManagerApp),
+         ITEM_APP("Combo", ComboApp)},
+    ),
+    ITEM_APP("ЛілТрекер", LilTrackerApp),
+    ITEM_APP("Летріс", LetrisApp),
+    ITEM_APP("Тамагочі", TamagotchiApp),
+    ITEM_APP("Погода", WeatherApp),
+    ITEM_APP("BLE Геймпад", ble_gamepad_app::MainApp),
+    ITEM_APP("Pastebin", pastebinApp)
+};
+
+ITEM_LIST dev_items = {
+    ITEM_APP("Live Lua", LuaLiveRunnerApp),
+    ITEM_APP("Lua REPL", LuaReplApp),
+    ITEM_APP("FTP сервер", FTPServerApp),
+};
+
 void LauncherApp::run() {
+    for (lilka::Button button : {lilka::Button::UP, lilka::Button::DOWN, lilka::Button::LEFT, lilka::Button::RIGHT}) {
+        lilka::controller.setAutoRepeat(button, 10, 300);
+    }
     lilka::Menu menu("Головне меню");
-    menu.addItem("Додатки", &demos, lilka::display.color565(255, 200, 200));
-    menu.addItem("Браузер SD-карти", &sdcard, lilka::display.color565(255, 255, 200));
-    menu.addItem("Браузер SPIFFS", &memory, lilka::display.color565(200, 255, 200));
-    menu.addItem("Розробка", &dev, lilka::display.color565(255, 224, 128));
-    menu.addItem("Налаштування", &settings, lilka::display.color565(255, 200, 224));
+    menu.addItem("Додатки", &demos_img, lilka::colors::Pink);
+    menu.addItem("Браузер SD-карти", &sdcard_img, lilka::colors::Arylide_yellow);
+    menu.addItem("Браузер SPIFFS", &memory_img, lilka::colors::Dark_sea_green);
+    menu.addItem("Розробка", &dev_img, lilka::colors::Jasmine);
+    menu.addItem("Налаштування", &settings_img, lilka::colors::Orchid);
 
     while (1) {
         while (!menu.isFinished()) {
@@ -54,36 +109,24 @@ void LauncherApp::run() {
         }
         int16_t index = menu.getCursor();
         if (index == 0) {
-            appsMenu();
+            appsMenu("Додатки", app_items);
         } else if (index == 1) {
-            sdBrowserMenu("/");
+            AppManager::getInstance()->runApp(new FileManagerApp(&SD, "/"));
         } else if (index == 2) {
-            spiffsBrowserMenu();
+            AppManager::getInstance()->runApp(new FileManagerApp(&SPIFFS, "/"));
         } else if (index == 3) {
-            // dev_menu();
-            devMenu();
+            appsMenu("Розробка", dev_items);
         } else if (index == 4) {
             settingsMenu();
         }
     }
 }
 
-void LauncherApp::appsMenu() {
-    APP_ITEM_LIST app_items = {
-        APP_ITEM("Лінії", DemoLines),
-        APP_ITEM("Диск", DiskApp),
-        APP_ITEM("Перетворення", TransformApp),
-        APP_ITEM("М'ячик", BallApp),
-        APP_ITEM("Епілепсія", EpilepsyApp),
-        APP_ITEM("Летріс", LetrisApp),
-        APP_ITEM("Клавіатура", KeyboardApp),
-        APP_ITEM("Тест SPI", UserSPIApp),
-        APP_ITEM("I2C-сканер", ScanI2CApp),
-    };
-    int appCount = app_items.size();
-    lilka::Menu menu("Демо");
-    for (int i = 0; i < app_items.size(); i++) {
-        menu.addItem(app_items[i].name);
+void LauncherApp::appsMenu(const char* title, ITEM_LIST& list) {
+    int itemCount = list.size();
+    lilka::Menu menu(title);
+    for (int i = 0; i < list.size(); i++) {
+        menu.addItem(list[i].name, list[i].type == APP_ITEM_TYPE_SUBMENU ? &app_group_img : &app_img);
     }
     menu.addItem("<< Назад");
     while (1) {
@@ -93,231 +136,29 @@ void LauncherApp::appsMenu() {
             queueDraw();
         }
         int16_t index = menu.getCursor();
-        if (index == appCount) {
+        if (index == itemCount) {
             break;
         }
-        AppManager::getInstance()->runApp(app_items[index].construct());
-    }
-}
-
-const menu_icon_t* get_file_icon(const String& filename) {
-    String lowerCasedFileName = filename;
-    lowerCasedFileName.toLowerCase();
-    if (lowerCasedFileName.endsWith(".rom") || lowerCasedFileName.endsWith(".nes")) {
-        return &nes;
-    } else if (lowerCasedFileName.endsWith(".bin")) {
-        return &bin;
-    } else if (lowerCasedFileName.endsWith(".lua")) {
-        return &lua;
-    } else if (lowerCasedFileName.endsWith(".js")) {
-        return &js;
-    } else {
-        return &normalfile;
-    }
-}
-
-const uint16_t get_file_color(const String& filename) {
-    String lowerCasedFileName = filename;
-    lowerCasedFileName.toLowerCase();
-    if (lowerCasedFileName.endsWith(".rom") || lowerCasedFileName.endsWith(".nes")) {
-        return lilka::display.color565(255, 128, 128);
-    } else if (lowerCasedFileName.endsWith(".bin")) {
-        return lilka::display.color565(128, 255, 128);
-    } else if (lowerCasedFileName.endsWith(".lua")) {
-        return lilka::display.color565(128, 128, 255);
-    } else if (lowerCasedFileName.endsWith(".js")) {
-        return lilka::display.color565(255, 200, 128);
-    } else {
-        return lilka::display.color565(200, 200, 200);
-    }
-}
-
-void LauncherApp::sdBrowserMenu(String path) {
-    if (!lilka::sdcard.available()) {
-        alert("Помилка", "SD-карта не знайдена");
-    }
-    size_t _numEntries = lilka::sdcard.getEntryCount(path);
-    if (_numEntries == 0) {
-        alert("Помилка", "Директорія пуста або сталася помилка читання директорії");
-        return;
-    }
-
-    lilka::Entry* entries = new lilka::Entry[_numEntries];
-
-    int numEntries = lilka::sdcard.listDir(path, entries);
-    std::unique_ptr<lilka::Entry[]> entriesPtr(entries);
-
-    // Так як listDir має повертати -1 в разі помилки
-    // а countFilesIndir size_t >= 0 додаткові перевірки не потрібні
-    if (_numEntries != numEntries) {
-        alert("Помилка", "Не вдалося прочитати директорію");
-        return;
-    }
-
-    lilka::Menu menu("SD: " + path);
-    for (int i = 0; i < numEntries; i++) {
-        String filename = entries[i].name;
-        const menu_icon_t* icon =
-            entries[i].type == lilka::EntryType::ENT_DIRECTORY ? &folder : get_file_icon(filename);
-        uint16_t color = entries[i].type == lilka::EntryType::ENT_DIRECTORY ? lilka::display.color565(255, 255, 200)
-                                                                            : get_file_color(filename);
-        menu.addItem(filename, icon, color);
-    }
-    menu.addItem("<< Назад", 0, 0);
-
-    while (1) {
-        while (!menu.isFinished()) {
-            menu.update();
-            menu.draw(canvas);
-            queueDraw();
-        }
-        int16_t index = menu.getCursor();
-        if (index == numEntries) break;
-        if (entries[index].type == lilka::EntryType::ENT_DIRECTORY) {
-            sdBrowserMenu(path + entries[index].name + "/");
+        item_t item = list[index];
+        if (item.type == APP_ITEM_TYPE_SUBMENU) {
+            appsMenu(item.name, item.submenu);
         } else {
-            selectFile(lilka::sdcard.abspath(path + entries[index].name));
+            AppManager::getInstance()->runApp(list[index].construct());
         }
-    }
-
-    return;
-}
-
-void LauncherApp::spiffsBrowserMenu() {
-    if (!lilka::filesystem.available()) {
-        alert("Помилка", "SPIFFS не підтримується");
-        return;
-    }
-
-    String filenames
-        [32]; // TODO - allocate dynamically (increasing to 64 causes task stack overflow which is limited by ARDUINO_LOOP_STACK_SIZE)
-    int numEntries = lilka::filesystem.readdir(filenames);
-
-    if (numEntries == -1) {
-        alert("Помилка", "Не вдалося прочитати корінь SPIFFS");
-        return;
-    }
-    const menu_icon_t* icons[32];
-    uint16_t colors[32];
-    for (int i = 0; i < numEntries; i++) {
-        icons[i] = get_file_icon(filenames[i]);
-        colors[i] = get_file_color(filenames[i]);
-    }
-    filenames[numEntries++] = "<< Назад";
-    icons[numEntries - 1] = 0;
-    colors[numEntries - 1] = 0;
-
-    lilka::Menu menu("SPIFFS");
-    for (int i = 0; i < numEntries; i++) {
-        menu.addItem(filenames[i], icons[i], colors[i]);
-    }
-    while (1) {
-        while (!menu.isFinished()) {
-            menu.update();
-            menu.draw(canvas);
-            queueDraw();
-        }
-        int16_t index = menu.getCursor();
-        if (index == numEntries - 1) {
-            return;
-        }
-        selectFile(lilka::filesystem.abspath(filenames[index]));
-    }
-}
-
-void LauncherApp::selectFile(String path) {
-    String lowerCasedPath = path;
-    lowerCasedPath.toLowerCase();
-    if (lowerCasedPath.endsWith(".rom") || lowerCasedPath.endsWith(".nes")) {
-        AppManager::getInstance()->runApp(new NesApp(path));
-    } else if (lowerCasedPath.endsWith(".bin")) {
-#if LILKA_VERSION < 2
-        alert("Помилка", "Ця операція потребує Лілку 2.0");
-        return;
-#else
-        lilka::ProgressDialog dialog("Завантаження", path + "\n\nПочинаємо...");
-        dialog.draw(canvas);
-        queueDraw();
-        int error;
-        error = lilka::multiboot.start(path);
-        if (error) {
-            alert("Помилка", String("Етап: 1\nКод: ") + error);
-            return;
-        }
-        dialog.setMessage(path + "\n\nРозмір: " + String(lilka::multiboot.getBytesTotal()) + " Б");
-        dialog.draw(canvas);
-        queueDraw();
-        while ((error = lilka::multiboot.process()) > 0) {
-            int progress = lilka::multiboot.getBytesWritten() * 100 / lilka::multiboot.getBytesTotal();
-            dialog.setProgress(progress);
-            dialog.draw(canvas);
-            queueDraw();
-            if (lilka::controller.getState().a.justPressed) {
-                lilka::multiboot.cancel();
-                return;
-            }
-        }
-        if (error < 0) {
-            alert("Помилка", String("Етап: 2\nКод: ") + error);
-            return;
-        }
-        error = lilka::multiboot.finishAndReboot();
-        if (error) {
-            alert("Помилка", String("Етап: 3\nКод: ") + error);
-            return;
-        }
-#endif
-    } else if (lowerCasedPath.endsWith(".lua")) {
-        AppManager::getInstance()->runApp(new LuaFileRunnerApp(path));
-    } else if (lowerCasedPath.endsWith(".js")) {
-        AppManager::getInstance()->runApp(new MJSApp(path));
-    } else {
-        // Get file size
-        FILE* file = fopen(path.c_str(), "r");
-        if (!file) {
-            alert("Помилка", "Не вдалося відкрити файл");
-            return;
-        }
-        fseek(file, 0, SEEK_END);
-        long size = ftell(file);
-        fclose(file);
-        alert(path, String("Розмір:\n") + size + " байт");
-    }
-}
-
-void LauncherApp::devMenu() {
-    APP_ITEM_LIST app_items = {
-        APP_ITEM("Live Lua", LuaLiveRunnerApp),
-        APP_ITEM("Lua REPL", LuaReplApp),
-        APP_ITEM("FTP сервер", FTPServerApp),
-    };
-    int appCount = app_items.size();
-    lilka::Menu menu("Розробка");
-    for (int i = 0; i < app_items.size(); i++) {
-        menu.addItem(app_items[i].name);
-    }
-    menu.addItem("<< Назад");
-    while (1) {
-        while (!menu.isFinished()) {
-            menu.update();
-            menu.draw(canvas);
-            queueDraw();
-        }
-        int16_t index = menu.getCursor();
-        if (index == appCount) {
-            return;
-        }
-        AppManager::getInstance()->runApp(app_items[index].construct());
     }
 }
 
 void LauncherApp::settingsMenu() {
     String titles[] = {
-        "WiFi",
+        "WiFi-адаптер",
+        "Мережі WiFi",
+        "Звук",
         "Про систему",
         "Інфо про пристрій",
         "Таблиця розділів",
         "Форматування SD-карти",
+        "Light sleep",
+        "Deep sleep",
         "Перезавантаження",
         "<< Назад",
     };
@@ -327,8 +168,14 @@ void LauncherApp::settingsMenu() {
     for (int i = 0; i < count; i++) {
         menu.addItem(titles[i]);
     }
+    NetworkService* networkService =
+        static_cast<NetworkService*>(ServiceManager::getInstance()->getService<NetworkService>("network"));
     while (1) {
         while (!menu.isFinished()) {
+            lilka::MenuItem wifiItem;
+            menu.getItem(0, &wifiItem);
+            wifiItem.postfix = networkService->getEnabled() ? "ON" : "OFF";
+            menu.setItem(0, wifiItem.title, wifiItem.icon, wifiItem.color, wifiItem.postfix);
             menu.update();
             menu.draw(canvas);
             queueDraw();
@@ -341,14 +188,19 @@ void LauncherApp::settingsMenu() {
             return;
         }
         if (index == 0) {
-            AppManager::getInstance()->runApp(new WiFiConfigApp());
+            networkService->setEnabled(!networkService->getEnabled());
         } else if (index == 1) {
-            alert("Keira OS", "by Андерсон & friends");
+            if (!networkService->getEnabled()) {
+                alert("Помилка", "Спочатку увімкніть WiFi-адаптер");
+                continue;
+            }
+            AppManager::getInstance()->runApp(new WiFiConfigApp());
         } else if (index == 2) {
+            AppManager::getInstance()->runApp(new SoundConfigApp());
+        } else if (index == 3) {
+            alert("Keira OS", "by Андерсон & friends");
+        } else if (index == 4) {
             char buf[256];
-            NetworkService* networkService =
-                static_cast<NetworkService*>(ServiceManager::getInstance()->getService<NetworkService>("network"));
-            // TODO: use dynamic_cast and assert networkService != nullptr
             sprintf(
                 buf,
                 "Модель: %s\n"
@@ -365,7 +217,7 @@ void LauncherApp::settingsMenu() {
                 networkService->getIpAddr().c_str()
             );
             alert("Інфо про пристрій", buf);
-        } else if (index == 3) {
+        } else if (index == 5) {
             String labels[16];
             int labelCount = lilka::sys.get_partition_labels(labels);
             labels[labelCount++] = "<< Назад";
@@ -390,14 +242,11 @@ void LauncherApp::settingsMenu() {
                         "Розмір: 0x" + String(lilka::sys.get_partition_size(labels[partitionIndex].c_str()), HEX)
                 );
             }
-        } else if (index == 4) {
-            if (!lilka::sdcard.available()) {
-                alert("Помилка", "SD-карта не знайдена");
-                continue;
-            }
+        } else if (index == 6) {
             lilka::Alert confirm(
                 "Форматування",
-                "УВАГА: Це очистить ВСІ дані з SD-карти!\n\nПродовжити?\n\nSTART - продовжити\nA - скасувати"
+                "УВАГА: Це очистить ВСІ дані з SD-карти!\n"
+                "\nПродовжити?\n\nSTART - продовжити\nA - скасувати"
             );
             confirm.addActivationButton(lilka::Button::START);
             confirm.draw(canvas);
@@ -409,21 +258,40 @@ void LauncherApp::settingsMenu() {
             if (confirm.getButton() != lilka::Button::START) {
                 continue;
             }
+
             lilka::ProgressDialog dialog("Форматування", "Будь ласка, зачекайте...");
             dialog.draw(canvas);
             queueDraw();
-            const uint32_t workSize = FF_MAX_SS * 4;
-            void* work = ps_malloc(workSize
-            ); // Buffer (4 sectors), otherwise f_mkfs tries to allocate in stack and fails due to task stack size
-            FRESULT result = f_mkfs("/sd", FM_ANY, 0, work, workSize); // TODO - hardcoded mountpoint
-            free(work);
-            if (result != FR_OK) {
-                this->alert("Помилка", "Не вдалося сформатувати SD-карту, код помилки: " + String(result));
-                continue;
+            if (!lilka::fileutils.createSDPartTable()) {
+                alert(
+                    "Помилка",
+                    "Не вдалося створити нову таблицю розділів. "
+                    "Можливо відсутня карта.\n\n"
+                    "Систему буде перезавантажено."
+                );
+                esp_restart();
             }
-            this->alert("Форматування", "Форматування SD-карти завершено!");
-
-        } else if (index == 5) {
+            if (!lilka::fileutils.formatSD()) {
+                this->alert(
+                    "Помилка",
+                    "Не вдалося форматувати SD-карту.\n\n"
+                    "Систему буде перезавантажено."
+                );
+                esp_restart();
+            }
+            this->alert(
+                "Форматування",
+                "Форматування SD-карти завершено!\n\n"
+                "Систему буде перезавантажено."
+            );
+            esp_restart();
+        } else if (index == 7) {
+            lilka::board.enablePowerSavingMode();
+            esp_light_sleep_start();
+        } else if (index == 8) {
+            lilka::board.enablePowerSavingMode();
+            esp_deep_sleep_start();
+        } else if (index == 9) {
             esp_restart();
         }
     }

@@ -4,9 +4,10 @@
 #include <Arduino.h>
 #include <lilka.h>
 
-typedef enum {
+typedef enum : uint32_t {
     APP_FLAG_NONE = 0,
-    APP_FLAG_FULLSCREEN = 1,
+    APP_FLAG_FULLSCREEN = 1 << 0,
+    APP_FLAG_INTERLACED = 1 << 1,
 } AppFlags;
 
 /// Клас, що представляє додаток для Кіри.
@@ -60,6 +61,7 @@ protected:
     void suspend();
     void resume();
     void stop();
+    void setCore(int appCore);
     /// Встановити прапорці додатку.
     ///
     /// Наприклад, якщо додаток має відображатися на весь екран, то слід викликати setFlags(APP_FLAG_FULLSCREEN).
@@ -68,7 +70,7 @@ protected:
     AppFlags getFlags();
     /// Встановити розмір стеку задачі додатку.
     ///
-    /// За замовчуванням, розмір стеку задачі дорівнює 16384 байт. Проте деякі додатки можуть вимагати більший розмір стеку.
+    /// За замовчуванням, розмір стеку задачі дорівнює 8192 байт. Проте деякі додатки можуть вимагати більший розмір стеку.
     void setStackSize(uint32_t stackSize);
 
     bool needsRedraw();
@@ -79,6 +81,7 @@ protected:
     void releaseBackCanvas();
 
     lilka::Canvas* backCanvas;
+    uint64_t frame;
 
 private:
     static void _run(void* data);
@@ -99,9 +102,9 @@ private:
     }
 
     const char* name;
-    uint16_t x, y, w, h;
     SemaphoreHandle_t backCanvasMutex;
     bool isDrawQueued;
+    int appCore;
     AppFlags flags;
     TaskHandle_t taskHandle;
     uint32_t stackSize;

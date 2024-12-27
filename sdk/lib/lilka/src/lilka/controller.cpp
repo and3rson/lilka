@@ -7,9 +7,21 @@
 
 namespace lilka {
 
-SemaphoreHandle_t Controller::semaphore = NULL;
+class AcquireController {
+public:
+    explicit AcquireController(SemaphoreHandle_t semaphore) {
+        this->semaphore = semaphore;
+        xSemaphoreTakeRecursive(semaphore, portMAX_DELAY);
+    }
+    ~AcquireController() {
+        xSemaphoreGiveRecursive(semaphore);
+    }
 
-Controller::Controller() : state{} {
+private:
+    SemaphoreHandle_t semaphore;
+};
+
+Controller::Controller() : state{}, semaphore(xSemaphoreCreateRecursiveMutex()) {
     for (int i = 0; i < Button::COUNT; i++) {
         _StateButtons& buttons = *reinterpret_cast<_StateButtons*>(&state);
 
@@ -18,57 +30,88 @@ Controller::Controller() : state{} {
             .justPressed = false,
             .justReleased = false,
             .time = 0,
+            .nextRepeatTime = 0,
+            .repeatRate = 0,
+            .repeatDelay = 0,
         };
     }
-    _clearHandlers();
+    xSemaphoreGive(semaphore);
+    clearHandlers();
 }
 
-void Controller::inputTask(void* arg) {
-    Controller* self = static_cast<Controller*>(arg);
+void Controller::inputTask() {
     while (1) {
-        xSemaphoreTake(self->semaphore, portMAX_DELAY);
-        for (int i = 0; i < Button::COUNT; i++) {
-            if (i == Button::ANY) {
-                // Skip "any" key since its state is computed from other keys
-                continue;
-            }
-            _StateButtons& buttons = *reinterpret_cast<_StateButtons*>(&self->state);
-            ButtonState* state = &buttons[i];
-            if (self->pins[i] < 0) {
-                continue;
-            }
-            if (millis() - state->time < LILKA_DEBOUNCE_TIME) {
-                continue;
-            }
-            bool pressed = !digitalRead(self->pins[i]);
-            if (pressed != state->pressed) {
-                state->pressed = pressed;
-                state->justPressed = pressed;
-                state->justReleased = !pressed;
-                self->state.any.pressed = pressed;
-                self->state.any.justPressed = self->state.any.justPressed || pressed;
-                self->state.any.justReleased = self->state.any.justReleased || !pressed;
-                if (self->handlers[i] != NULL) {
-                    self->handlers[i](pressed);
+        {
+            AcquireController acquire(semaphore);
+            for (int i = 0; i < Button::COUNT; i++) {
+                if (i == Button::ANY) {
+                    // Skip "any" key since its state is computed from other keys
+                    continue;
                 }
-                if (self->globalHandler != NULL) {
-                    self->globalHandler((Button)i, pressed);
+                _StateButtons& buttons = *reinterpret_cast<_StateButtons*>(&state);
+                ButtonState* buttonState = &buttons[i];
+                if (pins[i] < 0) {
+                    continue;
                 }
-                state->time = millis();
+                if (millis() - buttonState->time < LILKA_DEBOUNCE_TIME) {
+                    continue;
+                }
+
+                // Is the button being held down?
+                bool pressed = !digitalRead(pins[i]);
+                // Should the button repeat right now?
+                bool shouldRepeat = buttonState->nextRepeatTime && millis() >= buttonState->nextRepeatTime;
+
+                // Make/break
+                if (pressed != buttonState->pressed || shouldRepeat) {
+                    buttonState->pressed = pressed;
+                    buttonState->justPressed = pressed;
+                    buttonState->justReleased = !pressed;
+                    state.any.pressed = pressed;
+                    state.any.justPressed = state.any.justPressed || pressed;
+                    state.any.justReleased = state.any.justReleased || !pressed;
+                    if (handlers[i] != NULL) {
+                        handlers[i](pressed);
+                    }
+                    if (globalHandler != NULL) {
+                        globalHandler((Button)i, pressed);
+                    }
+                    buttonState->time = millis();
+                }
+
+                // Calculate repeats
+                if (pressed) {
+                    // Button is being held down, check if we need to repeat
+                    if (buttonState->repeatRate && buttonState->repeatDelay) {
+                        // Repeat is enabled, set next repeat time
+                        if (buttonState->nextRepeatTime == 0) {
+                            // This is the first repeat, delay by repeatDelay
+                            buttonState->nextRepeatTime = millis() + buttonState->repeatDelay;
+                        } else if (millis() >= buttonState->nextRepeatTime) {
+                            // Delay subsequent repeats by 1/repeatRate seconds
+                            buttonState->nextRepeatTime += 1000 / buttonState->repeatRate;
+                        }
+                    }
+                } else {
+                    // Button is not being held down, reset repeat
+                    buttonState->nextRepeatTime = 0;
+                }
             }
         }
-        // Handle "any" key
 
-        xSemaphoreGive(self->semaphore);
         // Sleep for 5ms
         vTaskDelay(5 / portTICK_PERIOD_MS);
     }
 }
 
 void Controller::resetState() {
-    xSemaphoreTake(semaphore, portMAX_DELAY);
-    _resetState();
-    xSemaphoreGive(semaphore);
+    AcquireController acquire(semaphore);
+    for (int i = 0; i < Button::COUNT; i++) {
+        _StateButtons& buttons = *reinterpret_cast<_StateButtons*>(&state);
+        ButtonState* buttonState = &buttons[i];
+        buttonState->justPressed = false;
+        buttonState->justReleased = false;
+    }
 }
 
 void Controller::begin() {
@@ -93,53 +136,47 @@ void Controller::begin() {
     }
 
     // Create RTOS task for handling button presses
-    semaphore = xSemaphoreCreateBinary();
-    xSemaphoreGive(semaphore);
-    xTaskCreate(Controller::inputTask, "input", 2048, this, 1, NULL);
+    xTaskCreate([](void* arg) { static_cast<Controller*>(arg)->inputTask(); }, "input", 2048, this, 1, NULL);
 
     serial_log("controller ready");
 }
 
 State Controller::getState() {
-    xSemaphoreTake(semaphore, portMAX_DELAY);
+    AcquireController acquire(semaphore);
     State _current = state;
-    _resetState();
-    xSemaphoreGive(semaphore);
+    resetState();
     return _current;
 }
 
-void Controller::_resetState() {
-    for (int i = 0; i < Button::COUNT; i++) {
-        _StateButtons& buttons = *reinterpret_cast<_StateButtons*>(&state);
-        ButtonState* buttonState = &buttons[i];
-        buttonState->justPressed = false;
-        buttonState->justReleased = false;
-    }
+State Controller::peekState() {
+    AcquireController acquire(semaphore);
+    return state;
 }
 
 void Controller::setGlobalHandler(void (*handler)(Button, bool)) {
-    xSemaphoreTake(semaphore, portMAX_DELAY);
+    AcquireController acquire(semaphore);
     globalHandler = handler;
-    xSemaphoreGive(semaphore);
 }
 
 void Controller::setHandler(Button button, void (*handler)(bool)) {
-    xSemaphoreTake(semaphore, portMAX_DELAY);
+    AcquireController acquire(semaphore);
     handlers[button] = handler;
-    xSemaphoreGive(semaphore);
 }
 
 void Controller::clearHandlers() {
-    xSemaphoreTake(semaphore, portMAX_DELAY);
-    _clearHandlers();
-    xSemaphoreGive(semaphore);
-}
-
-void Controller::_clearHandlers() {
+    AcquireController acquire(semaphore);
     for (int i = 0; i < Button::COUNT; i++) {
         handlers[i] = NULL;
     }
     globalHandler = NULL;
+}
+
+void Controller::setAutoRepeat(Button button, uint32_t rate, uint32_t delay) {
+    AcquireController acquire(semaphore);
+    _StateButtons& buttons = *reinterpret_cast<_StateButtons*>(&state);
+    ButtonState* buttonState = &buttons[button];
+    buttonState->repeatRate = rate;
+    buttonState->repeatDelay = delay;
 }
 
 Controller controller;

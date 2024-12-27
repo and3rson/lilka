@@ -13,11 +13,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Run clang-format
+      - name: Install and Run clang-format
         run: |
           apt update -y
-          apt install -y make clang-format
+          apt install -y make clang-format-17
           make clang-format
+        continue-on-error: false
 
   cppcheck:
     runs-on: ubuntu-latest
@@ -25,8 +26,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Run cppcheck
+      - name: Install and Run cppcheck
         run: |
           apt update -y
           apt install -y make cppcheck
           make cppcheck
+        continue-on-error: false

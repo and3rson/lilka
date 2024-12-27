@@ -1,6 +1,6 @@
 IMAGE2CODE = ./sdk/tools/image2code/image2code.py
-CPPCHECK = cppcheck
-CLANG_FORMAT = clang-format
+CPPCHECK ?= cppcheck
+CLANG_FORMAT ?= $(shell command -v clang-format-17 2>/dev/null || echo clang-format)
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -15,6 +15,7 @@ todo: ## Find all TODO, FIXME, XXX comments
 		-not \( -name bak -prune \) \
 		-not \( -name mJS -prune \) \
 		-not \( -name SimpleFTPServer -prune \) \
+		-not \( -name LodePNG -prune \) \
 		-iname *.h \
 		-o -iname *.cpp \
 		-o -iname *.c \
@@ -36,8 +37,10 @@ icons:
 		-not \( -name bak -prune \) \
 		-not \( -name mJS -prune \) \
 		-not \( -name SimpleFTPServer -prune \) \
+		-not \( -name LodePNG -prune \) \
 		-not \( -name *splash* -prune \) \
-		-iname *.png \
+		-not \( -name *weather* -prune \) \
+		-iname '*.png' \
 		-exec $(IMAGE2CODE) {} \;
 
 .PHONY: check
@@ -48,7 +51,7 @@ check-docker: ## Run all checks in docker
 	docker build -t lilka-check -f - . <<EOF
 		FROM ubuntu:24.04
 		RUN apt-get update -y && \
-		apt-get install -y clang-format cppcheck findutils grep make
+		apt-get install -y clang-format-17 cppcheck findutils grep make
 	EOF
 	docker run --rm -it -v $(PWD):/lilka -w /lilka lilka-check make check
 
@@ -62,6 +65,7 @@ clang-format: ## Run clang-format check
 		-not \( -name bak -prune \) \
 		-not \( -name mJS -prune \) \
 		-not \( -name SimpleFTPServer -prune \) \
+		-not \( -name LodePNG -prune \) \
 		-iname *.h \
 		-o -iname *.cpp \
 		-o -iname *.c \
@@ -71,7 +75,8 @@ clang-format: ## Run clang-format check
 
 .PHONY: cppcheck
 cppcheck: ## Run cppcheck check
-	$(CPPCHECK) . -i.ccls-cache -ipio -idoomgeneric -ibak -imJS -iSimpleFTPServer --enable=performance,style \
+	$(CPPCHECK) . -i.ccls-cache -ipio -idoomgeneric -ibak -imJS -iSimpleFTPServer -iLodePNG \
+		--enable=performance,style \
 		--suppress=knownPointerToBool \
 		--suppress=noCopyConstructor \
 		--suppress=noOperatorEq \

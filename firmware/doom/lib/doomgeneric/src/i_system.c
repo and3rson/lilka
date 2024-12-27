@@ -45,6 +45,7 @@
 #include "i_sound.h"
 #include "i_timer.h"
 #include "i_video.h"
+#include "d_alloc.h"
 
 #include "i_system.h"
 
@@ -58,19 +59,18 @@
 #define DEFAULT_RAM 6 /* MiB */
 #define MIN_RAM     6  /* MiB */
 
-
 typedef struct atexit_listentry_s atexit_listentry_t;
 
 struct atexit_listentry_s
 {
     atexit_func_t func;
-    boolean run_on_error;
+    boolean32 run_on_error;
     atexit_listentry_t *next;
 };
 
 static atexit_listentry_t *exit_funcs = NULL;
 
-void I_AtExit(atexit_func_t func, boolean run_on_error)
+void I_AtExit(atexit_func_t func, boolean32 run_on_error)
 {
     atexit_listentry_t *entry;
 
@@ -116,7 +116,8 @@ static byte *AutoAllocMemory(int *size, int default_ram, int min_ram)
 
         *size = default_ram * 1024 * 1024;
 
-        zonemem = malloc(*size);
+        // zonemem = malloc(*size);
+        zonemem = ps_malloc(*size);
 
         // Failed to allocate?  Reduce zone size until we reach a size
         // that is acceptable.
@@ -157,7 +158,7 @@ byte *I_ZoneBase (int *size)
 
     zonemem = AutoAllocMemory(size, default_ram, min_ram);
 
-    DG_printf("zone memory: %p, %x allocated for zone\n", 
+    DG_printf("zone memory: %p, %x allocated for zone\n",
            zonemem, *size);
 
     return zonemem;
@@ -191,7 +192,7 @@ void I_PrintStartupBanner(char *gamedescription)
     I_PrintDivider();
     I_PrintBanner(gamedescription);
     I_PrintDivider();
-    
+
     DG_printf(
     " " PACKAGE_NAME " is free software, covered by the GNU General Public\n"
     " License.  There is NO warranty; not even for MERCHANTABILITY or FITNESS\n"
@@ -201,13 +202,13 @@ void I_PrintStartupBanner(char *gamedescription)
     I_PrintDivider();
 }
 
-// 
+//
 // I_ConsoleStdout
 //
 // Returns true if stdout is a real console, false if it is a file
 //
 
-boolean I_ConsoleStdout(void)
+boolean32 I_ConsoleStdout(void)
 {
 #ifdef _WIN32
     // SDL "helpfully" always redirects stdout to a file.
@@ -248,8 +249,8 @@ void I_Quit (void)
     atexit_listentry_t *entry;
 
     // Run through all exit functions
- 
-    entry = exit_funcs; 
+
+    entry = exit_funcs;
 
     while (entry != NULL)
     {
@@ -354,14 +355,14 @@ static int ZenityErrorBox(char *message)
 // I_Error
 //
 
-static boolean already_quitting = false;
+static boolean32 already_quitting = false;
 
 void I_Error (char *error, ...)
 {
     char msgbuf[512];
     va_list argptr;
     atexit_listentry_t *entry;
-    boolean exit_gui_popup;
+    boolean32 exit_gui_popup;
 
     if (already_quitting)
     {
@@ -496,9 +497,9 @@ static unsigned char mem_dump_custom[DOS_MEM_DUMP_SIZE];
 
 static const unsigned char *dos_mem_dump = mem_dump_dos622;
 
-boolean I_GetMemoryValue(unsigned int offset, void *value, int size)
+boolean32 I_GetMemoryValue(unsigned int offset, void *value, int size)
 {
-    static boolean firsttime = true;
+    static boolean32 firsttime = true;
 
     if (firsttime)
     {

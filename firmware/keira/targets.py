@@ -15,8 +15,10 @@ def decode_backtrace(*args, **kwargs):
     bin_dir = Path(env.PioPlatform().get_package_dir("toolchain-riscv32-esp")) / "bin"
 
     # Find the addr2line binary
-    addr2line = next(bin_dir.glob("*-addr2line"), None)
-
+    if os.name == 'nt':
+        addr2line = next(bin_dir.glob("*-addr2line.exe"), None)
+    else:
+        addr2line = next(bin_dir.glob("*-addr2line"), None)
     # Get .elf file
     src_path = Path(env.subst("$PROGPATH"))
     print('Decoding backtrace for', src_path)

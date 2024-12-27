@@ -35,6 +35,9 @@ typedef struct {
     /// `true`, якщо кнопка була вперше відпущена в момент виклику `lilka::controller.getState()` (до цього була натиснута).
     bool justReleased;
     uint64_t time;
+    uint64_t nextRepeatTime;
+    uint32_t repeatRate;
+    uint32_t repeatDelay;
 } ButtonState;
 
 /// Містить стани всіх кнопок, які були виміряні в певний момент часу.
@@ -86,8 +89,10 @@ public:
     /// Почати вимірювання стану кнопок.
     /// \warning Цей метод викликається автоматично при виклику `lilka::begin()`.
     void begin();
-    /// Прочитати стан кнопок.
+    /// Прочитати стан кнопок та скинути прапорці `justPressed` та `justReleased`.
     State getState();
+    /// Прочитати стан кнопок, не скидаючи прапорців `justPressed` та `justReleased`.
+    State peekState();
     void resetState();
     /// Встановити глобальний обробник подій, який буде викликатися при натисненні або відпусканні будь-якої кнопки.
     void setGlobalHandler(void (*handler)(Button, bool));
@@ -95,13 +100,25 @@ public:
     void setHandler(Button button, void (*handler)(bool));
     /// Видалити всі обробники подій.
     void clearHandlers();
+    /// Налаштувати автоматичне повторення натискання кнопки.
+    ///
+    /// Після виклику цього методу кнопка буде автоматично натискатися з певною затримкою та частотою.
+    ///
+    /// Щоб вимкнути автоматичне повторення натискання кнопки, викличте цей метод з параметрами `delay = 0` та `rate = 0`.
+    ///
+    /// \param button Кнопка, для якої налаштовується автоматичне повторення натискання.
+    /// \param rate Частота автоматичного повторення натискання (кількість натискань на секунду).
+    /// \param delay Затримка перед початком автоматичного повторення натискання (в мілісекундах).
+    /// \code
+    /// // Натискання кнопки "Вгору" буде повторюватись з частотою 5 натискань на секунду після початкової затримки 500 мс:
+    /// lilka::controller.setAutoRepeat(lilka::Button::UP, 5, 500);
+    /// \endcode
+    void setAutoRepeat(Button button, uint32_t rate, uint32_t delay);
 
 private:
     // Input task FreeRTOS semaphore
-    static SemaphoreHandle_t semaphore;
-    static void inputTask(void* self);
-    void _resetState();
-    void _clearHandlers();
+    SemaphoreHandle_t semaphore;
+    void inputTask();
     State state;
     int8_t pins[Button::COUNT] = {
         LILKA_GPIO_UP,

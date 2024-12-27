@@ -25,3 +25,11 @@ void D_FreeBuffers() {
     R_FreeThings();
     R_FreeBSP();
 }
+
+// void* ps_malloc(size_t size) {
+//     void* ptr = heap_caps_malloc(size, MALLOC_CAP_8BIT | MALLOC_CAP_SPIRAM);
+//     if (ptr == NULL) {
+//         DG_printf("ps_malloc: failed to allocate %d bytes\n", size);
+//     }
+//     return ptr;
+// }

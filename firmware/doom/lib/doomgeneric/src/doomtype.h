@@ -15,7 +15,7 @@
 // DESCRIPTION:
 //	Simple basic typedefs, isolated here to make it easier
 //	 separating modules.
-//    
+//
 
 
 #ifndef __DOOMTYPE__
@@ -38,7 +38,7 @@
 
 
 //
-// The packed attribute forces structures to be packed into the minimum 
+// The packed attribute forces structures to be packed into the minimum
 // space necessary.  If this is not done, the compiler may align structure
 // fields differently to optimize memory access, inflating the overall
 // structure size.  It is important to use the packed attribute on certain
@@ -52,32 +52,31 @@
 #define PACKEDATTR
 #endif
 
-// C99 integer types; with gcc we just use this.  Other compilers 
+// C99 integer types; with gcc we just use this.  Other compilers
 // should add conditional statements that define the C99 types.
 
 // What is really wanted here is stdint.h; however, some old versions
-// of Solaris don't have stdint.h and only have inttypes.h (the 
-// pre-standardisation version).  inttypes.h is also in the C99 
-// standard and defined to include stdint.h, so include this. 
+// of Solaris don't have stdint.h and only have inttypes.h (the
+// pre-standardisation version).  inttypes.h is also in the C99
+// standard and defined to include stdint.h, so include this.
 
 #include <inttypes.h>
 
-#ifdef __cplusplus
-
-// Use builtin bool type with C++.
-
-typedef bool boolean;
-
-#else
-
-typedef enum 
-{
-    false	= 0,
-    true	= 1,
-	undef	= 0xFFFFFFFF
-} boolean;
-
-#endif
+// typedef enum
+// {
+//     false	= 0,
+//     true	= 1,
+// 	undef	= 0xFFFFFFFF
+// } boolean32;
+// Use custom 32-bit integer for boolean for consistency between C and C++.
+// Reason for this is that Doom uses boolean which is 8-bit in ESP32 C++ environment, and 32-bit in C environment.
+// This messes up struct sizes when accessing C structs from C++ code.
+// Defining boolean as 8-bit bool crashes game when shotgun is picked up, and I have no idea why.
+// Thus I decided that the easiest solution is to define custom boolean32 type that will be 32 bit long everywhere. /AD
+typedef int32_t boolean32;
+#define false 0
+#define true 1
+#define undef 0xFFFFFFFF
 
 typedef uint8_t byte;
 

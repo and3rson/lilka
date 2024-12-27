@@ -89,7 +89,7 @@ static int snd_mport = 0;
 
 // Compiled-in sound modules:
 
-static sound_module_t *sound_modules[] = 
+static sound_module_t *sound_modules[] =
 {
     #ifdef FEATURE_SOUND
     &DG_sound_module,
@@ -99,7 +99,7 @@ static sound_module_t *sound_modules[] =
 
 // Check if a sound device is in the given list of devices
 
-static boolean SndDeviceInList(snddevice_t device, snddevice_t *list,
+static boolean32 SndDeviceInList(snddevice_t device, snddevice_t *list,
                                int len)
 {
     int i;
@@ -118,7 +118,7 @@ static boolean SndDeviceInList(snddevice_t device, snddevice_t *list,
 // Find and initialize a sound_module_t appropriate for the setting
 // in snd_sfxdevice.
 
-static void InitSfxModule(boolean use_sfx_prefix)
+static void InitSfxModule(boolean32 use_sfx_prefix)
 {
     int i;
 
@@ -129,7 +129,7 @@ static void InitSfxModule(boolean use_sfx_prefix)
         // Is the sfx device in the list of devices supported by
         // this module?
 
-        if (SndDeviceInList(snd_sfxdevice, 
+        if (SndDeviceInList(snd_sfxdevice,
                             sound_modules[i]->sound_devices,
                             sound_modules[i]->num_sound_devices))
         {
@@ -159,9 +159,9 @@ static void InitMusicModule(void)
 //  allocates channel buffer, sets S_sfx lookup.
 //
 
-void I_InitSound(boolean use_sfx_prefix)
-{  
-    boolean nosound, nosfx, nomusic;
+void I_InitSound(boolean32 use_sfx_prefix)
+{
+    boolean32 nosound, nosfx, nomusic;
 
     //!
     // @vanilla
@@ -174,7 +174,7 @@ void I_InitSound(boolean use_sfx_prefix)
     //!
     // @vanilla
     //
-    // Disable sound effects. 
+    // Disable sound effects.
     //
 
     nosfx = M_CheckParm("-nosfx") > 0;
@@ -230,7 +230,7 @@ void I_ShutdownSound(void)
 
 int I_GetSfxLumpNum(sfxinfo_t *sfxinfo)
 {
-    if (sound_module != NULL) 
+    if (sound_module != NULL)
     {
         return sound_module->GetSfxLumpNum(sfxinfo);
     }
@@ -304,7 +304,7 @@ void I_StopSound(int channel)
     }
 }
 
-boolean I_SoundIsPlaying(int channel)
+boolean32 I_SoundIsPlaying(int channel)
 {
     if (sound_module != NULL)
     {
@@ -381,7 +381,7 @@ void I_UnRegisterSong(void *handle)
     }
 }
 
-void I_PlaySong(void *handle, boolean looping)
+void I_PlaySong(void *handle, boolean32 looping)
 {
     if (music_module != NULL)
     {
@@ -397,7 +397,7 @@ void I_StopSong(void)
     }
 }
 
-boolean I_MusicIsPlaying(void)
+boolean32 I_MusicIsPlaying(void)
 {
     if (music_module != NULL)
     {
@@ -407,7 +407,7 @@ boolean I_MusicIsPlaying(void)
     {
         return false;
     }
-    
+
 }
 
 void I_BindSoundVariables(void)

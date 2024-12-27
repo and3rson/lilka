@@ -4,7 +4,9 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/timers.h>
 
+#include "utils/acquire.h"
 #include "driver.h"
+
 #define OSD_OK          0
 #define OSD_INIT_FAILED -1
 
@@ -22,6 +24,9 @@ extern "C" {
 }
 
 // No need to add `extern "C"` to functions below, because it's already declared in `osd.h`
+
+static SemaphoreHandle_t xSoundMutex = NULL;
+static TaskHandle_t audioTaskHandle = NULL;
 
 int osd_init_sound();
 
@@ -85,12 +90,11 @@ int logprint(const char* string) {
 }
 
 int osd_init() {
+    xSoundMutex = xSemaphoreCreateMutex();
+    xSemaphoreGive(xSoundMutex);
     nofrendo_log_chain_logfunc(logprint);
     osd_init_sound();
     return 0;
-}
-
-void osd_shutdown() {
 }
 
 char configfilename[] = "na";
@@ -137,7 +141,7 @@ void osd_getmouse(int* x, int* y, int* button) {
 #define HW_AUDIO_SAMPLERATE 22050
 #define HW_AUDIO_BPS        16
 static void (*audio_callback)(void* buffer, int length) = NULL;
-int16_t* audio_frame;
+int16_t* audio_frame = NULL;
 QueueHandle_t queue;
 int osd_init_sound() {
 #if LILKA_VERSION == 1
@@ -150,6 +154,8 @@ int osd_init_sound() {
         //
         return OSD_INIT_FAILED;
     }
+
+    lilka::audio.initPins();
 
     esp_i2s::i2s_config_t cfg = {
         .mode = (esp_i2s::i2s_mode_t)(esp_i2s::I2S_MODE_MASTER | esp_i2s::I2S_MODE_TX),
@@ -164,13 +170,13 @@ int osd_init_sound() {
         .use_apll = false,
     };
     i2s_driver_install(esp_i2s::I2S_NUM_0, &cfg, 2, &queue);
-    esp_i2s::i2s_pin_config_t pins = {
-        .bck_io_num = LILKA_I2S_BCLK,
-        .ws_io_num = LILKA_I2S_LRCK,
-        .data_out_num = LILKA_I2S_DOUT,
-        .data_in_num = -1,
-    };
-    i2s_set_pin(esp_i2s::I2S_NUM_0, &pins);
+    // esp_i2s::i2s_pin_config_t pins = {
+    //     .bck_io_num = LILKA_I2S_BCLK,
+    //     .ws_io_num = LILKA_I2S_LRCK,
+    //     .data_out_num = LILKA_I2S_DOUT,
+    //     .data_in_num = -1,
+    // };
+    // i2s_set_pin(esp_i2s::I2S_NUM_0, &pins);
     i2s_zero_dma_buffer(esp_i2s::I2S_NUM_0);
     audio_callback = 0;
     return OSD_OK;
@@ -180,6 +186,12 @@ int osd_init_sound() {
 }
 
 void osd_stopsound() {
+    Acquire lock(xSoundMutex);
+    if (i2s_driver_uninstall(esp_i2s::I2S_NUM_0) != ESP_OK) {
+        lilka::serial_err("Failed to uninstall I2S driver\n");
+    }
+    free(audio_frame);
+    audio_frame = NULL;
     audio_callback = 0;
 }
 
@@ -204,6 +216,8 @@ void do_audio_frame() {
         }
 
         size_t i2s_bytes_write;
+        // adjust volume
+        lilka::audio.adjustVolume(audio_frame, 4 * n, 16);
         i2s_write(esp_i2s::I2S_NUM_0, static_cast<int16_t*>(audio_frame), 4 * n, &i2s_bytes_write, portMAX_DELAY);
         left -= i2s_bytes_write / 4;
     }
@@ -217,17 +231,24 @@ void osd_setsound(void (*playfunc)(void* buffer, int length)) {
         [](void* arg) {
             const TickType_t xFrequency = pdMS_TO_TICKS(1000 / NES_REFRESH_RATE);
             TickType_t xLastWakeTime = xTaskGetTickCount();
-            while (1) {
+            while (true) {
                 // Call do_audio_frame 60 times per second.
-                do_audio_frame();
+                {
+                    Acquire lock(xSoundMutex);
+                    if (!audio_frame) {
+                        break;
+                    }
+                    do_audio_frame();
+                }
                 vTaskDelayUntil(&xLastWakeTime, xFrequency);
             }
+            vTaskDelete(NULL);
         },
         "nes_audio",
         8192,
         NULL,
         1,
-        NULL,
+        &audioTaskHandle,
         1
     );
 #endif
@@ -242,4 +263,13 @@ void osd_getvideoinfo(vidinfo_t* info) {
     info->default_width = NES_SCREEN_WIDTH;
     info->default_height = NES_SCREEN_HEIGHT;
     info->driver = &Driver::driver;
+}
+
+void osd_shutdown() {
+    osd_stopsound();
+
+    vTaskDelete(audioTaskHandle);
+    xTimerDelete(timer, 0);
+
+    vSemaphoreDelete(xSoundMutex);
 }

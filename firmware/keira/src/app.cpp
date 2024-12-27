@@ -5,36 +5,33 @@ App::App(const char* name) : App(name, 0, 24, lilka::display.width(), lilka::dis
 
 App::App(const char* name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) :
     name(name),
-    x(x),
-    y(y),
-    w(w),
-    h(h),
     flags(AppFlags::APP_FLAG_NONE),
     taskHandle(NULL),
     canvas(new lilka::Canvas(x, y, w, h)),
     backCanvas(new lilka::Canvas(x, y, w, h)),
     isDrawQueued(false),
     backCanvasMutex(xSemaphoreCreateMutex()),
-    stackSize(8192) {
+    stackSize(8192),
+    appCore(0),
+    frame(0) {
     // Clear buffers
     canvas->fillScreen(0);
     backCanvas->fillScreen(0);
-    Serial.println(
-        "Created app " + String(name) + " at " + String(x) + ", " + String(y) + " with size " + String(w) + "x" +
-        String(h)
-    );
+    lilka::serial_log("Created app %s at %d, %d with size %dx%d on core %d", name, x, y, w, h, appCore);
+    xSemaphoreGive(backCanvasMutex);
 }
 
 void App::start() {
     if (taskHandle != NULL) {
-        Serial.println("App " + String(name) + " is already running");
+        lilka::serial_err("App %s is already running", name);
         return;
     }
-    Serial.println("Starting app " + String(name));
-    if (xTaskCreatePinnedToCore(_run, name, stackSize, this, 1, &taskHandle, 0) != pdPASS) {
-        Serial.println(
-            "Failed to create task for app " + String(name) +
-            " - not enough memory? Try increasing stack size with setStackSize()"
+    lilka::serial_log("Starting app %s", name);
+    if (xTaskCreatePinnedToCore(_run, name, stackSize, this, 1, &taskHandle, appCore) != pdPASS) {
+        lilka::serial_err(
+            "Failed to create task for app %s"
+            " - not enough memory? Try increasing stack size with setStackSize()",
+            name
         );
     }
 }
@@ -50,30 +47,30 @@ void App::_run(void* data) {
 
 void App::suspend() {
     if (taskHandle == NULL) {
-        Serial.println("App " + String(name) + " is not running, cannot suspend");
+        lilka::serial_err("App %s is not running, cannot suspend", name);
         return;
     }
-    Serial.println("Suspending app " + String(name) + " (state = " + String(getState()) + ")");
+    lilka::serial_log("Suspending app %s (state = %d)", name, getState());
     onSuspend();
     vTaskSuspend(taskHandle);
 }
 
 void App::resume() {
     if (taskHandle == NULL) {
-        Serial.println("App " + String(name) + " is not running, cannot resume");
+        lilka::serial_err("App %s is not running, cannot resume", name);
         return;
     }
-    Serial.println("Resuming app " + String(name) + " (state = " + String(getState()) + ")");
+    lilka::serial_log("Resuming app %s (state = %d)", name, getState());
     onResume();
     vTaskResume(taskHandle);
 }
 
 void App::stop() {
     if (taskHandle == NULL) {
-        Serial.println("App " + String(name) + " is not running, cannot stop");
+        lilka::serial_err("App %s is not running, cannot stop", name);
         return;
     }
-    Serial.println("Stopping app " + String(name) + " (state = " + String(getState()) + ")");
+    lilka::serial_log("Stopping app %s (state = %d)", name, getState());
     onStop();
     vTaskDelete(taskHandle);
     taskHandle = NULL;
@@ -92,8 +89,13 @@ void App::queueDraw() {
     canvas = backCanvas;
     backCanvas = temp;
     isDrawQueued = true;
+    frame++;
     xSemaphoreGive(backCanvasMutex);
     taskYIELD();
+}
+
+void App::setCore(int appCore) {
+    this->appCore = appCore;
 }
 
 void App::setFlags(AppFlags flags) {

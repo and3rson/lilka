@@ -8,6 +8,10 @@ namespace lilka {
 
 /// Клас для роботи з ресурсами - зображенням, файлами даних тощо.
 class Resources {
+private:
+    Image* loadImageBMP(FILE* file, int32_t transparentColor = -1, int32_t pivotX = 0, int32_t pivotY = 0);
+    Image* loadImagePNG(FILE* file, int32_t transparentColor = -1, int32_t pivotX = 0, int32_t pivotY = 0);
+
 public:
     /// Завантажити зображення в форматі BMP з файлу.
     ///
@@ -22,7 +26,7 @@ public:
     /// Приклад:
     ///
     /// \code
-    /// lilka::Image *image = lilka::resources.loadImage("image.bmp", lilka::display.color565(255, 255, 0)); //
+    /// lilka::Image *image = lilka::resources.loadImage("image.bmp", lilka::colors::Yellow); //
     /// Жовтий колір буде прозорим if (!image) {
     ///     Serial.println("Failed to load image");
     ///     return;

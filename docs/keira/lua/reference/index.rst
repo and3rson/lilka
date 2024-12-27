@@ -8,6 +8,7 @@ Lua API
 
     lilka
     display
+    transform
     controller
     resources
     math
@@ -15,4 +16,8 @@ Lua API
     gpio
     util
     buzzer
+    sdcard
     state
+    wifi
+    serial
+    http

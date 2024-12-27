@@ -34,9 +34,9 @@ void ProgressDialog::draw(Arduino_GFX* canvas) {
     int width = right - left;
     int xMargin = 4;
 
-    canvas->setTextColor(canvas->color565(255, 255, 255));
+    canvas->setTextColor(lilka::colors::White);
 
-    canvas->fillRect(left, top, width, mid - top, canvas->color565(32, 32, 128));
+    canvas->fillRect(left, top, width, mid - top, lilka::colors::Midnight_blue);
     canvas->setFont(FONT_6x13);
     canvas->setTextSize(2);
     canvas->setTextBound(left + xMargin, top, width - xMargin * 2, mid - top);
@@ -56,7 +56,7 @@ void ProgressDialog::draw(Arduino_GFX* canvas) {
 
     sprintf(buf, "%d%%", progress);
     canvas->getTextBounds(buf, 0, 0, &x, &y, &w, &h);
-    // canvas->fillRect(x, y, w, h, canvas->color565(0, 0, 0));
+    // canvas->fillRect(x, y, w, h, lilka::colors::Black);
     // canvas->println(buf);
 
     int barMargin = 8;
@@ -65,18 +65,14 @@ void ProgressDialog::draw(Arduino_GFX* canvas) {
     int center = (left + right) / 2;
 
     canvas->fillRect(
-        left + barMargin,
-        bottom - barMargin - barHeight,
-        width - barMargin * 2,
-        barHeight,
-        canvas->color565(128, 64, 64)
+        left + barMargin, bottom - barMargin - barHeight, width - barMargin * 2, barHeight, lilka::colors::Persian_plum
     );
     canvas->fillRect(
         left + barMargin,
         bottom - barMargin - barHeight,
         (width - barMargin * 2) * progress / 100,
         barHeight,
-        canvas->color565(255, 128, 0)
+        lilka::colors::Dark_orange
     );
     canvas->setCursor(center - w / 2, bottom - barMargin - barHeight - barMargin);
     canvas->setTextBound(0, 0, canvas->width(), canvas->height());

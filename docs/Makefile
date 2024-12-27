@@ -21,4 +21,4 @@ autobuild: clean doxygen
 
 .PHONY: clean
 clean:
-	rm -rf _build
+	rm -rf _build _doxygen/xml

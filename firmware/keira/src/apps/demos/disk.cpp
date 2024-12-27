@@ -34,7 +34,7 @@ void DiskApp::run() {
             return;
         }
 
-        canvas->fillScreen(canvas->color565(0, 0, 0));
+        canvas->fillScreen(lilka::colors::Black);
         canvas->drawCircle(x, y, radius, 0xFFFF);
         canvas->setCursor(16, 32);
         canvas->println("FPS: " + String(1000 / (millis() - prevRenderTime)));

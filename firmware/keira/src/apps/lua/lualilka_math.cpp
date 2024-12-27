@@ -250,7 +250,7 @@ int lualilka_math_round(lua_State* L) {
     }
 
     float value = luaL_checknumber(L, 1);
-    lua_pushinteger(L, round(value));
+    lua_pushinteger(L, roundf(value));
     return 1;
 }
 

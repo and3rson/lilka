@@ -18,7 +18,8 @@
 #include "lualilka_sdcard.h"
 #include "lualilka_wifi.h"
 #include "lualilka_imageTransform.h"
-#include "lualilka_dialog.h"
+#include "lualilka_serial.h"
+#include "lualilka_http.h"
 
 jmp_buf stopjmp;
 
@@ -162,9 +163,8 @@ void AbstractLuaRunnerApp::luaSetup(const char* dir) {
     lualilka_sdcard_register(L);
     lualilka_wifi_register(L);
     lualilka_imageTransform_register(L);
-    lualilka_dialog_register_inputDialog(L);
-    lualilka_dialog_register_alertDialog(L);
-    lualilka_dialog_register_progressDialog(L);
+    lualilka_serial_register(L);
+    lualilka_http_register(L);
 
     // lilka::serial_log("lua: init canvas");
     // lilka::Canvas* canvas = new lilka::Canvas();
@@ -258,7 +258,7 @@ int AbstractLuaRunnerApp::execute() {
 
             lua_gc(L, LUA_GCCOLLECT, 0); // TODO: Use LUA_GCSTEP?
 
-            // display.renderCanvas(canvas);
+            // display.drawCanvas(canvas);
 
             // Calculate time spent in update & gargage collection
             // TODO: Split time spent in update, time spent in draw, time spent in GC?
@@ -351,7 +351,7 @@ void LuaLiveRunnerApp::run() {
         }
         canvas->setFont(FONT_10x20);
         canvas->setCursor(8, 48);
-        canvas->fillScreen(canvas->color565(0, 0, 0));
+        canvas->fillScreen(lilka::colors::Black);
         canvas->setTextBound(8, 0, canvas->width() - 16, canvas->height());
         canvas->print("Очікування коду\nз UART...\n\n");
         canvas->print("Натисніть [A]\n");
@@ -383,7 +383,7 @@ void LuaLiveRunnerApp::run() {
             //     canvas->print(String("Зчитано: ") + code.length() + " Б");
             // }
             if (line.length() == 0) {
-                canvas->fillScreen(canvas->color565(0, 128, 0));
+                canvas->fillScreen(lilka::colors::Green);
                 canvas->print("Запуск...");
                 queueDraw();
                 break;
@@ -412,7 +412,7 @@ void LuaLiveRunnerApp::run() {
         }
 
         // TODO: This is a temporary fix: https://github.com/espressif/arduino-esp32/issues/9221
-        lilka::sdcard.available();
+        lilka::fileutils.isSDAvailable();
 
         execSource(code);
 
@@ -428,7 +428,7 @@ void LuaLiveRunnerApp::run() {
 
 void LuaLiveRunnerApp::execSource(String source) {
 #ifndef LILKA_NO_LUA
-    luaSetup("/sd"); // TODO: hard-coded
+    luaSetup(lilka::fileutils.getSDRoot().c_str());
 
     lilka::serial_log("lua: run source");
 
@@ -454,11 +454,11 @@ LuaReplApp::LuaReplApp() : AbstractLuaRunnerApp("Lua REPL") {
 
 void LuaReplApp::run() {
 #ifndef LILKA_NO_LUA
-    luaSetup("/sd"); // TODO: hard-coded
+    luaSetup(lilka::fileutils.getSDRoot().c_str()); // TODO: hard-coded
 
     canvas->setFont(FONT_10x20);
     canvas->setCursor(8, 48);
-    canvas->fillScreen(canvas->color565(0, 0, 0));
+    canvas->fillScreen(lilka::colors::Black);
     canvas->setTextBound(8, 0, canvas->width() - 16, canvas->height());
     canvas->print("Lua REPL\n\n");
     canvas->print("Під'єднайтесь до\nЛілки через серійний\nтермінал та починайте\nвводити команди!");
@@ -467,7 +467,7 @@ void LuaReplApp::run() {
     lilka::serial_log("lua: start REPL");
 
     // TODO: This is a temporary fix: https://github.com/espressif/arduino-esp32/issues/9221
-    lilka::sdcard.available();
+    lilka::fileutils.initSD();
 
     bool quit = false;
     while (!quit) {

@@ -3,6 +3,8 @@
 #include <FtpServer.h>
 
 #include "ftp_server.h"
+#include "servicemanager.h"
+#include "services/network.h"
 
 FTPServerApp::FTPServerApp() : App("FTP Server") {
 }
@@ -11,6 +13,31 @@ void FTPServerApp::run() {
     String password = getPassword();
     if (password.isEmpty()) {
         password = createPassword();
+    }
+
+    lilka::fileutils.initSD();
+
+    NetworkService* networkService = ServiceManager::getInstance()->getService<NetworkService>("network");
+
+    if (networkService->getNetworkState() != NETWORK_STATE_ONLINE) {
+        canvas->fillScreen(0);
+        canvas->setCursor(16, 16);
+        canvas->setTextBound(16, 16, canvas->width() - 32, canvas->height() - 32);
+        canvas->printf("WiFi не підключено\n"
+                       "\n"
+                       "Підключіться до мережі\n"
+                       "та спробуйте ще раз\n"
+                       "\n"
+                       "Натисніть [A] для виходу");
+        queueDraw();
+
+        while (true) {
+            lilka::State state = lilka::controller.getState();
+            if (state.a.justPressed) {
+                return;
+            }
+            taskYIELD();
+        }
     }
 
     FtpServer ftpSrv;
@@ -68,7 +95,7 @@ String FTPServerApp::createPassword() {
     password[pwdLen] = '\0';
 
     Preferences prefs;
-    prefs.begin("ftp", false);
+    prefs.begin("keira", false);
     prefs.putString("password", password);
     prefs.end();
 
@@ -77,7 +104,7 @@ String FTPServerApp::createPassword() {
 
 String FTPServerApp::getPassword() {
     Preferences prefs;
-    prefs.begin("ftp", true);
+    prefs.begin("keira", true);
     String password;
     if (!prefs.isKey("password")) {
         password = "";

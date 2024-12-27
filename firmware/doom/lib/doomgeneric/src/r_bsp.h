@@ -31,13 +31,13 @@ extern sector_t*	backsector;
 extern int		rw_x;
 extern int		rw_stopx;
 
-extern boolean		segtextured;
+extern boolean32		segtextured;
 
 // false if the back side is the same plane
-extern boolean		markfloor;
-extern boolean		markceiling;
+extern boolean32		markfloor;
+extern boolean32		markceiling;
 
-extern boolean		skymap;
+extern boolean32		skymap;
 
 extern drawseg_t*	drawsegs;
 extern drawseg_t*	ds_p;

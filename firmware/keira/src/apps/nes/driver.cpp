@@ -76,12 +76,26 @@ void Driver::freeFrite(int numDirties, rect_t* dirtyRects) {
     bmp_destroy(&bitmap);
 }
 
+bool odd = true;
+
 void Driver::customBlit(bitmap_t* bmp, int numDirties, rect_t* dirtyRects) {
     last_frame_duration = micros() - last_render;
     last_render = micros();
 
     lilka::Canvas* canvas = app->canvas;
 
+#ifdef INTERLACED
+    for (int y = odd ? 1 : 0; y < frame_height; y += 2) {
+        const uint8_t* line = bmp->line[y];
+        for (int x = 0; x < frame_width; x++) {
+            uint8_t index = line[x];
+            uint16_t color = nesPalette[index];
+            canvas->writePixelPreclipped(x + frame_x, y + frame_y, color);
+            // app->canvas->drawPixel(x + frame_x, y + frame_y, color);
+        }
+    }
+    odd = !odd;
+#else
     for (int y = 0; y < frame_height; y++) {
         const uint8_t* line = bmp->line[y];
         for (int x = 0; x < frame_width; x++) {
@@ -91,14 +105,15 @@ void Driver::customBlit(bitmap_t* bmp, int numDirties, rect_t* dirtyRects) {
             // app->canvas->drawPixel(x + frame_x, y + frame_y, color);
         }
     }
+#endif
 
     // Serial.println("Draw 1 took " + String(micros() - last_render) + "us");
 
     if (last_frame_duration > 0) {
-        canvas->fillRect(80, canvas->height() - 20, 80, 20, canvas->color565(0, 0, 0));
+        canvas->fillRect(80, canvas->height() - 20, 80, 20, lilka::colors::Black);
         canvas->setCursor(80, canvas->height() - 4);
         canvas->setTextSize(1);
-        canvas->setTextColor(canvas->color565(128, 128, 128));
+        canvas->setTextColor(lilka::colors::Graygrey);
         canvas->print("FPS: ");
         canvas->print(1000000 / last_frame_duration);
     }
