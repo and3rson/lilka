@@ -21,30 +21,47 @@ void SoundConfigApp::run() {
             menu.update();
             menu.draw(canvas);
             queueDraw();
-            lilka::controller.setAutoRepeat(lilka::Button::A, 0, 0);
-            lilka::controller.setAutoRepeat(lilka::Button::D, 0, 0);
+            vTaskDelay(10 / portTICK_PERIOD_MS);
         }
 
-        if (menu.getButton() == lilka::Button::B) {
-            break;
-        }
         int16_t index = menu.getCursor();
-        if (index == 0) {
-            int increment = 5;
-            if (menu.getButton() == lilka::Button::D) increment = -increment;
 
-            volumeLevel += increment;
-            if (volumeLevel > 100) volumeLevel = 0;
-            if (volumeLevel < 0) volumeLevel = 100;
+        if (index == 3 || menu.getButton() == lilka::Button::B) {
+            break;
+        } else if (index == 0) {
+            bool justPressed = true;
 
-            lilka::MenuItem volumeItem;
-            menu.getItem(0, &volumeItem);
-            volumeItem.postfix = "< " + (String)volumeLevel + " >";
-            menu.setItem(0, volumeItem.title, volumeItem.icon, volumeItem.color, volumeItem.postfix);
+            lilka::State state = lilka::controller.getState();
 
-            delay(100); // AutoRepeat чомусь не працює правильно в меню
-            lilka::controller.setAutoRepeat(lilka::Button::A, 100, 500);
-            lilka::controller.setAutoRepeat(lilka::Button::D, 100, 500);
+            while (state.a.pressed || state.d.pressed) {
+                unsigned long repeatStart = millis();
+
+                volumeLevel = (menu.getButton() == lilka::Button::D) ? volumeLevel - VOLUME_INCREMENT
+                                                                     : volumeLevel + VOLUME_INCREMENT;
+                if (volumeLevel > 100) volumeLevel = 0;
+                if (volumeLevel < 0) volumeLevel = 100;
+
+                lilka::MenuItem volumeItem;
+                menu.getItem(0, &volumeItem);
+                volumeItem.postfix = "< " + (String)volumeLevel + " >";
+                menu.setItem(0, volumeItem.title, volumeItem.icon, volumeItem.color, volumeItem.postfix);
+
+                int repeatInterval = REPEAT_INTERVAL;
+
+                if (justPressed || volumeLevel == 0 || volumeLevel == 100) {
+                    repeatInterval = 5 * REPEAT_INTERVAL;
+                    justPressed = false;
+                }
+
+                while ((state.a.pressed || state.d.pressed) && millis() - repeatStart < repeatInterval) {
+                    menu.update();
+                    menu.draw(canvas);
+                    queueDraw();
+                    vTaskDelay(10 / portTICK_PERIOD_MS);
+                    state = lilka::controller.getState();
+                }
+            }
+
         } else if (index == 1) {
             startupSound = !startupSound;
 
@@ -52,6 +69,7 @@ void SoundConfigApp::run() {
             menu.getItem(1, &startupItem);
             startupItem.postfix = (startupSound) ? "ON" : "OFF";
             menu.setItem(1, startupItem.title, startupItem.icon, startupItem.color, startupItem.postfix);
+
         } else if (index == 2) {
             startupBuzzer = !startupBuzzer;
 
@@ -59,13 +77,14 @@ void SoundConfigApp::run() {
             menu.getItem(2, &buzzerItem);
             buzzerItem.postfix = (startupBuzzer) ? "ON" : "OFF";
             menu.setItem(2, buzzerItem.title, buzzerItem.icon, buzzerItem.color, buzzerItem.postfix);
-        } else if (index == 3) {
-            break;
         }
     }
 
     lilka::serial_log(
-        "Saving sound settings: volume %d, startup %d, buzzer %d", volumeLevel, startupSound, startupBuzzer
+        "Saving sound settings: volumeLevel=%d, startupSound=%d, startupBuzzer=%d",
+        volumeLevel,
+        startupSound,
+        startupBuzzer
     );
 
     lilka::audio.setVolume(volumeLevel);
