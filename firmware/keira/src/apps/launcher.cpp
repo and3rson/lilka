@@ -30,7 +30,6 @@
 #include "weather/weather.h"
 #include "modplayer/modplayer.h"
 #include "liltracker/liltracker.h"
-#include "ble_gamepad/app.h"
 #include "pastebin/pastebinApp.h"
 #include "settings/sound.h"
 
@@ -94,7 +93,6 @@ void LauncherApp::run() {
                     ITEM::APP("Летріс", [this]() { this->runApp<LetrisApp>(); }),
                     ITEM::APP("Тамагочі", [this]() { this->runApp<TamagotchiApp>(); }),
                     ITEM::APP("Погода", [this]() { this->runApp<WeatherApp>(); }),
-                    ITEM::APP("BLE Геймпад", [this]() { this->runApp<ble_gamepad_app::MainApp>(); }),
                     ITEM::APP("Pastebin", [this]() { this->runApp<pastebinApp>(); }),
                 },
                 &demos_img,
