@@ -1,8 +1,8 @@
 local keyboard_test = keyboardUI("SAY MY NAME") 
 keyboard_test:setValue("TEST")
 while true do      
-    keyboard_test:draw()      
     keyboard_test:update()  
+    keyboard_test:draw()      
     if keyboard_test:isFinished() then
         break
     end
@@ -11,8 +11,8 @@ end
 
 local alert_test = alertUI("YOU ARE?", keyboard_test:getValue()) 
 while true do      
-    alert_test:draw()      
     alert_test:update()  
+    alert_test:draw()      
     if alert_test:isFinished() then
         break
     end
@@ -22,8 +22,8 @@ alert_test:setTitle("NO!!! YOU ARE:")
 alert_test:setMessage("BEST IN THE WORLD")
 
 while true do      
-    alert_test:draw()      
     alert_test:update()  
+    alert_test:draw()      
     if alert_test:isFinished() then
         break
     end
