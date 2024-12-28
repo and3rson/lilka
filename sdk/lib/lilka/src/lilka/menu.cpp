@@ -318,6 +318,11 @@ int16_t Menu::getItemCount() {
 void Menu::addActivationButton(Button activationButton) {
     activationButtons.push_back(activationButton);
 }
+void Menu::removeActivationButton(Button activationButton) {
+    activationButtons.erase(
+        std::remove(activationButtons.begin(), activationButtons.end(), activationButton), activationButtons.end()
+    );
+}
 
 Button Menu::getButton() {
     return button;
