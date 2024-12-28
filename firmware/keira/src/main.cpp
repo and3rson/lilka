@@ -9,6 +9,7 @@
 #include "services/network.h"
 #include "services/screenshot.h"
 #include "services/telnet.h"
+#include "services/KeiraBLEService.h"
 #include "apps/statusbar.h"
 #include "apps/launcher.h"
 
@@ -22,6 +23,7 @@ void setup() {
     serviceManager->addService(new ClockService());
     serviceManager->addService(new ScreenshotService());
     serviceManager->addService(new TelnetService());
+    serviceManager->addService(new KeiraBLEService());
     appManager->setPanel(new StatusBarApp());
     appManager->runApp(new LauncherApp());
 }
