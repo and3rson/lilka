@@ -12,6 +12,5 @@ void __attribute__((weak)) loop() {
     alert.draw(&lilka::display);
     while (!alert.isFinished()) {
         alert.update();
-        delay(100);
     }
 }

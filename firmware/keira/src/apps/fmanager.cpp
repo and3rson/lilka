@@ -226,7 +226,6 @@ void FileManagerApp::openEntryWith(const FMEntry& entry) {
             openWithMenu.update();
             openWithMenu.draw(canvas);
             queueDraw();
-            vTaskDelay(5 / portTICK_PERIOD_MS); // Do not consume all resources
         }
         auto button = openWithMenu.getButton();
         if (button == lilka::Button::B) return; // BACK
@@ -341,7 +340,6 @@ void FileManagerApp::showEntryOptions(const FMEntry& entry) {
             fileOptionsMenu.update();
             fileOptionsMenu.draw(canvas);
             queueDraw();
-            vTaskDelay(5 / portTICK_PERIOD_MS); // Do not consume all resources
         }
         auto button = fileOptionsMenu.getButton();
         if (button == lilka::Button::B) return; // BACK
@@ -451,7 +449,6 @@ void FileManagerApp::readDir(const String& path) {
             fileListMenu.update();
             fileListMenu.draw(canvas);
             queueDraw();
-            vTaskDelay(5 / portTICK_PERIOD_MS); // Do not consume all resources
         }
 
         // Set selected entry to . at first
@@ -538,7 +535,6 @@ void FileManagerApp::deleteEntry(const FMEntry& entry, bool force) {
             checkAlert.update();
             checkAlert.draw(canvas);
             queueDraw();
-            vTaskDelay(5 / portTICK_PERIOD_MS); // Do not consume all resources
         }
         if (checkAlert.getButton() != lilka::Button::START) return; //Exit
     }
