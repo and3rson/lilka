@@ -3,6 +3,11 @@
 #include <dirent.h>
 #include <vector>
 #include <sys/stat.h>
+#ifdef FMANAGER_DEBUG
+#    define FM_DBG if (1)
+#else
+#    define FM_DBG if (0)
+#endif
 #define MD5_CHUNK_SIZE 1024
 // There's a big chance, that task won't be suspended immediately, which could cause a bug
 // If ui hangs up after trying to open file, increase this value

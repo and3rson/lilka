@@ -54,7 +54,7 @@ FileManagerApp::FileManagerApp(FS* fSysDriver, const String& path) : App("FileMa
 String FileManagerApp::getFileMD5(const String& file_path) {
     FILE* file = fopen(file_path.c_str(), "rb"); // Use c_str() for Arduino String compatibility
     if (!file) {
-        lilka::serial_err("MD5: Failed to open file: %s", file_path.c_str());
+        FM_DBG lilka::serial_err("MD5: Failed to open file: %s", file_path.c_str());
         return String(); // Return an empty string on failure
     }
     lilka::ProgressDialog dialog("Обчислення МD5", file_path);
@@ -137,7 +137,7 @@ FMEntry FileManagerApp::pathToEntry(const String& path) {
             return newEntry;
         }
     } else {
-        lilka::serial_err("Can't check stat for %s\n%d: %s", path.c_str(), errno, strerror(errno));
+        FM_DBG lilka::serial_err("Can't check stat for %s\n%d: %s", path.c_str(), errno, strerror(errno));
         newEntry.type = FT_NONE;
         newEntry.icon = FT_NONE_ICON;
         newEntry.color = FT_NONE_COLOR;
@@ -179,7 +179,7 @@ FMEntry FileManagerApp::pathToEntry(const String& path) {
 
 void FileManagerApp::openEntry(const FMEntry& entry) {
     String path = lilka::fileutils.joinPath(entry.path, entry.name);
-    lilka::serial_log("Opening path %s", path.c_str());
+    FM_DBG lilka::serial_log("Opening path %s", path.c_str());
     switch (entry.type) {
         case FT_NES_ROM:
             AppManager::getInstance()->runApp(new NesApp(path));
@@ -299,7 +299,7 @@ void FileManagerApp::loadRom(const String& path) {
 
 void FileManagerApp::selectPath(const String& filename) {
     selectedPaths.push_back(filename);
-    lilka::serial_log("Adding %s to selected paths", filename.c_str());
+    FM_DBG lilka::serial_log("Adding %s to selected paths", filename.c_str());
     mode = FM_MODE_SELECT;
 }
 
@@ -307,7 +307,7 @@ void FileManagerApp::deselectPath(const String& filename) {
     // for (auto it = selectedPaths.begin(); it != selectedPaths.end(); it++) {
     //     if (*it == filename) {
     //         it = selectedPaths.erase(it);
-    //         lilka::serial_log("Removing %s from selected paths", filename.c_str());
+    //         FM_DBG lilka::serial_log("Removing %s from selected paths", filename.c_str());
     //         if (selectedPaths.size() == 0) mode = FM_MODE_VIEW; // no selected paths
     //         return; // Assume we don't have duplicates in vector, cause if we've them [-_-]
     //     }
@@ -384,7 +384,7 @@ void FileManagerApp::readDir(const String& path) {
     fileListMenu.addActivationButton(lilka::Button::B); // Back Button
     fileListMenu.addActivationButton(lilka::Button::D); // Options Button
 
-    lilka::serial_log("Trying to load dir %s", path.c_str());
+    FM_DBG lilka::serial_log("Trying to load dir %s", path.c_str());
 
     int16_t index = 0;
     while (1) {
@@ -405,7 +405,7 @@ void FileManagerApp::readDir(const String& path) {
             if (filename != "." && filename != "..") {
                 FMEntry newEntry = pathToEntry(lilka::fileutils.joinPath(currentPath, filename));
                 dirContents.push_back(newEntry);
-                lilka::serial_log(
+                FM_DBG lilka::serial_log(
                     "Added new entry with type:%d, name:%s, path:%s, ",
                     newEntry.type,
                     newEntry.name.c_str(),
@@ -515,7 +515,9 @@ void FileManagerApp::renameEntry(const FMEntry& entry) {
     // Perform rename
     if (rename(path.c_str(), newPath.c_str()) != 0) {
         // Handle errors:
-        lilka::serial_err("Can't rename %s to %s. %d: %s", path.c_str(), newPath.c_str(), errno, strerror(errno));
+        FM_DBG lilka::serial_err(
+            "Can't rename %s to %s. %d: %s", path.c_str(), newPath.c_str(), errno, strerror(errno)
+        );
         alert("Помилка", String("Не можу перейменувати\n") + path);
     }
 }
@@ -542,7 +544,7 @@ void FileManagerApp::deleteEntry(const FMEntry& entry, bool force) {
     if (entry.type == FT_DIR) { // Directory
         auto dir = opendir(path.c_str());
         if (dir == NULL) {
-            lilka::serial_err("Can't open dir %s. %d: %s", path.c_str(), errno, strerror(errno));
+            FM_DBG lilka::serial_err("Can't open dir %s. %d: %s", path.c_str(), errno, strerror(errno));
             alert("Помилка", String("Не можу видалити\n") + path);
             return; // some shit happened. run!
         }
@@ -555,14 +557,14 @@ void FileManagerApp::deleteEntry(const FMEntry& entry, bool force) {
         closedir(dir);
         // Delete dir itself
         if (unlink(path.c_str()) != 0) {
-            lilka::serial_err("Tried to delete %s. %d: %s", path.c_str(), errno, strerror(errno));
+            FM_DBG lilka::serial_err("Tried to delete %s. %d: %s", path.c_str(), errno, strerror(errno));
             alert("Помилка", String("Не можу видалити\n") + path);
             return; // some shit happened. run!
         }
 
     } else { // Regular file
         if (unlink(path.c_str()) != 0) {
-            lilka::serial_err("Tried to delete %s. %d: %s", path.c_str(), errno, strerror(errno));
+            FM_DBG lilka::serial_err("Tried to delete %s. %d: %s", path.c_str(), errno, strerror(errno));
             alert("Помилка", String("Не можу видалити\n") + path);
             return; // some shit happened. run!
         }
@@ -581,15 +583,15 @@ void FileManagerApp::makeDir(const String& path) {
     if (dirName != "") {
         if (mkdir(lilka::fileutils.joinPath(path, dirName).c_str(), 0777) != 0) {
             alert("Помилка", String("Не можу створити папку") + dirName);
-            lilka::serial_err(
+            FM_DBG lilka::serial_err(
                 "Can't make dir in %s with name %s. %d: %s", path.c_str(), dirName.c_str(), errno, strerror(errno)
             );
         }
     }
 }
 void FileManagerApp::run() {
-    lilka::serial_log("Opening path %s", currentPath.c_str());
+    FM_DBG lilka::serial_log("Opening path %s", currentPath.c_str());
     readDir(currentPath);
     // uint32_t maxReachedStack = uxTaskGetStackHighWaterMark(NULL);
-    // lilka::serial_log("exiting fmanager. reached stacksize %u", maxReachedStack);
+    // FM_DBG lilka::serial_log("exiting fmanager. reached stacksize %u", maxReachedStack);
 }
