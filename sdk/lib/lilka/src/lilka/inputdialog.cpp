@@ -117,6 +117,7 @@ void InputDialog::update() {
             cx = 0;
         }
     }
+    vTaskDelay(LILKA_UI_UPDATE_DELAY_MS / portTICK_PERIOD_MS);
 }
 
 void InputDialog::draw(Arduino_GFX* canvas) {
