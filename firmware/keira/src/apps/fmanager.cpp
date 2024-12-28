@@ -24,7 +24,6 @@
 #include "icons/js.h"
 #include "icons/music.h"
 
-#define MD5_CHUNK_SIZE 1024
 void FileManagerApp::alert(const String& title, const String& message) {
     lilka::Alert alert(title, message);
     alert.draw(canvas);
@@ -33,6 +32,10 @@ void FileManagerApp::alert(const String& title, const String& message) {
         alert.update();
         taskYIELD();
     }
+}
+
+void FileManagerApp::alertNotImplemented() {
+    alert("Помилка", "Ця функція перебуває в розробці");
 }
 
 FileManagerApp::FileManagerApp(FS* fSysDriver, const String& path) : App("FileManager") {
@@ -112,70 +115,72 @@ String FileManagerApp::getFileMD5(const String& file_path) {
     return md5_hex;
 }
 
-FileType FileManagerApp::detectFileType(const String& filename) {
-    String lowerCasedFileName = filename;
-    lowerCasedFileName.toLowerCase();
-    // Mime-type detection?
-    if (lowerCasedFileName.endsWith(".rom") || lowerCasedFileName.endsWith(".nes")) {
-        return FT_NES_ROM;
-    } else if (lowerCasedFileName.endsWith(".bin")) {
-        return FT_BIN;
-    } else if (lowerCasedFileName.endsWith(".lua")) {
-        return FT_LUA_SCRIPT;
-    } else if (lowerCasedFileName.endsWith(".js")) {
-        return FT_JS_SCRIPT;
-    } else if (lowerCasedFileName.endsWith(".mod")) {
-        return FT_MOD;
-    } else if (lowerCasedFileName.endsWith(".lt")) {
-        return FT_LT;
+FMEntry FileManagerApp::pathToEntry(const String& path) {
+    FMEntry newEntry;
+    bool statPerformed = false;
+    newEntry.path = lilka::fileutils.getParentDirectory(path);
+    newEntry.name = basename(path.c_str());
+
+    // Perform stat
+    // . dir needs specific way to do that
+    if (newEntry.name == "." && stat(newEntry.path.c_str(), &(newEntry.stat)) == 0) {
+        statPerformed = true;
     } else {
-        return FT_OTHER;
+        if (stat(path.c_str(), &(newEntry.stat)) == 0) statPerformed = true;
     }
+
+    if (statPerformed) {
+        if (S_ISDIR(newEntry.stat.st_mode)) {
+            newEntry.type = FT_DIR;
+            newEntry.icon = FT_DIR_ICON;
+            newEntry.color = FT_DIR_COLOR;
+            return newEntry;
+        }
+    } else {
+        lilka::serial_err("Can't check stat for %s\n%d: %s", path.c_str(), errno, strerror(errno));
+        newEntry.type = FT_NONE;
+        newEntry.icon = FT_NONE_ICON;
+        newEntry.color = FT_NONE_COLOR;
+        return newEntry;
+    }
+    String lowerCasedPath = path;
+    lowerCasedPath.toLowerCase();
+    if (lowerCasedPath.endsWith(".rom") || lowerCasedPath.endsWith(".nes")) {
+        newEntry.type = FT_NES_ROM;
+        newEntry.icon = FT_NES_ICON;
+        newEntry.color = FT_NES_ROM_COLOR;
+    } else if (lowerCasedPath.endsWith(".bin")) {
+        newEntry.type = FT_BIN;
+        newEntry.icon = FT_BIN_ICON;
+        newEntry.color = FT_BIN_COLOR;
+    } else if (lowerCasedPath.endsWith(".lua")) {
+        newEntry.type = FT_LUA_SCRIPT;
+        newEntry.icon = FT_LUA_SCRIPT_ICON;
+        newEntry.color = FT_LUA_SCRIPT_COLOR;
+    } else if (lowerCasedPath.endsWith(".js")) {
+        newEntry.type = FT_JS_SCRIPT;
+        newEntry.icon = FT_JS_SCRIPT_ICON;
+        newEntry.color = FT_JS_SCRIPT_COLOR;
+    } else if (lowerCasedPath.endsWith(".mod")) {
+        newEntry.type = FT_MOD;
+        newEntry.icon = FT_MOD_ICON;
+        newEntry.color = FT_MOD_COLOR;
+    } else if (lowerCasedPath.endsWith(".lt")) {
+        newEntry.type = FT_LT;
+        newEntry.icon = FT_LT_ICON;
+        newEntry.color = FT_LT_COLOR;
+    } else {
+        newEntry.type = FT_OTHER;
+        newEntry.icon = FT_OTHER_ICON;
+        newEntry.color = FT_OTHER_COLOR;
+    }
+    return newEntry;
 }
 
-const menu_icon_t* FileManagerApp::getFileIcon(const String& filename) {
-    auto fType = detectFileType(filename);
-    switch (fType) {
-        case FT_NES_ROM:
-            return &nes_img;
-        case FT_BIN:
-            return &bin_img;
-        case FT_LUA_SCRIPT:
-            return &lua_img;
-        case FT_JS_SCRIPT:
-            return &js_img;
-        case FT_MOD:
-            return &music_img;
-        case FT_LT: // TODO: add separate icon for FT_MOD or for FT_LT
-            return &music_img;
-        default:
-            return &normalfile_img;
-    }
-}
-
-const uint16_t FileManagerApp::getFileColor(const String& filename) {
-    auto fType = detectFileType(filename);
-    switch (fType) {
-        case FT_NES_ROM:
-            return lilka::colors::Candy_pink;
-        case FT_BIN:
-            return lilka::colors::Mint_green;
-        case FT_LUA_SCRIPT:
-            return lilka::colors::Maya_blue;
-        case FT_JS_SCRIPT:
-            return lilka::colors::Butterscotch;
-        case FT_MOD:
-            return lilka::colors::Plum_web;
-        case FT_LT:
-            return lilka::colors::Pink_lace;
-        default:
-            return lilka::colors::Light_gray;
-    }
-}
-
-void FileManagerApp::openFile(const String& path) {
-    auto fType = detectFileType(path);
-    switch (fType) {
+void FileManagerApp::openEntry(const FMEntry& entry) {
+    String path = lilka::fileutils.joinPath(entry.path, entry.name);
+    lilka::serial_log("Opening path %s", path.c_str());
+    switch (entry.type) {
         case FT_NES_ROM:
             AppManager::getInstance()->runApp(new NesApp(path));
             break;
@@ -194,27 +199,69 @@ void FileManagerApp::openFile(const String& path) {
         case FT_LT:
             AppManager::getInstance()->runApp(new LilTrackerApp(path));
             break;
+        case FT_DIR:
+            readDir(path);
+            break;
         case FT_OTHER:
-            showFileInfo(path);
+            showEntryInfo(entry);
             break;
     }
+    vTaskDelay(SUSPEND_AWAIT_TIME / portTICK_RATE_MS);
 }
-void FileManagerApp::showFileInfo(const String& path) {
-    String info;
-    struct stat fileStat;
-    if (stat(path.c_str(), &fileStat) != 0) {
-        lilka::serial_log("showFileInfo failed. No stat data for %s", path.c_str());
-        return;
+void FileManagerApp::openEntryWith(const FMEntry& entry) {
+    lilka::Menu openWithMenu;
+    openWithMenu.setTitle("Оберіть додаток");
+    openWithMenu.addActivationButton(lilka::Button::B); // Back Button
+    openWithMenu.addItem("Файловий менеджер");
+    openWithMenu.addItem("Емулятор NES");
+    openWithMenu.addItem("Загрузчик прошивок");
+    openWithMenu.addItem("Lua");
+    openWithMenu.addItem("mJS");
+    openWithMenu.addItem("ЛілТрекер");
+    openWithMenu.addItem("Програвач MOD");
+
+    while (1) {
+        if (exitChildDialogs) return;
+        while (!openWithMenu.isFinished()) {
+            openWithMenu.update();
+            openWithMenu.draw(canvas);
+            queueDraw();
+            vTaskDelay(5 / portTICK_PERIOD_MS); // Do not consume all resources
+        }
+        auto button = openWithMenu.getButton();
+        if (button == lilka::Button::B) return; // BACK
+
+        auto index = openWithMenu.getCursor();
+        String path = lilka::fileutils.joinPath(entry.path, entry.name);
+        if (index == 0) { // FileManager
+            readDir(path);
+        } else if (index == 1) { // Nes Emulator
+            AppManager::getInstance()->runApp(new NesApp(path));
+        } else if (index == 2) { // ROM Loader
+            loadRom(path);
+        } else if (index == 3) { // Lua
+            AppManager::getInstance()->runApp(new LuaFileRunnerApp(path));
+        } else if (index == 4) { // mJS
+            AppManager::getInstance()->runApp(new MJSApp(path));
+        } else if (index == 5) { // LilTracker
+            AppManager::getInstance()->runApp(new LilTrackerApp(path));
+        } else if (index == 6) { // ModPlayer
+            AppManager::getInstance()->runApp(new ModPlayerApp(path));
+        }
     }
-    if (S_ISDIR(fileStat.st_mode)) {
+}
+
+void FileManagerApp::showEntryInfo(const FMEntry& entry) {
+    String info;
+    if (entry.type == FT_DIR) {
         info = "Тип: директорія\n";
     } else {
         info = "Тип: файл\n";
-        info += "Розмір: " + lilka::fileutils.getHumanFriendlySize(fileStat.st_size) + "\n";
-        info += "MD5: " + getFileMD5(path) + "\n";
+        info += "Розмір: " + lilka::fileutils.getHumanFriendlySize(entry.stat.st_size) + "\n";
+        info += "MD5: " + getFileMD5(lilka::fileutils.joinPath(entry.path, entry.name)) + "\n";
     }
 
-    alert(basename(path.c_str()), info);
+    alert(entry.name, info);
 }
 
 void FileManagerApp::loadRom(const String& path) {
@@ -251,10 +298,85 @@ void FileManagerApp::loadRom(const String& path) {
     }
 }
 
+void FileManagerApp::selectPath(const String& filename) {
+    selectedPaths.push_back(filename);
+    lilka::serial_log("Adding %s to selected paths", filename.c_str());
+    mode = FM_MODE_SELECT;
+}
+
+void FileManagerApp::deselectPath(const String& filename) {
+    // for (auto it = selectedPaths.begin(); it != selectedPaths.end(); it++) {
+    //     if (*it == filename) {
+    //         it = selectedPaths.erase(it);
+    //         lilka::serial_log("Removing %s from selected paths", filename.c_str());
+    //         if (selectedPaths.size() == 0) mode = FM_MODE_VIEW; // no selected paths
+    //         return; // Assume we don't have duplicates in vector, cause if we've them [-_-]
+    //     }
+    // }
+}
+
+bool FileManagerApp::isSelectedPath(const String& filename) {
+    // for (auto selPath : selectedPaths) {
+    // if (selPath == filename) return true;
+    // }
+    return false;
+}
+
+void FileManagerApp::showEntryOptions(const FMEntry& entry) {
+    lilka::Menu fileOptionsMenu;
+    fileOptionsMenu.setTitle("Опції");
+    fileOptionsMenu.addActivationButton(lilka::Button::B); // Back Button
+    // TODO : add callback based api to lilka:Menu
+    fileOptionsMenu.addItem("Відкрити");
+    fileOptionsMenu.addItem("Відкрити з");
+    fileOptionsMenu.addItem("Перейменувати");
+    fileOptionsMenu.addItem("Копіювати");
+    fileOptionsMenu.addItem("Перемістити");
+    fileOptionsMenu.addItem("Видалити");
+    fileOptionsMenu.addItem("Вибрати");
+    fileOptionsMenu.addItem("Створити папку");
+    while (1) {
+        if (exitChildDialogs) return;
+        while (!fileOptionsMenu.isFinished()) {
+            fileOptionsMenu.update();
+            fileOptionsMenu.draw(canvas);
+            queueDraw();
+            vTaskDelay(5 / portTICK_PERIOD_MS); // Do not consume all resources
+        }
+        auto button = fileOptionsMenu.getButton();
+        if (button == lilka::Button::B) return; // BACK
+
+        auto index = fileOptionsMenu.getCursor();
+        if (index == 0) { // Open
+            if (entry.name == ".") alert("Помилка", "Колумбе, Америку вже відкрито!");
+            else openEntry(entry);
+        } else if (index == 1) { // OpenWith
+            if (entry.name == ".") alert("Помилка", "Колумбе, Америку вже відкрито!");
+            else openEntryWith(entry);
+        } else if (index == 2) { // Rename
+            if (entry.name == ".") alert("Помилка", "Неможливо перейменувати <нічого>");
+            else renameEntry(entry);
+        } else if (index == 3) { // Copy
+            if (entry.name == ".") alert("Помилка", "Неможливо копіювати <нічого>");
+            else alertNotImplemented();
+        } else if (index == 4) { // Move
+            if (entry.name == ".") alert("Помилка", "Переміщати <нічого> дуже важка робота");
+            else alertNotImplemented();
+        } else if (index == 5) { // Delete
+            if (entry.name == ".") alert("Помилка", "Неможливо видалити <нічого>");
+            else deleteEntry(entry);
+        } else if (index == 6) { // Select
+            if (entry.name == ".") alert("Помилка", "Неможливо вибрати <нічого>");
+            else alertNotImplemented();
+        } else if (index == 7) { // mkdir
+            makeDir(entry.path);
+            return;
+        }
+    }
+}
 // ReadDir -> Detect Directories -> Sort names -> Draw
 // On change dir ReadDir again
 // Save top dir? just open new app
-
 void FileManagerApp::readDir(const String& path) {
     std::vector<FMEntry> dirContents;
 
@@ -262,92 +384,216 @@ void FileManagerApp::readDir(const String& path) {
     fileListMenu.setTitle(menuPrefix + lilka::fileutils.getLocalPathInfo(path).path);
     fileListMenu.addActivationButton(lilka::Button::C); // Info Button
     fileListMenu.addActivationButton(lilka::Button::B); // Back Button
+    fileListMenu.addActivationButton(lilka::Button::D); // Options Button
 
     lilka::serial_log("Trying to load dir %s", path.c_str());
 
-    auto dir = opendir(path.c_str());
-    if (dir == NULL) { // Can't open dir
-        alert("Помилка читання", String(errno) + ": " + strerror(errno));
-        return;
-    }
-    currentPath = path; // change path
-    const struct dirent* dir_entry = NULL;
-
-    // Readdir
-    while ((dir_entry = readdir(dir)) != NULL) {
-        String filename = dir_entry->d_name;
-        // Skip current directory and top level entries
-        if (filename != "." || filename == "..") {
-            struct stat fileStat;
-            String sizeStr;
-            // Geting filesize and filetype
-            if (stat(lilka::fileutils.joinPath(currentPath, filename).c_str(), &fileStat) != 0) sizeStr = "!!!";
-            else sizeStr = fileStat.st_size;
-            const menu_icon_t* icon;
-            uint16_t color;
-            if (S_ISDIR(fileStat.st_mode)) {
-                icon = &folder_img;
-                color = lilka::colors::Arylide_yellow;
-                sizeStr = "";
-            } else {
-                icon = getFileIcon(filename);
-                color = getFileColor(filename);
-            }
-            dirContents.push_back({detectFileType(filename), icon, color, filename, fileStat});
-        }
-    }
-
-    // Sorting directory entries
-    std::sort(dirContents.begin(), dirContents.end(), [](FMEntry a, FMEntry b) {
-        if (S_ISDIR(a.stat.st_mode) && !S_ISDIR(b.stat.st_mode)) return true;
-        else if (!S_ISDIR(a.stat.st_mode) && S_ISDIR(b.stat.st_mode)) return false;
-        return a.name.compareTo(b.name) < 0;
-    });
-
-    // Adding entries to menu
-    for (auto dirEntry : dirContents) {
-        if (S_ISDIR(dirEntry.stat.st_mode)) fileListMenu.addItem(dirEntry.name, dirEntry.icon, dirEntry.color);
-        else
-            fileListMenu.addItem(
-                dirEntry.name,
-                dirEntry.icon,
-                dirEntry.color,
-                lilka::fileutils.getHumanFriendlySize(dirEntry.stat.st_size)
-            );
-    }
-
-    // Add Back button
-    fileListMenu.addItem("<< Назад", 0, 0);
-
+    int16_t index = 0;
     while (1) {
+        // restore showEntryOptions and openEntryWith avalibility
+        exitChildDialogs = false;
+        // Readdir
+        auto dir = opendir(path.c_str());
+        if (dir == NULL) { // Can't open dir
+            alert("Помилка читання", String(errno) + ": " + strerror(errno));
+            return;
+        }
+        currentPath = path; // change path
+        const struct dirent* dir_entry = NULL;
+
+        while ((dir_entry = readdir(dir)) != NULL) {
+            String filename = dir_entry->d_name;
+            // Skip current directory and top level entries
+            if (filename != "." && filename != "..") {
+                FMEntry newEntry = pathToEntry(lilka::fileutils.joinPath(currentPath, filename));
+                dirContents.push_back(newEntry);
+                lilka::serial_log(
+                    "Added new entry with type:%d, name:%s, path:%s, ",
+                    newEntry.type,
+                    newEntry.name.c_str(),
+                    newEntry.path.c_str()
+                );
+            }
+        }
+        closedir(dir); // unfortunately we can't reuse same dir
+
+        // Sorting directory entries
+        std::sort(dirContents.begin(), dirContents.end(), [](FMEntry a, FMEntry b) {
+            if (a.type == FT_DIR && b.type != FT_DIR) return true;
+            else if (a.type != FT_DIR && b.type == FT_DIR) return false;
+            return a.name.compareTo(b.name) < 0;
+        });
+
+        // Adding entries to menu
+        for (auto dirEntry : dirContents) {
+            // TODO: check mode, select proper icon if FM_MODE_SELECT and dirEntry in selectedEbtries
+            if (dirEntry.type == FT_DIR) fileListMenu.addItem(dirEntry.name, dirEntry.icon, dirEntry.color);
+            else
+                fileListMenu.addItem(
+                    dirEntry.name,
+                    dirEntry.icon,
+                    dirEntry.color,
+                    lilka::fileutils.getHumanFriendlySize(dirEntry.stat.st_size)
+                );
+        }
+
+        // Add Back button
+        fileListMenu.addItem("<< Назад", 0, 0);
+
+        // Try to restore old menuCursor:
+        // last option should be selected cause something should be deleted
+        // if this happens. here we assume that we deleted single item
+        if (fileListMenu.getItemCount() >= index) fileListMenu.setCursor(index);
+        else fileListMenu.setCursor(fileListMenu.getItemCount() - 1); // Select last
+
         // Do Draw !
         while (!fileListMenu.isFinished()) {
             fileListMenu.update();
             fileListMenu.draw(canvas);
             queueDraw();
+            vTaskDelay(5 / portTICK_PERIOD_MS); // Do not consume all resources
         }
 
-        //Do magic!
-        int16_t index = fileListMenu.getCursor();
+        // Set selected entry to . at first
+        FMEntry selectedEntry; // pass . as entry by default
+        selectedEntry = pathToEntry(lilka::fileutils.joinPath(currentPath, "."));
 
-        if (index == dirContents.size()) break; // Back option selected
-
+        // try to save selected entry
+        index = fileListMenu.getCursor();
         auto button = fileListMenu.getButton();
-        if (button == lilka::Button::A) {
-            if (S_ISDIR(dirContents[index].stat.st_mode)) {
-                readDir(lilka::fileutils.joinPath(currentPath, dirContents[index].name));
-                // Restore old path
-                currentPath = lilka::fileutils.getParentDirectory(currentPath);
-                lilka::serial_log("Restored path %s", currentPath.c_str());
-            } else {
-                openFile(lilka::fileutils.joinPath(currentPath, dirContents[index].name));
-            }
-        } else if (button == lilka::Button::C) {
-            showFileInfo(lilka::fileutils.joinPath(currentPath, dirContents[index].name));
-        } else break; // B button
+
+        const FMEntry* pselectedEntry = NULL;
+        if (index != dirContents.size()) {
+            selectedEntry = dirContents[index];
+            pselectedEntry = &selectedEntry;
+        }
+
+        // clear memory
+        dirContents.clear();
+        fileListMenu.clearItems();
+
+        bool exiting = false;
+
+        if (button == lilka::Button::A) { // Open
+            if (pselectedEntry) openEntry(*pselectedEntry);
+            else exiting = true;
+        } else if (button == lilka::Button::C) { // Info
+            if (pselectedEntry) showEntryInfo(*pselectedEntry);
+            else exiting = true;
+        } else if (button == lilka::Button::D) { // Options
+            // if folder has no entries
+            // pass . entry to allow mkdir
+            if (pselectedEntry) showEntryOptions(*pselectedEntry);
+            else showEntryOptions(selectedEntry);
+        } else { // B button
+            exiting = true;
+        }
+
+        // Do some work on exit
+        if (exiting) {
+            // restore parent dir before exit
+            currentPath = lilka::fileutils.getParentDirectory(currentPath);
+            break;
+        }
+    }
+}
+
+void FileManagerApp::renameEntry(const FMEntry& entry) {
+    exitChildDialogs = true;
+    lilka::InputDialog newNameInput("Введіть нову назву");
+    newNameInput.setValue(entry.name); // pass old name
+
+    while (!newNameInput.isFinished()) {
+        newNameInput.update();
+        newNameInput.draw(canvas);
+        queueDraw();
+    }
+    auto newName = newNameInput.getValue();
+
+    // Check name
+    // TODO: check on invalid characters in user's input
+    if (newName == "" || newName == entry.name) return;
+    auto path = lilka::fileutils.joinPath(entry.path, entry.name);
+    auto newPath = lilka::fileutils.joinPath(entry.path, newName);
+    // Perform rename
+    if (rename(path.c_str(), newPath.c_str()) != 0) {
+        // Handle errors:
+        lilka::serial_err("Can't rename %s to %s. %d: %s", path.c_str(), newPath.c_str(), errno, strerror(errno));
+        alert("Помилка", String("Не можу перейменувати\n") + path);
+    }
+}
+
+void FileManagerApp::deleteEntry(const FMEntry& entry, bool force) {
+    exitChildDialogs = true;
+    auto path = lilka::fileutils.joinPath(entry.path, entry.name);
+    // Perform check on user sureness
+    if (!force) {
+        lilka::Alert checkAlert(
+            "Ви впевнені?", String("Ця операція видалить файл\n") + path + "\nПродовжити: START\nВихід: A/B"
+        );
+        checkAlert.addActivationButton(lilka::Button::A);
+        checkAlert.addActivationButton(lilka::Button::B);
+        checkAlert.addActivationButton(lilka::Button::START);
+        while (!checkAlert.isFinished()) {
+            checkAlert.update();
+            checkAlert.draw(canvas);
+            queueDraw();
+            vTaskDelay(5 / portTICK_PERIOD_MS); // Do not consume all resources
+        }
+        if (checkAlert.getButton() != lilka::Button::START) return; //Exit
+    }
+    // Do job
+    if (entry.type == FT_DIR) { // Directory
+        auto dir = opendir(path.c_str());
+        if (dir == NULL) {
+            lilka::serial_err("Can't open dir %s. %d: %s", path.c_str(), errno, strerror(errno));
+            alert("Помилка", String("Не можу видалити\n") + path);
+            return; // some shit happened. run!
+        }
+        const struct dirent* dirEntry;
+        while ((dirEntry = readdir(dir)) != NULL) {
+            String filename = dirEntry->d_name;
+            FMEntry fEntry = pathToEntry(lilka::fileutils.joinPath(path, filename));
+            deleteEntry(fEntry, true); // recursive
+        }
+        closedir(dir);
+        // Delete dir itself
+        if (unlink(path.c_str()) != 0) {
+            lilka::serial_err("Tried to delete %s. %d: %s", path.c_str(), errno, strerror(errno));
+            alert("Помилка", String("Не можу видалити\n") + path);
+            return; // some shit happened. run!
+        }
+
+    } else { // Regular file
+        if (unlink(path.c_str()) != 0) {
+            lilka::serial_err("Tried to delete %s. %d: %s", path.c_str(), errno, strerror(errno));
+            alert("Помилка", String("Не можу видалити\n") + path);
+            return; // some shit happened. run!
+        }
+    }
+}
+
+void FileManagerApp::makeDir(const String& path) {
+    exitChildDialogs = true;
+    lilka::InputDialog dirNameInput("Введіть назву нової папки");
+    while (!dirNameInput.isFinished()) {
+        dirNameInput.update();
+        dirNameInput.draw(canvas);
+        queueDraw();
+    }
+    auto dirName = dirNameInput.getValue();
+    if (dirName != "") {
+        if (mkdir(lilka::fileutils.joinPath(path, dirName).c_str(), 0777) != 0) {
+            alert("Помилка", String("Не можу створити папку") + dirName);
+            lilka::serial_err(
+                "Can't make dir in %s with name %s. %d: %s", path.c_str(), dirName.c_str(), errno, strerror(errno)
+            );
+        }
     }
 }
 void FileManagerApp::run() {
     lilka::serial_log("Opening path %s", currentPath.c_str());
     readDir(currentPath);
+    // uint32_t maxReachedStack = uxTaskGetStackHighWaterMark(NULL);
+    // lilka::serial_log("exiting fmanager. reached stacksize %u", maxReachedStack);
 }

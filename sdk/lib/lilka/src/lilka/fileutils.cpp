@@ -38,10 +38,17 @@ bool FileUtils::initSD() {
 #if LILKA_SDCARD_CS < 0
     serial_err("SD init failed: no CS pin");
 #else
+    // clang-format off
+#ifdef USE_EXT_SPI_FOR_SD
+bool init_result = sdfs->begin(
+        SPI2_DEV1_CS, SPI2, LILKA_SD_FREQUENCY, LILKA_SD_ROOT
+    ); // TODO: is 20 MHz OK for all cards? // TODO: is 20 MHz OK for all cards?
+#else
     bool init_result = sdfs->begin(
         LILKA_SDCARD_CS, SPI1, LILKA_SD_FREQUENCY, LILKA_SD_ROOT
     ); // TODO: is 20 MHz OK for all cards? // TODO: is 20 MHz OK for all cards?
-
+#endif
+    // clang-format on
     sdcard_type_t cardType = sdfs->cardType();
     if (!init_result) {
         // Can't init -> should end or we'll mess
@@ -236,8 +243,12 @@ bool FileUtils::createSDPartTable() {
     std::unique_ptr<uint8_t[]> workbufPtr(workbuf);
 
     // init without mount
+    // clang-format off
+#ifdef USE_EXT_SPI_FOR_SD
+    uint8_t pdrv = sdcard_init(SPI2_DEV1_CS, &SPI2, LILKA_SD_FREQUENCY);
+#else
     uint8_t pdrv = sdcard_init(LILKA_SDCARD_CS, &SPI1, LILKA_SD_FREQUENCY);
-
+#endif
     if (pdrv == 0xFF) {
         xSemaphoreGive(sdMutex);
         return false;
