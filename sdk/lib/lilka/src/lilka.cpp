@@ -16,6 +16,7 @@ void begin() {
     display.begin(); // Must be initialized AFTER SD card
     controller.begin(); // Must be initialized AFTER SD card (since SD card somehow messes with GPIO)
     battery.begin();
+    // BLE_server.begin();
     // TODO: I2S
     // TODO: Delete Task Watchdog Timer - we'll be running long tasks
     // TODO: Maybe keep it?
