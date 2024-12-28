@@ -90,6 +90,6 @@ void SoundConfigApp::run() {
                 }
             }
         }
-        saveSettings();
     }
+    saveSettings();
 }
