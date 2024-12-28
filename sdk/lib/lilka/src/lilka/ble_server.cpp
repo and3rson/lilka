@@ -4,7 +4,7 @@
 namespace lilka {
 
 // Constructor
-BLE_Server::BLE_Server() {
+BLE_Server::BLE_Server() : server(nullptr) {
 }
 
 // Start the BLE server
@@ -77,7 +77,7 @@ BLE_Server_status BLE_Server::create_new_characteristics(
     }
 
     NimBLEService* service = service_it->second;
-    NimBLECharacteristic* characteristic = service->createCharacteristic(char_uuid, properties);
+    const NimBLECharacteristic* characteristic = service->createCharacteristic(char_uuid, properties);
 
     if (!characteristic) {
         return BLE_Server_status::CHARACTERISTIC_FAILED_TO_CREATE;
@@ -128,8 +128,6 @@ BLE_Server_status BLE_Server::write_characteristics(
 
 // Read from a characteristic dynamically
 std::string BLE_Server::read_characteristics(const std::string& service_uuid, const std::string& char_uuid) {
-    std::vector<std::string> result;
-
     // Find the service
     auto service_it = services.find(service_uuid);
     if (service_it != services.end()) {
