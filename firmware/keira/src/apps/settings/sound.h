@@ -1,7 +1,7 @@
 #include <lilka.h>
 #include "app.h"
 #define VOLUME_STEP         5
-#define VOLUME_BUTTON_DELAY 100
+#define VOLUME_BUTTON_DELAY 200
 
 class SoundConfigApp : public App {
 public:
