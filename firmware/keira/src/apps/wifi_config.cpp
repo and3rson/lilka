@@ -83,6 +83,7 @@ void WiFiConfigApp::run() {
     }
 
     lilka::Menu menu("Мережі");
+    menu.addActivationButton(lilka::Button::B); // Back
     for (int16_t i = 0; i < count; i++) {
         const int8_t rssi = WiFi.RSSI(i);
         uint8_t signalStrength;
@@ -120,7 +121,7 @@ void WiFiConfigApp::run() {
             queueDraw();
         }
         int cursor = menu.getCursor();
-        if (cursor == count - 1) {
+        if (cursor == count - 1 || menu.getButton() == lilka::Button::B) {
             return;
         }
         if (menu.getButton() == lilka::Button::C) {
