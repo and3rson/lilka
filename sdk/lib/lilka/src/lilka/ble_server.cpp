@@ -8,6 +8,10 @@ BLE_Server::BLE_Server() {
 
 // Start the BLE server
 void BLE_Server::begin() {
+    if (!serverCallbacks) {
+        serverCallbacks = new ServerCallbacks();
+    }
+
     NimBLEDevice::init("Lilka");
 
     NimBLEAddress mac = NimBLEDevice::getAddress();
@@ -16,115 +20,94 @@ void BLE_Server::begin() {
     serial_log(mac.toString().c_str());
 
     this->server = NimBLEDevice::createServer();
+    this->server->setCallbacks(serverCallbacks);
 
     NimBLEAdvertising* advertising = NimBLEDevice::getAdvertising();
     advertising->start();
-    serial_log("BLE Server started");
 }
 
 // Stop the BLE server
 void BLE_Server::stop() {
     NimBLEDevice::stopAdvertising();
     NimBLEDevice::deinit();
-    serial_log("BLE Server stopped");
+    if (serverCallbacks) {
+        delete serverCallbacks;
+        serverCallbacks = nullptr; // Avoid dangling pointer
+    }
 }
 
 // Create a new service dynamically
-NimBLEService* BLE_Server::create_service(const std::string& uuid) {
+BLE_Server_status BLE_Server::create_service(const std::string& uuid) {
     if (services.find(uuid) != services.end()) {
-        serial_log("Service with UUID %s already exists\n", uuid.c_str());
-        return nullptr;
+        return BLE_Server_status::SERVICE_EXISTS;
     }
 
     NimBLEService* service = server->createService(uuid);
     services[uuid] = service;
     service->start();
 
-    // Restart advertising with the new service UUID
     NimBLEAdvertising* advertising = NimBLEDevice::getAdvertising();
     advertising->addServiceUUID(uuid.c_str());
     advertising->start();
-
-    serial_log("Service %s created and advertising restarted\n", uuid.c_str());
-    return service;
+    return BLE_Server_status::OK;
 }
 
-// Delete a service dynamically
-void BLE_Server::delete_service(const std::string& uuid) {
+BLE_Server_status BLE_Server::delete_service(const std::string& uuid) {
     auto it = services.find(uuid);
     if (it != services.end()) {
-        // Remove the service
         server->removeService(it->second);
         services.erase(it);
-        serial_log("Service %s deleted\n", uuid.c_str());
-
-        // Restart advertising to reflect the removal of the service
         NimBLEAdvertising* advertising = NimBLEDevice::getAdvertising();
-        advertising->start(); // Restart advertising
+        advertising->start();
 
-        serial_log("Advertising restarted after removing service %s\n", uuid.c_str());
+        return BLE_Server_status::OK;
     } else {
-        serial_log("Service %s not found\n", uuid.c_str());
+        return BLE_Server_status::SERVICE_NOT_FOUND;
     }
 }
 
 // Create a new characteristic dynamically
-NimBLECharacteristic* BLE_Server::create_new_characteristics(
+BLE_Server_status BLE_Server::create_new_characteristics(
     const std::string& service_uuid, const std::string& char_uuid, uint32_t properties
 ) {
     auto service_it = services.find(service_uuid);
     if (service_it == services.end()) {
-        serial_log("Service %s not found\n", service_uuid.c_str());
-        return nullptr;
+        return BLE_Server_status::SERVICE_NOT_FOUND;
     }
 
     NimBLEService* service = service_it->second;
     NimBLECharacteristic* characteristic = service->createCharacteristic(char_uuid, properties);
 
     if (!characteristic) {
-        serial_log("Failed to create characteristic %s in service %s\n", char_uuid.c_str(), service_uuid.c_str());
-        return nullptr;
+        return BLE_Server_status::CHARACTERISTIC_FAILED_TO_CREATE;
     }
 
-    serial_log("Characteristic %s created in service %s\n", char_uuid.c_str(), service_uuid.c_str());
-
-    // Restart advertising with the new characteristic UUID
     NimBLEAdvertising* advertising = NimBLEDevice::getAdvertising();
     advertising->start();
 
-    serial_log(
-        "Advertising restarted to include new characteristic %s in service %s\n",
-        char_uuid.c_str(),
-        service_uuid.c_str()
-    );
-    return characteristic;
+    return BLE_Server_status::OK;
 }
 
 // Delete a characteristic dynamically
-void BLE_Server::delete_characteristics(const std::string& service_uuid, const std::string& char_uuid) {
+BLE_Server_status BLE_Server::delete_characteristics(const std::string& service_uuid, const std::string& char_uuid) {
     auto service_it = services.find(service_uuid);
     if (service_it != services.end()) {
         NimBLEService* service = service_it->second;
         // Remove the characteristic
         service->removeCharacteristic(service->getCharacteristic(char_uuid));
-        serial_log("Characteristic %s deleted from service %s\n", char_uuid.c_str(), service_uuid.c_str());
 
         // Restart advertising to reflect the removal of the characteristic
         NimBLEAdvertising* advertising = NimBLEDevice::getAdvertising();
         advertising->start(); // Restart advertising
 
-        serial_log(
-            "Advertising restarted after removing characteristic %s from service %s\n",
-            char_uuid.c_str(),
-            service_uuid.c_str()
-        );
+        return BLE_Server_status::OK;
     } else {
-        serial_log("Service %s not found\n", service_uuid.c_str());
+        return BLE_Server_status::SERVICE_NOT_FOUND;
     }
 }
 
 // Write to a characteristic dynamically
-void BLE_Server::write_characteristics(
+BLE_Server_status BLE_Server::write_characteristics(
     const std::string& service_uuid, const std::string& char_uuid, const std::string& value
 ) {
     auto service_it = services.find(service_uuid);
@@ -133,44 +116,41 @@ void BLE_Server::write_characteristics(
         NimBLECharacteristic* characteristic = service->getCharacteristic(char_uuid);
         if (characteristic) {
             characteristic->setValue(value);
-            serial_log(
-                "Characteristic %s in service %s written with value: %s\n",
-                char_uuid.c_str(),
-                service_uuid.c_str(),
-                value.c_str()
-            );
+            return BLE_Server_status::OK;
         } else {
-            serial_log("Characteristic %s not found in service %s\n", char_uuid.c_str(), service_uuid.c_str());
+            return BLE_Server_status::CHARACTERISTIC_NOT_FOUND;
         }
     } else {
-        // serial_log("Service %s not found\n", service_uuid.c_str());
+        return BLE_Server_status::SERVICE_NOT_FOUND;
     }
 }
 
 // Read from a characteristic dynamically
-void BLE_Server::read_characteristics(const std::string& service_uuid, const std::string& char_uuid) {
+std::string BLE_Server::read_characteristics(const std::string& service_uuid, const std::string& char_uuid) {
+    std::vector<std::string> result;
+
+    // Find the service
     auto service_it = services.find(service_uuid);
     if (service_it != services.end()) {
         NimBLEService* service = service_it->second;
+
+        // Find the characteristic
         NimBLECharacteristic* characteristic = service->getCharacteristic(char_uuid);
         if (characteristic) {
+            // Read the characteristic value
             std::string value = characteristic->getValue();
-            serial_log(
-                "Characteristic %s in service %s read with value: %s\n",
-                char_uuid.c_str(),
-                service_uuid.c_str(),
-                value.c_str()
-            );
+            characteristic->setValue(NULL);
+            return value;
         } else {
-            serial_log("Characteristic %s not found in service %s\n", char_uuid.c_str(), service_uuid.c_str());
+            return "ERR:" + std::to_string(static_cast<int>(BLE_Server_status::CHARACTERISTIC_NOT_FOUND));
         }
     } else {
-        serial_log("Service %s not found\n", service_uuid.c_str());
+        return "ERR:" + std::to_string(static_cast<int>(BLE_Server_status::SERVICE_NOT_FOUND));
     }
 }
 
 // Notify a characteristic dynamically
-void BLE_Server::notify_characteristics(
+BLE_Server_status BLE_Server::notify_characteristics(
     const std::string& service_uuid, const std::string& char_uuid, const std::string& value
 ) {
     auto service_it = services.find(service_uuid);
@@ -180,20 +160,25 @@ void BLE_Server::notify_characteristics(
         if (characteristic) {
             characteristic->setValue(value);
             characteristic->notify();
-            // serial_log(
-            //     "Characteristic %s in service %s notified with value: %s\n",
-            //     char_uuid.c_str(),
-            //     service_uuid.c_str(),
-            //     value.c_str()
-            // );
+            return BLE_Server_status::OK;
         } else {
-            // serial_log("Characteristic %s not found in service %s\n", char_uuid.c_str(), service_uuid.c_str());
+            return BLE_Server_status::CHARACTERISTIC_NOT_FOUND;
         }
     } else {
-        // serial_log("Service %s not found\n", service_uuid.c_str());
+        return BLE_Server_status::SERVICE_NOT_FOUND;
     }
 }
 
+bool BLE_Server::getConnectionStatus() {
+    if (serverCallbacks) {
+        return serverCallbacks->getConnectionStatus();
+    }
+
+    serial_err("serverCallbacks is null");
+    return false;
+}
+
+ServerCallbacks* serverCallbacks;
 BLE_Server BLE_server;
 
 } // namespace lilka
