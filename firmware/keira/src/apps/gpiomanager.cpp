@@ -9,11 +9,11 @@ GPIOManagerApp::GPIOManagerApp() : App("GPIOManager") {
     for (int i = 0; i < PIN_COUNT; i++) {
         pinMode(pinNo[i], pinM[i]);
     }
-    // Back button
+    // Change pin mode
     menu.addActivationButton(lilka::Button::D);
     // Change pin value
     menu.addActivationButton(lilka::Button::A);
-    // Change pin mode
+    // Back
     menu.addActivationButton(lilka::Button::B);
     // For testing purposes
     //readSpeedCompare();
@@ -67,7 +67,7 @@ void GPIOManagerApp::run() {
             } else {
                 digitalWrite(pinNo[curPos], pinData[curPos] == HIGH ? LOW : HIGH);
             }
-        } else if (button == lilka::Button::B) {
+        } else if (button == lilka::Button::D) {
             // Swap Pin Modes
             pinM[curPos] = (pinM[curPos] == INPUT ? OUTPUT : INPUT);
             pinMode(pinNo[curPos], pinM[curPos]);
