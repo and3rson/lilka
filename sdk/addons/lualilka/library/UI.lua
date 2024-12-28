@@ -1,92 +1,92 @@
----@class keyboardDialog
-keyboardDialog = {}
+---@class keyboardUI
+keyboardUI = {}
 
 ---Створює новий діалог для введення тексту через клавіатуру.
 ---
 ---@param prompt string Повідомлення, яке відображатиметься в діалозі.
----@return keyboardDialog новий об'єкт діалогу
-function keyboardDialog(prompt) end
+---@return keyboardUI новий об'єкт діалогу
+function keyboardUI(prompt) end
 
 ---Оновлює стан діалогу. Зазвичай викликається в циклі для оновлення діалогу.
-function keyboardDialog:update() end
+function keyboardUI:update() end
 
 ---Малює діалог на екрані.
-function keyboardDialog:draw() end
+function keyboardUI:draw() end
 
 ---Перевіряє, чи завершено діалог.
 ---@return boolean true, якщо діалог завершено, false, якщо ні
-function keyboardDialog:isFinished() end
+function keyboardUI:isFinished() end
 
 ---Встановлює, чи слід маскувати введений текст (наприклад, для введення паролю).
 ---@param masked boolean true, якщо текст має бути маскований, false — якщо ні
-function keyboardDialog:setMasked(masked) end
+function keyboardUI:setMasked(masked) end
 
 ---Встановлює значення для поля введення.
 ---@param value string нове значення поля введення
-function keyboardDialog:setValue(value) end
+function keyboardUI:setValue(value) end
 
 ---Отримує значення, введене в діалозі.
 ---@return string значення введеного тексту
-function keyboardDialog:getValue() end
+function keyboardUI:getValue() end
 
 
----@class alertDialog
-alertDialog = {}
+---@class alertUI
+alertUI = {}
 
 ---Створює діалог з повідомленням для сповіщення користувача.
 ---
 ---@param title string Назва діалогу
 ---@param message string Повідомлення, яке відображатиметься в діалозі
----@return alertDialog новий об'єкт діалогу
-function alertDialog(title, message) end
+---@return alertUI новий об'єкт діалогу
+function alertUI(title, message) end
 
 ---Оновлює стан діалогу.
-function alertDialog:update() end
+function alertUI:update() end
 
 ---Малює діалог на екрані.
-function alertDialog:draw() end
+function alertUI:draw() end
 
 ---Перевіряє, чи завершено діалог.
 ---@return boolean true, якщо діалог завершено, false — якщо ні
-function alertDialog:isFinished() end
+function alertUI:isFinished() end
 
 ---Встановлює нову назву для діалогу.
 ---@param title string нова назва діалогу
-function alertDialog:setTitle(title) end
+function alertUI:setTitle(title) end
 
 ---Встановлює нове повідомлення для діалогу.
 ---@param message string нове повідомлення для діалогу
-function alertDialog:setMessage(message) end
+function alertUI:setMessage(message) end
 
 ---Додає кнопку для активації (наприклад, 'a', 'b' тощо).
 ---@param button string кнопка для активації
-function alertDialog:addActivationButton(button) end
+function alertUI:addActivationButton(button) end
 
 ---Отримує кнопку, яку натиснув користувач.
 ---@return string ім'я натиснутої кнопки (наприклад, 'a', 'b')
-function alertDialog:getButton() end
+function alertUI:getButton() end
 
 
----@class progressDialog
-progressDialog = {}
+---@class progressUI
+progressUI = {}
 
 ---Створює діалог для відображення прогресу.
 ---
 ---@param title string Назва діалогу
 ---@param message string Повідомлення, яке відображатиметься в діалозі
----@return progressDialog новий об'єкт діалогу
-function progressDialog(title, message) end
+---@return progressUI новий об'єкт діалогу
+function progressUI(title, message) end
 
 ---Малює діалог на екрані.
-function progressDialog:draw() end
+function progressUI:draw() end
 
 ---Встановлює нове повідомлення для діалогу прогресу.
 ---@param message string нове повідомлення для діалогу
-function progressDialog:setMessage(message) end
+function progressUI:setMessage(message) end
 
 ---Встановлює поточний прогрес (від 0 до 100) для прогрес-бару.
 ---@param value integer поточний прогрес (0-100)
-function progressDialog:setProgress(value) end
+function progressUI:setProgress(value) end
 
 
 --------------------------
@@ -94,7 +94,7 @@ function progressDialog:setProgress(value) end
 --------------------------
 
 -- Створення діалогу для введення тексту
-local keyboard_test = keyboardDialog("Скажи моє ім'я") 
+local keyboard_test = keyboardUI("Скажи моє ім'я") 
 keyboard_test:setValue("ТЕСТ")
 while true do      
     keyboard_test:draw()      
@@ -105,7 +105,7 @@ while true do
 end
 
 -- Створення сповіщення
-local alert_test = alertDialog("Хто ти?", keyboard_test:getValue()) 
+local alert_test = alertUI("Хто ти?", keyboard_test:getValue()) 
 alert_test:draw()      
 while true do      
     alert_test:update()     
@@ -118,7 +118,7 @@ alert_test:setTitle("НІ!!! Ти є:")
 alert_test:setMessage("КРАЩИЙ У СВІТІ")
 
 -- Створення діалогу з кнопками
-local alert_test = alertDialog("Бажаєш пограти?", "[A]ТАК\n[B]НІ") 
+local alert_test = alertUI("Бажаєш пограти?", "[A]ТАК\n[B]НІ") 
 alert_test:addActivationButton("a")
 alert_test:addActivationButton("b")
 alert_test:draw()      
@@ -140,7 +140,7 @@ elseif which_key == "b" then
 end
 
 -- Створення діалогу прогресу
-local progress_test = progressDialog("Ракета", "Запуск") 
+local progress_test = progressUI("Ракета", "Запуск") 
 for i = 0, 100 do
     progress_test:setProgress(i)
     progress_test:draw()

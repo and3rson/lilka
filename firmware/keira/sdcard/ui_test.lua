@@ -1,4 +1,4 @@
-local keyboard_test = keyboardDialog("SAY MY NAME") 
+local keyboard_test = keyboardUI("SAY MY NAME") 
 keyboard_test:setValue("TEST")
 while true do      
     keyboard_test:draw()      
@@ -9,7 +9,7 @@ while true do
 end
 
 
-local alert_test = alertDialog("YOU ARE?", keyboard_test:getValue()) 
+local alert_test = alertUI("YOU ARE?", keyboard_test:getValue()) 
 while true do      
     alert_test:draw()      
     alert_test:update()  
@@ -29,7 +29,7 @@ while true do
     end
 end
 
-local alert_test = alertDialog("DO YOU WANNA PLAY", "[A]YES\n[B]NO") 
+local alert_test = alertUI("DO YOU WANNA PLAY", "[A]YES\n[B]NO") 
 alert_test:addActivationButton("a")
 alert_test:addActivationButton("b")
 alert_test:draw()      
@@ -58,7 +58,7 @@ while true do
     end
 end
 
-local alert_test = progressDialog("ROCKET", "launch") 
+local alert_test = progressUI("ROCKET", "launch") 
 for i = 0, 100 do
     display.fill_screen(0)
 
