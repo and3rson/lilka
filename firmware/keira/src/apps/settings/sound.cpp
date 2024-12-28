@@ -32,7 +32,6 @@ void SoundConfigApp::run() {
         soundMenu.update();
         soundMenu.draw(canvas);
         queueDraw();
-        vTaskDelay(10 / portTICK_PERIOD_MS);
         auto index = soundMenu.getCursor();
         switch (index) {
             case 0: { // Volume

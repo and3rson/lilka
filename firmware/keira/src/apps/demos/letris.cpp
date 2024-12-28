@@ -298,6 +298,5 @@ void LetrisApp::run() {
         if (alert.isFinished()) {
             break;
         }
-        taskYIELD();
     }
 }

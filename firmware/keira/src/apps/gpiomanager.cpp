@@ -53,7 +53,6 @@ void GPIOManagerApp::run() {
             menu.update();
             menu.draw(canvas);
             queueDraw();
-            taskYIELD();
         }
         lilka::serial_log("Menu finished");
         int16_t curPos = menu.getCursor();
