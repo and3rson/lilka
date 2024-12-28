@@ -5,14 +5,21 @@
 #include <NimBLEDevice.h>
 #include <map>
 #include <string>
+#include "serial.h"
 
 namespace lilka {
 
 class BLE_Server {
 private:
+    // Remove static from start_server and start_advertising
     NimBLEServer* server;
     std::map<std::string, NimBLEService*> services; // UUID to NimBLEService map
     std::map<std::string, NimBLECharacteristic*> characteristics;
+
+protected:
+    void set_server(NimBLEServer* srv) {
+        server = srv;
+    }
 
 public:
     BLE_Server();

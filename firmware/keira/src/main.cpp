@@ -23,7 +23,7 @@ void setup() {
     serviceManager->addService(new ClockService());
     serviceManager->addService(new ScreenshotService());
     serviceManager->addService(new TelnetService());
-    // serviceManager->addService(new KeiraBLEService());
+    serviceManager->addService(new KeiraBLEService());
     appManager->setPanel(new StatusBarApp());
     appManager->runApp(new LauncherApp());
 }

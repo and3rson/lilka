@@ -9,7 +9,7 @@ namespace lilka {
 
 void serial_begin() {
     Serial.begin(115200);
-    // Serial.setTxTimeoutMs(0);
+    Serial.setTxTimeoutMs(0);
 }
 
 void serial_log(const char* format, ...) {
