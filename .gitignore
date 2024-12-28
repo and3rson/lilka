@@ -9,7 +9,7 @@ compile_commands.json
 ./**/.vs/
 ./**/[Dd]ebug/
 ./**/[Rr]elease/
-./**/.vscode/
+.vscode
 
 *.o
 *.obj
