@@ -1,4 +1,5 @@
 #include "ble_server.h"
+#include "serial.h"
 
 namespace lilka {
 

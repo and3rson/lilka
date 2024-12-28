@@ -119,6 +119,7 @@ public:
 };
 
 /// Екземпляр класу `BLE_Server`, який можна використовувати для управління BLE сервером.
+extern ServerCallbacks* serverCallbacks;
 extern BLE_Server BLE_server;
 
 } // namespace lilka
