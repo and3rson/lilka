@@ -50,6 +50,9 @@
 #include "icons/music.h"
 #include "fmanager.h"
 
+#include <WiFi.h> // for setWiFiTxPower
+#include <Preferences.h>
+
 LauncherApp::LauncherApp() : App("Menu") {
     networkService = static_cast<NetworkService*>(ServiceManager::getInstance()->getService<NetworkService>("network"));
 }
@@ -133,6 +136,7 @@ void LauncherApp::run() {
                         }
                     ),
                     ITEM::MENU("Мережі WiFi", [this]() { this->wifiManager(); }),
+                    ITEM::MENU("Потужність WiFi", [this]() { this->setWiFiTxPower(); }),
                     ITEM::MENU("Звук", [this]() { this->runApp<SoundConfigApp>(); }),
                     ITEM::MENU("Про систему", [this]() { this->about(); }),
                     ITEM::MENU("Інфо про пристрій", [this]() { this->info(); }),
@@ -211,7 +215,54 @@ template <typename T, typename... Args>
 void LauncherApp::runApp(Args&&... args) {
     AppManager::getInstance()->runApp(new T(std::forward<Args>(args)...));
 }
+void LauncherApp::setWiFiTxPower() {
+    // String names[16];
+    // int partitionCount = lilka::sys.get_partition_labels(names);
 
+    String names[] = {
+        "19.5 dBm", "19 dBm", "18.5 dBm", "17 dBm", "15 dBm", "13 dBm", "11 dBm", "8.5 dBm", "7 dBm", "2 dBm", "-1 dBm"
+    };
+    wifi_power_t values[] = {
+        WIFI_POWER_19_5dBm,
+        WIFI_POWER_19dBm,
+        WIFI_POWER_18_5dBm,
+        WIFI_POWER_17dBm,
+        WIFI_POWER_15dBm,
+        WIFI_POWER_13dBm,
+        WIFI_POWER_11dBm,
+        WIFI_POWER_8_5dBm,
+        WIFI_POWER_7dBm,
+        WIFI_POWER_5dBm,
+        WIFI_POWER_2dBm,
+        WIFI_POWER_MINUS_1dBm
+    };
+    lilka::Menu wifiSetTxMenu;
+    wifiSetTxMenu.setTitle("Оберіть потужність");
+    wifiSetTxMenu.addActivationButton(lilka::Button::B); // Exit
+    // Add names
+    for (auto i = 0; i < sizeof(names) / sizeof(names[0]); i++)
+        wifiSetTxMenu.addItem(names[i]);
+    // Perform draw
+    while (!wifiSetTxMenu.isFinished()) {
+        wifiSetTxMenu.update();
+        wifiSetTxMenu.draw(canvas);
+        queueDraw();
+    }
+    auto button = wifiSetTxMenu.getButton();
+
+    if (button == lilka::Button::B) return;
+
+    auto index = wifiSetTxMenu.getCursor();
+
+    // Set power immediately
+    WiFi.setTxPower(values[index]);
+
+    // Save value to NVS
+    Preferences prefs;
+    prefs.begin(WIFI_KEIRA_NAMESPACE, false);
+    prefs.putInt("txPower", static_cast<int>(values[index]));
+    prefs.end();
+}
 void LauncherApp::wifiToggle() {
     networkService->setEnabled(!networkService->getEnabled());
 }

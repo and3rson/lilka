@@ -3,6 +3,8 @@
 #include <WiFi.h>
 #include "service.h"
 
+#define WIFI_KEIRA_NAMESPACE "kwifi"
+
 enum NetworkState {
     NETWORK_STATE_DISABLED,
     NETWORK_STATE_OFFLINE,

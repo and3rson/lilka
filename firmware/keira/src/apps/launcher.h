@@ -64,7 +64,7 @@ private:
     void alert(String title, String message);
     template <typename T, typename... Args>
     void runApp(Args&&... args);
-
+    void setWiFiTxPower();
     void wifiToggle();
     void wifiManager();
     void about();
