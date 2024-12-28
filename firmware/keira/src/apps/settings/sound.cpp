@@ -27,6 +27,7 @@ void SoundConfigApp::run() {
     soundMenu.addActivationButton(lilka::Button::B); // Back
     soundMenu.removeActivationButton(lilka::Button::A); // Remove default activation button
     auto lastVolumeChange = millis();
+    auto volumeDelay = VOLUME_BUTTON_DELAY; // inital value
     while (!soundMenu.isFinished()) {
         soundMenu.update();
         soundMenu.draw(canvas);
@@ -37,7 +38,7 @@ void SoundConfigApp::run() {
             case 0: { // Volume
                 auto state = lilka::controller.peekState();
                 auto tmpTime = millis();
-                if (tmpTime - lastVolumeChange > VOLUME_BUTTON_DELAY) {
+                if (tmpTime - lastVolumeChange > volumeDelay) {
                     if (state.a.pressed) {
                         lilka::controller.resetState();
                         volumeLevel += VOLUME_STEP;
@@ -49,8 +50,9 @@ void SoundConfigApp::run() {
                     }
                 }
                 volumeLevel = volumeLevel > 100 ? 0 : volumeLevel < 0 ? 100 : volumeLevel;
-                mItems[index].postfix = String("< ") + String(volumeLevel) + " >";
+                volumeDelay = (volumeLevel == 100 || volumeLevel == 0) ? VOLUME_MIN_MAX_DELAY : VOLUME_BUTTON_DELAY;
 
+                mItems[index].postfix = String("< ") + String(volumeLevel) + " >";
                 soundMenu.setItem(
                     index, mItems[index].title, mItems[index].icon, mItems[index].color, mItems[index].postfix
                 );
