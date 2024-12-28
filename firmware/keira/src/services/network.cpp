@@ -29,10 +29,13 @@ NetworkService::NetworkService() :
 
 void NetworkService::run() {
     Preferences prefs;
-    prefs.begin("keira", true);
+    prefs.begin(WIFI_KEIRA_NAMESPACE, true);
     bool enabled = prefs.isKey("enabled") ? prefs.getBool("enabled") : false;
+    wifi_power_t txPower =
+        prefs.isKey("txPower") ? static_cast<wifi_power_t>(prefs.getInt("txPower")) : WIFI_POWER_19_5dBm;
     prefs.end();
 
+    WiFi.setTxPower(txPower);
     WiFi.onEvent([this](WiFiEvent_t event, WiFiEventInfo_t info) {
         switch (event) {
             case ARDUINO_EVENT_WIFI_STA_START: {
@@ -45,7 +48,7 @@ void NetworkService::run() {
                 setNetworkState(NETWORK_STATE_ONLINE);
                 Preferences prefs;
                 String connectedSSID = String(info.wifi_sta_connected.ssid, info.wifi_sta_connected.ssid_len);
-                prefs.begin("keira", false);
+                prefs.begin(WIFI_KEIRA_NAMESPACE, false);
                 if (!prefs.isKey("last_ssid") || !String(prefs.getString("last_ssid")).equals(connectedSSID)) {
                     // Set current SSID as last connected
                     prefs.putString("last_ssid", String(connectedSSID));
@@ -54,7 +57,7 @@ void NetworkService::run() {
                 prefs.end();
                 String ssidHash = hash(connectedSSID);
                 String savedPassword = getPassword(connectedSSID);
-                prefs.begin("keira", false);
+                prefs.begin(WIFI_KEIRA_NAMESPACE, false);
                 if (savedPassword != lastPassword) {
                     // Save password for the connected network
                     prefs.putString(String(ssidHash + "_pw").c_str(), lastPassword);
@@ -155,7 +158,7 @@ void NetworkService::autoConnect() {
 
     // Check if there is a known network to connect to
     Preferences prefs;
-    prefs.begin("keira", true);
+    prefs.begin(WIFI_KEIRA_NAMESPACE, true);
     if (!prefs.isKey("last_ssid")) {
         lilka::serial_log("NetworkService: no last SSID found, skipping auto connection");
     } else {
@@ -206,7 +209,7 @@ bool NetworkService::getEnabled() {
 
 void NetworkService::setEnabled(bool enabled) {
     Preferences prefs;
-    prefs.begin("keira", false);
+    prefs.begin(WIFI_KEIRA_NAMESPACE, false);
     prefs.putBool("enabled", enabled);
     prefs.end();
 
@@ -224,7 +227,7 @@ void NetworkService::setEnabled(bool enabled) {
 
 String NetworkService::getPassword(String ssid) {
     Preferences prefs;
-    prefs.begin("keira", true);
+    prefs.begin(WIFI_KEIRA_NAMESPACE, true);
     String ssidHash = hash(ssid);
     String result;
     if (!prefs.isKey(String(ssidHash + "_pw").c_str())) {
