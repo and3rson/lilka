@@ -34,7 +34,7 @@ void FTPService::run() {
         bool isOnline = networkService->getNetworkState() == NetworkState::NETWORK_STATE_ONLINE;
         if ((enabled && isOnline) && !wasOnline) {
             ftpServer = new FtpServer();
-            ftpServer->begin(getUser().c_str(), getPassword().c_str());
+            ftpServer->begin(user.c_str(), password.c_str());
             wasOnline = true;
         } else if ((!enabled || !isOnline) && wasOnline) {
             ftpServer->end();
