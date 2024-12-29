@@ -294,7 +294,7 @@ void FileManagerApp::fileLoadAsRom(const String& path) {
     dialog.draw(canvas);
     queueDraw();
     while ((error = lilka::multiboot.process()) > 0) {
-        int progress = lilka::multiboot.getBytesWritten() * 100 / lilka::multiboot.getBytesTotal();
+        progress = lilka::multiboot.getBytesWritten() * 100 / lilka::multiboot.getBytesTotal();
         dialog.setProgress(progress);
         dialog.draw(canvas);
         queueDraw();
@@ -629,24 +629,19 @@ bool FileManagerApp::copyPath(const String& source, const String& destination) {
 
     if (S_ISREG(entryStat.st_mode)) {
         // Source is a file, copy it
-        int src_fd = open(source.c_str(), O_RDONLY);
-        if (src_fd < 0) {
+        auto inFile = fopen(source.c_str(), "r");
+        if (!inFile) {
             FM_DBG lilka::serial_log("Error opening source file: %s", source.c_str());
             return false;
         }
 
-        auto fileSize = lseek(src_fd, 0, SEEK_END);
-        // Now return to the beginning of the file using SEEK_SET
-        if (lseek(src_fd, 0, SEEK_SET) == -1) {
-            FM_DBG lilka::serial_log("Error seek to begin: %s", source.c_str());
-            close(src_fd);
-            return false;
-        }
+        fseek(inFile, 0, SEEK_END);
+        auto fileSize = ftell(inFile);
+        fseek(inFile, 0, SEEK_SET);
 
-        int dest_fd = open(destination.c_str(), O_WRONLY | O_CREAT | O_TRUNC, entryStat.st_mode & 0777);
-        if (dest_fd < 0) {
+        auto outFile = fopen(destination.c_str(), "w");
+        if (!outFile) {
             FM_DBG lilka::serial_log("Error opening destination file: %s", destination.c_str());
-            close(src_fd);
             return false;
         }
 
@@ -654,21 +649,21 @@ bool FileManagerApp::copyPath(const String& source, const String& destination) {
         bytesRead = 0;
         bytesReadChunk = 0;
 
-        while ((bytesReadChunk = read(src_fd, buffer, sizeof(buffer))) > 0) {
-            if (write(dest_fd, buffer, bytesReadChunk) != bytesReadChunk) {
+        while ((bytesReadChunk = fread(buffer, 1, FM_CHUNK_SIZE, inFile)) > 0) {
+            if (fwrite(buffer, 1, bytesReadChunk, outFile) != bytesReadChunk) {
                 FM_DBG lilka::serial_log("Error writing to file: %s", destination.c_str());
-                close(src_fd);
-                close(dest_fd);
+                fclose(inFile);
+                fclose(outFile);
                 return false;
             }
             bytesRead += bytesReadChunk;
 
-            int progress = bytesRead * 100 / fileSize;
+            progress = bytesRead * 100 / fileSize;
             copyProgress.setProgress(progress);
 
             if (lilka::controller.getState().a.justPressed) {
-                close(src_fd);
-                close(dest_fd);
+                fclose(inFile);
+                fclose(outFile);
                 exitChildDialogs = true;
                 return false;
             }
@@ -677,13 +672,8 @@ bool FileManagerApp::copyPath(const String& source, const String& destination) {
             queueDraw();
         }
 
-        close(src_fd);
-        close(dest_fd);
-
-        if (bytesRead < 0) {
-            FM_DBG lilka::serial_log("Error reading from file: %s", source.c_str());
-            return false;
-        }
+        fclose(inFile);
+        fclose(outFile);
 
         return true;
     } else if (S_ISDIR(entryStat.st_mode)) {
