@@ -71,7 +71,7 @@ void spi_begin() {
 #if LILKA_VERSION == 1
     SPI1.begin(LILKA_SPI_SCK, -1, LILKA_SPI_MOSI);
 #else
-    SPI1.begin(LILKA_SPI_SCK, LILKA_SPI_MISO, LILKA_SPI_MOSI);
+    SPI1.begin(SPI2_SCK, SPI2_MISO, SPI2_MOSI);
 
 #endif
 #ifdef USE_EXT_SPI_FOR_SD
