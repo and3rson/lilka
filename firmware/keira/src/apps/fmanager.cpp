@@ -44,6 +44,8 @@ FileManagerApp::FileManagerApp(const String& path) :
     md5Progress("Обчислення МD5", ""),
     mkdirInput("Введіть назву нової папки"),
     renameInput("Введіть нову назву") {
+    // Set stack size
+    setStackSize(FM_STACK_SIZE);
     // init once
     fileOptionsMenu.setTitle("Опції");
     fileOptionsMenu.addActivationButton(lilka::Button::B); // Back Button
@@ -292,7 +294,7 @@ void FileManagerApp::fileLoadAsRom(const String& path) {
     dialog.draw(canvas);
     queueDraw();
     while ((error = lilka::multiboot.process()) > 0) {
-        progress = lilka::multiboot.getBytesWritten() * 100 / lilka::multiboot.getBytesTotal();
+        int progress = lilka::multiboot.getBytesWritten() * 100 / lilka::multiboot.getBytesTotal();
         dialog.setProgress(progress);
         dialog.draw(canvas);
         queueDraw();
@@ -581,8 +583,7 @@ bool FileManagerApp::changeMode(FmMode newMode) {
 void FileManagerApp::copySingleEntry(const FMEntry& entry) {
     singleMoveCopyEntry = entry;
     // Change mode
-    //if ((!changeMode(FM_MODE_COPY_SINGLE)) || entry.name == ".") {
-    if (entry.name == ".") {
+    if ((!changeMode(FM_MODE_COPY_SINGLE)) || entry.name == ".") {
         alert("Помилка", "Не можу скопіювати файл");
         FM_DBG lilka::serial_log("Can't enter mode FM_MODE_COPY_SINGLE");
         return;
@@ -593,8 +594,7 @@ void FileManagerApp::copySingleEntry(const FMEntry& entry) {
 void FileManagerApp::moveSingleEntry(const FMEntry& entry) {
     singleMoveCopyEntry = entry;
     // Change mode
-    //if ((!changeMode(FM_MODE_MOVE_SINGLE)) || entry.name == ".") {
-    if (entry.name == ".") {
+    if ((!changeMode(FM_MODE_MOVE_SINGLE)) || entry.name == ".") {
         alert("Помилка", "Не можу перемістити файл");
         FM_DBG lilka::serial_log("Can't enter mode FM_MODE_MOVE_SINGLE");
         return;
@@ -663,7 +663,7 @@ bool FileManagerApp::copyPath(const String& source, const String& destination) {
             }
             bytesRead += bytesReadChunk;
 
-            progress = bytesRead * 100 / fileSize;
+            int progress = bytesRead * 100 / fileSize;
             copyProgress.setProgress(progress);
 
             if (lilka::controller.getState().a.justPressed) {
@@ -679,6 +679,11 @@ bool FileManagerApp::copyPath(const String& source, const String& destination) {
 
         close(src_fd);
         close(dest_fd);
+
+        if (bytesRead < 0) {
+            FM_DBG lilka::serial_log("Error reading from file: %s", source.c_str());
+            return false;
+        }
 
         return true;
     } else if (S_ISDIR(entryStat.st_mode)) {
@@ -778,7 +783,7 @@ void FileManagerApp::mkdirInputShow(const String& path) {
 }
 
 bool FileManagerApp::stackSizeCheck() {
-    if (uxTaskGetStackHighWaterMark(NULL) < STACK_MIN_FREE_SIZE) {
+    if (uxTaskGetStackHighWaterMark(NULL) < FM_STACK_MIN_FREE_SIZE) {
         alert("Помилка", "Недостатньо пам'яті аби завершити операіцю");
         FM_DBG lilka::serial_log("Stack is too small");
         exitChildDialogs = true;

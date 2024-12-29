@@ -25,11 +25,12 @@
 
 // There's a big chance, that task won't be suspended immediately, which could cause a bug
 // If ui hangs up after trying to open file, increase this value
-#define SUSPEND_AWAIT_TIME  100
+#define SUSPEND_AWAIT_TIME     100
 
-#define FM_CHUNK_SIZE       256
-#define FM_MKDIR_MODE       0777
-#define STACK_MIN_FREE_SIZE 100
+#define FM_CHUNK_SIZE          256
+#define FM_MKDIR_MODE          0777
+#define FM_STACK_SIZE          16384
+#define FM_STACK_MIN_FREE_SIZE 100
 
 typedef enum { FT_NONE, FT_NES_ROM, FT_BIN, FT_LUA_SCRIPT, FT_JS_SCRIPT, FT_MOD, FT_LT, FT_DIR, FT_OTHER } FileType;
 typedef enum { FM_MODE_VIEW, FM_MODE_SELECT, FM_MODE_COPY_SINGLE, FM_MODE_MOVE_SINGLE } FmMode;
