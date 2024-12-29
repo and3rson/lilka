@@ -1,7 +1,5 @@
 #include <ff.h>
 #include <FS.h>
-#include <SD.h>
-#include <SPIFFS.h>
 #include "launcher.h"
 #include "appmanager.h"
 
@@ -100,13 +98,13 @@ void LauncherApp::run() {
             ),
             ITEM::APP(
                 "Браузер SD-карти",
-                [this]() { this->runApp<FileManagerApp>(&SD, "/"); },
+                [this]() { this->runApp<FileManagerApp>(LILKA_SD_ROOT); },
                 &sdcard_img,
                 lilka::colors::Arylide_yellow
             ),
             ITEM::APP(
                 "Браузер SPIFFS",
-                [this]() { this->runApp<FileManagerApp>(&SPIFFS, "/"); },
+                [this]() { this->runApp<FileManagerApp>(LILKA_SPIFFS_ROOT); },
                 &memory_img,
                 lilka::colors::Dark_sea_green
             ),
