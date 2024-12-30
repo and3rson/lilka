@@ -4,7 +4,7 @@ CallBackTestApp::CallBackTestApp() : App("CallBackTest") {
 }
 void CallBackTestApp::CallbackExample() {
     lilka::Alert alert("Callback", "");
-    String buttonNames[] = {"UP", "DOWN", "LEFT", "RIGHT", "A", "B", "C", "D", "SELECT", "START", "ANY"};
+    const String buttonNames[] = {"UP", "DOWN", "LEFT", "RIGHT", "A", "B", "C", "D", "SELECT", "START", "ANY"};
 
     auto button = menu.getButton();
 
