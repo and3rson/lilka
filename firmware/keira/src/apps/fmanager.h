@@ -1,15 +1,66 @@
 #pragma once
-//////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 // File manager for Keira OS header file
-//////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 // Used Buttons:
-// A -> Okay/Enter
-// B -> Back/Exit
-// C -> Info
-// D -> Options
+// A     -> Okay/Enter
+// B     -> Back/Exit
+// C     -> Info
+// D     -> Options
+// Start -> Reload Directory
 // Start -> Force Okay (Delete)
-// Start -> Paste (Move/Copy)
-//////////////////////////////////////////////////////////////
+// Start -> Paste (Move/Copy Modes)
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// COLORS: ////////////////////////////////////////////////////////////////////////////////////////////
+#define FT_NONE_COLOR       lilka::colors::Red
+#define FT_NES_ROM_COLOR    lilka::colors::Candy_pink
+#define FT_BIN_COLOR        lilka::colors::Mint_green
+#define FT_LUA_SCRIPT_COLOR lilka::colors::Maya_blue
+#define FT_JS_SCRIPT_COLOR  lilka::colors::Butterscotch
+#define FT_MOD_COLOR        lilka::colors::Plum_web
+#define FT_LT_COLOR         lilka::colors::Pink_lace
+#define FT_DIR_COLOR        lilka::colors::Arylide_yellow
+#define FT_OTHER_COLOR      lilka::colors::Light_gray
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// TODO : Add separate icons to new file types
+
+// ICONS: /////////////////////////////////////////////////////////////////////////////////////////////
+#define FT_NONE_ICON       &normalfile_img
+#define FT_NES_ICON        &nes_img
+#define FT_BIN_ICON        &bin_img
+#define FT_LUA_SCRIPT_ICON &lua_img
+#define FT_JS_SCRIPT_ICON  &js_img
+#define FT_MOD_ICON        &music_img
+#define FT_LT_ICON         &music_img
+#define FT_DIR_ICON        &folder_img
+#define FT_OTHER_ICON      &normalfile_img
+#define FM_SELECTED_ICON   &music_img // yeah yeah I know
+
+// FILE HANDLERS: /////////////////////////////////////////////////////////////////////////////////////
+#define FM_DEFAULT_FT_NES_HANDLER(X)     AppManager::getInstance()->runApp(new NesApp(X));
+#define FM_DEFAULT_FT_BIN_HANDLER(X)     fileLoadAsRom(X);
+#define FM_DEFAULT_LUA_SCRIPT_HANDLER(X) AppManager::getInstance()->runApp(new LuaFileRunnerApp(X));
+#define FT_DEFAULT_JS_SCRIPT_HANDLER(X)  AppManager::getInstance()->runApp(new MJSApp(X));
+#define FT_DEFAULT_MOD_HANDLER(X)        AppManager::getInstance()->runApp(new ModPlayerApp(X));
+#define FT_DEFAULT_LT_HANDLER(X)         AppManager::getInstance()->runApp(new LilTrackerApp(X))
+#define FT_DEFAULT_DIR_HANDLER(X)        fileListMenuShow(X);
+#define FT_DEFAULT_OTHER_HANDLER(X)      fileInfoShowAlert(X);
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// MISC SETTINGS://////////////////////////////////////////////////////////////////////////////////////
+#define PROGRESS_FRAME_TIME              30
+#define PROGRESS_FILE_LIST_NO_DRAW_COUNT 10
+// There's a big chance, that task won't be suspended immediately, which could cause a bug
+// If ui hangs up after trying to open file, increase this value
+#define SUSPEND_AWAIT_TIME     100
+#define FM_CHUNK_SIZE          256
+#define FM_MKDIR_MODE          0777
+#define FM_STACK_SIZE          16384
+#define FM_STACK_MIN_FREE_SIZE 100
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include "app.h"
 #include <dirent.h>
 #include <vector>
@@ -22,46 +73,9 @@
 #else
 #    define FM_DBG if (0)
 #endif
-#define PROGRESS_FRAME_TIME              30
-#define PROGRESS_FILE_LIST_NO_DRAW_COUNT 10
-// There's a big chance, that task won't be suspended immediately, which could cause a bug
-// If ui hangs up after trying to open file, increase this value
-#define SUSPEND_AWAIT_TIME     100
-
-#define FM_CHUNK_SIZE          256
-#define FM_MKDIR_MODE          0777
-#define FM_STACK_SIZE          16384
-#define FM_STACK_MIN_FREE_SIZE 100
 
 typedef enum { FT_NONE, FT_NES_ROM, FT_BIN, FT_LUA_SCRIPT, FT_JS_SCRIPT, FT_MOD, FT_LT, FT_DIR, FT_OTHER } FileType;
 typedef enum { FM_MODE_VIEW, FM_MODE_SELECT, FM_MODE_COPY_SINGLE, FM_MODE_MOVE_SINGLE } FmMode;
-
-// COLORS: ///////////////////////////////////////////////////
-#define FT_NONE_COLOR       lilka::colors::Red
-#define FT_NES_ROM_COLOR    lilka::colors::Candy_pink
-#define FT_BIN_COLOR        lilka::colors::Mint_green
-#define FT_LUA_SCRIPT_COLOR lilka::colors::Maya_blue
-#define FT_JS_SCRIPT_COLOR  lilka::colors::Butterscotch
-#define FT_MOD_COLOR        lilka::colors::Plum_web
-#define FT_LT_COLOR         lilka::colors::Pink_lace
-#define FT_DIR_COLOR        lilka::colors::Arylide_yellow
-#define FT_OTHER_COLOR      lilka::colors::Light_gray
-//////////////////////////////////////////////////////////////
-
-// TODO : Add separate icons to new file types
-// ICONS: ////////////////////////////////////////////////////
-#define FT_NONE_ICON       &normalfile_img
-#define FT_NES_ICON        &nes_img
-#define FT_BIN_ICON        &bin_img
-#define FT_LUA_SCRIPT_ICON &lua_img
-#define FT_JS_SCRIPT_ICON  &js_img
-#define FT_MOD_ICON        &music_img
-#define FT_LT_ICON         &music_img
-#define FT_DIR_ICON        &folder_img
-#define FT_OTHER_ICON      &normalfile_img
-#define FM_SELECTED_ICON   &music_img // yeah yeah I know
-//////////////////////////////////////////////////////////////
-
 #define FM_UI_CANT_DO_OP                                                  \
     if (!exitChildDialogs) alert("Помилка", "Не можу виконати операцію"); \
     FM_DBG lilka::serial_err("FM operation fail at %s:%d", __FILE__, __LINE__)

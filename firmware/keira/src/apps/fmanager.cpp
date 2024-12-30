@@ -217,31 +217,32 @@ void FileManagerApp::openFileEntry(const FMEntry& entry) {
     FM_DBG lilka::serial_log("Opening path %s", path.c_str());
     switch (entry.type) {
         case FT_NES_ROM:
-            AppManager::getInstance()->runApp(new NesApp(path));
+            FM_DEFAULT_FT_NES_HANDLER(path);
             break;
         case FT_BIN:
-            fileLoadAsRom(path);
+            FM_DEFAULT_FT_BIN_HANDLER(path);
             break;
         case FT_LUA_SCRIPT:
-            AppManager::getInstance()->runApp(new LuaFileRunnerApp(path));
+            FM_DEFAULT_LUA_SCRIPT_HANDLER(path);
             break;
         case FT_JS_SCRIPT:
-            AppManager::getInstance()->runApp(new MJSApp(path));
+            FT_DEFAULT_JS_SCRIPT_HANDLER(path);
             break;
         case FT_MOD:
-            AppManager::getInstance()->runApp(new ModPlayerApp(path));
+            FT_DEFAULT_MOD_HANDLER(path);
             break;
         case FT_LT:
-            AppManager::getInstance()->runApp(new LilTrackerApp(path));
+            FT_DEFAULT_LT_HANDLER(path);
             break;
         case FT_DIR:
-            fileListMenuShow(path);
+            FT_DEFAULT_DIR_HANDLER(path);
             break;
         case FT_OTHER:
-            fileInfoShowAlert(entry);
+            FT_DEFAULT_OTHER_HANDLER(entry);
             break;
     }
     vTaskDelay(SUSPEND_AWAIT_TIME / portTICK_RATE_MS);
+    FM_MODE_RESET;
 }
 void FileManagerApp::fileOpenWithMenuShow(const FMEntry& entry) {
     while (1) {
@@ -469,6 +470,7 @@ bool FileManagerApp::fileListMenuLoadDir(const String& path) {
 void FileManagerApp::fileListMenuShow(const String& path) {
     FM_DBG lilka::serial_log("Trying to load dir %s", path.c_str());
     int16_t index = 0;
+    FM_MODE_RESET;
     while (1) {
         exitChildDialogs = false;
 
@@ -537,6 +539,7 @@ void FileManagerApp::fileListMenuShow(const String& path) {
         // Do some work on exit
         if (exiting) {
             // restore parent dir before exit
+            exitChildDialogs = true;
             currentPath = lilka::fileutils.getParentDirectory(currentPath);
             break;
         }
@@ -787,7 +790,7 @@ void FileManagerApp::pasteSingleEntry(const FMEntry& entry, String& where) {
     auto destination = lilka::fileutils.joinPath(where, entry.name);
     // check
     if (!isCopyOrMoveCouldBeDone(source, destination)) {
-        FM_UI_CANT_DO_OP;
+        FM_UI_CANT_DO_OP; // Allow to paste in other place
         return;
     }
     switch (mode) {
