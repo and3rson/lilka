@@ -98,6 +98,7 @@ typedef enum { FM_MODE_VIEW, FM_MODE_SELECT, FM_MODE_COPY_SINGLE, FM_MODE_MOVE_S
 // implement ascending/descending order
 //////////////////////////////////////////////////////////////
 // 3. Select/Select All features
+// Probably just use select button?
 //////////////////////////////////////////////////////////////
 // 4. Flaten dir feature
 // [recursive open all directories and make a single file list]
@@ -127,33 +128,42 @@ public:
     explicit FileManagerApp(const String& path);
 
 private:
+    // Converts path into FMEntry
     FMEntry pathToEntry(const String& path);
+
+    // changes FM mode
     bool changeMode(FmMode newMode);
 
+    // loads firmware
     void fileLoadAsRom(const String& path);
     String getFileMD5(const String& file_path);
 
+    // open file with default app
     void openFileEntry(const FMEntry& entry);
     void alert(const String& title, const String& message);
-    // Uses inputDialog to perform file or directory rename
+
     // just deletes file or directory. flag force means no ask from user
     // which is used here in a recursive form to remove all files in a dir
     void deleteEntry(const FMEntry& entry, bool force = false);
 
-    // sets singleMoveCopyEntry value and enters FM_MODE_MODE_COPY_SINGLE
+    // sets singleMoveCopyEntry value and enters FM_MODE_COPY_SINGLE
     void copySingleEntry(const FMEntry& entry);
+
     // sets singleMoveCopyEntry value and enters FM_MODE_MOVE_SINGLE
     void moveSingleEntry(const FMEntry& entry);
+
     // This function ends both move and copy actions
+    // performs actual moving, should be moved to movePath function
     void pasteSingleEntry(const FMEntry& entry, String& where);
-    // though should use this one for actual copying cause POSIX
-    // made it a bit complicated
+
+    // actual copying
     bool copyPath(const String& source, const String& destination);
 
     // allert to not fall off on non-implemented features
     void alertNotImplemented();
     // ensure we've at least STACK_MIN_FREE_SIZE bytes free
     bool stackSizeCheck();
+
     // Main loop:
     void run() override;
 
@@ -165,7 +175,7 @@ private:
     FMEntry singleMoveCopyEntry = {};
 
     // Buffer for file operations(Copy/MD5 Calc)
-    unsigned char buffer[FM_CHUNK_SIZE] = {0};
+    unsigned char buffer[FM_CHUNK_SIZE] = {};
 
     // values for md5Progress and copyProgress
     ssize_t bytesReadChunk = 0;
@@ -196,7 +206,7 @@ private:
 
     // Alerts:
     void fileInfoShowAlert(const FMEntry& entry);
-    // checks:
+    // Checks:
     bool isCopyOrMoveCouldBeDone(const String& src, const String& dst);
 
     std::vector<FMEntry> currentDirEntries;
