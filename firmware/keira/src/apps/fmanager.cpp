@@ -43,7 +43,8 @@ FileManagerApp::FileManagerApp(const String& path) :
     copyProgress("Копіювання...", ""),
     md5Progress("Обчислення МD5", ""),
     mkdirInput("Введіть назву нової папки"),
-    renameInput("Введіть нову назву") {
+    renameInput("Введіть нову назву"),
+    dirLoadProgress("Загрузка", "") {
     // Set stack size
     setStackSize(FM_STACK_SIZE);
     // init once
@@ -339,58 +340,35 @@ void FileManagerApp::fileOptionsMenuShow(const FMEntry& entry) {
             queueDraw();
         }
         auto button = fileOptionsMenu.getButton();
-        if (button == lilka::Button::B) return; // BACK
+
+        if (button == lilka::Button::B) return;
+
+        // Check on "Back selected"
+        // Actually should be done in all possible handlers,
+        // though, not all of them support it yet
+        if (entry.name == ".") {
+            FM_UI_CANT_DO_OP;
+            FM_MODE_RESET;
+        }
 
         auto index = fileOptionsMenu.getCursor();
-        if (index == 0) { // Open
-            if (entry.name == ".") {
-                FM_UI_CANT_DO_OP;
-                FM_MODE_RESET;
-            } else openFileEntry(entry);
-        } else if (index == 1) { // OpenWith
-            if (entry.name == ".") {
-                FM_UI_CANT_DO_OP;
-                FM_MODE_RESET;
-            } else fileOpenWithMenuShow(entry);
-        } else if (index == 2) { // Rename
-            if (entry.name == ".") {
-                FM_UI_CANT_DO_OP;
-                FM_MODE_RESET;
-            } else renameInputShow(entry);
-        } else if (index == 3) { // Copy
-            if (entry.name == ".") {
-                FM_UI_CANT_DO_OP;
-                FM_MODE_RESET;
-            } else {
-                if (mode == FM_MODE_VIEW || mode == FM_MODE_MOVE_SINGLE || mode == FM_MODE_COPY_SINGLE) {
-                    copySingleEntry(entry);
-                }
-            }
+        // TODO : replace with callbacks
+        if (index == 0) openFileEntry(entry);
+        else if (index == 1) fileOpenWithMenuShow(entry);
+        else if (index == 2) renameInputShow(entry);
+        else if (index == 3) { // Copy
+            if (mode == FM_MODE_VIEW || mode == FM_MODE_MOVE_SINGLE || mode == FM_MODE_COPY_SINGLE)
+                copySingleEntry(entry);
         } else if (index == 4) { // Move
-            if (entry.name == ".") {
-                FM_UI_CANT_DO_OP;
-                FM_MODE_RESET;
-            } else {
-                if (mode == FM_MODE_VIEW || mode == FM_MODE_MOVE_SINGLE || mode == FM_MODE_COPY_SINGLE) {
-                    moveSingleEntry(entry);
-                }
-            }
+            if (mode == FM_MODE_VIEW || mode == FM_MODE_MOVE_SINGLE || mode == FM_MODE_COPY_SINGLE)
+                moveSingleEntry(entry);
         } else if (index == 5) { // Delete
-            if (entry.name == ".") {
-                FM_UI_CANT_DO_OP;
-                FM_MODE_RESET;
-            } else {
-                deleteEntry(entry);
-                return;
-            }
+            deleteEntry(entry);
+            return;
         } else if (index == 6) { // Select
-            if (entry.name == ".") {
-                FM_UI_CANT_DO_OP;
-                FM_MODE_RESET;
-            } else alertNotImplemented();
+            alertNotImplemented();
         } else if (index == 7) { // mkdir
             mkdirInputShow(entry.path);
-            return;
         }
     }
 }
@@ -400,6 +378,16 @@ bool FileManagerApp::fileListMenuLoadDir(const String& path) {
         alert("Помилка читання", String(errno) + ": " + strerror(errno));
         return false;
     }
+
+    dirLoadProgress.setMessage(path);
+    dirLoadProgress.setProgress(0);
+    auto dirLength = 0;
+    auto countLoaded = 0;
+    while ((readdir(dir)) != NULL)
+        dirLength++;
+    rewinddir(dir);
+
+    bool drawProgress = ((dirLength - PROGRESS_FILE_LIST_NO_DRAW_COUNT) >= 0);
 
     currentPath = path; // change path
     fileListMenu.setTitle(path);
@@ -412,15 +400,33 @@ bool FileManagerApp::fileListMenuLoadDir(const String& path) {
         if (filename != "." && filename != "..") {
             FMEntry newEntry = pathToEntry(lilka::fileutils.joinPath(currentPath, filename));
             currentDirEntries.push_back(newEntry);
-            // FM_DBG lilka::serial_log(
-            //     "Added new entry with type:%d, name:%s, path:%s, ",
-            //     newEntry.type,
-            //     newEntry.name.c_str(),
-            //     newEntry.path.c_str()
-            // );
+        }
+        // More interactive load
+        countLoaded++;
+        progress = countLoaded * 100 / dirLength;
+        auto currentTime = millis();
+
+        if ((drawProgress) && (lastProgress != progress) && ((currentTime - lastFrameTime) > PROGRESS_FRAME_TIME)) {
+            lastProgress = progress;
+            canvas->fillScreen(lilka::colors::Black);
+            dirLoadProgress.setProgress(progress);
+            dirLoadProgress.draw(canvas);
+            lastFrameTime = currentTime;
+            queueDraw();
+        }
+        if (lilka::controller.getState().a.justPressed) {
+            FM_MODE_RESET;
+            return false;
         }
     }
     closedir(dir); // unfortunately we can't reuse same dir
+
+    if (drawProgress) {
+        canvas->fillScreen(lilka::colors::Black);
+        dirLoadProgress.setMessage("Сортування...");
+        dirLoadProgress.draw(canvas);
+        queueDraw();
+    }
 
     // Sorting directory entries
     std::sort(currentDirEntries.begin(), currentDirEntries.end(), [](FMEntry a, FMEntry b) {
@@ -428,6 +434,13 @@ bool FileManagerApp::fileListMenuLoadDir(const String& path) {
         else if (a.type != FT_DIR && b.type == FT_DIR) return false;
         return a.name.compareTo(b.name) < 0;
     });
+
+    if (drawProgress) {
+        canvas->fillScreen(lilka::colors::Black);
+        dirLoadProgress.setMessage("Майже готово...");
+        dirLoadProgress.draw(canvas);
+        queueDraw();
+    }
 
     // Adding entries to menu
     for (auto dirEntry : currentDirEntries) {

@@ -22,7 +22,8 @@
 #else
 #    define FM_DBG if (0)
 #endif
-
+#define PROGRESS_FRAME_TIME              30
+#define PROGRESS_FILE_LIST_NO_DRAW_COUNT 10
 // There's a big chance, that task won't be suspended immediately, which could cause a bug
 // If ui hangs up after trying to open file, increase this value
 #define SUSPEND_AWAIT_TIME     100
@@ -181,11 +182,14 @@ private:
     ssize_t bytesReadChunk = 0;
     size_t bytesRead = 0;
     int progress = 0;
+    int lastProgress = -1;
+    int lastFrameTime = millis() - PROGRESS_FRAME_TIME - 1;
 
     // Dialogs and Menus:
     lilka::Menu fileOpenWithMenu;
     lilka::Menu fileListMenu;
     lilka::Menu fileOptionsMenu;
+    lilka::ProgressDialog dirLoadProgress;
     lilka::ProgressDialog md5Progress;
     lilka::ProgressDialog copyProgress;
     lilka::InputDialog mkdirInput;
