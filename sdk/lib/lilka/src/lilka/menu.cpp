@@ -36,8 +36,8 @@ void Menu::addItem(
          .icon = icon,
          .color = color,
          .postfix = postfix,
-         callback = callback,
-         callbackData = callbackData}
+         .callback = callback,
+         .callbackData = callbackData}
     );
 }
 
