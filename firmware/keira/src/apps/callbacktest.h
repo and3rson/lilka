@@ -5,9 +5,9 @@
 class CallBackTestApp : public App {
 public:
     CallBackTestApp();
-    void CallbackExample();
 
 private:
+    void CallbackExample();
     bool exiting = false;
     lilka::Menu menu;
     void run() override;
