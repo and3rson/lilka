@@ -42,9 +42,9 @@ FileManagerApp::FileManagerApp(const String& path) :
     App("FileManager"),
     copyProgress("Копіювання...", ""),
     md5Progress("Обчислення МD5", ""),
+    dirLoadProgress("Загрузка", ""),
     mkdirInput("Введіть назву нової папки"),
-    renameInput("Введіть нову назву"),
-    dirLoadProgress("Загрузка", "") {
+    renameInput("Введіть нову назву") {
     // Set stack size
     setStackSize(FM_STACK_SIZE);
     // init once
@@ -107,14 +107,21 @@ String FileManagerApp::getFileMD5(const String& file_path) {
         bytesRead += bytesReadChunk;
         progress = bytesRead * 100 / fileSize;
         md5Progress.setProgress(progress);
+        auto currentTime = millis();
+
+        if ((lastProgress != progress) && ((currentTime - lastFrameTime) > PROGRESS_FRAME_TIME)) {
+            lastProgress = progress;
+            canvas->fillScreen(lilka::colors::Black);
+            md5Progress.setProgress(progress);
+            md5Progress.draw(canvas);
+            lastFrameTime = currentTime;
+            queueDraw();
+        }
 
         if (lilka::controller.getState().a.justPressed) {
             fclose(file);
             return "Не обчислено";
         }
-        //  Draw dialog
-        md5Progress.draw(canvas);
-        queueDraw();
     }
 
     if (ferror(file)) {
@@ -714,18 +721,21 @@ bool FileManagerApp::copyPath(const String& source, const String& destination) {
             }
             bytesRead += bytesReadChunk;
 
+            auto currentTime = millis();
             progress = bytesRead * 100 / fileSize;
-            copyProgress.setProgress(progress);
-
+            // TODO : fix AppManager->toast instead
+            if ((lastProgress != progress) && ((currentTime - lastFrameTime) > PROGRESS_FRAME_TIME)) {
+                lastProgress = progress;
+                canvas->fillScreen(lilka::colors::Black);
+                copyProgress.setProgress(progress);
+                copyProgress.draw(canvas);
+                lastFrameTime = currentTime;
+                queueDraw();
+            }
             if (lilka::controller.getState().a.justPressed) {
-                fclose(inFile);
-                fclose(outFile);
                 FM_MODE_RESET;
                 return false;
             }
-            //  Draw dialog
-            copyProgress.draw(canvas);
-            queueDraw();
         }
 
         fclose(inFile);
