@@ -571,6 +571,13 @@ void FileManagerApp::fileListMenuShow(const String& path) {
             }
             continue;
         }
+        // Info
+        else if (button == lilka::Button::C) {
+            if (pCurrentEntry) {
+                fileInfoShowAlert(*pCurrentEntry);
+                continue;
+            } else exiting = true;
+        }
 
         // clear memory
         currentDirEntries.clear();
@@ -595,11 +602,6 @@ void FileManagerApp::fileListMenuShow(const String& path) {
         // Open
         if (button == lilka::Button::A) {
             if (pCurrentEntry) openFileEntry(*pCurrentEntry);
-            else exiting = true;
-        }
-        // Info
-        else if (button == lilka::Button::C) {
-            if (pCurrentEntry) fileInfoShowAlert(*pCurrentEntry);
             else exiting = true;
         }
         // Options
