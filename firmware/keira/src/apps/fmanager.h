@@ -65,7 +65,13 @@
 #define FM_STACK_MIN_FREE_SIZE 100
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define ENTRY_NOT_FOUND_INDEX UINT16_MAX
+#define STATUS_BAR_HEIGHT        34
+#define STATUS_BAR_SAFE_DISTANCE 38
+#define STATUS_BAR_WIDTH         canvas->width() - STATUS_BAR_SAFE_DISTANCE * 2
+#define STATUS_BAR_TEXT_COLOR    lilka::colors::White
+#define STATUS_BAR_FILL_COLOR    lilka::colors::Black
+
+#define ENTRY_NOT_FOUND_INDEX    UINT16_MAX
 
 // FAT32 SPECIFIC:  ///////////////////////////////////////////////////////////////////////////////////
 #define FM_FAT32_NAMES_NOT_ALOWED_CHARACTERS "\"*/:<>?\\|"
@@ -101,8 +107,11 @@
 #include <vector>
 #include <sys/stat.h>
 #include <stdint.h>
-
-#define MAKE_SANDWICH(X) AppManager::getInstance()->startToast(X)
+// very bad test
+// /sd/1 => /sd/1122/1
+// no need with status bar
+#define MAKE_SANDWICH(X) \
+    if (0) AppManager::getInstance()->startToast(X)
 
 #ifdef FMANAGER_DEBUG
 #    define FM_DBG if (1)
@@ -179,7 +188,9 @@ typedef enum { FM_MODE_VIEW, FM_MODE_SELECT, FM_MODE_COPY_SINGLE, FM_MODE_MOVE_S
 //
 // overload queueDraw()
 //////////////////////////////////////////////////////////////
-
+// 9.
+//
+//
 typedef struct {
     FileType type;
     const menu_icon_t* icon;
@@ -193,6 +204,8 @@ typedef struct {
 class FileManagerApp : public App {
 public:
     explicit FileManagerApp(const String& path);
+
+    void queueDraw();
 
 private:
     // Converts path into FMEntry
@@ -248,7 +261,10 @@ private:
     size_t bytesRead = 0;
     int progress = 0;
     int lastProgress = -1;
-    int lastFrameTime = millis() - PROGRESS_FRAME_TIME - 1;
+    int lastFrameTime = millis();
+
+    // Manual draw
+    void drawStatusBar();
 
     // Dialogs and Menus:
     lilka::Menu fileOpenWithMenu;

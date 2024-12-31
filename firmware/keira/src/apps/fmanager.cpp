@@ -244,7 +244,7 @@ void FileManagerApp::openFileEntry(const FMEntry& entry) {
             break;
     }
     vTaskDelay(SUSPEND_AWAIT_TIME / portTICK_RATE_MS);
-    FM_MODE_RESET;
+    exitChildDialogs = true;
 }
 void FileManagerApp::fileOpenWithMenuShow(const FMEntry& entry) {
     while (1) {
@@ -296,12 +296,16 @@ bool FileManagerApp::areDirEntriesEqual(const FMEntry& ent1, const FMEntry& ent2
 }
 
 bool FileManagerApp::isCopyOrMoveCouldBeDone(const String& src, const String& dst) {
-    // src == dst or dst located in src; src exists; dst not exist;
-    // TODO: remove last check from here, and ask user for confirm
     FM_DBG lilka::serial_log("Check is copy/move possible for %s => %s", src.c_str(), dst.c_str());
-    bool defaultChecks =
-        (dst.indexOf(src) != 0) && (access(src.c_str(), F_OK) == 0) && (access(dst.c_str(), F_OK) != 0);
-    if (defaultChecks) {
+    // TODO: remove last check from here, and ask user for confirm
+    // Checks on src == dst; src exists; dst not exist;
+    bool checks = (dst != src) && (access(src.c_str(), F_OK) == 0) && (access(dst.c_str(), F_OK) != 0);
+    if (checks) {
+        if (dst.indexOf(src) == 0) {
+            // it still doesn't mean something, cause, well
+            // it would work with path like /sd and /sdf
+            if ((src.length() < dst.length()) && (dst[src.length()] == '/')) return false;
+        }
         // path to dst exists;
         auto parentDir = lilka::fileutils.getParentDirectory(dst);
         if (access(parentDir.c_str(), F_OK) == 0) return true;
@@ -368,15 +372,15 @@ void FileManagerApp::fileOptionsMenuShow(const FMEntry& entry) {
 
         if (button == lilka::Button::B) return;
 
+        auto index = fileOptionsMenu.getCursor();
         // Check on "Back selected"
         // Actually should be done in all possible handlers,
         // though, not all of them support it yet
-        if (entry.name == ".") {
+        if ((index != 7) && (entry.name == ".")) {
             FM_UI_CANT_DO_OP;
-            FM_MODE_RESET;
+            FM_MODE_RESET; // Do not perfform reset for mkdir
         }
 
-        auto index = fileOptionsMenu.getCursor();
         // TODO : replace with callbacks
         if (index == 0) openFileEntry(entry);
         else if (index == 1) fileOpenWithMenuShow(entry);
@@ -486,7 +490,6 @@ bool FileManagerApp::fileListMenuLoadDir(const String& path) {
 void FileManagerApp::fileListMenuShow(const String& path) {
     FM_DBG lilka::serial_log("Trying to load dir %s", path.c_str());
     int16_t index = 0;
-    FM_MODE_RESET;
     bool doReload = true; // at first load
     while (1) {
         exitChildDialogs = false;
@@ -535,7 +538,6 @@ void FileManagerApp::fileListMenuShow(const String& path) {
                 doReload = false;
                 continue;
             }
-            bool toggleHandled = false;
             // Check if selected
             auto selectedIndex = getSelectedDirEntryIndex(currentEntry);
             if (selectedIndex != ENTRY_NOT_FOUND_INDEX) {
@@ -931,4 +933,59 @@ bool FileManagerApp::stackSizeCheck() {
 void FileManagerApp::run() {
     FM_DBG lilka::serial_log("Opening path %s", currentPath.c_str());
     fileListMenuShow(currentPath);
+}
+//  Drawing direction ->>>
+// Text origin is located at left by x, and at baseline by y
+//
+//
+//
+// HEIGHT by x
+// WIDTH by y
+// 0 0 is top lfet corner
+
+void FileManagerApp::queueDraw() {
+    drawStatusBar();
+    App::queueDraw();
+}
+
+void FileManagerApp::drawStatusBar() {
+    // fill Space for status bar
+    canvas->fillRect(
+        0, canvas->height() - STATUS_BAR_HEIGHT, canvas->width(), STATUS_BAR_HEIGHT, STATUS_BAR_FILL_COLOR
+    );
+    // Uncomment those to get an idea where is x, and where is y
+    // Draw xy
+    //canvas->drawLine(0, 0, 50, 0, lilka::colors::Red);
+    //canvas->drawLine(0, 0, 0, 50, lilka::colors::Blue);
+    // canvas->printf("Height %d, width %d", canvas->height(), canvas->width());
+
+    canvas->setCursor(STATUS_BAR_SAFE_DISTANCE, canvas->height() - 20 / 2); // FONT_Y / 2
+    canvas->setFont(FONT_8x13_MONO);
+    canvas->setTextColor(lilka::colors::White);
+    // use left part
+    //canvas->setTextBound(
+    //   STATUS_BAR_SAFE_DISTANCE, canvas->height() - STATUS_BAR_HEIGHT, STATUS_BAR_WIDTH / 2, STATUS_BAR_HEIGHT
+    //);
+    canvas->setTextBound(
+        STATUS_BAR_SAFE_DISTANCE, canvas->height() - STATUS_BAR_HEIGHT, STATUS_BAR_WIDTH, STATUS_BAR_HEIGHT
+    );
+    // print mode
+    String modeStr;
+    switch (mode) {
+        case FM_MODE_COPY_SINGLE:
+            modeStr = "COPY";
+            break;
+        case FM_MODE_MOVE_SINGLE:
+            modeStr = "MOVE";
+            break;
+        case FM_MODE_SELECT:
+            modeStr = "SELECT";
+            break;
+        case FM_MODE_VIEW:
+            modeStr = "VIEW";
+            break;
+        default:
+            modeStr = "UNKNOWN";
+    }
+    canvas->printf("%s", modeStr.c_str());
 }
