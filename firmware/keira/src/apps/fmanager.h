@@ -1,18 +1,20 @@
 #pragma once
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-// File manager for Keira OS header file
+// [^_^]==\~ File manager for Keira OS header file                                                   //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // Used Buttons:
-// A     -> Okay/Enter
-// B     -> Back/Exit
-// C     -> Info
-// D     -> Options
-// Start -> Reload Directory
-// Start -> Force Okay (Delete)
-// Start -> Paste (Move/Copy Modes)
+// A                  -> Okay/Enter
+// B                  -> Back/Exit
+// C                  -> Info
+// D                  -> Options
+// Start              -> Reload Directory
+// Start              -> Force Okay (Delete)
+// Start              -> Paste (Move/Copy Modes)
+// Select             -> Toggle selection (files for copy, move or delete)
+// Select(long press) -> Select all [ Not Implemented ]
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// COLORS: ////////////////////////////////////////////////////////////////////////////////////////////
+// COLORS:  ///////////////////////////////////////////////////////////////////////////////////////////
 #define FT_NONE_COLOR       lilka::colors::Red
 #define FT_NES_ROM_COLOR    lilka::colors::Candy_pink
 #define FT_BIN_COLOR        lilka::colors::Mint_green
@@ -24,9 +26,11 @@
 #define FT_OTHER_COLOR      lilka::colors::Light_gray
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// TODO: add HideItem into lilka::Menu
+
 // TODO : Add separate icons to new file types
 
-// ICONS: /////////////////////////////////////////////////////////////////////////////////////////////
+// ICONS:  ////////////////////////////////////////////////////////////////////////////////////////////
 #define FT_NONE_ICON       &normalfile_img
 #define FT_NES_ICON        &nes_img
 #define FT_BIN_ICON        &bin_img
@@ -38,7 +42,7 @@
 #define FT_OTHER_ICON      &normalfile_img
 #define FM_SELECTED_ICON   &music_img // yeah yeah I know
 
-// FILE HANDLERS: /////////////////////////////////////////////////////////////////////////////////////
+// FILE HANDLERS:  ////////////////////////////////////////////////////////////////////////////////////
 #define FM_DEFAULT_FT_NES_HANDLER(X)     AppManager::getInstance()->runApp(new NesApp(X));
 #define FM_DEFAULT_FT_BIN_HANDLER(X)     fileLoadAsRom(X);
 #define FM_DEFAULT_LUA_SCRIPT_HANDLER(X) AppManager::getInstance()->runApp(new LuaFileRunnerApp(X));
@@ -49,11 +53,11 @@
 #define FT_DEFAULT_OTHER_HANDLER(X)      fileInfoShowAlert(X);
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// MISC SETTINGS://////////////////////////////////////////////////////////////////////////////////////
+// MISC SETTINGS:  ////////////////////////////////////////////////////////////////////////////////////
 #define PROGRESS_FRAME_TIME              30
 #define PROGRESS_FILE_LIST_NO_DRAW_COUNT 10
 // There's a big chance, that task won't be suspended immediately, which could cause a bug
-// If ui hangs up after trying to open file, increase this value
+// If ui hangs up after trying to open file, increase this value. TODO: implent this in AppManager
 #define SUSPEND_AWAIT_TIME     100
 #define FM_CHUNK_SIZE          256
 #define FM_MKDIR_MODE          0777
@@ -61,10 +65,42 @@
 #define FM_STACK_MIN_FREE_SIZE 100
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define ENTRY_NOT_FOUND_INDEX UINT16_MAX
+
+// FAT32 SPECIFIC:  ///////////////////////////////////////////////////////////////////////////////////
+#define FM_FAT32_NAMES_NOT_ALOWED_CHARACTERS "\"*/:<>?\\|"
+#define FM_FAT32_NAMES_NOT_ALLOWED_RESERVED_NAMES \
+    {                                             \
+        "CON",                                    \
+        "PRN",                                    \
+        "AUX",                                    \
+        "NUL",                                    \
+        "COM1",                                   \
+        "COM2",                                   \
+        "COM3",                                   \
+        "COM4",                                   \
+        "COM5",                                   \
+        "COM6",                                   \
+        "COM7",                                   \
+        "COM8",                                   \
+        "COM9"                                    \
+        "LPT1",                                   \
+        "LPT2",                                   \
+        "LPT3",                                   \
+        "LPT4",                                   \
+        "LPT5",                                   \
+        "LPT6",                                   \
+        "LPT7",                                   \
+        "LPT8",                                   \
+        "LPT9",                                   \
+    }
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include "app.h"
 #include <dirent.h>
 #include <vector>
 #include <sys/stat.h>
+#include <stdint.h>
 
 #define MAKE_SANDWICH(X) AppManager::getInstance()->startToast(X)
 
@@ -76,6 +112,7 @@
 
 typedef enum { FT_NONE, FT_NES_ROM, FT_BIN, FT_LUA_SCRIPT, FT_JS_SCRIPT, FT_MOD, FT_LT, FT_DIR, FT_OTHER } FileType;
 typedef enum { FM_MODE_VIEW, FM_MODE_SELECT, FM_MODE_COPY_SINGLE, FM_MODE_MOVE_SINGLE } FmMode;
+
 #define FM_UI_CANT_DO_OP                                                  \
     if (!exitChildDialogs) alert("Помилка", "Не можу виконати операцію"); \
     FM_DBG lilka::serial_err("FM operation fail at %s:%d", __FILE__, __LINE__)
@@ -115,9 +152,13 @@ typedef enum { FM_MODE_VIEW, FM_MODE_SELECT, FM_MODE_COPY_SINGLE, FM_MODE_MOVE_S
 // 3. Select/Select All features
 // Probably just use select button?
 //////////////////////////////////////////////////////////////
-// 4. Flaten dir feature
-// [recursive open all directories and make a single file list]
-// should be expensive so probably better not to try. See 6
+// 4 Determine suggested block size(buffer) for filesystem
+// operation using statvfs() See 1. Set non buffering flag on
+// file to avoid buffering by vfs implementation.
+//
+// Well, we anyways need a buffer size detection to consume
+// just a bit less memory, also we would be sure it's
+// efficient.
 //////////////////////////////////////////////////////////////
 // 5. Check file type by mime-type instead of extension
 //////////////////////////////////////////////////////////////
@@ -126,7 +167,17 @@ typedef enum { FM_MODE_VIEW, FM_MODE_SELECT, FM_MODE_COPY_SINGLE, FM_MODE_MOVE_S
 //  their paths -> make dirs -> copy other files
 //////////////////////////////////////////////////////////////
 // 7. Check name in mkdirInputShow and renameInputShow
-//  on wrong characters
+// on wrong characters
+//
+// see FM_FAT32_NAMES_NOT_ALOWED_CHARACTERS and
+// FM_FAT32_NAMES_NOT_ALLOWED_RESERVED_NAMES macro
+//////////////////////////////////////////////////////////////
+// 8. Use free space on canvas
+//
+// for drawing :
+// mode, count of files, free space left, space used
+//
+// overload queueDraw()
 //////////////////////////////////////////////////////////////
 
 typedef struct {
@@ -136,6 +187,7 @@ typedef struct {
     String name;
     String path; // dir
     struct stat stat;
+    bool selected = false;
 } FMEntry; // Maybe switch to class?
 
 class FileManagerApp : public App {
@@ -155,7 +207,6 @@ private:
 
     // open file with default app
     void openFileEntry(const FMEntry& entry);
-    void alert(const String& title, const String& message);
 
     // just deletes file or directory. flag force means no ask from user
     // which is used here in a recursive form to remove all files in a dir
@@ -211,10 +262,8 @@ private:
 
     // Menu handlers:
     void fileOpenWithMenuShow(const FMEntry& entry);
-
     bool fileListMenuLoadDir(const String& path);
     void fileListMenuShow(const String& path);
-
     void fileOptionsMenuShow(const FMEntry& entry);
 
     // Input handlers:
@@ -224,8 +273,20 @@ private:
 
     // Alerts:
     void fileInfoShowAlert(const FMEntry& entry);
+    void alert(const String& title, const String& message);
+
     // Checks:
-    bool isCopyOrMoveCouldBeDone(const String& src, const String& dst);
+    static bool isCopyOrMoveCouldBeDone(const String& src, const String& dst);
+    //TODO: static bool isValidFAT32Name(const String& name);
+
+    // Comparators:
+    static bool areDirEntriesEqual(const FMEntry& ent1, const FMEntry& ent2);
+
+    // Search:
+    // Returns ENTRY_NOT_FOUND_INDEX if not found
+    static uint16_t getDirEntryIndex(std::vector<FMEntry>& vec, const FMEntry& entry);
+    uint16_t getSelectedDirEntryIndex(const FMEntry& entry);
 
     std::vector<FMEntry> currentDirEntries;
+    std::vector<FMEntry> selectedDirEntries;
 };

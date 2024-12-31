@@ -78,15 +78,17 @@ FileManagerApp::FileManagerApp(const String& path) :
     // in FM_MODE_COPY_SINGLE or FM_MODE_MOVE_SINGLE -> Paste
     // in FM_MODE_VIEW(default) dir Reload
     fileListMenu.addActivationButton(lilka::Button::START);
+    // Toggle selection
+    fileListMenu.addActivationButton(lilka::Button::SELECT);
 
     currentPath = path;
 }
 
 String FileManagerApp::getFileMD5(const String& file_path) {
-    FILE* file = fopen(file_path.c_str(), "rb"); // Use c_str() for Arduino String compatibility
+    FILE* file = fopen(file_path.c_str(), "rb");
     if (!file) {
         FM_DBG lilka::serial_err("MD5: Failed to open file: %s", file_path.c_str());
-        return String(); // Return an empty string on failure
+        return "Не обчислено";
     }
     md5Progress.setMessage(basename(file_path.c_str()));
     // Get file size
@@ -128,7 +130,7 @@ String FileManagerApp::getFileMD5(const String& file_path) {
         ESP_LOGE("MD5", "Error reading file: %s", file_path.c_str());
         fclose(file);
         mbedtls_md5_free(&ctx);
-        return String(); // Return an empty string on error
+        return "Не обчислено";
     }
 
     fclose(file);
@@ -289,6 +291,10 @@ void FileManagerApp::fileInfoShowAlert(const FMEntry& entry) {
     alert(entry.name, info);
 }
 
+bool FileManagerApp::areDirEntriesEqual(const FMEntry& ent1, const FMEntry& ent2) {
+    return (ent1.name == ent2.name) && (ent1.path == ent2.path);
+}
+
 bool FileManagerApp::isCopyOrMoveCouldBeDone(const String& src, const String& dst) {
     // src == dst or dst located in src; src exists; dst not exist;
     // TODO: remove last check from here, and ask user for confirm
@@ -303,6 +309,17 @@ bool FileManagerApp::isCopyOrMoveCouldBeDone(const String& src, const String& ds
         // each vfs root should be added here. Cause lol, it definitely exists
         return (parentDir == LILKA_SD_ROOT || parentDir == LILKA_SPIFFS_ROOT);
     } else return false;
+}
+
+uint16_t FileManagerApp::getDirEntryIndex(std::vector<FMEntry>& vec, const FMEntry& entry) {
+    for (size_t it = 0; it < vec.size(); it++) {
+        if (areDirEntriesEqual(vec[it], entry)) return it;
+    }
+    return ENTRY_NOT_FOUND_INDEX;
+}
+
+uint16_t FileManagerApp::getSelectedDirEntryIndex(const FMEntry& entry) {
+    return getDirEntryIndex(selectedDirEntries, entry);
 }
 
 void FileManagerApp::fileLoadAsRom(const String& path) {
@@ -407,6 +424,7 @@ bool FileManagerApp::fileListMenuLoadDir(const String& path) {
         // Skip current directory and top level entries
         if (filename != "." && filename != "..") {
             FMEntry newEntry = pathToEntry(lilka::fileutils.joinPath(currentPath, filename));
+            if (getSelectedDirEntryIndex(newEntry) != ENTRY_NOT_FOUND_INDEX) newEntry.selected = true;
             currentDirEntries.push_back(newEntry);
         }
         // More interactive load
@@ -452,14 +470,12 @@ bool FileManagerApp::fileListMenuLoadDir(const String& path) {
 
     // Adding entries to menu
     for (auto dirEntry : currentDirEntries) {
-        if (dirEntry.type == FT_DIR) fileListMenu.addItem(dirEntry.name, dirEntry.icon, dirEntry.color);
-        else
-            fileListMenu.addItem(
-                dirEntry.name,
-                dirEntry.icon,
-                dirEntry.color,
-                lilka::fileutils.getHumanFriendlySize(dirEntry.stat.st_size)
-            );
+        fileListMenu.addItem(
+            dirEntry.name,
+            dirEntry.selected ? FM_SELECTED_ICON : dirEntry.icon,
+            dirEntry.color,
+            dirEntry.type == FT_DIR ? "" : lilka::fileutils.getHumanFriendlySize(dirEntry.stat.st_size)
+        );
     }
 
     // Add Back button
@@ -471,12 +487,16 @@ void FileManagerApp::fileListMenuShow(const String& path) {
     FM_DBG lilka::serial_log("Trying to load dir %s", path.c_str());
     int16_t index = 0;
     FM_MODE_RESET;
+    bool doReload = true; // at first load
     while (1) {
         exitChildDialogs = false;
 
         if (!stackSizeCheck()) return;
 
-        if (!fileListMenuLoadDir(path)) return;
+        if (doReload)
+            if (!fileListMenuLoadDir(path)) return;
+
+        doReload = false; // do not reload by default
 
         // Try to restore old menuCursor:
         // last option should be selected cause something should be deleted
@@ -499,40 +519,98 @@ void FileManagerApp::fileListMenuShow(const String& path) {
         auto button = fileListMenu.getButton();
 
         const FMEntry* pCurrentEntry = NULL;
-        if (index != currentDirEntries.size()) {
+        // currentDirEntries have exactly - 1 element inside
+        // so we 've no need to change this
+        if (index != (currentDirEntries.size())) {
             currentEntry = currentDirEntries[index];
             pCurrentEntry = &currentEntry;
+        }
+
+        bool exiting = false;
+
+        // Toggle selection
+        if (button == lilka::Button::SELECT) { // NORELOAD
+            if (!pCurrentEntry) {
+                FM_DBG lilka::serial_log("Selected last item with select do nothing");
+                doReload = false;
+                continue;
+            }
+            bool toggleHandled = false;
+            // Check if selected
+            auto selectedIndex = getSelectedDirEntryIndex(currentEntry);
+            if (selectedIndex != ENTRY_NOT_FOUND_INDEX) {
+                selectedDirEntries.erase(selectedDirEntries.begin() + selectedIndex);
+                lilka::MenuItem fileListMenuItem;
+                fileListMenu.getItem(index, &fileListMenuItem);
+                fileListMenuItem.icon = currentDirEntries[index].icon;
+                fileListMenu.setItem(
+                    index,
+                    fileListMenuItem.title,
+                    fileListMenuItem.icon,
+                    fileListMenuItem.color,
+                    fileListMenuItem.postfix
+                );
+                // TODO :Check if mode reset needed
+            }
+            // FOUND:
+            else {
+                // TODO: ENTER other mode
+                currentEntry.selected = true;
+                selectedDirEntries.push_back(currentEntry);
+                lilka::MenuItem fileListMenuItem;
+                fileListMenu.getItem(index, &fileListMenuItem);
+
+                fileListMenuItem.icon = FM_SELECTED_ICON;
+                fileListMenu.setItem(
+                    index,
+                    fileListMenuItem.title,
+                    fileListMenuItem.icon,
+                    fileListMenuItem.color,
+                    fileListMenuItem.postfix
+                );
+            }
+            continue;
         }
 
         // clear memory
         currentDirEntries.clear();
         fileListMenu.clearItems();
+        doReload = true; // after clear memory we
 
-        bool exiting = false;
-        if (button == lilka::Button::START) { // Paste/Reload
+        // All options below would perform DIR RELOAD in all scenarios
+
+        // Paste/Reload
+        if (button == lilka::Button::START) {
             if (mode == FM_MODE_COPY_SINGLE || mode == FM_MODE_MOVE_SINGLE) {
                 pasteSingleEntry(singleMoveCopyEntry, currentPath);
                 changeMode(FM_MODE_VIEW);
                 continue; // Reload anyways
             } else {
-                MAKE_SANDWICH("Список файлів оновлено");
+                MAKE_SANDWICH("Список файлів оновлено"); // TODO: find better
+                // place for this
                 FM_DBG lilka::serial_log("Force dir reload");
                 continue; // Reload dir
             }
         }
-
-        if (button == lilka::Button::A) { // Open
+        // Open
+        if (button == lilka::Button::A) {
             if (pCurrentEntry) openFileEntry(*pCurrentEntry);
             else exiting = true;
-        } else if (button == lilka::Button::C) { // Info
+        }
+        // Info
+        else if (button == lilka::Button::C) {
             if (pCurrentEntry) fileInfoShowAlert(*pCurrentEntry);
             else exiting = true;
-        } else if (button == lilka::Button::D) { // Options
+        }
+        // Options
+        else if (button == lilka::Button::D) {
             // if folder has no entries
             // pass . entry to allow mkdir
             if (pCurrentEntry) fileOptionsMenuShow(*pCurrentEntry);
             else fileOptionsMenuShow(currentEntry);
-        } else { // B button
+        }
+        // Exit via B button
+        else {
             exiting = true;
         }
 
