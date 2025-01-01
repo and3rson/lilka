@@ -15,13 +15,15 @@ typedef uint16_t const menu_icon_t[menu_icon_width * menu_icon_height]; // 24x24
 
 namespace lilka {
 
+typedef void (*PMenuItemCallback)(void*);
 typedef struct {
     String title;
     const menu_icon_t* icon;
     uint16_t color;
     String postfix;
+    PMenuItemCallback callback;
+    void* callbackData; // place ptr to Menu inside callback Data if u want to track menu.getButton()
 } MenuItem;
-
 /// Клас для відображення меню.
 ///
 /// Дозволяє відобразити меню з пунктами, які можна вибирати за допомогою стрілок вгору/вниз та підтвердити вибір кнопкою A.
@@ -70,7 +72,12 @@ public:
     /// @param icon Іконка пункту (масив з `uint16_t` розміром 576 елементів, який представляє 24x24px зображення). За замовчуванням `0` (відсутня іконка).
     /// @param color Колір пункту. За замовчуванням `0` (стандартний колір).
     /// @param postfix Текст, який додається після заголовка пункту і вирівнюється до правого краю меню.
-    void addItem(String title, const menu_icon_t* icon = 0, uint16_t color = 0, String postfix = "");
+    /// @param callback Вказівник на функцію яку буде викликано при закритті меню.
+    /// @param callbackData Дані які буде передано в callback функцію
+    void addItem(
+        String title, const menu_icon_t* icon = 0, uint16_t color = 0, String postfix = "",
+        PMenuItemCallback callback = NULL, void* callbackData = NULL
+    );
 
     /// Встановити курсор на пункт меню.
     /// @param cursor Індекс пункту меню.
