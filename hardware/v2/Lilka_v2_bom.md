@@ -7,7 +7,7 @@
 | 1      | U4               | ESP32-S3-WROOM-1               | https://www.rcscomponents.kiev.ua/product/esp32-s3-wroom-1-n16r8_184448.html                                   |
 | 1      | U2               | 280x240 1.69" TFT              | https://arduino.ua/prod6568-tft-displei-1-7-spi-240x280-rgb                                                    |
 | 1      | J5               | uSD                            | https://diyshop.com.ua/en/modul-interfejsa-mini-sd-karty-kardrider                                             |
-| 1      | U3               | TLV1117LV33DCYR                | https://www.kosmodrom.ua/stabilizator-naprugi/tlv1117lv33dcyr-2.html                                                      |
+| 1      | U3               | TLV1117LV33DCYR                | https://www.kosmodrom.ua/stabilizator-naprugi/tlv1117lv33dcyr-2.html                                           |
 | 2      | C2, C3           | 10uF                           | https://prom.ua/ua/p436700921-kondensator-50v-keramika.html                                                    |
 | 1      | C1               | 1uF                            | https://m-teh.com.ua/kondensator-ct4-1uf-50v-x7r-10/                                                           |
 | 1      | R1               | 10K                            | https://justas-electronics.com.ua/rss0125w-10k/                                                                |
