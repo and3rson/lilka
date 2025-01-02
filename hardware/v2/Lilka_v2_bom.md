@@ -11,7 +11,7 @@
 | 2      | C2, C3           | 10uF                           | https://prom.ua/ua/p436700921-kondensator-50v-keramika.html                                                    |
 | 1      | C1               | 1uF                            | https://m-teh.com.ua/kondensator-ct4-1uf-50v-x7r-10/                                                           |
 | 1      | R1               | 10K                            | https://justas-electronics.com.ua/rss0125w-10k/                                                                |
-| 6      | SW1-SW8          | Button Kit (12mm)              | https://arduino.ua/prod2506-komplekt-knopok-12mm-s-kolpachkom-5-cvetov                                         |
+| 8      | SW1-SW8          | Button Kit (12mm)              | https://arduino.ua/prod2506-komplekt-knopok-12mm-s-kolpachkom-5-cvetov                                         |
 | 3      | SW9, SW10, SW12  | Select/Start/Reset Tact(6mm)   | https://arduino.ua/prod6165-taktova-knopka-smd-4pin-6h6x9-5mm-shtok-6-0mm                                      |
 | 1      | J1               | USB Type-C to DIP              | https://arduino.ua/prod2783-plata-perehodnik-usb-type-c-na-dip-2-54                                            |
 | 1      | R2               | 100K                           | https://justas-electronics.com.ua/rss0125w-100k/                                                               |
