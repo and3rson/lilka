@@ -60,12 +60,24 @@
      - .. thumbnail:: ./images/parts/buzzer.jpg
           :group: base
 
-   * - 3
-     - C1, C2, C3
+   * - 1
+     - C1
      - 1uF
      - 1uF Capacitor 
      - `m-teh.com.ua <https://m-teh.com.ua/kondensator-ct4-1uf-50v-x7r-10/>`__
      - `Посилання <https://www.aliexpress.com/item/1005004787479555.html>`__
+     -
+     - 9
+     - Можна комплектувати `з цього набору <https://arduino.ua/prod2798-nabor-mnogosloinih-keramicheskih-kondensatorov-180-sht>`__
+     - .. thumbnail:: ./images/parts/cap.jpg
+          :group: base
+
+   * - 2
+     - C2, C3
+     - 10uF
+     - 10uF Capacitor 
+     - `prom.ua <https://prom.ua/ua/p2221701868-kondensator-106-10uf.html/>`__
+     - `Посилання <https://www.aliexpress.com/item/32973259342.html>`__
      -
      - 9
      - Можна комплектувати `з цього набору <https://arduino.ua/prod2798-nabor-mnogosloinih-keramicheskih-kondensatorov-180-sht>`__
@@ -132,7 +144,7 @@
      - .. thumbnail:: ./images/parts/r100k.jpg
           :group: base
 
-   * - 1
+   * - 8
      - SW1-SW8
      - Arrows + A/B/C/D
      - Button Kit (12mm)
@@ -146,14 +158,14 @@
      - .. thumbnail:: ./images/parts/12mm.jpg
           :group: base
 
-   * - 2
-     - SW9, SW10
-     - Select/Start
+   * - 3
+     - SW9, SW10, SW12
+     - Select/Start/Reset
      - SMD Tactile Button
      - `imrad.com.ua <https://imrad.com.ua/ua/kfc-a06-6-knopka-taktovaya-6x6x6-6>`__
      - `Посилання <https://www.aliexpress.com/item/32912263133.html>`__
      -
-     - 4
+     - 6
      -
      - .. thumbnail:: ./images/parts/6mm.jpg
           :group: base
@@ -168,18 +180,6 @@
      - 10
      - Кнопка має бути кутова
      - .. thumbnail:: ./images/parts/toggle.jpg
-          :group: base
-
-   * - 1
-     - SW12
-     - Reset
-     - SMD Tactile Button
-     - `imrad.com.ua <https://imrad.com.ua/ua/kfc-a06-6-knopka-taktovaya-6x6x6-6>`__
-     - `Посилання <https://www.aliexpress.com/item/32912263133.html>`__
-     -
-     - 2
-     -
-     - .. thumbnail:: ./images/parts/6mm.jpg
           :group: base
 
    * - 1
