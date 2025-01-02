@@ -80,7 +80,7 @@
      - `Посилання <https://www.aliexpress.com/item/32973259342.html>`__
      -
      - 9
-     - Можна комплектувати `з цього набору <https://arduino.ua/prod2798-nabor-mnogosloinih-keramicheskih-kondensatorov-180-sht>`__
+     -
      - .. thumbnail:: ./images/parts/cap.jpg
           :group: base
 
