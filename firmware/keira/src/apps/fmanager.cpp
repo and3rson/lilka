@@ -47,9 +47,9 @@ FileManagerApp::FileManagerApp(const String& path) :
     renameInput("Введіть нову назву") {
     // Set stack size
     setStackSize(FM_STACK_SIZE);
-    // init once
+    // File Options Menu:
     fileOptionsMenu.setTitle("Опції");
-    fileOptionsMenu.addActivationButton(lilka::Button::B); // Back Button
+    fileOptionsMenu.addActivationButton(FM_EXIT_BUTTON);
     fileOptionsMenu.addItem("Відкрити");
     fileOptionsMenu.addItem("Відкрити з");
     fileOptionsMenu.addItem("Перейменувати");
@@ -58,9 +58,9 @@ FileManagerApp::FileManagerApp(const String& path) :
     fileOptionsMenu.addItem("Видалити");
     fileOptionsMenu.addItem("Вибрати");
     fileOptionsMenu.addItem("Створити папку");
-    // init once
+    // Open with Menu:
     fileOpenWithMenu.setTitle("Оберіть додаток");
-    fileOpenWithMenu.addActivationButton(lilka::Button::B); // Back Button
+    fileOpenWithMenu.addActivationButton(FM_EXIT_BUTTON);
     fileOpenWithMenu.addItem("Файловий менеджер");
     fileOpenWithMenu.addItem("Емулятор NES");
     fileOpenWithMenu.addItem("Загрузчик прошивок");
@@ -68,16 +68,22 @@ FileManagerApp::FileManagerApp(const String& path) :
     fileOpenWithMenu.addItem("mJS");
     fileOpenWithMenu.addItem("ЛілТрекер");
     fileOpenWithMenu.addItem("Програвач MOD");
+    // File Selection Paste Menu
+    fileSelectionPasteMenu.setTitle("Вставка");
+    fileSelectionPasteMenu.addActivationButton(FM_EXIT_BUTTON);
+    fileSelectionPasteMenu.addItem("Копіювати вибране");
+    fileSelectionPasteMenu.addItem("Перемістити вибране");
+    fileSelectionPasteMenu.addItem("Видалити вибране");
+    fileSelectionPasteMenu.addItem("Очистити вибране");
 
     // Info Button
     fileListMenu.addActivationButton(lilka::Button::C);
-    // Back Button
-    fileListMenu.addActivationButton(lilka::Button::B);
+    fileListMenu.addActivationButton(FM_EXIT_BUTTON);
     // Options Button
     fileListMenu.addActivationButton(lilka::Button::D);
     // in FM_MODE_COPY_SINGLE or FM_MODE_MOVE_SINGLE -> Paste
     // in FM_MODE_VIEW(default) dir Reload
-    fileListMenu.addActivationButton(lilka::Button::START);
+    fileListMenu.addActivationButton(FM_PASTE_BUTTON);
     // Toggle selection
     fileListMenu.addActivationButton(lilka::Button::SELECT);
 
@@ -255,7 +261,7 @@ void FileManagerApp::fileOpenWithMenuShow(const FMEntry& entry) {
             queueDraw();
         }
         auto button = fileOpenWithMenu.getButton();
-        if (button == lilka::Button::B) return; // BACK
+        if (button == FM_EXIT_BUTTON) return; // BACK
 
         auto index = fileOpenWithMenu.getCursor();
 
@@ -315,15 +321,11 @@ bool FileManagerApp::isCopyOrMoveCouldBeDone(const String& src, const String& ds
     } else return false;
 }
 
-uint16_t FileManagerApp::getDirEntryIndex(std::vector<FMEntry>& vec, const FMEntry& entry) {
+uint16_t FileManagerApp::getDirEntryIndex(const std::vector<FMEntry>& vec, const FMEntry& entry) {
     for (size_t it = 0; it < vec.size(); it++) {
         if (areDirEntriesEqual(vec[it], entry)) return it;
     }
     return ENTRY_NOT_FOUND_INDEX;
-}
-
-uint16_t FileManagerApp::getSelectedDirEntryIndex(const FMEntry& entry) {
-    return getDirEntryIndex(selectedDirEntries, entry);
 }
 
 void FileManagerApp::fileLoadAsRom(const String& path) {
@@ -361,6 +363,8 @@ void FileManagerApp::fileLoadAsRom(const String& path) {
 }
 
 void FileManagerApp::fileOptionsMenuShow(const FMEntry& entry) {
+    // Set cursor to beining if not returned by B button
+    fileOptionsMenu.setCursor(0);
     while (1) {
         FM_CHILD_DIALOG_CHECKV;
         while (!fileOptionsMenu.isFinished()) {
@@ -370,7 +374,7 @@ void FileManagerApp::fileOptionsMenuShow(const FMEntry& entry) {
         }
         auto button = fileOptionsMenu.getButton();
 
-        if (button == lilka::Button::B) return;
+        if (button == FM_EXIT_BUTTON) return;
 
         auto index = fileOptionsMenu.getCursor();
         // Check on "Back selected"
@@ -388,9 +392,17 @@ void FileManagerApp::fileOptionsMenuShow(const FMEntry& entry) {
         else if (index == 3) { // Copy
             if (mode == FM_MODE_VIEW || mode == FM_MODE_MOVE_SINGLE || mode == FM_MODE_COPY_SINGLE)
                 copySingleEntry(entry);
+            else if (mode == FM_MODE_SELECT) {
+                changeMode(FM_MODE_SELECT_COPY);
+                pasteSelectedEntries();
+            }
         } else if (index == 4) { // Move
             if (mode == FM_MODE_VIEW || mode == FM_MODE_MOVE_SINGLE || mode == FM_MODE_COPY_SINGLE)
                 moveSingleEntry(entry);
+            else if (mode == FM_MODE_SELECT) {
+                changeMode(FM_MODE_SELECT_MOVE);
+                pasteSelectedEntries();
+            }
         } else if (index == 5) { // Delete
             deleteEntry(entry);
             return;
@@ -401,6 +413,36 @@ void FileManagerApp::fileOptionsMenuShow(const FMEntry& entry) {
         }
     }
 }
+void FileManagerApp::fileSelectionPasteMenuShow() {
+    // Do draw
+    while (!fileSelectionPasteMenu.isFinished()) {
+        fileSelectionPasteMenu.update();
+        fileSelectionPasteMenu.draw(canvas);
+        queueDraw();
+    }
+    auto button = fileSelectionPasteMenu.getButton();
+    if (button == FM_EXIT_BUTTON) return;
+    auto index = fileSelectionPasteMenu.getCursor();
+    switch (index) {
+        case 0:
+            changeMode(FM_MODE_SELECT_COPY);
+            pasteSelectedEntries();
+            break; // Copy selected
+        case 1:
+            changeMode(FM_MODE_SELECT_MOVE);
+            pasteSelectedEntries();
+            break; // Move selected
+        case 3:
+            alertNotImplemented();
+            break;
+        case 4:
+            selectedDirEntries.clear();
+            break; // Clear selection
+    }
+
+    FM_MODE_RESET;
+}
+
 bool FileManagerApp::fileListMenuLoadDir(const String& path) {
     auto dir = opendir(path.c_str());
     if (dir == NULL) { // Can't open dir
@@ -428,7 +470,7 @@ bool FileManagerApp::fileListMenuLoadDir(const String& path) {
         // Skip current directory and top level entries
         if (filename != "." && filename != "..") {
             FMEntry newEntry = pathToEntry(lilka::fileutils.joinPath(currentPath, filename));
-            if (getSelectedDirEntryIndex(newEntry) != ENTRY_NOT_FOUND_INDEX) newEntry.selected = true;
+            if (getDirEntryIndex(selectedDirEntries, newEntry) != ENTRY_NOT_FOUND_INDEX) newEntry.selected = true;
             currentDirEntries.push_back(newEntry);
         }
         // More interactive load
@@ -539,9 +581,10 @@ void FileManagerApp::fileListMenuShow(const String& path) {
                 continue;
             }
             // Check if selected
-            auto selectedIndex = getSelectedDirEntryIndex(currentEntry);
+            auto selectedIndex = getDirEntryIndex(selectedDirEntries, currentEntry);
             if (selectedIndex != ENTRY_NOT_FOUND_INDEX) {
                 selectedDirEntries.erase(selectedDirEntries.begin() + selectedIndex);
+                if (selectedDirEntries.size() == 0) FM_MODE_RESET;
                 lilka::MenuItem fileListMenuItem;
                 fileListMenu.getItem(index, &fileListMenuItem);
                 fileListMenuItem.icon = currentDirEntries[index].icon;
@@ -570,6 +613,7 @@ void FileManagerApp::fileListMenuShow(const String& path) {
                     fileListMenuItem.color,
                     fileListMenuItem.postfix
                 );
+                changeMode(FM_MODE_SELECT);
             }
             continue;
         }
@@ -589,20 +633,24 @@ void FileManagerApp::fileListMenuShow(const String& path) {
         // All options below would perform DIR RELOAD in all scenarios
 
         // Paste/Reload
-        if (button == lilka::Button::START) {
+        if (button == FM_PASTE_BUTTON) {
             if (mode == FM_MODE_COPY_SINGLE || mode == FM_MODE_MOVE_SINGLE) {
-                pasteSingleEntry(singleMoveCopyEntry, currentPath);
+                pasteSingleEntry(singleMoveCopyEntry);
                 changeMode(FM_MODE_VIEW);
                 continue; // Reload anyways
+            } else if (mode == FM_MODE_SELECT) {
+                fileSelectionPasteMenuShow();
+                continue;
             } else {
                 MAKE_SANDWICH("Список файлів оновлено"); // TODO: find better
                 // place for this
                 FM_DBG lilka::serial_log("Force dir reload");
+
                 continue; // Reload dir
             }
         }
         // Open
-        if (button == lilka::Button::A) {
+        if (button == FM_OKAY_BUTTON) {
             if (pCurrentEntry) openFileEntry(*pCurrentEntry);
             else exiting = true;
         }
@@ -669,17 +717,16 @@ void FileManagerApp::deleteEntry(const FMEntry& entry, bool force) {
     // Perform check on user sureness
     if (!force) {
         lilka::Alert checkAlert(
-            "Ви впевнені?", String("Ця операція видалить файл\n") + path + "\nПродовжити: START\nВихід: A/B"
+            "Ви впевнені?", String("Ця операція видалить файл\n") + path + "\nПродовжити: START\nВихід: B"
         );
-        checkAlert.addActivationButton(lilka::Button::A);
-        checkAlert.addActivationButton(lilka::Button::B);
-        checkAlert.addActivationButton(lilka::Button::START);
+        checkAlert.addActivationButton(FM_EXIT_BUTTON);
+        checkAlert.addActivationButton(FM_CONFIRM_BUTTON);
         while (!checkAlert.isFinished()) {
             checkAlert.update();
             checkAlert.draw(canvas);
             queueDraw();
         }
-        if (checkAlert.getButton() != lilka::Button::START) return; //Exit
+        if (checkAlert.getButton() != FM_CONFIRM_BUTTON) return; //Exit
     }
 
     // Do job
@@ -867,9 +914,9 @@ bool FileManagerApp::copyPath(const String& source, const String& destination) {
     return false;
 }
 
-void FileManagerApp::pasteSingleEntry(const FMEntry& entry, String& where) {
+void FileManagerApp::pasteSingleEntry(const FMEntry& entry) {
     auto source = lilka::fileutils.joinPath(entry.path, entry.name);
-    auto destination = lilka::fileutils.joinPath(where, entry.name);
+    auto destination = lilka::fileutils.joinPath(currentPath, entry.name);
     // check
     if (!isCopyOrMoveCouldBeDone(source, destination)) {
         FM_UI_CANT_DO_OP; // Allow to paste in other place
@@ -898,6 +945,20 @@ void FileManagerApp::pasteSingleEntry(const FMEntry& entry, String& where) {
             FM_MODE_RESET;
         } break;
     }
+    FM_MODE_RESET;
+}
+void FileManagerApp::pasteSelectedEntries() {
+    auto currentMode = mode;
+    for (auto selectedDirEntry : selectedDirEntries) {
+        if (currentMode == FM_MODE_SELECT_COPY) {
+            changeMode(FM_MODE_COPY_SINGLE);
+            pasteSingleEntry(selectedDirEntry);
+        } else if (currentMode == FM_MODE_SELECT_MOVE) {
+            changeMode(FM_MODE_MOVE_SINGLE);
+            pasteSingleEntry(selectedDirEntry);
+        }
+    }
+    selectedDirEntries.clear();
     FM_MODE_RESET;
 }
 
@@ -935,13 +996,13 @@ void FileManagerApp::run() {
     fileListMenuShow(currentPath);
 }
 //  Drawing direction ->>>
-// Text origin is located at left by x, and at baseline by y
+// Text adjusted to bounds box
 //
 //
 //
 // HEIGHT by x
 // WIDTH by y
-// 0 0 is top lfet corner
+// 0 0 is top let corner
 
 void FileManagerApp::queueDraw() {
     drawStatusBar();
@@ -949,6 +1010,7 @@ void FileManagerApp::queueDraw() {
 }
 
 void FileManagerApp::drawStatusBar() {
+    // TODO: just read global varialble with text
     // fill Space for status bar
     canvas->fillRect(
         0, canvas->height() - STATUS_BAR_HEIGHT, canvas->width(), STATUS_BAR_HEIGHT, STATUS_BAR_FILL_COLOR
@@ -960,7 +1022,7 @@ void FileManagerApp::drawStatusBar() {
     // canvas->printf("Height %d, width %d", canvas->height(), canvas->width());
 
     canvas->setCursor(STATUS_BAR_SAFE_DISTANCE, canvas->height() - 20 / 2); // FONT_Y / 2
-    canvas->setFont(FONT_8x13_MONO);
+    canvas->setFont(FONT_8x13);
     canvas->setTextColor(lilka::colors::White);
     // use left part
     //canvas->setTextBound(
@@ -979,13 +1041,21 @@ void FileManagerApp::drawStatusBar() {
             modeStr = "MOVE";
             break;
         case FM_MODE_SELECT:
-            modeStr = "SELECT";
+            modeStr = String("SELECTED ") + String(selectedDirEntries.size()) + " entries";
             break;
         case FM_MODE_VIEW:
-            modeStr = "VIEW";
+            modeStr =
+                currentDirEntries.size() == 0 ? "" : String("Total: ") + String(currentDirEntries.size()) + " entries";
+            break;
+        case FM_MODE_SELECT_MOVE:
+            modeStr = "MOVING " + String(selectedDirEntries.size()) + " entries";
+            break;
+        case FM_MODE_SELECT_COPY:
+            modeStr = "COPYING" + String(selectedDirEntries.size()) + " entries";
             break;
         default:
             modeStr = "UNKNOWN";
+            break;
     }
     canvas->printf("%s", modeStr.c_str());
 }

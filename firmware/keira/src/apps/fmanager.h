@@ -13,7 +13,7 @@
 // Select             -> Toggle selection (files for copy, move or delete)
 // Select(long press) -> Select all [ Not Implemented ]
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-
+// TODO : Key remap through header file
 // COLORS:  ///////////////////////////////////////////////////////////////////////////////////////////
 #define FT_NONE_COLOR       lilka::colors::Red
 #define FT_NES_ROM_COLOR    lilka::colors::Candy_pink
@@ -53,6 +53,13 @@
 #define FT_DEFAULT_OTHER_HANDLER(X)      fileInfoShowAlert(X);
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// BUTTONS:  //////////////////////////////////////////////////////////////////////////////////////////
+#define FM_OKAY_BUTTON    lilka::Button::A
+#define FM_CONFIRM_BUTTON lilka::Button::START
+#define FM_EXIT_BUTTON    lilka::Button::B
+#define FM_PASTE_BUTTON   FM_CONFIRM_BUTTON
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // MISC SETTINGS:  ////////////////////////////////////////////////////////////////////////////////////
 #define PROGRESS_FRAME_TIME              30
 #define PROGRESS_FILE_LIST_NO_DRAW_COUNT 10
@@ -65,7 +72,7 @@
 #define FM_STACK_MIN_FREE_SIZE 100
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#define STATUS_BAR_HEIGHT        34
+#define STATUS_BAR_HEIGHT        30
 #define STATUS_BAR_SAFE_DISTANCE 38
 #define STATUS_BAR_WIDTH         canvas->width() - STATUS_BAR_SAFE_DISTANCE * 2
 #define STATUS_BAR_TEXT_COLOR    lilka::colors::White
@@ -120,7 +127,15 @@
 #endif
 
 typedef enum { FT_NONE, FT_NES_ROM, FT_BIN, FT_LUA_SCRIPT, FT_JS_SCRIPT, FT_MOD, FT_LT, FT_DIR, FT_OTHER } FileType;
-typedef enum { FM_MODE_VIEW, FM_MODE_SELECT, FM_MODE_COPY_SINGLE, FM_MODE_MOVE_SINGLE } FmMode;
+typedef enum {
+    FM_MODE_VIEW, // Standard mode
+    FM_MODE_SELECT, // if selectedEntries contain something
+    FM_MODE_COPY_SINGLE, // if copy option from OptionsMenu
+    FM_MODE_MOVE_SINGLE, // if move option from OptionsMenu
+    FM_MODE_SELECT_COPY, // on paste while in FM_MODE_SELECT
+    FM_MODE_SELECT_MOVE, // on paste while in FM_MODE_SELECT
+    FM_MODE_RELOAD // changes in dir happened, reload filelist
+} FmMode;
 
 #define FM_UI_CANT_DO_OP                                                  \
     if (!exitChildDialogs) alert("Помилка", "Не можу виконати операцію"); \
@@ -209,7 +224,7 @@ public:
 
 private:
     // Converts path into FMEntry
-    FMEntry pathToEntry(const String& path);
+    static FMEntry pathToEntry(const String& path);
 
     // changes FM mode
     bool changeMode(FmMode newMode);
@@ -233,7 +248,9 @@ private:
 
     // This function ends both move and copy actions
     // performs actual moving, should be moved to movePath function
-    void pasteSingleEntry(const FMEntry& entry, String& where);
+
+    void pasteSingleEntry(const FMEntry& entry);
+    void pasteSelectedEntries();
 
     // actual copying
     bool copyPath(const String& source, const String& destination);
@@ -250,7 +267,7 @@ private:
 
     //  FM State:
     bool exitChildDialogs = false;
-    FmMode mode = FM_MODE_VIEW;
+    FmMode mode = FM_MODE_RELOAD;
     FMEntry singleMoveCopyEntry = {};
 
     // Buffer for file operations(Copy/MD5 Calc)
@@ -270,6 +287,7 @@ private:
     lilka::Menu fileOpenWithMenu;
     lilka::Menu fileListMenu;
     lilka::Menu fileOptionsMenu;
+    lilka::Menu fileSelectionPasteMenu;
     lilka::ProgressDialog dirLoadProgress;
     lilka::ProgressDialog md5Progress;
     lilka::ProgressDialog copyProgress;
@@ -281,6 +299,7 @@ private:
     bool fileListMenuLoadDir(const String& path);
     void fileListMenuShow(const String& path);
     void fileOptionsMenuShow(const FMEntry& entry);
+    void fileSelectionPasteMenuShow();
 
     // Input handlers:
     void mkdirInputShow(const String& path);
@@ -300,8 +319,7 @@ private:
 
     // Search:
     // Returns ENTRY_NOT_FOUND_INDEX if not found
-    static uint16_t getDirEntryIndex(std::vector<FMEntry>& vec, const FMEntry& entry);
-    uint16_t getSelectedDirEntryIndex(const FMEntry& entry);
+    static uint16_t getDirEntryIndex(const std::vector<FMEntry>& vec, const FMEntry& entry);
 
     std::vector<FMEntry> currentDirEntries;
     std::vector<FMEntry> selectedDirEntries;
