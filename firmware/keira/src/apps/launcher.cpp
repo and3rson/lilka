@@ -20,6 +20,7 @@
 #include "demos/petpet.h"
 #include "demos/combo.h"
 #include "gpiomanager.h"
+#include "callbacktest.h"
 #include "tamagotchi/tamagotchi.h"
 #include "lua/luarunner.h"
 #include "mjs/mjsrunner.h"
@@ -85,6 +86,7 @@ void LauncherApp::run() {
                             ITEM::APP("I2C-сканер", [this]() { this->runApp<ScanI2CApp>(); }),
                             ITEM::APP("GPIO-менеджер", [this]() { this->runApp<GPIOManagerApp>(); }),
                             ITEM::APP("Combo", [this]() { this->runApp<ComboApp>(); }),
+                            ITEM::APP("CallbackTest", [this]() { this->runApp<CallBackTestApp>(); }),
                         }
                     ),
                     ITEM::APP("ЛілТрекер", [this]() { this->runApp<LilTrackerApp>(); }),
