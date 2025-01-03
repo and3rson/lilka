@@ -71,15 +71,11 @@ FileManagerApp::FileManagerApp(const String& path) :
     fileSelectionOptionsMenu.addActivationButton(FM_EXIT_BUTTON);
 
     // FILE LIST MENU SETUP:
-    // CALLBACK_SETUP IN OTHER PLACE
-    // Info Button
+    // CALLBACK_SETUP made in fileListMenuLoadDir()
     fileListMenu.addActivationButton(FM_INFO_BUTTON);
     fileListMenu.addActivationButton(FM_EXIT_BUTTON);
-    // Options Button
     fileListMenu.addActivationButton(FM_OPTIONS_MENU_BUTTON);
-    // in FM_MODE_COPY_SINGLE or FM_MODE_MOVE_SINGLE -> Paste
-    // in FM_MODE_VIEW(default) dir Reload
-    // Toggle selection
+    fileListMenu.addActivationButton(FM_RELOAD_BUTTON);
     fileListMenu.addActivationButton(FM_SELECT_BUTTON);
 
     currentPath = path;
@@ -840,8 +836,10 @@ void FileManagerApp::onFileListMenuItem() {
     currentPath = currentEntry.path;
     FM_DBG lilka::serial_log("Current path = %s", currentPath.c_str());
     FM_DBG lilka::serial_log("Button = %d", button);
-    if (button == FM_CONFIRM_BUTTON) {
+    if (button == FM_RELOAD_BUTTON) {
+        fileListMenu.isFinished();
         changeMode(FM_MODE_RELOAD);
+        return;
     }
     if (button == FM_EXIT_BUTTON) {
         if (currentPath != initalPath) {
