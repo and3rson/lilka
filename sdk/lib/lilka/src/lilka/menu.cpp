@@ -87,10 +87,11 @@ void Menu::update() {
         lilka::_StateButtons& buttonsArray = *reinterpret_cast<lilka::_StateButtons*>(&state);
         if (buttonsArray[activationButton].justPressed) {
             button = activationButton;
+            done = true;
+            // Should be made after done flag setup to allow to clear it by isFinished() call
             if (items[cursor].callback) { // call callback if
                 items[cursor].callback(items[cursor].callbackData);
             }
-            done = true;
         }
     }
     vTaskDelay(LILKA_UI_UPDATE_DELAY_MS / portTICK_PERIOD_MS);
