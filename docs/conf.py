@@ -7,6 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 import sys
+import os
 from os import path
 
 project = "Лілка"
@@ -111,7 +112,8 @@ hoverxref_role_types = {
 }
 
 # -- Images ------------------------------------------------------------------
-extensions.append("sphinxcontrib.images")
+if os.name != 'nt': 
+    extensions.append("sphinxcontrib.images")
 
 # -- Custom extensions -------------------------------------------------------
 sys.path.append("./extensions/")
