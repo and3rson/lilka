@@ -29,7 +29,9 @@
 #include "weather/weather.h"
 #include "modplayer/modplayer.h"
 #include "liltracker/liltracker.h"
+#include "fmanager/fmanager.h"
 #include "pastebin/pastebinApp.h"
+
 #include "settings/sound.h"
 
 #include "icons/demos.h"
@@ -38,15 +40,6 @@
 #include "icons/dev.h"
 #include "icons/settings.h"
 #include "icons/info.h"
-
-#include "icons/normalfile.h"
-#include "icons/folder.h"
-#include "icons/nes.h"
-#include "icons/bin.h"
-#include "icons/lua.h"
-#include "icons/js.h"
-#include "icons/music.h"
-#include "fmanager.h"
 
 #include <WiFi.h> // for setWiFiTxPower
 #include <Preferences.h>

@@ -5,15 +5,23 @@
 // Used Buttons:
 // A                  -> Okay/Enter
 // B                  -> Back/Exit
-// C                  -> Info
+// C                  -> Select file/multiple files
 // D                  -> Options
-// Start              -> Reload Directory
-// Start              -> Force Okay (Delete)
-// Start              -> Paste (Move/Copy Modes)
-// Select             -> Toggle selection (files for copy, move or delete)
-// Select(long press) -> Select all [ Not Implemented ]
+// Start              -> Confirm button
+// Select             -> Info menu
+// Start              -> Reload dir
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-// TODO : Key remap through header file
+
+// BUTTONS:  //////////////////////////////////////////////////////////////////////////////////////////
+#define FM_OKAY_BUTTON         lilka::Button::A
+#define FM_CONFIRM_BUTTON      lilka::Button::START
+#define FM_EXIT_BUTTON         lilka::Button::B
+#define FM_OPTIONS_MENU_BUTTON lilka::Button::D
+#define FM_INFO_BUTTON         lilka::Button::SELECT
+#define FM_SELECT_BUTTON       lilka::Button::C
+#define FM_RELOAD_BUTTON       FM_CONFIRM_BUTTON
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // COLORS:  ///////////////////////////////////////////////////////////////////////////////////////////
 #define FT_NONE_COLOR       lilka::colors::Red
 #define FT_NES_ROM_COLOR    lilka::colors::Candy_pink
@@ -41,7 +49,6 @@
 #define FT_DIR_ICON        &folder_img
 #define FT_OTHER_ICON      &normalfile_img
 #define FM_SELECTED_ICON   &music_img // yeah yeah I know
-
 // FILE HANDLERS:  ////////////////////////////////////////////////////////////////////////////////////
 #define FM_DEFAULT_FT_NES_HANDLER(X)     AppManager::getInstance()->runApp(new NesApp(X));
 #define FM_DEFAULT_FT_BIN_HANDLER(X)     fileLoadAsRom(X);
@@ -49,15 +56,8 @@
 #define FT_DEFAULT_JS_SCRIPT_HANDLER(X)  AppManager::getInstance()->runApp(new MJSApp(X));
 #define FT_DEFAULT_MOD_HANDLER(X)        AppManager::getInstance()->runApp(new ModPlayerApp(X));
 #define FT_DEFAULT_LT_HANDLER(X)         AppManager::getInstance()->runApp(new LilTrackerApp(X))
-#define FT_DEFAULT_DIR_HANDLER(X)        fileListMenuShow(X);
-#define FT_DEFAULT_OTHER_HANDLER(X)      fileInfoShowAlert(X);
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// BUTTONS:  //////////////////////////////////////////////////////////////////////////////////////////
-#define FM_OKAY_BUTTON    lilka::Button::A
-#define FM_CONFIRM_BUTTON lilka::Button::START
-#define FM_EXIT_BUTTON    lilka::Button::B
-#define FM_PASTE_BUTTON   FM_CONFIRM_BUTTON
+#define FT_DEFAULT_DIR_HANDLER           currentPath = path;
+#define FT_DEFAULT_OTHER_HANDLER         fileInfoShowAlert();
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // MISC SETTINGS:  ////////////////////////////////////////////////////////////////////////////////////
@@ -65,55 +65,53 @@
 #define PROGRESS_FILE_LIST_NO_DRAW_COUNT 10
 // There's a big chance, that task won't be suspended immediately, which could cause a bug
 // If ui hangs up after trying to open file, increase this value. TODO: implent this in AppManager
-#define SUSPEND_AWAIT_TIME     100
-#define FM_CHUNK_SIZE          256
-#define FM_MKDIR_MODE          0777
-#define FM_STACK_SIZE          16384
-#define FM_STACK_MIN_FREE_SIZE 100
-///////////////////////////////////////////////////////////////////////////////////////////////////////
+#define SUSPEND_AWAIT_TIME         100
+#define FM_CHUNK_SIZE              256
+#define FM_MKDIR_MODE              0777
+#define FM_STACK_SIZE              8192
+#define FM_STACK_MIN_FREE_SIZE     100
+#define FM_DEFAULT_NEW_FOLDER_NAME "Нова папка"
 
+// STATUS BAR SETTINGS:  //////////////////////////////////////////////////////////////////////////////
 #define STATUS_BAR_HEIGHT        30
 #define STATUS_BAR_SAFE_DISTANCE 38
 #define STATUS_BAR_WIDTH         canvas->width() - STATUS_BAR_SAFE_DISTANCE * 2
 #define STATUS_BAR_TEXT_COLOR    lilka::colors::White
 #define STATUS_BAR_FILL_COLOR    lilka::colors::Black
-
-#define ENTRY_NOT_FOUND_INDEX    UINT16_MAX
-
-// FAT32 SPECIFIC:  ///////////////////////////////////////////////////////////////////////////////////
-#define FM_FAT32_NAMES_NOT_ALOWED_CHARACTERS "\"*/:<>?\\|"
-#define FM_FAT32_NAMES_NOT_ALLOWED_RESERVED_NAMES \
-    {                                             \
-        "CON",                                    \
-        "PRN",                                    \
-        "AUX",                                    \
-        "NUL",                                    \
-        "COM1",                                   \
-        "COM2",                                   \
-        "COM3",                                   \
-        "COM4",                                   \
-        "COM5",                                   \
-        "COM6",                                   \
-        "COM7",                                   \
-        "COM8",                                   \
-        "COM9"                                    \
-        "LPT1",                                   \
-        "LPT2",                                   \
-        "LPT3",                                   \
-        "LPT4",                                   \
-        "LPT5",                                   \
-        "LPT6",                                   \
-        "LPT7",                                   \
-        "LPT8",                                   \
-        "LPT9",                                   \
-    }
+#define FM_ERRNO_TIME            5000 // time to show last error
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
+#define ENTRY_NOT_FOUND_INDEX UINT16_MAX
+#define FM_CALLBACK_CAST(X)   reinterpret_cast<lilka::PMenuItemCallback>(&FileManagerApp::X)
+#define FM_CALLBACK_PTHIS     reinterpret_cast<void*>(this)
+
+// DEPS:
+#include "appmanager.h"
+#include <mbedtls/md5.h>
+#include "esp_log.h"
+#include "esp_err.h"
+#include <errno.h>
 #include "app.h"
 #include <dirent.h>
 #include <vector>
 #include <sys/stat.h>
 #include <stdint.h>
+
+// APPS:
+#include "../modplayer/modplayer.h"
+#include "../liltracker/liltracker.h"
+#include "../lua/luarunner.h"
+#include "../mjs/mjsrunner.h"
+#include "../nes/nesapp.h"
+// ICONS:
+#include "../icons/normalfile.h"
+#include "../icons/folder.h"
+#include "../icons/nes.h"
+#include "../icons/bin.h"
+#include "../icons/lua.h"
+#include "../icons/js.h"
+#include "../icons/music.h"
+
 // very bad test
 // /sd/1 => /sd/1122/1
 // no need with status bar
@@ -130,10 +128,6 @@ typedef enum { FT_NONE, FT_NES_ROM, FT_BIN, FT_LUA_SCRIPT, FT_JS_SCRIPT, FT_MOD,
 typedef enum {
     FM_MODE_VIEW, // Standard mode
     FM_MODE_SELECT, // if selectedEntries contain something
-    FM_MODE_COPY_SINGLE, // if copy option from OptionsMenu
-    FM_MODE_MOVE_SINGLE, // if move option from OptionsMenu
-    FM_MODE_SELECT_COPY, // on paste while in FM_MODE_SELECT
-    FM_MODE_SELECT_MOVE, // on paste while in FM_MODE_SELECT
     FM_MODE_RELOAD // changes in dir happened, reload filelist
 } FmMode;
 
@@ -196,23 +190,15 @@ typedef enum {
 // see FM_FAT32_NAMES_NOT_ALOWED_CHARACTERS and
 // FM_FAT32_NAMES_NOT_ALLOWED_RESERVED_NAMES macro
 //////////////////////////////////////////////////////////////
-// 8. Use free space on canvas
-//
-// for drawing :
-// mode, count of files, free space left, space used
-//
-// overload queueDraw()
-//////////////////////////////////////////////////////////////
-// 9.
-//
-//
+
 typedef struct {
     FileType type;
     const menu_icon_t* icon;
     uint16_t color;
     String name;
     String path; // dir
-    struct stat stat;
+    __off_t st_size;
+    __mode_t st_mode;
     bool selected = false;
 } FMEntry; // Maybe switch to class?
 
@@ -226,34 +212,24 @@ private:
     // Converts path into FMEntry
     static FMEntry pathToEntry(const String& path);
 
-    // changes FM mode
+    // changes FM mode [FM_MODE_RELOAD, FM_MODE_VIEW, FM_MODE_SELECT]
     bool changeMode(FmMode newMode);
 
     // loads firmware
     void fileLoadAsRom(const String& path);
     String getFileMD5(const String& file_path);
 
-    // open file with default app
-    void openFileEntry(const FMEntry& entry);
+    // open current entry with default app
+    void openCurrentEntry();
+    void selectCurrentEntry();
+    void deselectCurrentEntry();
+    void clearSelectedEntries();
 
-    // just deletes file or directory. flag force means no ask from user
-    // which is used here in a recursive form to remove all files in a dir
     void deleteEntry(const FMEntry& entry, bool force = false);
-
-    // sets singleMoveCopyEntry value and enters FM_MODE_COPY_SINGLE
-    void copySingleEntry(const FMEntry& entry);
-
-    // sets singleMoveCopyEntry value and enters FM_MODE_MOVE_SINGLE
-    void moveSingleEntry(const FMEntry& entry);
-
-    // This function ends both move and copy actions
-    // performs actual moving, should be moved to movePath function
-
-    void pasteSingleEntry(const FMEntry& entry);
-    void pasteSelectedEntries();
 
     // actual copying
     bool copyPath(const String& source, const String& destination);
+    bool movePath(const String& source, const String destination);
 
     // allert to not fall off on non-implemented features
     void alertNotImplemented();
@@ -264,11 +240,13 @@ private:
     void run() override;
 
     String currentPath;
+    String initalPath; // used to track when to quit
 
     //  FM State:
     bool exitChildDialogs = false;
     FmMode mode = FM_MODE_RELOAD;
     FMEntry singleMoveCopyEntry = {};
+    FMEntry currentEntry = {};
 
     // Buffer for file operations(Copy/MD5 Calc)
     unsigned char buffer[FM_CHUNK_SIZE] = {};
@@ -283,11 +261,13 @@ private:
     // Manual draw
     void drawStatusBar();
 
-    // Dialogs and Menus:
+    // Menu:
     lilka::Menu fileOpenWithMenu;
     lilka::Menu fileListMenu;
     lilka::Menu fileOptionsMenu;
-    lilka::Menu fileSelectionPasteMenu;
+    lilka::Menu fileSelectionOptionsMenu;
+
+    // Dialogs:
     lilka::ProgressDialog dirLoadProgress;
     lilka::ProgressDialog md5Progress;
     lilka::ProgressDialog copyProgress;
@@ -295,20 +275,43 @@ private:
     lilka::InputDialog renameInput;
 
     // Menu handlers:
-    void fileOpenWithMenuShow(const FMEntry& entry);
-    bool fileListMenuLoadDir(const String& path);
-    void fileListMenuShow(const String& path);
-    void fileOptionsMenuShow(const FMEntry& entry);
-    void fileSelectionPasteMenuShow();
-
-    // Input handlers:
-    void mkdirInputShow(const String& path);
-
-    void renameInputShow(const FMEntry& entry);
+    void fileOpenWithMenuShow();
+    bool fileListMenuLoadDir();
+    void fileListMenuShow();
+    void fileOptionsMenuShow();
+    void fileSelectionOptionsMenuShow();
 
     // Alerts:
-    void fileInfoShowAlert(const FMEntry& entry);
+    void fileInfoShowAlert();
     void alert(const String& title, const String& message);
+
+    // Callbacks [any]:
+    void onAnyMenuBack();
+
+    // Callbacks [fileSelectionOptionsMenu]
+    void onFileSelectionOptionsMenuCopy();
+    void onFileSelectionOptionsMenuMove();
+    void onFileSelectionOptionsMenuDelete();
+    void onFileSelectionOptionsMenuClearSelection();
+
+    // Calbacks [fileOptionsMenu]:
+    void onFileOptionsMenuOpen();
+    void onFileOptionsMenuOpenWith();
+    void onFileOptionsMenuMKDir();
+    void onFileOptionsMenuRename();
+    void onFileOptionsMenuDelete();
+    void onFileOptionsMenuInfo();
+
+    // Callbacks [fileOpenWithMenu]:
+    void onFileOpenWithFileManager();
+    void onFileOpenWithNESEmulator();
+    void onFileOpenWithMultiBootLoader();
+    void onFileOpenWithLua();
+    void onFileOpenWithMJS();
+    void onFileOpenWithLilTracker();
+    void onFileOpenWithMODPlayer();
+    // Callbacks [fileListMenu]:
+    void onFileListMenuItem();
 
     // Checks:
     static bool isCopyOrMoveCouldBeDone(const String& src, const String& dst);
@@ -323,4 +326,7 @@ private:
 
     std::vector<FMEntry> currentDirEntries;
     std::vector<FMEntry> selectedDirEntries;
+
+    int errnoTime = 0;
+    String errnoStr;
 };
