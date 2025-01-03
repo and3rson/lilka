@@ -228,7 +228,6 @@ private:
     //  FM State:
     bool exitChildDialogs = false;
     FmMode mode = FM_MODE_RELOAD;
-    FMEntry singleMoveCopyEntry = {};
     FMEntry currentEntry = {};
 
     // Buffer for file operations(Copy/MD5 Calc)
@@ -293,6 +292,7 @@ private:
     void onFileOpenWithMJS();
     void onFileOpenWithLilTracker();
     void onFileOpenWithMODPlayer();
+
     // Callbacks [fileListMenu]:
     void onFileListMenuItem();
 
@@ -306,9 +306,11 @@ private:
     // Returns ENTRY_NOT_FOUND_INDEX if not found
     static uint16_t getDirEntryIndex(const std::vector<FMEntry>& vec, const FMEntry& entry);
 
+    // Storage:
     std::vector<FMEntry> currentDirEntries;
     std::vector<FMEntry> selectedDirEntries;
 
+    // Status bar stuff
     int errnoTime = 0;
     String errnoStr;
 };
