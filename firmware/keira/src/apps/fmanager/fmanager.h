@@ -70,7 +70,7 @@
 #define FM_MKDIR_MODE              0777
 #define FM_STACK_SIZE              8192
 #define FM_STACK_MIN_FREE_SIZE     100
-#define FM_DEFAULT_NEW_FOLDER_NAME "Нова папка"
+#define FM_DEFAULT_NEW_FOLDER_NAME "New Folder"
 
 // STATUS BAR SETTINGS:  //////////////////////////////////////////////////////////////////////////////
 #define STATUS_BAR_HEIGHT        30
