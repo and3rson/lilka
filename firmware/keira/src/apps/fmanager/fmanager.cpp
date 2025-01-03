@@ -700,6 +700,7 @@ void FileManagerApp::onAnyMenuBack() {
 }
 
 void FileManagerApp::fileSelectionOptionsMenuShow() {
+    fileSelectionOptionsMenu.setCursor(0);
     while (!fileSelectionOptionsMenu.isFinished()) {
         fileSelectionOptionsMenu.update();
         fileSelectionOptionsMenu.draw(canvas);
