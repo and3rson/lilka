@@ -156,19 +156,12 @@ typedef enum {
 // TODO FManager list:
 //////////////////////////////////////////////////////////////
 // 1. Get stats about filesystem
-// statvfs() should work for any path, so
-// I consider is a good choice here
-// this part seems to be a good alternative for an
-// info button, which works on a file now, so instead of
-// info about file we could show info about filesystem
-// where file is located. Also there's a possibility to move
-// it in an Options menu
+// statvfs(). Add it to fileOptionsMenu
 //////////////////////////////////////////////////////////////
 // 2. Different sortings "by name, by size, by type"
 // implement ascending/descending order
 //////////////////////////////////////////////////////////////
-// 3. Select/Select All features
-// Probably just use select button?
+// 3. Select All feature in fileSelectionOptionsMenu
 //////////////////////////////////////////////////////////////
 // 4 Determine suggested block size(buffer) for filesystem
 // operation using statvfs() See 1. Set non buffering flag on
@@ -179,16 +172,6 @@ typedef enum {
 // efficient.
 //////////////////////////////////////////////////////////////
 // 5. Check file type by mime-type instead of extension
-//////////////////////////////////////////////////////////////
-// 6. Avoid recursive calls. Our stack is finite
-//  Build File List[Remember dirs] -> Sort dirs by count of / in
-//  their paths -> make dirs -> copy other files
-//////////////////////////////////////////////////////////////
-// 7. Check name in mkdirInputShow and renameInputShow
-// on wrong characters
-//
-// see FM_FAT32_NAMES_NOT_ALOWED_CHARACTERS and
-// FM_FAT32_NAMES_NOT_ALLOWED_RESERVED_NAMES macro
 //////////////////////////////////////////////////////////////
 
 typedef struct {
@@ -315,7 +298,6 @@ private:
 
     // Checks:
     static bool isCopyOrMoveCouldBeDone(const String& src, const String& dst);
-    //TODO: static bool isValidFAT32Name(const String& name);
 
     // Comparators:
     static bool areDirEntriesEqual(const FMEntry& ent1, const FMEntry& ent2);

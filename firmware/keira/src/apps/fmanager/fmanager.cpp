@@ -605,6 +605,8 @@ void FileManagerApp::onFileOptionsMenuInfo() {
 
 void FileManagerApp::fileInfoShowAlert() {
     String info;
+    // TODO: after adding something like long text viewer into ui,
+    // add other possible data to show
     if (currentEntry.type == FT_DIR) {
         info = "Тип: директорія\n";
     } else {
@@ -767,7 +769,7 @@ bool FileManagerApp::fileListMenuLoadDir() {
         dirLoadProgress.draw(canvas);
         queueDraw();
     }
-
+    // TODO: move sorting in separate place. Implement different sorting options. Add them to fileOptionsMenu
     // Sorting directory entries
     std::sort(currentDirEntries.begin(), currentDirEntries.end(), [](FMEntry a, FMEntry b) {
         if (a.type == FT_DIR && b.type != FT_DIR) return true;
@@ -802,16 +804,8 @@ bool FileManagerApp::fileListMenuLoadDir() {
 
 void FileManagerApp::fileListMenuShow() {
     FM_DBG lilka::serial_log("Trying to load dir %s", currentPath.c_str());
-    int16_t index = 0;
-    exitChildDialogs = false;
 
     if (!stackSizeCheck()) return;
-
-    // Try to restore old menuCursor:
-    // last option should be selected cause something should be deleted
-    // if this happens. here we assume that we deleted single item
-    if (fileListMenu.getItemCount() >= index) fileListMenu.setCursor(index);
-    else fileListMenu.setCursor(fileListMenu.getItemCount() - 1); // Select last
 
     // Do Draw !
     while (!fileListMenu.isFinished()) {
@@ -829,12 +823,8 @@ void FileManagerApp::fileListMenuShow() {
         queueDraw();
     }
 
+    // TODO: restore old menu cursor.
     // use std::queue to store cursor positions
-    index = fileListMenu.getCursor();
-    auto button = fileListMenu.getButton();
-
-    // currentDirEntries have exactly - 1 element inside
-    // so we 've no need to change this
 }
 
 void FileManagerApp::onFileListMenuItem() {
@@ -905,7 +895,6 @@ void FileManagerApp::onFileListMenuItem() {
     }
 }
 
-/////
 void FileManagerApp::deleteEntry(const FMEntry& entry, bool force) {
     FM_CHILD_DIALOG_CHECKV;
     // TODO: Add exit code, or rework without recursion
@@ -928,7 +917,7 @@ void FileManagerApp::deleteEntry(const FMEntry& entry, bool force) {
         }
         if (checkAlert.getButton() != FM_CONFIRM_BUTTON) return; //Exit
     }
-    //////
+
     // Do job
     if (entry.type == FT_DIR) { // Directory
         auto dir = opendir(path.c_str());
@@ -994,7 +983,6 @@ bool FileManagerApp::copyPath(const String& source, const String& destination) {
         FM_MODE_RESET;
         return false;
     }
-    // Exit, could happen if no stack left
 
     copyProgress.setMessage(basename(source.c_str()));
     copyProgress.setProgress(0);
@@ -1029,7 +1017,7 @@ bool FileManagerApp::copyPath(const String& source, const String& destination) {
         progress = 0;
         bytesRead = 0;
         bytesReadChunk = 0;
-        ///////////////////////////////////
+
         while ((bytesReadChunk = fread(buffer, 1, FM_CHUNK_SIZE, inFile)) > 0) {
             if (fwrite(buffer, 1, bytesReadChunk, outFile) != bytesReadChunk) {
                 FM_DBG lilka::serial_log("Error writing to file: %s", destination.c_str());
@@ -1055,7 +1043,6 @@ bool FileManagerApp::copyPath(const String& source, const String& destination) {
                 return false;
             }
         }
-        ///////////////////////////////////
         fclose(inFile);
         fclose(outFile);
 
@@ -1114,14 +1101,6 @@ void FileManagerApp::run() {
     FM_DBG lilka::serial_log("Opening path %s", currentPath.c_str());
     fileListMenuShow();
 }
-//  Drawing direction ->>>
-// Text adjusted to bounds box
-//
-//
-//
-// HEIGHT by x
-// WIDTH by y
-// 0 0 is top let corner
 
 void FileManagerApp::queueDraw() {
     drawStatusBar();
@@ -1129,8 +1108,6 @@ void FileManagerApp::queueDraw() {
 }
 
 void FileManagerApp::drawStatusBar() {
-    // TODO: just read global varialble with text
-    // fill Space for status bar
     canvas->fillRect(
         0, canvas->height() - STATUS_BAR_HEIGHT, canvas->width(), STATUS_BAR_HEIGHT, STATUS_BAR_FILL_COLOR
     );
@@ -1143,13 +1120,10 @@ void FileManagerApp::drawStatusBar() {
     canvas->setCursor(STATUS_BAR_SAFE_DISTANCE, canvas->height() - 20 / 2); // FONT_Y / 2
     canvas->setFont(FONT_8x13);
 
-    // use left part
-    //canvas->setTextBound(
-    //   STATUS_BAR_SAFE_DISTANCE, canvas->height() - STATUS_BAR_HEIGHT, STATUS_BAR_WIDTH / 2, STATUS_BAR_HEIGHT
-    //);
     canvas->setTextBound(
         STATUS_BAR_SAFE_DISTANCE, canvas->height() - STATUS_BAR_HEIGHT, STATUS_BAR_WIDTH, STATUS_BAR_HEIGHT
     );
+    // Show errno if set
     if (errno != 0) {
         errnoTime = millis();
         errnoStr = String(errno) + ":" + strerror(errno);
