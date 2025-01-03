@@ -439,13 +439,22 @@ void FileManagerApp::onFileSelectionOptionsMenuDelete() {
             String("Ця операція видалить ") + String(selectedDirEntries.size()) + " файл(ів)" +
                 "\nПродовжити: START\nВихід: B"
         );
-
+        checkAlert.addActivationButton(FM_CONFIRM_BUTTON);
+        checkAlert.addActivationButton(FM_EXIT_BUTTON);
+        while (!checkAlert.isFinished()) {
+            checkAlert.update();
+            checkAlert.draw(canvas);
+            queueDraw();
+        }
         if (checkAlert.getButton() == FM_CONFIRM_BUTTON) {
             for (auto entry : selectedDirEntries)
                 deleteEntry(entry, true);
             clearSelectedEntries();
             changeMode(FM_MODE_RELOAD);
-        } else return;
+        } else {
+            clearSelectedEntries(); // clear selection anyways
+            return;
+        }
     } else if (button != FM_EXIT_BUTTON) fileSelectionOptionsMenu.isFinished();
 }
 
