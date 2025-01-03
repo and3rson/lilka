@@ -314,6 +314,9 @@ void FileManagerApp::clearSelectedEntries() {
             fileListMenu.setItem(index, mbuff.title, entry.icon, mbuff.color, mbuff.postfix);
         }
     }
+    for (auto& entry : currentDirEntries) {
+        entry.selected = false;
+    }
     selectedDirEntries.clear();
     changeMode(FM_MODE_VIEW);
 }
