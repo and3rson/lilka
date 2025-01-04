@@ -2,7 +2,7 @@
 #include "stdio.h"
 #include "display.h"
 #include "serial.h"
-#include <lodepng.h>
+#include <contrib/LodePNG/lodepng.h>
 
 #define RGB888_TO_RGB565(r, g, b) ((((r) & 0xF8) << 8) | (((g) & 0xFC) << 3) | ((b) >> 3))
 
