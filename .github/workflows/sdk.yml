@@ -1,4 +1,4 @@
-name: firmware
+name: sdk
 
 on:
   push:
