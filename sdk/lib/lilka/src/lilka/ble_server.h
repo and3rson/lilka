@@ -25,12 +25,12 @@ enum class BLE_Server_status {
 /// Клас зворотних викликів для управління підключенням клієнта до BLE сервера.
 class ServerCallbacks : public NimBLEServerCallbacks {
 public:
-    void onConnect(NimBLEServer* pServer, NimBLEConnInfo& connInfo) override {
+    void onConnect(NimBLEServer* pServer) override {
         Serial.println("Client connected");
         isConnected = true;
     }
 
-    void onDisconnect(NimBLEServer* pServer, NimBLEConnInfo& connInfo, int reason) override {
+    void onDisconnect(NimBLEServer* pServer) override {
         Serial.println("Client disconnected");
         isConnected = false;
     }
