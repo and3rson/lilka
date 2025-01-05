@@ -1,4 +1,4 @@
-#include <lodepng.h>
+#include <contrib/LodePNG/lodepng.h>
 
 #include "screenshot.h"
 #include "appmanager.h"

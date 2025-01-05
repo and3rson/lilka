@@ -1,0 +1,42 @@
+name: sdk
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+
+permissions:
+  contents: write
+
+jobs:
+  lib-lilka:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+            ./sdk/lib/lilka/.pio
+          key: ${{ runner.os }}-lilka
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install PlatformIO Core
+        run: pip install --upgrade platformio
+
+      - name: Build PlatformIO Project
+        working-directory: ./sdk/lib/lilka
+        run: |
+          # So, why do we run this twice?
+          # The reason is that we run prepare.py which deletes some unneeded (& breaking) sources from GFX library.
+          # However, this step breaks build dependencies for current run, so we need to re-run the build again.
+          # Unfortunately, there's now way to run prepare.py separately - only within `pio run`. Thus we run `pio run` twice.
+          # This is ugly, I know. But this is only required to build the lib independently, and we only do this in Github action.
+          # So nobody will every know we do this ugly hack! Unless they read this note, of course. :D
+          # /AD
+          pio run -e v2 || true
+          pio run -e v2
