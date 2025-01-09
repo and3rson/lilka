@@ -7,6 +7,7 @@
 
 #include "servicemanager.h"
 #include "services/network.h"
+#include "services/ftp.h"
 
 #include "wifi_config.h"
 #include "demos/lines.h"
@@ -27,7 +28,6 @@
 #include "lua/luarunner.h"
 #include "mjs/mjsrunner.h"
 #include "nes/nesapp.h"
-#include "ftp/ftp_server.h"
 #include "weather/weather.h"
 #include "modplayer/modplayer.h"
 #include "liltracker/liltracker.h"
@@ -40,6 +40,7 @@
 #include "icons/dev.h"
 #include "icons/settings.h"
 #include "icons/info.h"
+#include "icons/app_group.h"
 
 #include "icons/normalfile.h"
 #include "icons/folder.h"
@@ -78,7 +79,8 @@ void LauncherApp::run() {
                             ITEM::APP("Куб", [this]() { this->runApp<CubeApp>(); }),
                             ITEM::APP("Епілепсія", [this]() { this->runApp<EpilepsyApp>(); }),
                             ITEM::APP("PetPet", [this]() { this->runApp<PetPetApp>(); }),
-                        }
+                        },
+                        &app_group_img, 0
                     ),
                     ITEM::SUBMENU(
                         "Тести",
@@ -89,7 +91,8 @@ void LauncherApp::run() {
                             ITEM::APP("GPIO-менеджер", [this]() { this->runApp<GPIOManagerApp>(); }),
                             ITEM::APP("Combo", [this]() { this->runApp<ComboApp>(); }),
                             ITEM::APP("CallbackTest", [this]() { this->runApp<CallBackTestApp>(); }),
-                        }
+                        },
+                        &app_group_img, 0
                     ),
                     ITEM::APP("ЛілТрекер", [this]() { this->runApp<LilTrackerApp>(); }),
                     ITEM::APP("Летріс", [this]() { this->runApp<LetrisApp>(); }),
@@ -117,7 +120,6 @@ void LauncherApp::run() {
                 {
                     ITEM::APP("Live Lua", [this]() { this->runApp<LuaLiveRunnerApp>(); }),
                     ITEM::APP("Lua REPL", [this]() { this->runApp<LuaReplApp>(); }),
-                    ITEM::APP("FTP сервер", [this]() { this->runApp<FTPServerApp>(); }),
                 },
                 &dev_img,
                 lilka::colors::Jasmine
@@ -138,6 +140,49 @@ void LauncherApp::run() {
                     ITEM::MENU("Мережі WiFi", [this]() { this->wifiManager(); }),
                     ITEM::MENU("Потужність WiFi", [this]() { this->setWiFiTxPower(); }),
                     ITEM::MENU("Звук", [this]() { this->runApp<SoundConfigApp>(); }),
+                    ITEM::SUBMENU("Сервіси", {
+                        ITEM::SUBMENU("FTP", {
+                            ITEM::MENU(
+                                "Статус",
+                                [this]() {
+                                    FTPService* ftpService = static_cast<FTPService*>(ServiceManager::getInstance()->getService<FTPService>("ftp"));
+                                    ftpService->setEnabled(!ftpService->getEnabled());
+                                },
+                                nullptr,
+                                0,
+                                [this](void* item) {
+                                    lilka::MenuItem* menuItem = static_cast<lilka::MenuItem*>(item);
+                                    FTPService* ftpService = static_cast<FTPService*>(ServiceManager::getInstance()->getService<FTPService>("ftp"));
+                                    menuItem->postfix = ftpService->getEnabled() ? "ON" : "OFF";
+                                }
+                            ),
+                            ITEM::MENU(
+                                "Користувач",
+                                nullptr,
+                                nullptr,
+                                0,
+                                [this](void* item) {
+                                    lilka::MenuItem* menuItem = static_cast<lilka::MenuItem*>(item);
+                                    FTPService* ftpService = static_cast<FTPService*>(ServiceManager::getInstance()->getService<FTPService>("ftp"));
+                                    menuItem->postfix = ftpService->getUser();
+                                }
+                            ),
+                            ITEM::MENU(
+                                "Пароль",
+                                [this]() {
+                                    FTPService* ftpService = static_cast<FTPService*>(ServiceManager::getInstance()->getService<FTPService>("ftp"));
+                                    ftpService->createPassword();
+                                },
+                                nullptr,
+                                0,
+                                [this](void* item) {
+                                    lilka::MenuItem* menuItem = static_cast<lilka::MenuItem*>(item);
+                                    FTPService* ftpService = static_cast<FTPService*>(ServiceManager::getInstance()->getService<FTPService>("ftp"));
+                                    menuItem->postfix = ftpService->getPassword();
+                                }
+                            ),
+                        }),
+                    }),
                     ITEM::MENU("Про систему", [this]() { this->about(); }),
                     ITEM::MENU("Інфо про пристрій", [this]() { this->info(); }),
                     ITEM::MENU("Таблиця розділів", [this]() { this->partitions(); }),
