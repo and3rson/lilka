@@ -79,6 +79,7 @@
 #define STATUS_BAR_TEXT_COLOR    lilka::colors::White
 #define STATUS_BAR_FILL_COLOR    lilka::colors::Black
 #define FM_ERRNO_TIME            5000 // time to show last error
+#define FM_FREE_SPACE_UPDATE     5000
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define ENTRY_NOT_FOUND_INDEX UINT16_MAX
@@ -96,6 +97,8 @@
 #include <vector>
 #include <sys/stat.h>
 #include <stdint.h>
+#include <SD.h>
+#include <SPIFFS.h>
 
 // APPS:
 #include "../modplayer/modplayer.h"
@@ -164,9 +167,7 @@ typedef enum {
 // 3. Select All feature in fileSelectionOptionsMenu
 //////////////////////////////////////////////////////////////
 // 4 Determine suggested block size(buffer) for filesystem
-// operation using statvfs() See 1. Set non buffering flag on
-// file to avoid buffering by vfs implementation.
-//
+//  statvfs not available
 // Well, we anyways need a buffer size detection to consume
 // just a bit less memory, also we would be sure it's
 // efficient.
@@ -239,9 +240,11 @@ private:
     int progress = 0;
     int lastProgress = -1;
     int lastFrameTime = millis();
+    int lastSpaceUsageTime = 0;
 
     // Manual draw
     void drawStatusBar();
+    void spaceUsageUpdate(); // updates freeSpaceStr for current filesystem(by dir)
 
     // Menu:
     lilka::Menu fileOpenWithMenu;
@@ -298,6 +301,7 @@ private:
 
     // Checks:
     static bool isCopyOrMoveCouldBeDone(const String& src, const String& dst);
+    bool isCurrentDirSelected();
 
     // Comparators:
     static bool areDirEntriesEqual(const FMEntry& ent1, const FMEntry& ent2);
@@ -312,5 +316,6 @@ private:
 
     // Status bar stuff
     int errnoTime = 0;
-    String errnoStr;
+    String errnoStr = "";
+    String spaceUsageStr = "";
 };

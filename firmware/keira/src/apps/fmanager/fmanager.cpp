@@ -222,7 +222,7 @@ void FileManagerApp::openCurrentEntry() {
     String path = lilka::fileutils.joinPath(currentEntry.path, currentEntry.name);
     FM_DBG lilka::serial_log("Opening path %s", path.c_str());
     if (currentEntry.type == FT_DIR) {
-        if (currentEntry.name == ".") {
+        if (isCurrentDirSelected()) {
             if (currentPath != initalPath) {
                 currentPath = lilka::fileutils.getParentDirectory(currentPath);
                 changeMode(FM_MODE_RELOAD);
@@ -262,7 +262,7 @@ void FileManagerApp::openCurrentEntry() {
 }
 
 void FileManagerApp::selectCurrentEntry() {
-    if (currentEntry.name == ".") return;
+    if (isCurrentDirSelected()) return;
     auto index = getDirEntryIndex(selectedDirEntries, currentEntry);
     if (index == ENTRY_NOT_FOUND_INDEX) {
         currentEntry.selected = true;
@@ -282,7 +282,7 @@ void FileManagerApp::selectCurrentEntry() {
 }
 
 void FileManagerApp::deselectCurrentEntry() {
-    if (currentEntry.name == ".") return;
+    if (isCurrentDirSelected()) return;
     auto index = getDirEntryIndex(selectedDirEntries, currentEntry);
     if (index != ENTRY_NOT_FOUND_INDEX) {
         currentEntry.selected = false;
@@ -317,6 +317,7 @@ void FileManagerApp::clearSelectedEntries() {
     changeMode(FM_MODE_VIEW);
 }
 
+// FILE OPEN WITH MENU BELOW:
 void FileManagerApp::fileOpenWithMenuShow() {
     FM_CHILD_DIALOG_CHECKV;
     while (!fileOpenWithMenu.isFinished()) {
@@ -331,7 +332,7 @@ void FileManagerApp::onFileOpenWithFileManager() {
     auto button = fileOpenWithMenu.getButton();
     if (button == FM_OKAY_BUTTON) {
         if (currentEntry.type == FT_DIR) {
-            if (currentEntry.name == ".") {
+            if (isCurrentDirSelected()) {
                 if (currentPath != initalPath) {
                     currentPath = lilka::fileutils.getParentDirectory(currentPath);
                     changeMode(FM_MODE_RELOAD);
@@ -397,7 +398,7 @@ void FileManagerApp::onFileOpenWithMODPlayer() {
         );
     } else if (button != FM_EXIT_BUTTON) fileOpenWithMenu.isFinished(); // do redraw
 }
-
+// FILE SELECTION MENU BELOW:
 void FileManagerApp::onFileSelectionOptionsMenuCopy() {
     auto button = fileSelectionOptionsMenu.getButton();
     if (button == FM_OKAY_BUTTON) {
@@ -479,6 +480,11 @@ void FileManagerApp::onFileOptionsMenuOpen() {
     auto button = fileOptionsMenu.getButton();
     FM_DBG lilka::serial_log("Enter onFileOptionsMenuOpen");
     if (button == FM_OKAY_BUTTON) {
+        if (isCurrentDirSelected()) {
+            FM_UI_CANT_DO_OP;
+            fileOptionsMenu.isFinished(); // do not allow to rename current dir
+            return;
+        }
         openCurrentEntry();
     } else if (button != FM_EXIT_BUTTON) fileOptionsMenu.isFinished(); // do redraw
 }
@@ -487,6 +493,11 @@ void FileManagerApp::onFileOptionsMenuOpenWith() {
     auto button = fileOptionsMenu.getButton();
     FM_DBG lilka::serial_log("Enter onFileOptionsMenuOpenWith");
     if (button == FM_OKAY_BUTTON) {
+        if (isCurrentDirSelected()) {
+            FM_UI_CANT_DO_OP;
+            fileOptionsMenu.isFinished(); // do not allow to rename current dir
+            return;
+        }
         fileOpenWithMenuShow();
 
     } else if (button != FM_EXIT_BUTTON) fileOpenWithMenu.isFinished(); // do redraw
@@ -547,6 +558,11 @@ void FileManagerApp::onFileOptionsMenuDelete() {
                 changeMode(FM_MODE_RELOAD);
             } else return;
         } else {
+            if (isCurrentDirSelected()) {
+                FM_UI_CANT_DO_OP;
+                fileOptionsMenu.isFinished(); // do not allow to rename current dir
+                return;
+            }
             deleteEntry(currentEntry);
             changeMode(FM_MODE_RELOAD);
         }
@@ -557,6 +573,12 @@ void FileManagerApp::onFileOptionsMenuRename() {
     auto button = fileOptionsMenu.getButton();
     FM_DBG lilka::serial_log("Enter onFileOptionsMenuRename");
     if (button == FM_OKAY_BUTTON) {
+        if (isCurrentDirSelected()) {
+            FM_UI_CANT_DO_OP;
+            fileOptionsMenu.isFinished(); // do not allow to rename current dir
+            return;
+        }
+
         renameInput.setValue(currentEntry.name); // pass old name
         while (!renameInput.isFinished()) {
             renameInput.update();
@@ -605,6 +627,7 @@ void FileManagerApp::fileInfoShowAlert() {
     // add other possible data to show
     if (currentEntry.type == FT_DIR) {
         info = "Тип: директорія\n";
+        info += "Шлях: " + lilka::fileutils.joinPath(currentEntry.path, currentEntry.name);
     } else {
         info = "Тип: файл\n";
         info += "Розмір: " + lilka::fileutils.getHumanFriendlySize(currentEntry.st_size) + "\n";
@@ -650,6 +673,14 @@ bool FileManagerApp::isCopyOrMoveCouldBeDone(const String& src, const String& ds
         errno = 0;
         return false;
     }
+}
+
+bool FileManagerApp::isCurrentDirSelected() {
+    auto index = fileListMenu.getCursor();
+    for (auto entry : selectedDirEntries) {
+        if (entry.name == ".") return true;
+    }
+    return (currentDirEntries.size() == index) || currentEntry.name == ".";
 }
 
 uint16_t FileManagerApp::getDirEntryIndex(const std::vector<FMEntry>& vec, const FMEntry& entry) {
@@ -795,6 +826,8 @@ bool FileManagerApp::fileListMenuLoadDir() {
     // Add Back button
     // We can't reuse onAnyMenuBack here
     fileListMenu.addItem("<< Назад", 0, 0, "", FM_CALLBACK_CAST(onFileListMenuItem), FM_CALLBACK_PTHIS);
+    fileListMenu.setCursor(0);
+
     return true;
 }
 
@@ -858,7 +891,7 @@ void FileManagerApp::onFileListMenuItem() {
         return;
     }
 
-    if (button == FM_INFO_BUTTON && currentEntry.name != ".") {
+    if (button == FM_INFO_BUTTON && !isCurrentDirSelected()) {
         fileInfoShowAlert();
         fileListMenu.isFinished();
         return;
@@ -866,7 +899,7 @@ void FileManagerApp::onFileListMenuItem() {
 
     // Open
     if (button == FM_OKAY_BUTTON) {
-        if (currentEntry.name == ".") {
+        if (isCurrentDirSelected()) {
             if (currentPath != initalPath) {
                 currentPath = lilka::fileutils.getParentDirectory(currentPath);
                 changeMode(FM_MODE_RELOAD);
@@ -1104,8 +1137,21 @@ void FileManagerApp::queueDraw() {
     drawStatusBar();
     App::queueDraw();
 }
-
+void FileManagerApp::spaceUsageUpdate() {
+    if ((millis() - lastSpaceUsageTime > FM_FREE_SPACE_UPDATE)) {
+        if (currentPath.startsWith(LILKA_SD_ROOT)) {
+            spaceUsageStr = lilka::fileutils.getHumanFriendlySize(SD.usedBytes(), true) + "/" +
+                            lilka::fileutils.getHumanFriendlySize(SD.totalBytes(), true);
+            lastSpaceUsageTime = millis();
+        } else if (currentPath.startsWith(LILKA_SPIFFS_ROOT)) {
+            spaceUsageStr = lilka::fileutils.getHumanFriendlySize(SPIFFS.usedBytes(), true) + "/" +
+                            lilka::fileutils.getHumanFriendlySize(SPIFFS.totalBytes(), true);
+            lastSpaceUsageTime = millis();
+        }
+    }
+}
 void FileManagerApp::drawStatusBar() {
+    spaceUsageUpdate();
     canvas->fillRect(
         0, canvas->height() - STATUS_BAR_HEIGHT, canvas->width(), STATUS_BAR_HEIGHT, STATUS_BAR_FILL_COLOR
     );
@@ -1140,6 +1186,7 @@ void FileManagerApp::drawStatusBar() {
         canvas->setTextColor(lilka::colors::White);
         auto fileListMenuIndex = fileListMenu.getCursor();
         auto dirLength = currentDirEntries.size();
-        if (fileListMenuIndex != dirLength) canvas->printf("[ %d / %d ]", fileListMenuIndex + 1, dirLength);
+        if (fileListMenuIndex != dirLength)
+            canvas->printf("(%s) [ %d / %d ] ", spaceUsageStr.c_str(), fileListMenuIndex + 1, dirLength);
     }
 }

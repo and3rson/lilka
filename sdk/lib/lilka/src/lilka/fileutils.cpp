@@ -59,7 +59,9 @@ bool init_result = sdfs->begin(
     }
     if (cardType == CARD_SD || cardType == CARD_SDHC) {
         serial_log(
-            "card type: %s, card size: %ld MB", cardType == CARD_SD ? "SD" : "SDHC", sdfs->totalBytes() / (1024 * 1024)
+            "card type: %s, card size: %s",
+            cardType == CARD_SD ? "SD" : "SDHC",
+            getHumanFriendlySize(sdfs->totalBytes()).c_str()
         );
         // ALL OKAY!
         xSemaphoreGive(sdMutex);
@@ -207,7 +209,7 @@ const String FileUtils::getSDRoot() {
 const String FileUtils::getSPIFFSRoot() {
     return LILKA_SPIFFS_ROOT;
 }
-const String FileUtils::getHumanFriendlySize(const size_t size, bool compact) {
+const String FileUtils::getHumanFriendlySize(const uint64_t size, bool compact) {
     // Max length of file size
 
     const char* suffixes[] = {"B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"};
@@ -215,7 +217,8 @@ const String FileUtils::getHumanFriendlySize(const size_t size, bool compact) {
     if (size == 0) return String("0") + (compact ? "" : "  ") + suffixes[0];
 
     int exp = 0;
-    double dsize = (double)(size);
+
+    long double dsize = static_cast<long double>(size);
 
     while (dsize >= 1024 && exp < numSuffixes - 1) {
         dsize /= 1024;
@@ -224,9 +227,9 @@ const String FileUtils::getHumanFriendlySize(const size_t size, bool compact) {
 
     char buffer[50];
     if (compact) {
-        snprintf(buffer, sizeof(buffer), "%.0f%s", dsize, suffixes[exp]);
+        snprintf(buffer, sizeof(buffer), "%.0Lf%s", dsize, suffixes[exp]);
     } else {
-        snprintf(buffer, sizeof(buffer), "%.0f %2s", dsize, suffixes[exp]);
+        snprintf(buffer, sizeof(buffer), "%.0Lf %2s", dsize, suffixes[exp]);
     }
 
     return String(buffer);
