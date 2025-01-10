@@ -677,9 +677,6 @@ bool FileManagerApp::isCopyOrMoveCouldBeDone(const String& src, const String& ds
 
 bool FileManagerApp::isCurrentDirSelected() {
     auto index = fileListMenu.getCursor();
-    for (auto entry : selectedDirEntries) {
-        if (entry.name == ".") return true;
-    }
     return (currentDirEntries.size() == index) || currentEntry.name == ".";
 }
 
