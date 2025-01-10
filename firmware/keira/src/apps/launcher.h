@@ -2,7 +2,6 @@
 
 #include "services/network.h"
 #include "icons/app.h"
-#include "icons/app_group.h"
 #include "app.h"
 
 typedef struct item_t {
@@ -19,7 +18,7 @@ public:
     ) {
         return item_t{
             name,
-            icon ? icon : &app_group_img,
+            icon,
             color,
             submenu,
         };
