@@ -7,37 +7,61 @@
 
 namespace lilka {
 
+#define LILKA_KB_LANGS  2
 #define LILKA_KB_LAYERS 3
 #define LILKA_KB_ROWS   4
-#define LILKA_KB_COLS   11
+#define LILKA_KB_COLS   12
 
 #define K_L0            1
 #define K_L1            2
 #define K_L2            3
 #define K_BS            8
 
-// 2 layers, 4 rows, 11 columns
-const uint8_t keyboard[LILKA_KB_LAYERS][LILKA_KB_ROWS * LILKA_KB_COLS] = {
-    // Layer 0
+// 4 layers, 4 rows, 12 columns
+const int16_t keyboard[LILKA_KB_LAYERS * LILKA_KB_LANGS][LILKA_KB_ROWS * LILKA_KB_COLS] = {
+    // Layer 0 (base English layout)
     {
-        '!',  '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', // R1
-        '?',  'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', // R2
-        K_L1, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', K_BS, // R3
-        K_L2, 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', ' ', // R4
+        '!',  '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', // R1
+        '?',  'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '=', // R2
+        K_L1, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', K_BS, // R3
+        K_L2, 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', ' ', // R4
     },
-    // Layer 1 (shifted layer 0)
+    // Layer 1 (shifted English layout)
     {
-        0,    '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', // R1
-        0,    'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', // R2
-        K_L0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', K_BS, // R3
-        K_L2, 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', ' ', // R4
+        0,    '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', // R1
+        0,    'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '+', // R2
+        K_L0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', K_BS, // R3
+        K_L2, 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', ' ', // R4
     },
-    // Layer 2 (special keys - braces, slashes, etc)
+    // Layer 2 (special keys - braces, slashes, etc.)
     {
-        0,    '{', '}', '[', ']', '|', '\\', ':', ';', '\'', '"', // R1
-        0,    '<', '>', '?', '/', '!', '@',  '#', '$', '%',  '^', // R2
-        0,    '(', ')', '-', '_', '=', '+',  ':', ';', '\'', K_BS, // R3
-        K_L0, '<', '>', '?', '/', 0,   0,    0,   0,   0,    ' ', // R4
+        0,    '{', '}', '[', ']', '|', '\\', ':', ';', '\'', '"', '`', // R1
+        0,    '<', '>', '?', '/', '!', '@',  '#', '$', '%',  '^', '~', // R2
+        0,    '(', ')', '-', '_', '=', '+',  ':', ';', '\'', '"', K_BS, // R3
+        K_L0, '<', '>', '?', '/', 0,   0,    0,   0,   0,    0,   ' ', // R4
+    },
+    // Layer 3 (base Ukrainian layout)
+    {
+        '1',  '2',    '3',    '4',    '5',    '6',    '7',    '8',    '9',    '0',    0x0454, 0x0491, // R1 єґ
+        '-',  0x0439, 0x0446, 0x0443, 0x043A, 0x0435, 0x043D, 0x0433, 0x0448, 0x0449, 0x0437, 0x0457, // R2 йцукенгшщзхї
+        K_L1, 0x0444, 0x0456, 0x0432, 0x0430, 0x043F, 0x0440, 0x043E, 0x043B, 0x0434, 0x0436, K_BS, // R3 фівапролдж
+        K_L2, 0x044F, 0x0447, 0x0441, 0x043C, 0x0438, 0x0442, 0x044C, 0x0431, 0x044E, '.',    ' ', // R4 ячсмитьбю
+    },
+
+    // Layer 4 (shifted Ukrainian layout)
+    {
+        '!',  '"',    '#',    ';',    '%',    ':',    '?',    '*',    '(',    ')',    0x0404, 0x0490, // R1 ЄҐ
+        '_',  0x0419, 0x0426, 0x0423, 0x041A, 0x0415, 0x041D, 0x0413, 0x0428, 0x0429, 0x0417, 0x0407, // R2 ЙЦУКЕНГШЩЗХЇ
+        K_L0, 0x0424, 0x0406, 0x0412, 0x0410, 0x041F, 0x0420, 0x041E, 0x041B, 0x0414, 0x0416, K_BS, // R3 ФІВАПРОЛДЖ
+        K_L2, 0x040F, 0x0427, 0x0421, 0x041C, 0x0418, 0x0422, 0x042C, 0x0411, 0x042E, ',',    ' ', // R4 ЯЧСМИТЬБЮ
+    },
+
+    // Layer 5 (special keys - braces, slashes, etc.)
+    {
+        0,    '{', '}', '[', ']', '|', '\\', ':', ';', '\'', '"', '`', // R1
+        0,    '<', '>', '?', '/', '!', '@',  '#', '$', '%',  '^', '~', // R2
+        0,    '(', ')', '-', '_', '=', '+',  ':', ';', '\'', '"', K_BS, // R3
+        K_L0, '<', '>', '?', '/', 0,   0,    0,   0,   0,    0,   ' ', // R4
     },
 };
 
@@ -49,6 +73,7 @@ InputDialog::InputDialog(String title) {
     this->value = "";
 
     this->layer = 0;
+    this->language = 0;
     this->cx = 0;
     this->cy = 0;
 
@@ -71,10 +96,10 @@ void InputDialog::update() {
     }
 
     State state = controller.getState();
+    const int16_t* layerKeys = keyboard[language * LILKA_KB_LAYERS + layer];
     if (state.a.justPressed) {
         // TODO: Handle key press
-        const uint8_t* layerKeys = keyboard[layer];
-        uint8_t key = layerKeys[cy * LILKA_KB_COLS + cx];
+        int16_t key = layerKeys[cy * LILKA_KB_COLS + cx];
         if (key == K_L0) {
             layer = 0;
         } else if (key == K_L1) {
@@ -82,39 +107,60 @@ void InputDialog::update() {
         } else if (key == K_L2) {
             layer = 2;
         } else if (key == K_BS) {
-            if (value.length() > 0) {
-                value.remove(value.length() - 1);
-            }
+            removeLastChar();
+            resetBlink();
         } else if (key) {
-            value += (char)key;
+            value += unicodeToString(key);
         }
         resetBlink();
-    } else if (state.b.justPressed) {
-        if (value.length() > 0) {
-            value.remove(value.length() - 1);
+    } else if (state.d.justPressed) {
+        // change language
+        language++;
+        if (language >= LILKA_KB_LANGS) {
+            language = 0;
         }
+    } else if (state.c.justPressed) {
+        // change layer
+        layer++;
+        if (layer >= LILKA_KB_LAYERS) {
+            layer = 0;
+        }
+    } else if (state.b.justPressed) {
+        removeLastChar();
         resetBlink();
     } else if (state.start.justPressed) {
         done = true;
     } else if (state.up.justPressed) {
-        cy--;
-        if (cy < 0) {
-            cy = LILKA_KB_ROWS - 1;
+        while (true) {
+            cy--;
+            if (cy < 0) {
+                cy = LILKA_KB_ROWS - 1;
+            }
+            if (layerKeys[cy * LILKA_KB_COLS + cx]) break;
         }
     } else if (state.down.justPressed) {
-        cy++;
-        if (cy > LILKA_KB_ROWS - 1) {
-            cy = 0;
+        while (true) {
+            cy++;
+            if (cy > LILKA_KB_ROWS - 1) {
+                cy = 0;
+            }
+            if (layerKeys[cy * LILKA_KB_COLS + cx]) break;
         }
     } else if (state.left.justPressed) {
-        cx--;
-        if (cx < 0) {
-            cx = LILKA_KB_COLS - 1;
+        while (true) {
+            cx--;
+            if (cx < 0) {
+                cx = LILKA_KB_COLS - 1;
+            }
+            if (layerKeys[cy * LILKA_KB_COLS + cx]) break;
         }
     } else if (state.right.justPressed) {
-        cx++;
-        if (cx > LILKA_KB_COLS - 1) {
-            cx = 0;
+        while (true) {
+            cx++;
+            if (cx > LILKA_KB_COLS - 1) {
+                cx = 0;
+            }
+            if (layerKeys[cy * LILKA_KB_COLS + cx]) break;
         }
     }
     vTaskDelay(LILKA_UI_UPDATE_DELAY_MS / portTICK_PERIOD_MS);
@@ -149,7 +195,7 @@ void InputDialog::draw(Arduino_GFX* canvas) {
 
     // canvas->setTextBound(0, kbTop + kbHeight, canvas->width(), canvas->height());
 
-    const uint8_t* layerKeys = keyboard[layer];
+    const int16_t* layerKeys = keyboard[language * LILKA_KB_LAYERS + layer];
 
     const uint16_t buttonWidth = kbWidth / LILKA_KB_COLS;
     const uint16_t buttonHeight = kbHeight / LILKA_KB_ROWS;
@@ -164,7 +210,7 @@ void InputDialog::draw(Arduino_GFX* canvas) {
                     x * buttonWidth, kbTop + y * buttonHeight, buttonWidth, buttonHeight, lilka::colors::Orange_red
                 );
             }
-            uint8_t key = layerKeys[y * LILKA_KB_COLS + x];
+            int16_t key = layerKeys[y * LILKA_KB_COLS + x];
             if (key) {
                 String caption;
                 if (key == K_L0 || key == K_L1 || key == K_BS || key == ' ') {
@@ -196,7 +242,7 @@ void InputDialog::draw(Arduino_GFX* canvas) {
                     } else if (key == K_BS) {
                         caption = "<-";
                     } else {
-                        caption = (char)key;
+                        caption = unicodeToString(key);
                     }
                     int16_t x1, y1;
                     uint16_t w, h;
@@ -228,6 +274,37 @@ String InputDialog::getValue() {
 void InputDialog::resetBlink() {
     lastBlink = millis();
     blinkPhase = true;
+}
+
+String InputDialog::unicodeToString(int16_t unicode) {
+    if (unicode < 0x80) {
+        return String((char)unicode);
+    } else if (unicode < 0x800) {
+        char utf8[3];
+        utf8[0] = 0xC0 | (unicode >> 6);
+        utf8[1] = 0x80 | (unicode & 0x3F);
+        utf8[2] = '\0';
+        return String(utf8);
+    } else if (unicode < 0x10000) {
+        char utf8[4];
+        utf8[0] = 0xE0 | (unicode >> 12);
+        utf8[1] = 0x80 | ((unicode >> 6) & 0x3F);
+        utf8[2] = 0x80 | (unicode & 0x3F);
+        utf8[3] = '\0';
+        return String(utf8);
+    }
+    // Unsupported characters
+    return "";
+}
+
+void InputDialog::removeLastChar() {
+    if (value.length() > 0) {
+        auto i = value.length() - 1;
+        while (i > 0 && (value[i] & 0xC0) == 0x80) {
+            i--;
+        }
+        value.remove(i);
+    }
 }
 
 } // namespace lilka
