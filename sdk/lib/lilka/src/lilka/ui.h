@@ -329,6 +329,8 @@ public:
 
 private:
     void resetBlink();
+    String unicodeToString(int16_t unicode);
+    void removeLastChar();
 
     String title;
     bool masked;
@@ -336,6 +338,7 @@ private:
     bool done;
 
     int16_t layer;
+    int16_t language;
     int16_t cx;
     int16_t cy;
     int64_t lastBlink;
