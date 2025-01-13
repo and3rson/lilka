@@ -4905,7 +4905,7 @@
 				)
 			)
 		)
-		(property "Value" "1uF"
+		(property "Value" "10uF"
 			(at 2.46 0 45)
 			(layer "F.SilkS")
 			(uuid "0755c4e9-c9a8-4a68-84fc-9b4e116c6cf1")
@@ -6214,7 +6214,7 @@
 				)
 			)
 		)
-		(property "Value" "1uF"
+		(property "Value" "10uF"
 			(at 2.5 0 45)
 			(layer "F.SilkS")
 			(uuid "f9e87800-2867-4d90-a3a2-3e70a89cf8f9")
