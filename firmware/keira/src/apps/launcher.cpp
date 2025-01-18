@@ -1,7 +1,5 @@
 #include <ff.h>
 #include <FS.h>
-#include <SD.h>
-#include <SPIFFS.h>
 #include "launcher.h"
 #include "appmanager.h"
 
@@ -31,7 +29,9 @@
 #include "weather/weather.h"
 #include "modplayer/modplayer.h"
 #include "liltracker/liltracker.h"
+#include "fmanager/fmanager.h"
 #include "pastebin/pastebinApp.h"
+
 #include "settings/sound.h"
 
 #include "icons/demos.h"
@@ -41,15 +41,6 @@
 #include "icons/settings.h"
 #include "icons/info.h"
 #include "icons/app_group.h"
-
-#include "icons/normalfile.h"
-#include "icons/folder.h"
-#include "icons/nes.h"
-#include "icons/bin.h"
-#include "icons/lua.h"
-#include "icons/js.h"
-#include "icons/music.h"
-#include "fmanager.h"
 
 #include <WiFi.h> // for setWiFiTxPower
 #include <Preferences.h>
@@ -105,13 +96,13 @@ void LauncherApp::run() {
             ),
             ITEM::APP(
                 "Браузер SD-карти",
-                [this]() { this->runApp<FileManagerApp>(&SD, "/"); },
+                [this]() { this->runApp<FileManagerApp>(LILKA_SD_ROOT); },
                 &sdcard_img,
                 lilka::colors::Arylide_yellow
             ),
             ITEM::APP(
                 "Браузер SPIFFS",
-                [this]() { this->runApp<FileManagerApp>(&SPIFFS, "/"); },
+                [this]() { this->runApp<FileManagerApp>(LILKA_SPIFFS_ROOT); },
                 &memory_img,
                 lilka::colors::Dark_sea_green
             ),

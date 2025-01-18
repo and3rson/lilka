@@ -143,7 +143,7 @@ public:
     /// @code
     /// fileutils.getHumanFriendlySize(1234567); // Поверне "1.23 MB"
     /// @endcode
-    const String getHumanFriendlySize(const size_t size, bool compact = false);
+    const String getHumanFriendlySize(const uint64_t size, bool compact = false);
 
 private:
     SemaphoreHandle_t sdMutex = NULL;
