@@ -271,10 +271,16 @@ void FileManagerApp::selectCurrentEntry() {
         if (index2 != ENTRY_NOT_FOUND_INDEX) {
             lilka::MenuItem mbuff;
             fileListMenu.getItem(index2, &mbuff);
-            fileListMenu.setItem(
-                index2, mbuff.title, FM_SELECTED_ICON, mbuff.color, mbuff.postfix
+            if (currentDirEntries[index2].type == FT_DIR)
+                fileListMenu.setItem(
+                    index2, mbuff.title, FM_SELECTED_FOLDER_ICON, mbuff.color, mbuff.postfix
 
-            ); // add callback setup in setItem
+                ); // add callback setup in setItem
+            else
+                fileListMenu.setItem(
+                    index2, mbuff.title, FM_SELECTED_FILE_ICON, mbuff.color, mbuff.postfix
+
+                ); // add callback setup in setItem
             currentDirEntries[index2].selected = true;
             changeMode(FM_MODE_SELECT);
         } else lilka::serial_err("FM:This should never happen!");
@@ -812,7 +818,9 @@ bool FileManagerApp::fileListMenuLoadDir() {
     for (auto dirEntry : currentDirEntries) {
         fileListMenu.addItem(
             dirEntry.name,
-            dirEntry.selected ? FM_SELECTED_ICON : dirEntry.icon,
+            dirEntry.selected && dirEntry.type == FT_DIR   ? FM_SELECTED_FOLDER_ICON
+            : dirEntry.selected && dirEntry.type != FT_DIR ? FM_SELECTED_FILE_ICON
+                                                           : dirEntry.icon,
             dirEntry.color,
             dirEntry.type == FT_DIR ? "" : lilka::fileutils.getHumanFriendlySize(dirEntry.st_size),
             FM_CALLBACK_CAST(onFileListMenuItem),

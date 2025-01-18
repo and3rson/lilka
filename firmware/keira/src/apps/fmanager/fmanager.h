@@ -39,16 +39,17 @@
 // TODO : Add separate icons to new file types
 
 // ICONS:  ////////////////////////////////////////////////////////////////////////////////////////////
-#define FT_NONE_ICON       &normalfile_img
-#define FT_NES_ICON        &nes_img
-#define FT_BIN_ICON        &bin_img
-#define FT_LUA_SCRIPT_ICON &lua_img
-#define FT_JS_SCRIPT_ICON  &js_img
-#define FT_MOD_ICON        &music_img
-#define FT_LT_ICON         &music_img
-#define FT_DIR_ICON        &folder_img
-#define FT_OTHER_ICON      &normalfile_img
-#define FM_SELECTED_ICON   &music_img // yeah yeah I know
+#define FT_NONE_ICON            &normalfile_img
+#define FT_NES_ICON             &nes_img
+#define FT_BIN_ICON             &bin_img
+#define FT_LUA_SCRIPT_ICON      &lua_img
+#define FT_JS_SCRIPT_ICON       &js_img
+#define FT_MOD_ICON             &music_img
+#define FT_LT_ICON              &music_img
+#define FT_DIR_ICON             &folder_img
+#define FT_OTHER_ICON           &normalfile_img
+#define FM_SELECTED_FOLDER_ICON &selectedfolder_img
+#define FM_SELECTED_FILE_ICON   &selectedfile_img
 // FILE HANDLERS:  ////////////////////////////////////////////////////////////////////////////////////
 #define FM_DEFAULT_FT_NES_HANDLER(X)     AppManager::getInstance()->runApp(new NesApp(X));
 #define FM_DEFAULT_FT_BIN_HANDLER(X)     fileLoadAsRom(X);
@@ -114,6 +115,8 @@
 #include "../icons/lua.h"
 #include "../icons/js.h"
 #include "../icons/music.h"
+#include "../icons/selectedfile.h"
+#include "../icons/selectedfolder.h"
 
 // very bad test
 // /sd/1 => /sd/1122/1
