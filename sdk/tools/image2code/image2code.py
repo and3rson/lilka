@@ -74,6 +74,7 @@ for fname in sys.argv[1:]:
             )
         with open(out, "w") as f:
             print('Записуємо стиснені дані у "{}"... '.format(out), end="")
+            print("#pragma once", file=f)
             print("// This is a generated file, do not edit.", file=f)
             print("// clang-format off", file=f)
             print(f"#include <stdint.h>", file=f)
@@ -88,6 +89,7 @@ for fname in sys.argv[1:]:
     else:
         with open(out, "w") as f:
             print(f"Записуємо {len(pixels)} пікселів у {out}... ", end="")
+            print("#pragma once", file=f)
             print("// This is a generated file, do not edit.", file=f)
             print("// clang-format off", file=f)
             print(f"#include <stdint.h>", file=f)

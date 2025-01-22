@@ -1,3 +1,4 @@
+#pragma once
 // This is a generated file, do not edit.
 // clang-format off
 #include <stdint.h>
