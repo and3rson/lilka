@@ -330,7 +330,7 @@
    * - 1
      - \-
      - Bat
-     - Будь-яка LiPo на ваш розсуд
+     - Будь-який (3.7V 1000 mAh +) LiPo на ваш розсуд  
      - `m-teh.com.ua <https://m-teh.com.ua/li-pol-akumuliator-603048p-1000-ma-hod-3.7v-z-plato%D1%96u-zakhystu/?gad_source=1&gclid=CjwKCAiA29auBhBxEiwAnKcSqmJoC5UaOLX_kOIJX7G_EQOqEse5RDJBtxz8IvMHU9rLfGlj-MlgyhoCXgEQAvD_BwE>`__
      -
      -
