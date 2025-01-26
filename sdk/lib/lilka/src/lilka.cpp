@@ -16,7 +16,9 @@ void begin() {
     display.begin(); // Must be initialized AFTER SD card
     controller.begin(); // Must be initialized AFTER SD card (since SD card somehow messes with GPIO)
     battery.begin();
+#ifdef LILKA_BLE
     BLE_server.begin();
+#endif
     // TODO: I2S
     // TODO: Delete Task Watchdog Timer - we'll be running long tasks
     // TODO: Maybe keep it?

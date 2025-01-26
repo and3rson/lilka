@@ -25,7 +25,9 @@ void setup() {
     serviceManager->addService(new ScreenshotService());
     serviceManager->addService(new TelnetService());
     serviceManager->addService(new FTPService());
+#ifdef LILKA_BLE
     serviceManager->addService(new KeiraBLEService());
+#endif
     appManager->setPanel(new StatusBarApp());
     appManager->runApp(new LauncherApp());
 }
