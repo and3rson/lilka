@@ -27,7 +27,9 @@ int lualilka_state_load(lua_State* L, const char* path) {
         } else if (strcmp(type, "string") == 0) {
             // Read string
             char value[256];
-            fscanf(file, "%255s", value);
+            fgetc(file);
+            fgets(value, 256, file);
+            value[strcspn(value, "\n")] = '\0';
             lilka::serial_log("lua: state: load string %s = %s", key, value);
             lua_pushstring(L, value);
             lua_setfield(L, -2, key);

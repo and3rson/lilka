@@ -80,6 +80,15 @@ int lualilka_display_setTextColor(lua_State* L) {
     return 0;
 }
 
+int lualilka_display_setTextBound(lua_State* L) {
+    auto x = luaL_checknumber(L, 1);
+    auto y = luaL_checknumber(L, 2);
+    auto w = luaL_checknumber(L, 3);
+    auto h = luaL_checknumber(L, 4);
+    getDrawable(L)->setTextBound(x, y, w, h);
+    return 0;
+}
+
 int lualilka_display_print(lua_State* L) {
     int n = lua_gettop(L);
     for (int i = 1; i <= n; i++) {
@@ -296,6 +305,7 @@ static const luaL_Reg lualilka_display[] = {
     {"set_font", lualilka_display_setFont},
     {"set_text_size", lualilka_display_setTextSize},
     {"set_text_color", lualilka_display_setTextColor},
+    {"set_text_bound", lualilka_display_setTextBound},
     {"print", lualilka_display_print},
     {"fill_screen", lualilka_display_fillScreen},
     {"draw_pixel", lualilka_display_drawPixel},
@@ -330,5 +340,27 @@ int lualilka_display_register(lua_State* L) {
     lua_pushinteger(L, app->canvas->height());
     lua_setfield(L, -2, "height");
     lua_setglobal(L, "display");
+
+    // clang-format off
+    const lilka::colors::RGB565_Colors colors[] = {
+        lilka::colors::Black, lilka::colors::White,
+        lilka::colors::Red, lilka::colors::Green, lilka::colors::Blue,
+        lilka::colors::Cyan, lilka::colors::Magenta, lilka::colors::Yellow,
+        lilka::colors::Midnight_blue, lilka::colors::Orange_red
+    };
+    const char* colorNames[] = {
+        "black", "white",
+        "red", "green", "blue",
+        "cyan", "magenta", "yellow",
+        "midnight_blue", "orange_red"
+    };
+
+    // clang-format on
+    lua_newtable(L);
+    for (int i = 0; i < sizeof(colors) / sizeof(colors[0]); i++) {
+        lua_pushinteger(L, colors[i]);
+        lua_setfield(L, -2, colorNames[i]);
+    }
+    lua_setglobal(L, "colors");
     return 0;
 }
