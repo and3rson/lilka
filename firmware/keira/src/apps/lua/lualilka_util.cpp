@@ -22,10 +22,24 @@ int lualilka_util_exit(lua_State* L) {
     return 0;
 }
 
+int lualilka_util_freeRAM(lua_State* L) {
+    uint32_t freeRAM = ESP.getFreeHeap();
+    lua_pushinteger(L, freeRAM);
+    return 1;
+}
+
+int lualilka_util_totalRAM(lua_State* L) {
+    uint32_t totalRAM = ESP.getHeapSize();
+    lua_pushinteger(L, totalRAM);
+    return 1;
+}
+
 static const luaL_Reg lualilka_util[] = {
     {"time", lualilka_util_time},
     {"sleep", lualilka_util_sleep},
     {"exit", lualilka_util_exit},
+    {"free_ram", lualilka_util_freeRAM},
+    {"total_ram", lualilka_util_totalRAM},
     {NULL, NULL},
 };
 
