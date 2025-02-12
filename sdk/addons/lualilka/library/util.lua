@@ -26,4 +26,12 @@ function util.sleep(sec) end
 --- end
 function util.exit() end
 
+---Повертає кількість вільної оперативної пам'яті.
+---@return number
+function util.free_ram() end
+
+---Повертає загальний обсяг оперативної пам'яті.
+---@return number
+function util.total_ram() end
+
 return util
