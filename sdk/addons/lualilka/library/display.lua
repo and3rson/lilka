@@ -58,6 +58,18 @@ function display.set_font(font) end
 ---@param size integer масштаб тексту
 function display.set_text_size(size) end
 
+---Встановлює кольор тексту.
+---@param fgColor integer кольор тексту
+---@param bgColor integer кольор фону (необов'язковий)
+function display.set_text_color(fgColor, bgColor) end
+
+---Встановлює прив'язку тексту.
+---@param x integer координата x
+---@param y integer координата y
+---@param w integer ширина
+---@param h integer висота
+function display.set_text_bound(x, y, w, h) end
+
 ---Виводить текст на екран.
 ---@param ... any значення для виведення
 ---@usage
