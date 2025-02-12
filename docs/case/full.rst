@@ -42,3 +42,14 @@ https://www.printables.com/model/1120079-lilcase
 Посилання:
 https://www.printables.com/model/1181426-low-profile-case-for-lilka-dev-board
 
+
+
+**Мінімалістичний корпус без заглиблень під кнопки**
+
+.. image:: ./images/full/minimalist2.jpg
+   :alt: Мінімалістичний2
+   :align: center
+   :width: 50%
+
+Посилання:
+https://www.printables.com/model/1189054-case-for-lilka-dev-board
