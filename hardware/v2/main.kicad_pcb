@@ -1073,7 +1073,7 @@
 				(xyz 0 0 0)
 			)
 		)
-		(model "${KIPRJMOD}/3dmodels/12mm Push Button with Cap.STEP"
+		(model "${KIPRJMOD}/3dmodels/12mm Push Button with Yellow Cap.STEP"
 			(offset
 				(xyz 6 -2.5 0)
 			)
@@ -1469,7 +1469,7 @@
 				(xyz 0 0 0)
 			)
 		)
-		(model "${KIPRJMOD}/3dmodels/12mm Push Button with Cap.STEP"
+		(model "${KIPRJMOD}/3dmodels/12mm Push Button with Yellow Cap.STEP"
 			(offset
 				(xyz 6 -2.5 0)
 			)
@@ -1856,7 +1856,7 @@
 				(xyz 0 0 0)
 			)
 		)
-		(model "${KIPRJMOD}/3dmodels/12mm Push Button with Cap.STEP"
+		(model "${KIPRJMOD}/3dmodels/12mm Push Button with Black Cap.STEP"
 			(offset
 				(xyz 6 -2.5 0)
 			)
@@ -3755,7 +3755,7 @@
 				(xyz 0 0 0)
 			)
 		)
-		(model "${KIPRJMOD}/3dmodels/12mm Push Button with Cap.STEP"
+		(model "${KIPRJMOD}/3dmodels/12mm Push Button with Red Cap.STEP"
 			(offset
 				(xyz 6 -2.5 0)
 			)
@@ -4143,7 +4143,7 @@
 				(xyz 0 0 0)
 			)
 		)
-		(model "${KIPRJMOD}/3dmodels/12mm Push Button with Cap.STEP"
+		(model "${KIPRJMOD}/3dmodels/12mm Push Button with Blue Cap.STEP"
 			(offset
 				(xyz 6 -2.5 0)
 			)
@@ -6824,7 +6824,7 @@
 				(xyz 0 0 0)
 			)
 		)
-		(model "${KIPRJMOD}/3dmodels/12mm Push Button with Cap.STEP"
+		(model "${KIPRJMOD}/3dmodels/12mm Push Button with Black Cap.STEP"
 			(offset
 				(xyz 6 -2.5 0)
 			)
@@ -8245,7 +8245,7 @@
 				(xyz 0 0 0)
 			)
 		)
-		(model "${KIPRJMOD}/3dmodels/12mm Push Button with Cap.STEP"
+		(model "${KIPRJMOD}/3dmodels/12mm Push Button with Blue Cap.STEP"
 			(offset
 				(xyz 6 -2.5 0)
 			)
@@ -9015,7 +9015,7 @@
 				(xyz 0 0 0)
 			)
 		)
-		(model "${KIPRJMOD}/3dmodels/12mm Push Button with Cap.STEP"
+		(model "${KIPRJMOD}/3dmodels/12mm Push Button with Red Cap.STEP"
 			(offset
 				(xyz 6 -2.5 0)
 			)
