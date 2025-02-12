@@ -16,6 +16,7 @@
     programming/index
     keira/index
     library/index
+    case/index
     faq/index
     glossary
     community
