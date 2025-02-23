@@ -74,8 +74,8 @@
 
    * - 2
      - C2, C3
-     - 10uF
-     - 10uF Capacitor 
+     - 1uF-10uF
+     - 1uF-10uF Capacitor 
      - `prom.ua <https://prom.ua/ua/p2221701868-kondensator-106-10uf.html/>`__
      - `Посилання <https://www.aliexpress.com/item/32973259342.html>`__
      -
