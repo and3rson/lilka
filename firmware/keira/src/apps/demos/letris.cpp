@@ -177,6 +177,27 @@ public:
         }
         return false;
     }
+    bool canRotate(const Shape* shape) {
+        // Створюємо новий масив для фігури після повороту
+        int newShapeData[4][4];
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                newShapeData[i][j] = shape->shapeData[3 - j][i];
+            }
+        }
+        // Перевіряємо, чи нова позиція фігури після повороту зіткнеться з іншими блоками
+        for (int yy = 0; yy < 4; yy++) {
+            for (int xx = 0; xx < 4; xx++) {
+                if (newShapeData[yy][xx]) {
+                    if (shape->x + xx < 0 || shape->x + xx >= FIELD_COLS || shape->y + yy >= FIELD_ROWS ||
+                        this->blocks[shape->y + yy][shape->x + xx]) {
+                        return false; // Поворот неможливий
+                    }
+                }
+            }
+        }
+        return true; // Поворот можливий
+    }
 
 private:
     uint16_t blocks[FIELD_ROWS][FIELD_COLS]; // Black color means no block
@@ -252,7 +273,22 @@ void LetrisApp::run() {
                     dx = 1;
                 } else if (state.up.justPressed) {
                     // Користувач натиснув вгору
-                    shape.rotate();
+                    auto shapeX = shape.x;
+                    auto quitRotation = false;
+                    for (auto i = 0; i <= 2; i++) { // check x + - i
+                        for (auto j = 0; j <= 1; j++) {
+                            auto tmpShape = shape;
+                            auto sign = j == 0 ? 1 : -1; // check left-right
+                            tmpShape.x = shapeX + i * sign;
+                            if (field.canRotate(&tmpShape)) {
+                                shape = tmpShape;
+                                shape.rotate();
+                                quitRotation = true;
+                                break;
+                            }
+                        }
+                        if (quitRotation) break;
+                    }
                 } else if ((state.down.justPressed || state.a.justPressed) && !fastDrop) {
                     // Користувач натиснув вниз
                     fastDrop = true;
