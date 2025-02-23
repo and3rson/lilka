@@ -273,8 +273,21 @@ void LetrisApp::run() {
                     dx = 1;
                 } else if (state.up.justPressed) {
                     // Користувач натиснув вгору
-                    if (field.canRotate(&shape)) {
-                        shape.rotate();
+                    auto shapeX = shape.x;
+                    auto quitRotation = false;
+                    for (auto i = 0; i <= 2; i++) { // check x + - i
+                        for (auto j = 0; j <= 1; j++) {
+                            auto tmpShape = shape;
+                            auto sign = j == 0 ? 1 : -1; // check left-right
+                            tmpShape.x = shapeX + i * sign;
+                            if (field.canRotate(&tmpShape)) {
+                                shape = tmpShape;
+                                shape.rotate();
+                                quitRotation = true;
+                                break;
+                            }
+                        }
+                        if (quitRotation) break;
                     }
                 } else if ((state.down.justPressed || state.a.justPressed) && !fastDrop) {
                     // Користувач натиснув вниз
