@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 #include <vector>
+#include <deque>
+#include <stack>
 #include "Arduino_GFX.h"
 #include "display.h"
 #include "controller.h"
@@ -290,7 +292,7 @@ private:
 /// Малює вікно введення та екранну клавіатуру, дозволяє вводити текст та підтверджувати введення.
 ///
 /// Приклад використання:
-///
+///w
 /// @code
 /// InputDialog dialog("Введіть пароль");
 /// dialog.setMasked(true);
@@ -343,6 +345,46 @@ private:
     int16_t cy;
     int64_t lastBlink;
     bool blinkPhase;
+};
+
+// TODO: create Docs for TextView
+class TextView {
+public:
+    TextView(String text_or_path, bool isFile = false);
+    ~TextView();
+    void setColors(uint16_t color = colors::White, uint16_t bgcolor = colors::Black);
+    void setFont(const uint8_t* font);
+    void setLineHeightMultiplier(float lHeightMultiplier);
+    void setTextScale(uint8_t scale);
+    bool isFinished();
+    void draw(Arduino_GFX* canvas);
+    void update();
+
+private:
+    Arduino_GFX* pLastCanvas = NULL;
+    uint16_t getLineHeight(Arduino_GFX* canvas);
+    uint16_t getCharWidth(Arduino_GFX* canvas);
+    void textWrap(bool lazy = false);
+    void setTextWrapNeeded();
+    void scrollUp();
+    void scrollPageUp();
+    void scrollDown();
+    void scrollPageDown();
+    void readFileBlock();
+    void prepareCanvas(Arduino_GFX* canvas);
+    std::stack<long long> fOffsets;
+    std::deque<String> lines; // contain raw bytes splited
+    FILE* pFile = NULL;
+    long long foffset = 0;
+    uint16_t color = colors::White;
+    uint16_t bgcolor = colors::Black;
+    const uint8_t* font = FONT_10x20;
+    uint8_t scale = 1;
+    uint16_t lastDisplayedLines = 0;
+    float lHeightMultiplier = 1.3;
+    bool done = false;
+    bool textWrapNeeded = true;
+    String textBlock;
 };
 
 } // namespace lilka

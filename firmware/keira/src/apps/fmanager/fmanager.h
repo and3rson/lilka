@@ -107,6 +107,8 @@
 #include "../lua/luarunner.h"
 #include "../mjs/mjsrunner.h"
 #include "../nes/nesapp.h"
+#include "../txtviewer/txtviewer.h"
+
 // ICONS:
 #include "../icons/normalfile.h"
 #include "../icons/folder.h"
@@ -298,6 +300,7 @@ private:
     void onFileOpenWithMJS();
     void onFileOpenWithLilTracker();
     void onFileOpenWithMODPlayer();
+    void onFileOpenWithTextViewer();
 
     // Callbacks [fileListMenu]:
     void onFileListMenuItem();

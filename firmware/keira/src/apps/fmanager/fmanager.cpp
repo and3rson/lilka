@@ -49,6 +49,9 @@ FileManagerApp::FileManagerApp(const String& path) :
     fileOpenWithMenu.addItem("mJS", 0, 0U, "", FM_CALLBACK_CAST(onFileOpenWithMJS), FM_CALLBACK_PTHIS);
     fileOpenWithMenu.addItem("ЛілТрекер", 0, 0U, "", FM_CALLBACK_CAST(onFileOpenWithLilTracker), FM_CALLBACK_PTHIS);
     fileOpenWithMenu.addItem("Програвач MOD", 0, 0U, "", FM_CALLBACK_CAST(onFileOpenWithMODPlayer), FM_CALLBACK_PTHIS);
+    fileOpenWithMenu.addItem(
+        "Текстовий переглядач", 0, 0U, "", FM_CALLBACK_CAST(onFileOpenWithTextViewer), FM_CALLBACK_PTHIS
+    );
     fileOpenWithMenu.addItem("<< Назад", 0, 0U, "", FM_CALLBACK_CAST(onAnyMenuBack), FM_CALLBACK_PTHIS);
 
     fileOpenWithMenu.addActivationButton(FM_EXIT_BUTTON);
@@ -404,6 +407,16 @@ void FileManagerApp::onFileOpenWithMODPlayer() {
         );
     } else if (button != FM_EXIT_BUTTON) fileOpenWithMenu.isFinished(); // do redraw
 }
+void FileManagerApp::onFileOpenWithTextViewer() {
+    FM_DBG lilka::serial_log("Enter onFileOpenWithLilTracker");
+    auto button = fileOpenWithMenu.getButton();
+    if (button == FM_OKAY_BUTTON) {
+        AppManager::getInstance()->runApp(
+            new TextViewerApp(lilka::fileutils.joinPath(currentEntry.path, currentEntry.name))
+        );
+    } else if (button != FM_EXIT_BUTTON) fileOpenWithMenu.isFinished(); // do redraw
+}
+
 // FILE SELECTION MENU BELOW:
 void FileManagerApp::onFileSelectionOptionsMenuCopy() {
     auto button = fileSelectionOptionsMenu.getButton();
