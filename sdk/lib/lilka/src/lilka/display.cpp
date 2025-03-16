@@ -356,8 +356,9 @@ uint8_t* Canvas::getFont() {
 }
 
 int16_t getTextWidth(const uint8_t* font, const char* text) {
-    lilka::Canvas canvas(4096, 1);
+    lilka::Canvas canvas(0, 0);
     canvas.setFont(font);
+    canvas.setTextWrap(false);
     int16_t x1, y1;
     uint16_t w, h;
     canvas.getTextBounds(text, 0, 0, &x1, &y1, &w, &h);
