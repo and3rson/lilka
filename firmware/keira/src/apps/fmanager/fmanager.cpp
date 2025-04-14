@@ -18,7 +18,7 @@ FileManagerApp::FileManagerApp(const String& path) :
     App("FileManager"),
     copyProgress("Копіювання...", ""),
     md5Progress("Обчислення МD5", ""),
-    dirLoadProgress("Загрузка", ""),
+    dirLoadProgress("Завантаження", ""),
     mkdirInput("Введіть назву нової папки"),
     renameInput("Введіть нову назву") {
     // Set stack size
