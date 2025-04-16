@@ -43,7 +43,7 @@ FileManagerApp::FileManagerApp(const String& path) :
     );
     fileOpenWithMenu.addItem("Емулятор NES", 0, 0U, "", FM_CALLBACK_CAST(onFileOpenWithNESEmulator), FM_CALLBACK_PTHIS);
     fileOpenWithMenu.addItem(
-        "Загрузчик прошивок", 0, 0U, "", FM_CALLBACK_CAST(onFileOpenWithMultiBootLoader), FM_CALLBACK_PTHIS
+        "Завантажувач прошивок", 0, 0U, "", FM_CALLBACK_CAST(onFileOpenWithMultiBootLoader), FM_CALLBACK_PTHIS
     );
     fileOpenWithMenu.addItem("Lua", 0, 0U, "", FM_CALLBACK_CAST(onFileOpenWithLua), FM_CALLBACK_PTHIS);
     fileOpenWithMenu.addItem("mJS", 0, 0U, "", FM_CALLBACK_CAST(onFileOpenWithMJS), FM_CALLBACK_PTHIS);
