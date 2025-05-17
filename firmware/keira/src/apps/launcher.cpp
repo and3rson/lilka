@@ -28,6 +28,7 @@
 #include "nes/nesapp.h"
 #include "weather/weather.h"
 #include "modplayer/modplayer.h"
+#include "lilcatalog/lilcatalog.h"
 #include "liltracker/liltracker.h"
 #include "fmanager/fmanager.h"
 #include "pastebin/pastebinApp.h"
@@ -85,6 +86,7 @@ void LauncherApp::run() {
                         },
                         &app_group_img, 0
                     ),
+                    ITEM::APP("ЛілкаТалог", [this]() { this->runApp<LilCatalogApp>(); }),
                     ITEM::APP("ЛілТрекер", [this]() { this->runApp<LilTrackerApp>(); }),
                     ITEM::APP("Летріс", [this]() { this->runApp<LetrisApp>(); }),
                     ITEM::APP("Тамагочі", [this]() { this->runApp<TamagotchiApp>(); }),
