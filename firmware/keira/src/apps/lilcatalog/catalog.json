@@ -1,0 +1,60 @@
+[
+  {
+    "category": "Ігри",
+    "entries": [
+      {
+        "name": "Змійка (Kiera OS)",
+        "description": "Classic snake game by @sverdlyuk",
+        "files": [
+          {
+            "source": "https://raw.githubusercontent.com/sverdlyuk/lilka-snake/refs/heads/main/snake.lua",
+            "target": "/snake/snake.lua",
+            "type": "lua"
+          }
+        ]
+      },
+      {
+        "name": "LilkaCubes",
+        "description": "Проста та захоплююча гра в кубики",
+        "files": [
+          {
+            "source": "https://raw.githubusercontent.com/andrijpv/LilkaCubes/refs/heads/main/lilkacubes.lua",
+            "target": "/lilkacubes/lilkacubes.lua",
+            "type": "lua"
+          }
+        ]
+      },
+      {
+        "name": "LIlkaChuVaChi",
+        "description": "Гра в камінь, ножиці, папір",
+        "files": [
+          {
+            "source": "https://raw.githubusercontent.com/andrijpv/LIlkaChuVaChi/refs/heads/main/filegame/lilkachuvachi.lua",
+            "target": "/LIlkaChuVaChi/lilkachuvachi.lua",
+            "type": "lua"
+          },
+          {
+            "source": "https://raw.githubusercontent.com/andrijpv/LIlkaChuVaChi/refs/heads/main/filegame/paper.bmp",
+            "target": "/LIlkaChuVaChi/paper.bmp",
+            "type": "bmp"
+          },
+          {
+            "source": "https://raw.githubusercontent.com/andrijpv/LIlkaChuVaChi/refs/heads/main/filegame/scissors.bmp",
+            "target": "/LIlkaChuVaChi/scissors.bmp",
+            "type": "bmp"
+          },
+          {
+            "source": "https://raw.githubusercontent.com/andrijpv/LIlkaChuVaChi/refs/heads/main/filegame/stone.bmp",
+            "target": "/LIlkaChuVaChi/stone.bmp",
+            "type": "bmp"
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "category": "Додатки",
+    "entries": []
+  }  
+]
