@@ -1,5 +1,4 @@
 #include "gpiomanager.h"
-
 #include "icons/input.h"
 #include "icons/output.h"
 
@@ -9,76 +8,65 @@ GPIOManagerApp::GPIOManagerApp() : App("GPIOManager") {
     for (int i = 0; i < PIN_COUNT; i++) {
         pinMode(pinNo[i], pinM[i]);
     }
-    // Change pin mode (cycle through INPUT/OUTPUT/PWM/SQUARE)
+    // Change pin mode (cycle through INPUT/OUTPUT/PWM)
     menu.addActivationButton(lilka::Button::D);
-    // Change pin value/duty cycle/frequency
+    // Change pin value/duty cycle
     menu.addActivationButton(lilka::Button::A);
+    // Change PWM frequency
+    menu.addActivationButton(lilka::Button::C);
     // Back
     menu.addActivationButton(lilka::Button::B);
-    
+
     // For testing purposes
-    // readSpeedCompare();
+    //readSpeedCompare();
 }
 
 void GPIOManagerApp::updatePWM(uint8_t pinIndex) {
     if (pinM[pinIndex] != PIN_MODE_PWM) return;
 
-    uint64_t now = micros();
-    uint64_t period = now % pwmPeriod;
-    
-    if (period * 100 < pwmPeriod * pwmDutyCycle[pinIndex]) {
-        digitalWrite(pinNo[pinIndex], HIGH);
-        pinData[pinIndex] = HIGH;
-    } else{
-        digitalWrite(pinNo[pinIndex], LOW);
-        pinData[pinIndex] = LOW;
-    }
-}
+    // Configure timer and channel for this pin
+    uint32_t freq = ledcSetup(ledcConfigs[pinIndex].channel, pwmFrequency[pinIndex], LEDC_TIMER_RESOLUTION);
 
-void GPIOManagerApp::updateSquareWave(uint8_t pinIndex) {
-    if (pinM[pinIndex] != PIN_MODE_SQUARE) return;
-    
-    uint64_t now = micros();
-    uint64_t period = 1000000 / squareFrequency[pinIndex]; // Convert frequency to period in microseconds
-    uint64_t elapsed = now - lastUpdate[pinIndex];
-    
-    if (elapsed >= period) {
-        lastUpdate[pinIndex] = now;
-        pinData[pinIndex] = !pinData[pinIndex];
-        digitalWrite(pinNo[pinIndex], pinData[pinIndex]);
+    // update frequency for pins with same timer
+    for (int i = 0; i < PIN_COUNT; i++) {
+        if (ledcConfigs[i].timer == ledcConfigs[pinIndex].timer) {
+            pwmFrequency[i] = pwmFrequency[pinIndex];
+        }
     }
+
+    if (freq == 0) {
+        lilka::serial_log("Failed to set PWM frequency %d Hz for pin %d", pwmFrequency[pinIndex], pinNo[pinIndex]);
+    }
+
+    // Set duty cycle (0-100 to 0-1023)
+    uint32_t duty = (pwmDutyCycle[pinIndex] * 1023) / 100;
+    ledcWrite(ledcConfigs[pinIndex].channel, duty);
 }
 
 void GPIOManagerApp::startPWM(uint8_t pinIndex, uint8_t dutyCycle) {
     if (pinIndex >= PIN_COUNT) return;
-    pinM[pinIndex] = PIN_MODE_PWM;
-    pwmDutyCycle[pinIndex] = dutyCycle;
-    lastUpdate[pinIndex] = micros();
-    pinMode(pinNo[pinIndex], OUTPUT);
-}
 
-void GPIOManagerApp::startSquareWave(uint8_t pinIndex, uint16_t frequency) {
-    if (pinIndex >= PIN_COUNT) return;
-    pinM[pinIndex] = PIN_MODE_SQUARE;
-    squareFrequency[pinIndex] = frequency;
-    lastUpdate[pinIndex] = micros();
-    pinMode(pinNo[pinIndex], OUTPUT);
+    // Reset to default
+    pinM[pinIndex] = PIN_MODE_PWM;
+    pwmDutyCycle[pinIndex] = min(dutyCycle, (uint8_t)100);
+    pwmFrequency[pinIndex] = PWM_DEFAULT_FREQ;
+
+    // First attach the pin to its assigned channel
+    ledcAttachPin(pinNo[pinIndex], ledcConfigs[pinIndex].channel);
+
+    // Then configure timer and set duty cycle
+    updatePWM(pinIndex);
 }
 
 void GPIOManagerApp::stopPWM(uint8_t pinIndex) {
     if (pinIndex >= PIN_COUNT) return;
-    digitalWrite(pinNo[pinIndex], LOW);
-    pinData[pinIndex] = LOW;
-    pwmDutyCycle[pinIndex] = 0;
-    pinM[pinIndex] = INPUT;
-    pinMode(pinNo[pinIndex], INPUT);
-}
 
-void GPIOManagerApp::stopSquareWave(uint8_t pinIndex) {
-    if (pinIndex >= PIN_COUNT) return;
+    ledcDetachPin(pinNo[pinIndex]);
     digitalWrite(pinNo[pinIndex], LOW);
+
     pinData[pinIndex] = LOW;
-    squareFrequency[pinIndex] = 0;
+    pwmFrequency[pinIndex] = 0;
+    pwmDutyCycle[pinIndex] = 0;
     pinM[pinIndex] = INPUT;
     pinMode(pinNo[pinIndex], INPUT);
 }
@@ -87,13 +75,9 @@ void GPIOManagerApp::readPinData() {
     uint32_t gpioValue = (REG_READ(GPIO_IN_REG));
     uint32_t gpio1Value = (REG_READ(GPIO_IN1_REG));
     // lilka::serial_log("Pin data : %s %s", getStrBits(gpioValue).c_str(), getStrBits(gpio1Value).c_str());
+
     for (int i = 0; i < PIN_COUNT; i++) {
-        // Update PWM and square wave pins
-        if (pinM[i] == PIN_MODE_PWM) {
-            updatePWM(i);
-        } else if (pinM[i] == PIN_MODE_SQUARE) {
-            updateSquareWave(i);
-        } else if (pinM[i] == INPUT) {
+        if (pinM[i] == INPUT) {
             // Only read input pins from GPIO registers
             if (pinNo[i] < 32) {
                 pinData[i] = GET_BIT(gpioValue, pinNo[i]);
@@ -101,6 +85,7 @@ void GPIOManagerApp::readPinData() {
                 pinData[i] = GET_BIT(gpio1Value, pinNo[i] - 32);
             }
         }
+        // PWM pins are handled by hardware LEDC
     }
     // for (int i = 0; i < PIN_COUNT; i++) {
     //     if (pinData[i] != digitalRead(pinNo[i])) lilka::serial_err("Pin validation failed");
@@ -113,38 +98,33 @@ void GPIOManagerApp::run() {
             int16_t lastPos = menu.getCursor();
             menu.clearItems();
             readPinData();
-            
+
             for (int i = 0; i < PIN_COUNT; i++) {
                 String modeStr;
                 String valueStr;
-                
+
                 switch (pinM[i]) {
-                    case INPUT:
+                    case PIN_INPUT:
                         modeStr = " <- IN";
                         valueStr = pinData[i] == HIGH ? "HIGH" : "LOW";
                         break;
-                    case OUTPUT:
+                    case PIN_OUTPUT:
                         modeStr = " -> OUT";
                         valueStr = pinData[i] == HIGH ? "HIGH" : "LOW";
                         break;
                     case PIN_MODE_PWM:
                         modeStr = " ~ PWM";
-                        valueStr = String(pwmDutyCycle[i]) + "%";
-                        break;
-                    case PIN_MODE_SQUARE:
-                        modeStr = " ~ SQ";
-                        valueStr = String(squareFrequency[i]) + "Hz";
+                        if (pwmFrequency[i] >= 1000) {
+                            valueStr = "[" + String(pwmFrequency[i] / 1000) + "kHz] " + String(pwmDutyCycle[i]) + "%";
+                        } else {
+                            valueStr = "[" + String(pwmFrequency[i]) + "Hz] " + String(pwmDutyCycle[i]) + "%";
+                        }
                         break;
                 }
-                
-                menu.addItem(
-                    String(pinNo[i]) + modeStr,
-                    pinM[i] == INPUT ? &input_img : &output_img,
-                    0,
-                    valueStr
-                );
+
+                menu.addItem(String(pinNo[i]) + modeStr, pinM[i] == INPUT ? &input_img : &output_img, 0, valueStr);
             }
-            
+
             menu.setCursor(lastPos);
             // Do menu redraw
             menu.update();
@@ -154,7 +134,7 @@ void GPIOManagerApp::run() {
         lilka::serial_log("Menu finished");
         int16_t curPos = menu.getCursor();
         if (curPos == PIN_COUNT) break;
-        
+
         lilka::Button button = menu.getButton();
         if (button == lilka::Button::A) {
             switch (pinM[curPos]) {
@@ -167,27 +147,36 @@ void GPIOManagerApp::run() {
                     break;
                 case PIN_MODE_PWM:
                     pwmDutyCycle[curPos] = (pwmDutyCycle[curPos] + 10) % 110;
-                    break;
-                case PIN_MODE_SQUARE:
-                    squareFrequency[curPos] = (squareFrequency[curPos] * 2);
-                    if (squareFrequency[curPos] > 1000 || squareFrequency[curPos] == 0) {
-                        squareFrequency[curPos] = 1;
-                    }
+                    updatePWM(curPos);
                     break;
             }
+        } else if (button == lilka::Button::C) {
+            if (pinM[curPos] == PIN_MODE_PWM) {
+                uint32_t newFreq = pwmFrequency[curPos];
+
+                if (newFreq < 1000) {
+                    newFreq = newFreq + 100;
+                } else {
+                    newFreq = newFreq + 1000;
+                }
+
+                if (newFreq > LEDC_BASE_FREQ_MAX) {
+                    newFreq = LEDC_BASE_FREQ_MIN;
+                }
+
+                pwmFrequency[curPos] = newFreq;
+                updatePWM(curPos);
+            }
         } else if (button == lilka::Button::D) {
-            // Cycle through modes: INPUT -> OUTPUT -> PWM -> SQUARE
+            // Cycle through modes: INPUT -> OUTPUT -> PWM
             uint8_t currentMode = pinM[curPos];
             if (currentMode == INPUT) {
                 pinM[curPos] = OUTPUT;
                 pinMode(pinNo[curPos], OUTPUT);
             } else if (currentMode == OUTPUT) {
                 startPWM(curPos, 50); // Start with 50% duty cycle
-            } else if (currentMode == PIN_MODE_PWM) {
-                stopPWM(curPos);
-                startSquareWave(curPos, 1); // Start with 1Hz
             } else {
-                stopSquareWave(curPos);
+                stopPWM(curPos); // Going back to INPUT
             }
         } else return;
     }
