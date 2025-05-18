@@ -86,7 +86,7 @@ void LauncherApp::run() {
                         },
                         &app_group_img, 0
                     ),
-                    ITEM::APP("ЛілкаТалог", [this]() { this->runApp<LilCatalogApp>(); }),
+                    ITEM::APP("ЛілКаталог", [this]() { this->runApp<LilCatalogApp>(); }),
                     ITEM::APP("ЛілТрекер", [this]() { this->runApp<LilTrackerApp>(); }),
                     ITEM::APP("Летріс", [this]() { this->runApp<LetrisApp>(); }),
                     ITEM::APP("Тамагочі", [this]() { this->runApp<TamagotchiApp>(); }),

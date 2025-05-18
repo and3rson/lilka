@@ -16,7 +16,14 @@ LilCatalogApp::LilCatalogApp() : App("Лілка Талог") {
 }
 
 void LilCatalogApp::run() {
-    //todo check sd card isSDAvailable
+    if (!lilka::fileutils.isSDAvailable()) {
+        showAlert("SD карта не знайдена. Неможливо продовжити");
+        lilka::serial_log("SD карта не знайдена");
+        return;
+    } else {
+        lilka::serial_log("SD карта знайдена");
+    }
+
     parseCatalog();
     while (1) {
         drawCatalog();
@@ -242,6 +249,7 @@ void LilCatalogApp::createFoldersFromPath(const String &filePath) {
     int lastSlash = 0;
     String currentPath = "";
   
+    
     // Loop through each segment between slashes
     while (true) {
       int nextSlash = filePath.indexOf('/', lastSlash + 1);

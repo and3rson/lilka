@@ -10,8 +10,7 @@ typedef struct {
 
 typedef struct {
     String name;
-    String description;
-    String destionation_folder;
+    String description;    
     std::vector<catalog_entry_file> files;
 } catalog_entry;
 
