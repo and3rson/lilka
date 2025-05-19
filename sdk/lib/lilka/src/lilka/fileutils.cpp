@@ -328,6 +328,7 @@ bool FileUtils::makePath(FS* driver, const String& localPath) {
         serial.err("Path (%s) reffers to unknown filesystem type", localPath.c_str());
         return false;
     }
+    serial.log("Validate makePath: %s", localPath.c_str());
     
     // Check if the path already exists
     if (driver->exists(localPath)) {

@@ -4,7 +4,7 @@
 
 #include "utils/json.h"
 
-LilCatalogApp::LilCatalogApp() : App("Лілка Талог") {
+LilCatalogApp::LilCatalogApp() : App("ЛілКаталог") {
     setStackSize(8192);
     path_catalog_folder = "/lilcatalog";
     path_catalog_file = "/lilcatalog/catalog.json";
@@ -125,7 +125,7 @@ void LilCatalogApp::fetchEntry() {
 
     u8_t categoryIndex = categoriesMenu.getCursor();
     u8_t entryIndex = entriesMenu.getCursor();
-    catalog_entry& entry = catalog[categoryIndex].entries[entryIndex];
+    catalog_entry entry = catalog[categoryIndex].entries[entryIndex];
 
     WiFiClientSecure client;
     HTTPClient http;
@@ -136,9 +136,7 @@ void LilCatalogApp::fetchEntry() {
         lilka::serial.log("Завантаження %s", entry_file.source.c_str());
         lilka::serial.log("Збереження %s", entry_file.target.c_str());
 
-        String destinationFolder = lilka::fileutils.getParentDirectory(entry_file.target);
-        lilka::fileutils.makePath(&SD, destinationFolder);
-        if (!SD.exists(destinationFolder)) {
+        if (!lilka::fileutils.makePath(&SD, lilka::fileutils.getParentDirectory(entry_file.target))) {
             showAlert("Помилка створення каталогу");
             return;
         }
@@ -230,7 +228,7 @@ void LilCatalogApp::drawCategory() {
 void LilCatalogApp::drawEntry() {
     u8_t categoryIndex = categoriesMenu.getCursor();
     u8_t entryIndex = entriesMenu.getCursor();
-    catalog_entry& entry = catalog[categoryIndex].entries[entryIndex];
+    catalog_entry entry = catalog[categoryIndex].entries[entryIndex];
     canvas->fillScreen(lilka::colors::Black);
     canvas->print(entry.description);
     lilka::display.drawCanvas(canvas);
