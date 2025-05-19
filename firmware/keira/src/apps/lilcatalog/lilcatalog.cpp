@@ -17,10 +17,10 @@ LilCatalogApp::LilCatalogApp() : App("Лілка Талог") {
 void LilCatalogApp::run() {
     if (!lilka::fileutils.isSDAvailable()) {
         showAlert("SD карта не знайдена. Неможливо продовжити");
-        lilka::serial_log("SD карта не знайдена");
+        lilka::serial.log("SD карта не знайдена");
         return;
     } else {
-        lilka::serial_log("SD карта знайдена");
+        lilka::serial.log("SD карта знайдена");
     }
 
     parseCatalog();
@@ -35,7 +35,7 @@ void LilCatalogApp::parseCatalog() {
     JsonDocument data(&spiRamAllocator);
 
     if (!SD.exists(path_catalog_folder)) {
-        lilka::serial_log("f_mkdir %d", path_catalog_folder);
+        lilka::serial.log("f_mkdir %d", path_catalog_folder);
         if (!SD.mkdir(path_catalog_folder.c_str())) {
             showAlert("Помилка створеня каталогу");
         }
@@ -51,15 +51,15 @@ void LilCatalogApp::parseCatalog() {
             fileContent += (char)file.read();
         }
 
-        lilka::serial_log("Завантажено %d байт", fileContent.length());
-        lilka::serial_log(fileContent.c_str());
+        lilka::serial.log("Завантажено %d байт", fileContent.length());
+        lilka::serial.log(fileContent.c_str());
         file.close();
 
         DeserializationError error = deserializeJson(data, fileContent);
         if (error) {
             showAlert("Помилка завантаження каталогу");
         } else {
-            lilka::serial_log("Категорії у каталозі: %d", data.size());
+            lilka::serial.log("Категорії у каталозі: %d", data.size());
             for (int i = 0; i < data.size(); i++) {
                 catalog_category category;
                 category.name = data[i]["category"].as<String>();
@@ -76,11 +76,11 @@ void LilCatalogApp::parseCatalog() {
                         entry.files.push_back(entry_file);
                     }
                     category.entries.push_back(entry);
-                    lilka::serial_log("Категорія: %s Контент: %s", category.name, entry.name);
+                    lilka::serial.log("Категорія: %s Контент: %s", category.name, entry.name);
                 }
                 catalog.push_back(category);
 
-                lilka::serial_log(
+                lilka::serial.log(
                     "Категорія: %s, кількість додатків: %d", category.name.c_str(), category.entries.size()
                 );
             }
@@ -116,6 +116,55 @@ void LilCatalogApp::fetchCatalog() {
     } else {
         showAlert("Помилка. Помилка підключення" + http.errorToString(httpCode));
     }
+}
+
+void LilCatalogApp::fetchEntry() {
+    lilka::Alert alert("lilcatalog", "Завантаження файлу...");
+    alert.draw(canvas);
+    queueDraw();
+
+    u8_t categoryIndex = categoriesMenu.getCursor();
+    u8_t entryIndex = entriesMenu.getCursor();
+    catalog_entry& entry = catalog[categoryIndex].entries[entryIndex];
+
+    WiFiClientSecure client;
+    HTTPClient http;
+
+    client.setInsecure();
+    for (int i = 0; i < entry.files.size(); i++) {
+        catalog_entry_file entry_file = entry.files[i];
+        lilka::serial.log("Завантаження %s", entry_file.source.c_str());
+        lilka::serial.log("Збереження %s", entry_file.target.c_str());
+
+        String destinationFolder = lilka::fileutils.getParentDirectory(entry_file.target);
+        lilka::fileutils.makePath(&SD, destinationFolder);
+        if (!SD.exists(destinationFolder)) {
+            showAlert("Помилка створення каталогу");
+            return;
+        }
+
+        http.begin(client, entry_file.source);
+        int httpCode = http.GET();
+
+        if (httpCode == HTTP_CODE_OK) {
+            String destination = entry_file.target;
+            fs::File file = SD.open(destination.c_str(), FILE_WRITE);
+
+            if (!file) {
+                showAlert("Помилка відкриття файлу");
+                return;
+            }
+            file.print(http.getString());
+            file.close();
+
+            delay(10);
+        } else {
+            showAlert("Помилка. Помилка підключення" + http.errorToString(httpCode));
+            return;
+        }
+    }
+
+    showAlert("Файл завантажено, та збережено");
 }
 
 void LilCatalogApp::drawCatalog() {
@@ -211,50 +260,6 @@ void LilCatalogApp::drawEntry() {
     }
 }
 
-void LilCatalogApp::fetchEntry() {
-    lilka::Alert alert("lilcatalog", "Завантаження файлу...");
-    alert.draw(canvas);
-    queueDraw();
-
-    u8_t categoryIndex = categoriesMenu.getCursor();
-    u8_t entryIndex = entriesMenu.getCursor();
-    catalog_entry& entry = catalog[categoryIndex].entries[entryIndex];
-
-    WiFiClientSecure client;
-    HTTPClient http;
-
-    client.setInsecure();
-    for (int i = 0; i < entry.files.size(); i++) {
-        catalog_entry_file entry_file = entry.files[i];
-        lilka::serial_log("Завантаження %s", entry_file.source.c_str());
-        lilka::serial_log("Збереження %s", entry_file.target.c_str());
-
-        createFoldersFromPath(entry_file.target);
-
-        http.begin(client, entry_file.source);
-        int httpCode = http.GET();
-
-        if (httpCode == HTTP_CODE_OK) {
-            String destination = entry_file.target;
-            fs::File file = SD.open(destination.c_str(), FILE_WRITE);
-
-            if (!file) {
-                showAlert("Помилка відкриття файлу");
-                return;
-            }
-            file.print(http.getString());
-            file.close();
-
-            delay(10);
-        } else {
-            showAlert("Помилка. Помилка підключення" + http.errorToString(httpCode));
-            return;
-        }
-    }
-
-    showAlert("Файл завантажено, та збережено");
-}
-
 void LilCatalogApp::showAlert(const String& message) {
     lilka::Alert alert("lilcatalog", message);
     alert.draw(canvas);
@@ -262,43 +267,5 @@ void LilCatalogApp::showAlert(const String& message) {
     while (!alert.isFinished()) {
         alert.update();
     }
-    lilka::serial_log(message.c_str());
-}
-
-void LilCatalogApp::createFoldersFromPath(const String& filePath) {
-    if (!filePath.startsWith("/")) {
-        lilka::serial_log("Invalid path. It should start with '/'");
-        return;
-    }
-
-    int lastSlash = 0;
-    String currentPath = "";
-
-    // Loop through each segment between slashes
-    while (true) {
-        int nextSlash = filePath.indexOf('/', lastSlash + 1);
-        if (nextSlash == -1) {
-            // No more folders, stop before the file name
-            int lastDot = filePath.lastIndexOf('.');
-            if (lastDot != -1) {
-                currentPath = filePath.substring(0, filePath.lastIndexOf('/'));
-            }
-            break;
-        }
-
-        currentPath = filePath.substring(0, nextSlash);
-
-        if (!SD.exists(currentPath.c_str())) {
-            if (SD.mkdir(currentPath.c_str())) {
-                lilka::serial_log("Created folder: %s", currentPath);
-            } else {
-                showAlert("Поимлка створення директорії: " + currentPath);
-                return;
-            }
-        } else {
-            lilka::serial_log("Folder already exists: %s", currentPath);
-        }
-
-        lastSlash = nextSlash;
-    }
+    lilka::serial.log(message.c_str());
 }
