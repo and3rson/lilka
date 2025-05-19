@@ -8,7 +8,8 @@ LilCatalogApp::LilCatalogApp() : App("ЛілКаталог") {
     setStackSize(8192);
     path_catalog_folder = "/lilcatalog";
     path_catalog_file = "/lilcatalog/catalog.json";
-    catalog_url = "https://pastebin.com/raw/YWYAwaEe";
+    catalog_url = "https://raw.githubusercontent.com/and3rson/lilka/refs/heads/main/firmware/keira/src/apps/"
+                  "lilcatalog/catalog.json";
 
     catalog.clear();
     categoriesMenu.setTitle("Лілка Талог");
