@@ -323,5 +323,31 @@ const String FileUtils::getParentDirectory(const String& path) {
     return cleanPath.substring(0, lastSlash);
 }
 
+bool FileUtils::makePath(FS* driver, const String& localPath) {
+    if (driver == NULL) {
+        serial.err("Path (%s) reffers to unknown filesystem type", localPath.c_str());
+        return false;
+    }
+    
+    // Check if the path already exists
+    if (driver->exists(localPath)) {
+        return true;
+    }
+
+    // Recursive function to create directories using mkdir and FileUtils::getParentDirectory
+    String parentDiractory = fileutils.getParentDirectory(localPath);
+    if (!makePath(driver, parentDiractory)) {
+        return false;
+    }
+
+    if (!driver->exists(localPath)) {
+            if (!driver->mkdir(localPath)) {
+                serial.err("Failed to create directory: %s", localPath.c_str());
+                return false;
+            }
+    }
+    return true;    
+}
+
 FileUtils fileutils;
 } // namespace lilka
