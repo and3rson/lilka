@@ -325,7 +325,7 @@ const String FileUtils::getParentDirectory(const String& path) {
 
 bool FileUtils::makePath(FS* driver, const String& localPath) {
     if (driver == NULL) {
-        serial.err("Path (%s) reffers to unknown filesystem type", localPath.c_str());
+        serial.err("Driver was not provided");
         return false;
     }
     serial.log("Validate makePath: %s", localPath.c_str());

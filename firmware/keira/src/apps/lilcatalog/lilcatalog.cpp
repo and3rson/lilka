@@ -12,7 +12,7 @@ LilCatalogApp::LilCatalogApp() : App("ЛілКаталог") {
                   "lilcatalog/catalog.json";
 
     catalog.clear();
-    categoriesMenu.setTitle("Лілка Талог");
+    categoriesMenu.setTitle("ЛілКаталог");
 }
 
 void LilCatalogApp::run() {
