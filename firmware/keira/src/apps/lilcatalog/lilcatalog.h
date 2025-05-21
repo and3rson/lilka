@@ -1,16 +1,32 @@
 #pragma once
 
 #include <app.h>
+#include "appmanager.h"
+// APPS:
+#include "../modplayer/modplayer.h"
+#include "../liltracker/liltracker.h"
+#include "../lua/luarunner.h"
+#include "../mjs/mjsrunner.h"
+#include "../nes/nesapp.h"
+#include "../fmanager/fmanager.h"
+
+// FILE HANDLERS:  ////////////////////////////////////////////////////////////////////////////////////
+#define NES_HANDLER(X)        AppManager::getInstance()->runApp(new NesApp(X));
+#define LUA_SCRIPT_HANDLER(X) AppManager::getInstance()->runApp(new LuaFileRunnerApp(X));
+#define JS_SCRIPT_HANDLER(X)  AppManager::getInstance()->runApp(new MJSApp(X));
+#define MOD_HANDLER(X)        AppManager::getInstance()->runApp(new ModPlayerApp(X));
+#define LT_HANDLER(X)         AppManager::getInstance()->runApp(new LilTrackerApp(X))
 
 typedef struct {
     String source;
     String target;
-    String type;
+    FileType type;
 } catalog_entry_file;
 
 typedef struct {
     String name;
     String description;
+    String author;
     std::vector<catalog_entry_file> files;
 } catalog_entry;
 
@@ -39,10 +55,16 @@ private:
     void fetchCatalog();
 
     void fetchEntry();
+    bool validateEntry();
+    void removeEntry();
+    void executeEntry();
+
+    void fileLoadAsRom(const String& path);
 
     void drawCatalog();
     void drawCategory();
     void drawEntry();
+    void drawEntryDescription();
 
     void run() override;
 };
