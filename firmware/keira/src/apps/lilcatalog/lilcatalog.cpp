@@ -245,10 +245,6 @@ void LilCatalogApp::drawCategory() {
 }
 
 void LilCatalogApp::drawEntry() {
-    u8_t categoryIndex = categoriesMenu.getCursor();
-    u8_t entryIndex = entriesMenu.getCursor();
-    catalog_entry entry = catalog[categoryIndex].entries[entryIndex];
-
     lilka::Menu entryMenu("Вибір дії");
 
     bool entryInstalled = validateEntry();
