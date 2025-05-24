@@ -1,4 +1,5 @@
 #pragma once
+#include "keira.h"
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // [^_^]==\~ File manager for Keira OS header file                                                   //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -13,10 +14,10 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // BUTTONS:  //////////////////////////////////////////////////////////////////////////////////////////
-#define FM_OKAY_BUTTON         lilka::Button::A
-#define FM_CONFIRM_BUTTON      lilka::Button::START
-#define FM_EXIT_BUTTON         lilka::Button::B
-#define FM_OPTIONS_MENU_BUTTON lilka::Button::D
+#define FM_OKAY_BUTTON         K_BTN_OK
+#define FM_CONFIRM_BUTTON      K_BTN_CONFIRM
+#define FM_EXIT_BUTTON         K_BTN_EXIT
+#define FM_OPTIONS_MENU_BUTTON K_BTN_CONTEXT_MENU
 #define FM_INFO_BUTTON         lilka::Button::SELECT
 #define FM_SELECT_BUTTON       lilka::Button::C
 #define FM_RELOAD_BUTTON       FM_CONFIRM_BUTTON
@@ -51,12 +52,12 @@
 #define FM_SELECTED_FOLDER_ICON &selectedfolder_img
 #define FM_SELECTED_FILE_ICON   &selectedfile_img
 // FILE HANDLERS:  ////////////////////////////////////////////////////////////////////////////////////
-#define FM_DEFAULT_FT_NES_HANDLER(X)     AppManager::getInstance()->runApp(new NesApp(X));
+#define FM_DEFAULT_FT_NES_HANDLER(X)     K_FT_NES_HANDLER(X)
 #define FM_DEFAULT_FT_BIN_HANDLER(X)     fileLoadAsRom(X);
-#define FM_DEFAULT_LUA_SCRIPT_HANDLER(X) AppManager::getInstance()->runApp(new LuaFileRunnerApp(X));
-#define FT_DEFAULT_JS_SCRIPT_HANDLER(X)  AppManager::getInstance()->runApp(new MJSApp(X));
-#define FT_DEFAULT_MOD_HANDLER(X)        AppManager::getInstance()->runApp(new ModPlayerApp(X));
-#define FT_DEFAULT_LT_HANDLER(X)         AppManager::getInstance()->runApp(new LilTrackerApp(X))
+#define FM_DEFAULT_LUA_SCRIPT_HANDLER(X) K_FT_LUA_SCRIPT_HANDLER(X)
+#define FT_DEFAULT_JS_SCRIPT_HANDLER(X)  K_FT_JS_SCRIPT_HANDLER(X)
+#define FT_DEFAULT_MOD_HANDLER(X)        K_FT_MOD_HANDLER(X)
+#define FT_DEFAULT_LT_HANDLER(X)         K_FT_LT_HANDLER(X)
 #define FT_DEFAULT_DIR_HANDLER           currentPath = path;
 #define FT_DEFAULT_OTHER_HANDLER         fileInfoShowAlert();
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,12 +102,6 @@
 #include <SD.h>
 #include <SPIFFS.h>
 
-// APPS:
-#include "../modplayer/modplayer.h"
-#include "../liltracker/liltracker.h"
-#include "../lua/luarunner.h"
-#include "../mjs/mjsrunner.h"
-#include "../nes/nesapp.h"
 // ICONS:
 #include "../icons/normalfile.h"
 #include "../icons/folder.h"
@@ -139,11 +134,11 @@ typedef enum {
 
 #define FM_UI_CANT_DO_OP                                                  \
     if (!exitChildDialogs) alert("Помилка", "Не можу виконати операцію"); \
-    FM_DBG lilka::serial_err("FM operation fail at %s:%d", __FILE__, __LINE__)
+    FM_DBG lilka::serial.err("FM operation fail at %s:%d", __FILE__, __LINE__)
 
 #define FM_UI_SUCCESS_OP        \
     MAKE_SANDWICH("Виконано!"); \
-    FM_DBG lilka::serial_log("FM operation success at %s:%d", __FILE__, __LINE__)
+    FM_DBG lilka::serial.log("FM operation success at %s:%d", __FILE__, __LINE__)
 
 #define FM_UI_ADDED_TO_BUFFER MAKE_SANDWICH("Файл додано в буфер обміну")
 
@@ -156,7 +151,7 @@ typedef enum {
 #define FM_MODE_RESET         \
     changeMode(FM_MODE_VIEW); \
     exitChildDialogs = true;  \
-    FM_DBG lilka::serial_log("FM mode reset at %s:%d", __FILE__, __LINE__)
+    FM_DBG lilka::serial.log("FM mode reset at %s:%d", __FILE__, __LINE__)
 
 //////////////////////////////////////////////////////////////
 // TODO FManager list:
