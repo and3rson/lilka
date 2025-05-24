@@ -121,6 +121,12 @@ public:
     /// @return шлях
     // TODO: задокументувати
     const String getParentDirectory(const String& path);
+    /// Створити шлях з директоріями
+    /// @warning Ця функція не створює сам файл, лише директорії.
+    /// @param driver драйвер файлової системи
+    /// @param localPath локальний шлях
+    /// @return true у разі успіху
+    bool makePath(FS* driver, const String& localPath);
     /// Створити нову таблицю розділів на SD картці
     /// @warning Після виклику цієї функції необхідно перезавантажити систему
     /// @return true у разі успіху
