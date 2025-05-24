@@ -24,7 +24,7 @@ typedef enum {
     COUNT,
 } Button;
 
-#define LILKA_DEBOUNCE_TIME 10 // 10ms
+#define LILKA_DEBOUNCE_TIME 100 // Limit to not more than 10 button clicks per second for a button
 
 /// Містить стан кнопки, який був вимінярий в певний момент часу.
 typedef struct {
