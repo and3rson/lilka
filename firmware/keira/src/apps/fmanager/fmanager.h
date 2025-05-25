@@ -132,15 +132,15 @@ typedef enum {
     FM_MODE_RELOAD // changes in dir happened, reload filelist
 } FmMode;
 
-#define FM_UI_CANT_DO_OP                                                  \
-    if (!exitChildDialogs) alert("Помилка", "Не можу виконати операцію"); \
+#define FM_UI_CANT_DO_OP                                              \
+    if (!exitChildDialogs) alert(K_S_ERROR, K_S_FMANAGER_CANT_DO_OP); \
     FM_DBG lilka::serial.err("FM operation fail at %s:%d", __FILE__, __LINE__)
 
 #define FM_UI_SUCCESS_OP        \
     MAKE_SANDWICH("Виконано!"); \
     FM_DBG lilka::serial.log("FM operation success at %s:%d", __FILE__, __LINE__)
 
-#define FM_UI_ADDED_TO_BUFFER MAKE_SANDWICH("Файл додано в буфер обміну")
+#define FM_UI_ADDED_TO_BUFFER MAKE_SANDWICH(K_S_FMANAGER_FILE_ADDED_TO_BUFFER_EXCHANGE)
 
 #define FM_CHILD_DIALOG_CHECKB \
     if (exitChildDialogs) return false;
