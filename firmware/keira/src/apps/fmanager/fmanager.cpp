@@ -1069,6 +1069,7 @@ bool FileManagerApp::copyPath(const String& source, const String& destination) {
         auto outFile = fopen(destination.c_str(), "w");
         if (!outFile) {
             FM_DBG lilka::serial.log("Error opening destination file: %s", destination.c_str());
+            fclose(inFile);
             return false;
         }
 
