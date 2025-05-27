@@ -10,14 +10,14 @@
 Клонування репозиторію та побудова прошивки
 -------------------------------------------
 
-1. Перейдіть на вкладку **Source Control** (``Ctrl`` + ``Shift`` + ``G``) та клонуйте репозиторій `Lilka <https://github.com/and3rson/lilka>`_:
+1. Перейдіть на вкладку **Source Control** (``Ctrl`` + ``Shift`` + ``G``) та клонуйте репозиторій `Lilka <https://github.com/lilka-dev/lilka>`_:
 
    .. image:: ./images/08_clone_repo_cropped.png
        :width: 80%
 
    Для цього натисніть "**Clone Repository**" та введіть адресу репозиторію:
 
-   ``https://github.com/and3rson/lilka``
+   ``https://github.com/lilka-dev/lilka``
 
    .. image:: ./images/09_clone_cropped.png
        :width: 80%

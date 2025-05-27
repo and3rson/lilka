@@ -29,5 +29,5 @@ MeowUI - набір бібліотек, що спрощують створенн
 Спілкування
 -----------
 
-- Весь код проєкту доступний на `GitHub <https://github.com/and3rson/lilka>`_.
+- Весь код проєкту доступний на `GitHub <https://github.com/lilka-dev/lilka>`_.
 - Приєднуйтесь до нашого `Discord-сервера <https://discord.gg/HU68TaKCu6>`_!

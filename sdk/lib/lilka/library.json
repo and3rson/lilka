@@ -4,14 +4,14 @@
     "license": "GPL-2.0",
     "repository": {
         "type": "git",
-        "url": "https://github.com/and3rson/lilka.git"
+        "url": "https://github.com/lilka-dev/lilka.git"
     },
     "dependencies": {
         "moononournation/GFX Library for Arduino": "^1.4.5",
         "olikraus/U8g2": "^2.35.9",
         "h2zero/NimBLE-Arduino": "^1.4.3"
     },
-    "homepage": "https://github.com/and3rson/lilka",
+    "homepage": "https://github.com/lilka-dev/lilka",
     "frameworks": "arduino",
     "platforms": "espressif32",
     "exclude": [

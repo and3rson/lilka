@@ -38,7 +38,7 @@ html_theme_options = {
 html_logo = "_static/lilka_logo.png"
 html_favicon = "_static/favicon.ico"
 # html_additional_pages = {
-#     'GitHub': 'https://github.com/and3rson/lilka',
+#     'GitHub': 'https://github.com/lilka-dev/lilka',
 # }
 
 # https://protips.readthedocs.io/pdf-font.html
