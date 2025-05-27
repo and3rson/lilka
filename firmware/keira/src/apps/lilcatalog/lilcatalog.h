@@ -50,9 +50,6 @@ public:
 
 private:
     LilCatelogState state = LILCATALOG_CATALOG;
-    catalog_category category;
-    catalog_entry entry;
-
     String catalog_url;
     String path_catalog_file;
     String path_catalog_folder;
