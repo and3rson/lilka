@@ -3,8 +3,8 @@
 ![Made in Ukraine](https://img.shields.io/badge/Made%20in-Ukraine-blue?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjgwMCI%2BCjxyZWN0IHdpZHRoPSIxMjAwIiBoZWlnaHQ9IjgwMCIgZmlsbD0iIzAwNTdCNyIvPgo8cmVjdCB3aWR0aD0iMTIwMCIgaGVpZ2h0PSI0MDAiIHk9IjQwMCIgZmlsbD0iI0ZGRDcwMCIvPgo8L3N2Zz4%3D)
 [![Documentation Status](https://readthedocs.org/projects/lilka/badge/?version=latest)](https://docs.lilka.dev)
 [![PlatformIO Registry](https://badges.registry.platformio.org/packages/and3rson/library/Lilka.svg)](https://registry.platformio.org/libraries/and3rson/Lilka)
-[![firmware](https://github.com/and3rson/lilka/actions/workflows/firmware.yml/badge.svg)](https://github.com/and3rson/lilka/actions/workflows/firmware.yml)
-[![code quality](https://github.com/and3rson/lilka/actions/workflows/code-quality.yml/badge.svg)](https://github.com/and3rson/lilka/actions/workflows/code-quality.yml)
+[![firmware](https://github.com/lilka-dev/lilka/actions/workflows/firmware.yml/badge.svg)](https://github.com/lilka-dev/lilka/actions/workflows/firmware.yml)
+[![code quality](https://github.com/lilka-dev/lilka/actions/workflows/code-quality.yml/badge.svg)](https://github.com/lilka-dev/lilka/actions/workflows/code-quality.yml)
 [![Discord](https://img.shields.io/discord/1202315568846213172?label=Discord)][discord]
 
 DIY-консоль, яку можна зібрати з дешевих готових модулів.

@@ -38,12 +38,12 @@ class ToDoExtractor(Directive):
                         if "TODO" in line:
                             # Create a list item
                             list_node = nodes.list_item()
-                            # Add link to "https://github.com/and3rson/lilka/blob/main/{clean_path}"
+                            # Add link to "https://github.com/lilka-dev/lilka/blob/main/{clean_path}"
                             filename_para = nodes.paragraph()
                             filename_para += nodes.reference(
                                 rawsource=f"{clean_path}:{lineno}",
                                 text=f"{clean_path}:{lineno}",
-                                refuri=f"https://github.com/and3rson/lilka/blob/main/{clean_path}#L{lineno}",
+                                refuri=f"https://github.com/lilka-dev/lilka/blob/main/{clean_path}#L{lineno}",
                             )
                             list_node += filename_para
                             # Add content as code block with C/C++ syntax highlighting

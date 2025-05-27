@@ -29,7 +29,7 @@
 .. toctree::
     :caption: Посилання
 
-    GitHub <https://github.com/and3rson/lilka>
+    GitHub <https://github.com/lilka-dev/lilka>
     Discord <https://discord.gg/HU68TaKCu6>
 
 .. toctree::

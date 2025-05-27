@@ -1,4 +1,4 @@
 Повідомити про помилку
 ======================
 
-Якщо ви знайшли помилку, `створіть новий тікет <https://github.com/and3rson/lilka/issues/new>`_.
+Якщо ви знайшли помилку, `створіть новий тікет <https://github.com/lilka-dev/lilka/issues/new>`_.
