@@ -8,7 +8,7 @@ LilCatalogApp::LilCatalogApp() : App(LILCATALOG_S_APP) {
     setStackSize(8192);
     path_catalog_folder = "/lilcatalog";
     path_catalog_file = "/lilcatalog/catalog.json";
-    catalog_url = "https://raw.githubusercontent.com/and3rson/lilka/refs/heads/main/firmware/keira/src/apps/"
+    catalog_url = "https://raw.githubusercontent.com/lilka-dev/lilka/refs/heads/main/firmware/keira/src/apps/"
                   "lilcatalog/catalog.json";
 }
 
@@ -25,27 +25,70 @@ void LilCatalogApp::run() {
     doShowCatalog();
 
     while (1) {
-        uiLoop();
+        processMenu();
+        processBackButton();
+        queueDraw();
+    }
+}
+
+void LilCatalogApp::processMenu() {
+    switch (state) {
+        case LILCATALOG_CATALOG:
+            catalogMenu.update();
+            catalogMenu.draw(canvas);
+            break;
+        case LILCATALOG_CATEGORY:
+            categoryMenu.update();
+            categoryMenu.draw(canvas);
+            break;
+        case LILCATALOG_ENTRY:
+            entryMenu.update();
+            entryMenu.draw(canvas);
+            break;
+        default:
+            break;
+    }
+}
+
+void LilCatalogApp::processBackButton() {
+    if (lilka::controller.peekState().b.justPressed) {
+        lilka::serial.log("B button pressed, going back.");
+        switch (state) {
+            case LILCATALOG_CATALOG:
+                stop();
+                return;
+            case LILCATALOG_CATEGORY:
+                doShowCatalog();
+                break;
+            case LILCATALOG_ENTRY:
+                doShowCategory();
+                break;
+            case LILCATALOG_ENTRY_DESCRIPTION:
+                doShowEntry();
+                break;
+            default:
+                break;
+        }
     }
 }
 
 void LilCatalogApp::doShowCatalog() {
+    catalogMenu.clearItems();
+    catalogMenu.setTitle(LILCATALOG_S_APP);
     state = LILCATALOG_CATALOG;
-    categoriesMenu.clearItems();
-    categoriesMenu.setTitle(LILCATALOG_S_APP);
 
     for (int i = 0; i < catalog.size(); i++) {
-        catalog_category& category = catalog[i];
-        categoriesMenu.addItem(
-            category.name,
+        catalog_category& categoty_tmp = catalog[i];
+        catalogMenu.addItem(
+            categoty_tmp.name,
             nullptr,
             0,
-            String(category.entries.size()) + LILCATALOG_S_CATEGORY_POSTFIX,
+            String(categoty_tmp.entries.size()) + LILCATALOG_S_CATEGORY_POSTFIX,
             reinterpret_cast<lilka::PMenuItemCallback>(&LilCatalogApp::doShowCategory),
             reinterpret_cast<void*>(this)
         );
     }
-    categoriesMenu.addItem(
+    catalogMenu.addItem(
         LILCATALOG_S_FETCH_CATALOG,
         0,
         0,
@@ -53,7 +96,7 @@ void LilCatalogApp::doShowCatalog() {
         reinterpret_cast<lilka::PMenuItemCallback>(&LilCatalogApp::fetchCatalog),
         reinterpret_cast<void*>(this)
     );
-    categoriesMenu.addItem(
+    catalogMenu.addItem(
         LILCATALOG_S_STOP,
         0,
         0,
@@ -62,30 +105,30 @@ void LilCatalogApp::doShowCatalog() {
         reinterpret_cast<void*>(this)
     );
 
-    categoriesMenu.setCursor(0);
-    categoriesMenu.update();
+    catalogMenu.setCursor(0);
+    catalogMenu.update();
 }
 
 void LilCatalogApp::doShowCategory() {
+    u8_t categoryIndex = catalogMenu.getCursor();
+    category = catalog[categoryIndex];
     state = LILCATALOG_CATEGORY;
-    u8_t categoryIndex = categoriesMenu.getCursor();
-    catalog_category category = catalog[categoryIndex];
 
-    entriesMenu.clearItems();
-    entriesMenu.setTitle(category.name);
+    categoryMenu.clearItems();
+    categoryMenu.setTitle(category.name);
 
     for (int i = 0; i < category.entries.size(); i++) {
-        catalog_entry& entry = category.entries[i];
-        entriesMenu.addItem(
-            entry.name,
+        catalog_entry& entry_tmp = category.entries[i];
+        categoryMenu.addItem(
+            entry_tmp.name,
             nullptr,
             0,
-            entry.author,
+            entry_tmp.author,
             reinterpret_cast<lilka::PMenuItemCallback>(&LilCatalogApp::doShowEntry),
             reinterpret_cast<void*>(this)
         );
     }
-    entriesMenu.addItem(
+    categoryMenu.addItem(
         LILCATALOG_S_BACK,
         0,
         0,
@@ -94,15 +137,14 @@ void LilCatalogApp::doShowCategory() {
         reinterpret_cast<void*>(this)
     );
 
-    entriesMenu.setCursor(0);
-    entriesMenu.update();
+    categoryMenu.setCursor(0);
+    categoryMenu.update();
 }
 
 void LilCatalogApp::doShowEntry() {
+    u8_t entryIndex = categoryMenu.getCursor();
+    entry = category.entries[entryIndex];
     state = LILCATALOG_ENTRY;
-    u8_t categoryIndex = categoriesMenu.getCursor();
-    u8_t entryIndex = entriesMenu.getCursor();
-    catalog_entry entry = catalog[categoryIndex].entries[entryIndex];
 
     entryMenu.clearItems();
     entryMenu.setTitle(entry.name);
@@ -166,42 +208,16 @@ void LilCatalogApp::doShowEntry() {
 
 void LilCatalogApp::doShowEntryDescription() {
     state = LILCATALOG_ENTRY_DESCRIPTION;
-}
-
-void LilCatalogApp::uiLoop() {
-    switch (state) {
-        case LILCATALOG_CATALOG:
-            categoriesMenu.update();
-            categoriesMenu.draw(canvas);
-            queueDraw();
-            break;
-        case LILCATALOG_CATEGORY:
-            entriesMenu.update();
-            entriesMenu.draw(canvas);
-            queueDraw();
-            break;
-        case LILCATALOG_ENTRY:
-            entryMenu.update();
-            entryMenu.draw(canvas);
-            queueDraw();
-            break;
-        case LILCATALOG_ENTRY_DESCRIPTION:
-            u8_t categoryIndex = categoriesMenu.getCursor();
-            u8_t entryIndex = entriesMenu.getCursor();
-            catalog_entry entry = catalog[categoryIndex].entries[entryIndex];
-            String description = LILCATALOG_S_ENTRY_DESCRIPTION_NAME + entry.name + "\n" +
-                                 LILCATALOG_S_ENTRY_DESCRIPTION_AUTHOR + entry.author + "\n" +
-                                 LILCATALOG_S_ENTRY_DESCRIPTION_DESCRIPTION + entry.description + "\n" +
-                                 LILCATALOG_S_ENTRY_DESCRIPTION_FILES;
-            for (int i = 0; i < entry.files.size(); i++) {
-                catalog_entry_file entry_file = entry.files[i];
-                description += entry_file.target + "\n";
-            }
-            showAlert(description);
-            state = LILCATALOG_ENTRY;
-            break;
+    String description = LILCATALOG_S_ENTRY_DESCRIPTION_NAME + entry.name + "\n" +
+                         LILCATALOG_S_ENTRY_DESCRIPTION_AUTHOR + entry.author + "\n" +
+                         LILCATALOG_S_ENTRY_DESCRIPTION_DESCRIPTION + entry.description + "\n" +
+                         LILCATALOG_S_ENTRY_DESCRIPTION_FILES;
+    for (int i = 0; i < entry.files.size(); i++) {
+        catalog_entry_file entry_file = entry.files[i];
+        description += entry_file.target + "\n";
     }
-    lilka::serial.log("LilCatalogApp::uiLoop() state: %d", state);
+    showAlert(description);
+    state = LILCATALOG_ENTRY;
 }
 
 void LilCatalogApp::parseCatalog() {
@@ -236,14 +252,14 @@ void LilCatalogApp::parseCatalog() {
         } else {
             lilka::serial.log("Catalog categories: %d", data.size());
             for (int i = 0; i < data.size(); i++) {
-                catalog_category category;
-                category.name = data[i]["category"].as<String>();
+                catalog_category category_tmp;
+                category_tmp.name = data[i]["category"].as<String>();
 
                 for (int j = 0; j < data[i]["entries"].size(); j++) {
-                    catalog_entry entry;
-                    entry.name = data[i]["entries"][j]["name"].as<String>();
-                    entry.description = data[i]["entries"][j]["description"].as<String>();
-                    entry.author = data[i]["entries"][j]["author"].as<String>();
+                    catalog_entry entry_tmp;
+                    entry_tmp.name = data[i]["entries"][j]["name"].as<String>();
+                    entry_tmp.description = data[i]["entries"][j]["description"].as<String>();
+                    entry_tmp.author = data[i]["entries"][j]["author"].as<String>();
                     for (int k = 0; k < data[i]["entries"][j]["files"].size(); k++) {
                         catalog_entry_file entry_file;
                         entry_file.source = data[i]["entries"][j]["files"][k]["source"].as<String>();
@@ -264,14 +280,16 @@ void LilCatalogApp::parseCatalog() {
                         } else {
                             entry_file.type = FT_OTHER;
                         }
-                        entry.files.push_back(entry_file);
+                        entry_tmp.files.push_back(entry_file);
                     }
-                    category.entries.push_back(entry);
-                    lilka::serial.log("Category: %s Content: %s", category.name, entry.name);
+                    category_tmp.entries.push_back(entry_tmp);
+                    lilka::serial.log("Category: %s Content: %s", category_tmp.name, entry_tmp.name);
                 }
-                catalog.push_back(category);
+                catalog.push_back(category_tmp);
 
-                lilka::serial.log("Category: '%s', Elements: '%d'", category.name.c_str(), category.entries.size());
+                lilka::serial.log(
+                    "Category: '%s', Elements: '%d'", category_tmp.name.c_str(), category_tmp.entries.size()
+                );
             }
         }
     }
@@ -312,10 +330,6 @@ void LilCatalogApp::fetchEntry() {
     alert.draw(canvas);
     queueDraw();
 
-    u8_t categoryIndex = categoriesMenu.getCursor();
-    u8_t entryIndex = entriesMenu.getCursor();
-    catalog_entry entry = catalog[categoryIndex].entries[entryIndex];
-
     WiFiClientSecure client;
     HTTPClient http;
 
@@ -355,10 +369,6 @@ void LilCatalogApp::fetchEntry() {
 }
 
 bool LilCatalogApp::validateEntry() {
-    u8_t categoryIndex = categoriesMenu.getCursor();
-    u8_t entryIndex = entriesMenu.getCursor();
-    catalog_entry entry = catalog[categoryIndex].entries[entryIndex];
-
     for (int i = 0; i < entry.files.size(); i++) {
         catalog_entry_file entry_file = entry.files[i];
         if (!SD.exists(entry_file.target)) {
@@ -369,10 +379,6 @@ bool LilCatalogApp::validateEntry() {
 }
 
 void LilCatalogApp::removeEntry() {
-    u8_t categoryIndex = categoriesMenu.getCursor();
-    u8_t entryIndex = entriesMenu.getCursor();
-    catalog_entry entry = catalog[categoryIndex].entries[entryIndex];
-
     for (int i = 0; i < entry.files.size(); i++) {
         catalog_entry_file entry_file = entry.files[i];
         SD.remove(entry_file.target);
@@ -384,9 +390,6 @@ void LilCatalogApp::removeEntry() {
 }
 
 void LilCatalogApp::executeEntry() {
-    u8_t categoryIndex = categoriesMenu.getCursor();
-    u8_t entryIndex = entriesMenu.getCursor();
-    catalog_entry entry = catalog[categoryIndex].entries[entryIndex];
     catalog_entry_file entry_file = entry.files[0];
 
     lilka::serial.log("Opening path %s", entry_file.target.c_str());

@@ -54,8 +54,11 @@ private:
     String path_catalog_file;
     String path_catalog_folder;
 
-    lilka::Menu categoriesMenu;
-    lilka::Menu entriesMenu;
+    catalog_category category;
+    catalog_entry entry;
+
+    lilka::Menu catalogMenu;
+    lilka::Menu categoryMenu;
     lilka::Menu entryMenu;
 
     std::vector<catalog_category> catalog;
@@ -75,7 +78,9 @@ private:
     void doShowEntryDescription();
 
     void run() override;
-    void uiLoop();
+
+    void processMenu();
+    void processBackButton();
 
     void showAlert(const String& message);
 };
