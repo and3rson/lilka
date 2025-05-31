@@ -115,7 +115,7 @@ void Controller::resetState() {
 }
 
 void Controller::begin() {
-    serial_log("initializing controller");
+    serial.log("initializing controller");
 
 #if LILKA_VERSION == 1
     // Detach UART from GPIO20 & GPIO21 to use them as normal IOs
@@ -138,7 +138,7 @@ void Controller::begin() {
     // Create RTOS task for handling button presses
     xTaskCreate([](void* arg) { static_cast<Controller*>(arg)->inputTask(); }, "input", 2048, this, 1, NULL);
 
-    serial_log("controller ready");
+    serial.log("controller ready");
 }
 
 State Controller::getState() {
