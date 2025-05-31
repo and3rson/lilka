@@ -7,7 +7,7 @@ public:
     ~NesApp();
 
 private:
-    void run();
+    void run() override;
 
     char* argv[1];
 };

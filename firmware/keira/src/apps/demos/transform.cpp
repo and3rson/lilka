@@ -1,5 +1,5 @@
 #include "transform.h"
-
+#include "keira.h"
 #include <math.h>
 
 TransformApp::TransformApp() : App("Transform") {
@@ -9,7 +9,7 @@ void TransformApp::run() {
     lilka::Image* face = lilka::resources.loadImage("/sd/face.bmp", lilka::colors::Black, 32, 32);
 
     if (!face) {
-        lilka::Alert alert("Помилка", "Не вдалось завантажити face.bmp з SD-карти.");
+        lilka::Alert alert(K_S_ERROR, K_S_TRANSFORM_CANT_LOAD_FACE);
         alert.draw(canvas);
         queueDraw();
         while (!alert.isFinished()) {
@@ -21,7 +21,7 @@ void TransformApp::run() {
     int x = canvas->width() / 2;
     int y = canvas->height() / 2;
 
-    Serial.println("Drawing face at " + String(x) + ", " + String(y));
+    Serial.println(K_S_DRAWING_FACE_AT_PREFIX + String(x) + ", " + String(y));
 
     int angle = 0;
 

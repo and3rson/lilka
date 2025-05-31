@@ -1,5 +1,6 @@
 #include <ff.h>
 #include <FS.h>
+#include "keira.h"
 #include "launcher.h"
 #include "appmanager.h"
 
@@ -56,140 +57,154 @@ void LauncherApp::run() {
     }
 
     item_t root_item = ITEM::SUBMENU(
-        "Головне меню",
+        K_S_LAUNCHER_MAIN_MENU,
         {
             ITEM::SUBMENU(
-                "Додатки",
+                K_S_LAUNCHER_APPS,
                 {
                     ITEM::SUBMENU(
-                        "Демо",
+                        K_S_LAUNCHER_DEMOS,
                         {
-                            ITEM::APP("Лінії", [this]() { this->runApp<DemoLines>(); }),
-                            ITEM::APP("Диск", [this]() { this->runApp<DiskApp>(); }),
-                            ITEM::APP("Перетворення", [this]() { this->runApp<TransformApp>(); }),
-                            ITEM::APP("М'ячик", [this]() { this->runApp<BallApp>(); }),
-                            ITEM::APP("Куб", [this]() { this->runApp<CubeApp>(); }),
-                            ITEM::APP("Епілепсія", [this]() { this->runApp<EpilepsyApp>(); }),
-                            ITEM::APP("PetPet", [this]() { this->runApp<PetPetApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_LINES, [this]() { this->runApp<DemoLines>(); }),
+                            ITEM::APP(K_S_LAUNCHER_DISK, [this]() { this->runApp<DiskApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_TRANSFORM, [this]() { this->runApp<TransformApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_BALL, [this]() { this->runApp<BallApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_CUBE, [this]() { this->runApp<CubeApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_EPILEPSY, [this]() { this->runApp<EpilepsyApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_PET_PET, [this]() { this->runApp<PetPetApp>(); }),
                         },
                         &app_group_img, 0
                     ),
                     ITEM::SUBMENU(
-                        "Тести",
+                        K_S_LAUNCHER_TESTS,
                         {
-                            ITEM::APP("Клавіатура", [this]() { this->runApp<KeyboardApp>(); }),
-                            ITEM::APP("Тест SPI", [this]() { this->runApp<UserSPIApp>(); }),
-                            ITEM::APP("I2C-сканер", [this]() { this->runApp<ScanI2CApp>(); }),
-                            ITEM::APP("GPIO-менеджер", [this]() { this->runApp<GPIOManagerApp>(); }),
-                            ITEM::APP("Combo", [this]() { this->runApp<ComboApp>(); }),
-                            ITEM::APP("CallbackTest", [this]() { this->runApp<CallBackTestApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_KEYBOARD, [this]() { this->runApp<KeyboardApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_SPI_TEST, [this]() { this->runApp<UserSPIApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_I2C_SCANNER, [this]() { this->runApp<ScanI2CApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_GPIO_MANAGER, [this]() { this->runApp<GPIOManagerApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_COMBO, [this]() { this->runApp<ComboApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_CALLBACK_TEST, [this]() { this->runApp<CallBackTestApp>(); }),
                         },
                         &app_group_img, 0
                     ),
-                    ITEM::APP("ЛілКаталог", [this]() { this->runApp<LilCatalogApp>(); }),
-                    ITEM::APP("ЛілТрекер", [this]() { this->runApp<LilTrackerApp>(); }),
-                    ITEM::APP("Летріс", [this]() { this->runApp<LetrisApp>(); }),
-                    ITEM::APP("Тамагочі", [this]() { this->runApp<TamagotchiApp>(); }),
-                    ITEM::APP("Погода", [this]() { this->runApp<WeatherApp>(); }),
-                    ITEM::APP("Pastebin", [this]() { this->runApp<pastebinApp>(); }),
+                    ITEM::APP(K_S_LAUNCHER_LILCATALOG, [this]() { this->runApp<LilCatalogApp>(); }),
+                    ITEM::APP(K_S_LAUNCHER_LILTRACKER, [this]() {
+        this->runApp<LilTrackerApp>(); }),
+                    ITEM::APP(K_S_LAUNCHER_LETRIS, [this]() {
+        this->runApp<LetrisApp>(); }),
+                    ITEM::APP(K_S_LAUNCHER_TAMAGOTCHI, [this]() {
+        this->runApp<TamagotchiApp>(); }),
+                    ITEM::APP(K_S_LAUNCHER_WEATHER, [this]() {
+        this->runApp<WeatherApp>(); }),
+                    ITEM::APP(K_S_LAUNCHER_PASTEBIN, [this]() {
+        this->runApp<pastebinApp>(); }),
                 },
                 &demos_img,
                 lilka::colors::Pink
             ),
             ITEM::APP(
-                "Браузер SD-карти",
+                K_S_LAUNCHER_SD_BROWSER,
                 [this]() { this->runApp<FileManagerApp>(LILKA_SD_ROOT); },
                 &sdcard_img,
                 lilka::colors::Arylide_yellow
             ),
             ITEM::APP(
-                "Браузер SPIFFS",
+                K_S_LAUNCHER_SPIFFS_BROWSER,
                 [this]() { this->runApp<FileManagerApp>(LILKA_SPIFFS_ROOT); },
                 &memory_img,
                 lilka::colors::Dark_sea_green
             ),
             ITEM::SUBMENU(
-                "Розробка",
+                K_S_LAUNCHER_DEV_MENU,
                 {
-                    ITEM::APP("Live Lua", [this]() { this->runApp<LuaLiveRunnerApp>(); }),
-                    ITEM::APP("Lua REPL", [this]() { this->runApp<LuaReplApp>(); }),
+                    ITEM::APP(K_S_LAUNCHER_LIVE_LUA, [this]() { this->runApp<LuaLiveRunnerApp>(); }),
+                    ITEM::APP(K_S_LAUNCHER_LUA_REPL, [this]() { this->runApp<LuaReplApp>(); }),
                 },
                 &dev_img,
                 lilka::colors::Jasmine
             ),
             ITEM::SUBMENU(
-                "Налаштування",
+                K_S_SETTINGS,
                 {
                     ITEM::MENU(
-                        "WiFi-адаптер",
+                        K_S_LAUNCHER_WIFI_ADAPTER,
                         [this]() { this->wifiToggle(); },
                         nullptr,
                         0,
                         [this](void* item) {
                             lilka::MenuItem* menuItem = static_cast<lilka::MenuItem*>(item);
-                            menuItem->postfix = networkService->getEnabled() ? "ON" : "OFF";
+                            menuItem->postfix = networkService->getEnabled() ? K_S_ON : K_S_OFF;
                         }
                     ),
-                    ITEM::MENU("Мережі WiFi", [this]() { this->wifiManager(); }),
-                    ITEM::MENU("Потужність WiFi", [this]() { this->setWiFiTxPower(); }),
-                    ITEM::MENU("Звук", [this]() { this->runApp<SoundConfigApp>(); }),
-                    ITEM::SUBMENU("Сервіси", {
-                        ITEM::SUBMENU("FTP", {
+                    ITEM::MENU(K_S_LAUNCHER_WIFI_NETWORKS, [this]() { this->wifiManager(); }),
+                    ITEM::MENU(K_S_LAUNCHER_WIFI_TX_POWER, [this]() { this->setWiFiTxPower(); }),
+                    ITEM::MENU(K_S_LAUNCHER_SOUND, [this]() { this->runApp<SoundConfigApp>(); }),
+                    ITEM::SUBMENU(K_S_LAUNCHER_SERVICES, {
+                        ITEM::SUBMENU(K_S_LAUNCHER_FTP, {
                             ITEM::MENU(
-                                "Статус",
+                                K_S_LAUNCHER_FTP_STATUS,
                                 [this]() {
-                                    FTPService* ftpService = static_cast<FTPService*>(ServiceManager::getInstance()->getService<FTPService>("ftp"));
-                                    ftpService->setEnabled(!ftpService->getEnabled());
+                                            FTPService* ftpService = static_cast<FTPService*>(
+                                                ServiceManager::getInstance()->getService<FTPService>("ftp")
+                                            );
+                                            ftpService->setEnabled(!ftpService->getEnabled());
                                 },
                                 nullptr,
                                 0,
                                 [this](void* item) {
-                                    lilka::MenuItem* menuItem = static_cast<lilka::MenuItem*>(item);
-                                    FTPService* ftpService = static_cast<FTPService*>(ServiceManager::getInstance()->getService<FTPService>("ftp"));
-                                    menuItem->postfix = ftpService->getEnabled() ? "ON" : "OFF";
+                                            lilka::MenuItem* menuItem = static_cast<lilka::MenuItem*>(item);
+                                            FTPService* ftpService = static_cast<FTPService*>(
+                                                ServiceManager::getInstance()->getService<FTPService>("ftp")
+                                            );
+                                            menuItem->postfix = ftpService->getEnabled() ? K_S_ON : K_S_OFF;
                                 }
                             ),
                             ITEM::MENU(
-                                "Користувач",
+                                K_S_LAUNCHER_FTP_USER,
                                 nullptr,
                                 nullptr,
                                 0,
                                 [this](void* item) {
-                                    lilka::MenuItem* menuItem = static_cast<lilka::MenuItem*>(item);
-                                    FTPService* ftpService = static_cast<FTPService*>(ServiceManager::getInstance()->getService<FTPService>("ftp"));
-                                    menuItem->postfix = ftpService->getUser();
+                                            lilka::MenuItem* menuItem = static_cast<lilka::MenuItem*>(item);
+                                            FTPService* ftpService = static_cast<FTPService*>(
+                                                ServiceManager::getInstance()->getService<FTPService>("ftp")
+                                            );
+                                            menuItem->postfix = ftpService->getUser();
                                 }
                             ),
                             ITEM::MENU(
-                                "Пароль",
+                                K_S_LAUNCHER_FTP_PASSWORD,
                                 [this]() {
-                                    FTPService* ftpService = static_cast<FTPService*>(ServiceManager::getInstance()->getService<FTPService>("ftp"));
-                                    ftpService->createPassword();
+                                            FTPService* ftpService = static_cast<FTPService*>(
+                                                ServiceManager::getInstance()->getService<FTPService>("ftp")
+                                            );
+                                            ftpService->createPassword();
                                 },
                                 nullptr,
                                 0,
                                 [this](void* item) {
-                                    lilka::MenuItem* menuItem = static_cast<lilka::MenuItem*>(item);
-                                    FTPService* ftpService = static_cast<FTPService*>(ServiceManager::getInstance()->getService<FTPService>("ftp"));
-                                    menuItem->postfix = ftpService->getPassword();
+                                            lilka::MenuItem* menuItem = static_cast<lilka::MenuItem*>(item);
+                                            FTPService* ftpService = static_cast<FTPService*>(
+                                                ServiceManager::getInstance()->getService<FTPService>("ftp")
+                                            );
+                                            menuItem->postfix = ftpService->getPassword();
                                 }
                             ),
                         }),
                     }),
-                    ITEM::MENU("Про систему", [this]() { this->about(); }),
-                    ITEM::MENU("Інфо про пристрій", [this]() { this->info(); }),
-                    ITEM::MENU("Таблиця розділів", [this]() { this->partitions(); }),
-                    ITEM::MENU("Форматування SD-карти", [this]() { this->formatSD(); }),
-                    ITEM::MENU("Light sleep", []() { 
-                        lilka::board.enablePowerSavingMode();
-                        esp_light_sleep_start();
+                    ITEM::MENU(K_S_LAUNCHER_ABOUT_SYSTEM, [this]() { this->about(); }),
+                    ITEM::MENU(K_S_LAUNCHER_DEVICE_INFO, [this]() { this->info(); }),
+                    ITEM::MENU(K_S_PARTITION_TABLE, [this]() { this->partitions(); }),
+                    ITEM::MENU(K_S_LAUNCHER_SD_FORMAT, [this]() { this->formatSD(); }),
+                    ITEM::MENU(K_S_LAUNCHER_LIGHT_SLEEP, []() {
+                            lilka::board.enablePowerSavingMode();
+                            esp_light_sleep_start();
                     }),
-                    ITEM::MENU("Deep sleep", []() { 
-                        lilka::board.enablePowerSavingMode();
-                        esp_deep_sleep_start();
+                    ITEM::MENU(K_S_LAUNCHER_DEEP_SLEEP, []() {
+                            lilka::board.enablePowerSavingMode();
+                            esp_deep_sleep_start();
                      }),
-                    ITEM::MENU("Перезавантаження", []() {
-                        esp_restart();
+                    ITEM::MENU(K_S_LAUNCHER_REBOOT, []() { esp_restart();
                      }),
                 },
                 &settings_img,
@@ -207,7 +222,7 @@ void LauncherApp::showMenu(const char* title, ITEM_LIST& list, bool back) {
     }
     if (back) {
         menu.addActivationButton(lilka::Button::B);
-        menu.addItem("<< Назад");
+        menu.addItem(K_S_MENU_BACK);
     }
     while (1) {
         while (!menu.isFinished()) {
@@ -275,7 +290,7 @@ void LauncherApp::setWiFiTxPower() {
         WIFI_POWER_MINUS_1dBm
     };
     lilka::Menu wifiSetTxMenu;
-    wifiSetTxMenu.setTitle("Оберіть потужність");
+    wifiSetTxMenu.setTitle(K_S_LAUNCHER_SELECT_TX_POWER);
     wifiSetTxMenu.addActivationButton(lilka::Button::B); // Exit
     // Add names
     for (auto i = 0; i < sizeof(names) / sizeof(names[0]); i++)
@@ -306,24 +321,20 @@ void LauncherApp::wifiToggle() {
 }
 void LauncherApp::wifiManager() {
     if (!networkService->getEnabled()) {
-        alert("Помилка", "Спочатку увімкніть WiFi-адаптер");
+        alert(K_S_ERROR, K_S_LAUNCHER_ENABLE_WIFI_FIRST);
         return;
     }
     AppManager::getInstance()->runApp(new WiFiConfigApp());
 }
 void LauncherApp::about() {
-    alert("Keira OS", "by Андерсон & friends");
+    alert(K_S_OS_NAME, K_S_OS_DESCRIPTION);
 }
 void LauncherApp::info() {
     char buf[256];
     sprintf(
         buf,
-        "Модель: %s\n"
-        "Ревізія: %d\n"
-        "Версія ESP-IDF: %s\n"
-        "Частота: %d МГц\n"
-        "Кількість ядер: %d\n"
-        "IP: %s",
+        K_S_LAUNCHER_CHIP_MODEL "\n" K_S_LAUNCHER_CHIP_REVISION "\n" K_S_LAUNCHER_ESP_IDF_VERSION
+                                "\n" K_S_LAUNCHER_CPU_FREQUENCY "\n" K_S_LAUNCHER_CHIP_CORES "\n" K_S_LAUNCHER_IP,
         ESP.getChipModel(),
         ESP.getChipRevision(),
         esp_get_idf_version(),
@@ -331,9 +342,10 @@ void LauncherApp::info() {
         ESP.getChipCores(),
         networkService->getIpAddr().c_str()
     );
-    alert("Інфо про пристрій", buf);
+    alert(K_S_LAUNCHER_DEVICE_INFO, buf);
 }
 void LauncherApp::partitions() {
+    // TODO : support more than 16 partitions
     String names[16];
     int partitionCount = lilka::sys.get_partition_labels(names);
 
@@ -343,19 +355,15 @@ void LauncherApp::partitions() {
         partitionsMenu.push_back(ITEM::MENU(names[i].c_str(), [this, partition]() {
             alert(
                 partition,
-                String("Адреса: 0x") + String(lilka::sys.get_partition_address(partition.c_str()), HEX) + "\n" +
-                    "Розмір: 0x" + String(lilka::sys.get_partition_size(partition.c_str()), HEX)
+                String(K_S_LAUNCHER_ADDRESS_PREFIX) + String(lilka::sys.get_partition_address(partition.c_str()), HEX) +
+                    "\n" + K_S_LAUNCHER_SIZE_PREFIX + String(lilka::sys.get_partition_size(partition.c_str()), HEX)
             );
         }));
     }
-    showMenu("Таблиця розділів", partitionsMenu);
+    showMenu(K_S_PARTITION_TABLE, partitionsMenu);
 }
 void LauncherApp::formatSD() {
-    lilka::Alert confirm(
-        "Форматування",
-        "УВАГА: Це очистить ВСІ дані з SD-карти!\n"
-        "\nПродовжити?\n\nSTART - продовжити\nA - скасувати"
-    );
+    lilka::Alert confirm(K_S_LAUNCHER_FORMAT, K_S_LAUNCHER_FORMAT_DISCLAIMER_ALERT);
     confirm.addActivationButton(lilka::Button::START);
     confirm.draw(canvas);
     queueDraw();
@@ -367,30 +375,17 @@ void LauncherApp::formatSD() {
         return;
     }
 
-    lilka::ProgressDialog dialog("Форматування", "Будь ласка, зачекайте...");
+    lilka::ProgressDialog dialog(K_S_LAUNCHER_FORMAT, K_S_LAUNCHER_PLEASE_STANDBY);
     dialog.draw(canvas);
     queueDraw();
     if (!lilka::fileutils.createSDPartTable()) {
-        alert(
-            "Помилка",
-            "Не вдалося створити нову таблицю розділів. "
-            "Можливо відсутня карта.\n\n"
-            "Систему буде перезавантажено."
-        );
+        alert(K_S_ERROR, K_S_LAUNCHER_FORMAT_ERROR_ALERT);
         esp_restart();
     }
     if (!lilka::fileutils.formatSD()) {
-        this->alert(
-            "Помилка",
-            "Не вдалося форматувати SD-карту.\n\n"
-            "Систему буде перезавантажено."
-        );
+        this->alert(K_S_ERROR, K_S_LAUNCHER_FORMAT_ERROR_ALERT);
         esp_restart();
     }
-    this->alert(
-        "Форматування",
-        "Форматування SD-карти завершено!\n\n"
-        "Систему буде перезавантажено."
-    );
+    this->alert(K_S_LAUNCHER_FORMAT, K_S_LAUNCHER_FORMAT_SUCCESS_ALLERT);
     esp_restart();
 }
