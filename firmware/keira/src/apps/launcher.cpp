@@ -29,6 +29,7 @@
 #include "nes/nesapp.h"
 #include "weather/weather.h"
 #include "modplayer/modplayer.h"
+#include "lilcatalog/lilcatalog.h"
 #include "liltracker/liltracker.h"
 #include "fmanager/fmanager.h"
 #include "pastebin/pastebinApp.h"
@@ -64,41 +65,29 @@ void LauncherApp::run() {
                     ITEM::SUBMENU(
                         K_S_LAUNCHER_DEMOS,
                         {
-                            ITEM::APP(K_S_LAUNCHER_LINES, [this]() {
-        this->runApp<DemoLines>(); }),
-                            ITEM::APP(K_S_LAUNCHER_DISK, [this]() {
-        this->runApp<DiskApp>(); }),
-                            ITEM::APP(K_S_LAUNCHER_TRANSFORM, [this]() {
-        this->runApp<TransformApp>(); }),
-                            ITEM::APP(K_S_LAUNCHER_BALL, [this]() {
-        this->runApp<BallApp>(); }),
-                            ITEM::APP(K_S_LAUNCHER_CUBE, [this]() {
-        this->runApp<CubeApp>(); }),
-                            ITEM::APP(K_S_LAUNCHER_EPILEPSY, [this]() {
-        this->runApp<EpilepsyApp>(); }),
-                            ITEM::APP(K_S_LAUNCHER_PET_PET, [this]() {
-        this->runApp<PetPetApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_LINES, [this]() { this->runApp<DemoLines>(); }),
+                            ITEM::APP(K_S_LAUNCHER_DISK, [this]() { this->runApp<DiskApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_TRANSFORM, [this]() { this->runApp<TransformApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_BALL, [this]() { this->runApp<BallApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_CUBE, [this]() { this->runApp<CubeApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_EPILEPSY, [this]() { this->runApp<EpilepsyApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_PET_PET, [this]() { this->runApp<PetPetApp>(); }),
                         },
                         &app_group_img, 0
                     ),
                     ITEM::SUBMENU(
                         K_S_LAUNCHER_TESTS,
                         {
-                            ITEM::APP(K_S_LAUNCHER_KEYBOARD, [this]() {
-        this->runApp<KeyboardApp>(); }),
-                            ITEM::APP(K_S_LAUNCHER_SPI_TEST, [this]() {
-        this->runApp<UserSPIApp>(); }),
-                            ITEM::APP(K_S_LAUNCHER_I2C_SCANNER, [this]() {
-        this->runApp<ScanI2CApp>(); }),
-                            ITEM::APP(K_S_LAUNCHER_GPIO_MANAGER, [this]() {
-        this->runApp<GPIOManagerApp>(); }),
-                            ITEM::APP(K_S_LAUNCHER_COMBO, [this]() {
-        this->runApp<ComboApp>(); }),
-                            ITEM::APP(K_S_LAUNCHER_CALLBACK_TEST, [this]() {
-        this->runApp<CallBackTestApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_KEYBOARD, [this]() { this->runApp<KeyboardApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_SPI_TEST, [this]() { this->runApp<UserSPIApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_I2C_SCANNER, [this]() { this->runApp<ScanI2CApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_GPIO_MANAGER, [this]() { this->runApp<GPIOManagerApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_COMBO, [this]() { this->runApp<ComboApp>(); }),
+                            ITEM::APP(K_S_LAUNCHER_CALLBACK_TEST, [this]() { this->runApp<CallBackTestApp>(); }),
                         },
                         &app_group_img, 0
                     ),
+                    ITEM::APP(K_S_LAUNCHER_LILCATALOG, [this]() { this->runApp<LilCatalogApp>(); }),
                     ITEM::APP(K_S_LAUNCHER_LILTRACKER, [this]() {
         this->runApp<LilTrackerApp>(); }),
                     ITEM::APP(K_S_LAUNCHER_LETRIS, [this]() {
@@ -115,25 +104,21 @@ void LauncherApp::run() {
             ),
             ITEM::APP(
                 K_S_LAUNCHER_SD_BROWSER,
-                [this]() {
-        this->runApp<FileManagerApp>(LILKA_SD_ROOT); },
+                [this]() { this->runApp<FileManagerApp>(LILKA_SD_ROOT); },
                 &sdcard_img,
                 lilka::colors::Arylide_yellow
             ),
             ITEM::APP(
                 K_S_LAUNCHER_SPIFFS_BROWSER,
-                [this]() {
-        this->runApp<FileManagerApp>(LILKA_SPIFFS_ROOT); },
+                [this]() { this->runApp<FileManagerApp>(LILKA_SPIFFS_ROOT); },
                 &memory_img,
                 lilka::colors::Dark_sea_green
             ),
             ITEM::SUBMENU(
                 K_S_LAUNCHER_DEV_MENU,
                 {
-                    ITEM::APP(K_S_LAUNCHER_LIVE_LUA, [this]() {
-        this->runApp<LuaLiveRunnerApp>(); }),
-                    ITEM::APP(K_S_LAUNCHER_LUA_REPL, [this]() {
-        this->runApp<LuaReplApp>(); }),
+                    ITEM::APP(K_S_LAUNCHER_LIVE_LUA, [this]() { this->runApp<LuaLiveRunnerApp>(); }),
+                    ITEM::APP(K_S_LAUNCHER_LUA_REPL, [this]() { this->runApp<LuaReplApp>(); }),
                 },
                 &dev_img,
                 lilka::colors::Jasmine
@@ -143,34 +128,35 @@ void LauncherApp::run() {
                 {
                     ITEM::MENU(
                         K_S_LAUNCHER_WIFI_ADAPTER,
-                        [this]() {
-        this->wifiToggle(); },
+                        [this]() { this->wifiToggle(); },
                         nullptr,
                         0,
                         [this](void* item) {
-        lilka::MenuItem* menuItem = static_cast<lilka::MenuItem*>(item);
-        menuItem->postfix = networkService->getEnabled() ? K_S_ON : K_S_OFF;
+                            lilka::MenuItem* menuItem = static_cast<lilka::MenuItem*>(item);
+                            menuItem->postfix = networkService->getEnabled() ? K_S_ON : K_S_OFF;
                         }
                     ),
                     ITEM::MENU(K_S_LAUNCHER_WIFI_NETWORKS, [this]() { this->wifiManager(); }),
-                    ITEM::MENU(K_S_LAUNCHER_WIFI_TX_POWER, [this]() {
-        this->setWiFiTxPower(); }),
-                    ITEM::MENU(K_S_LAUNCHER_SOUND, [this]() {
-        this->runApp<SoundConfigApp>(); }),
+                    ITEM::MENU(K_S_LAUNCHER_WIFI_TX_POWER, [this]() { this->setWiFiTxPower(); }),
+                    ITEM::MENU(K_S_LAUNCHER_SOUND, [this]() { this->runApp<SoundConfigApp>(); }),
                     ITEM::SUBMENU(K_S_LAUNCHER_SERVICES, {
                         ITEM::SUBMENU(K_S_LAUNCHER_FTP, {
                             ITEM::MENU(
                                 K_S_LAUNCHER_FTP_STATUS,
                                 [this]() {
-        FTPService* ftpService = static_cast<FTPService*>(ServiceManager::getInstance()->getService<FTPService>("ftp"));
-        ftpService->setEnabled(!ftpService->getEnabled());
+                                            FTPService* ftpService = static_cast<FTPService*>(
+                                                ServiceManager::getInstance()->getService<FTPService>("ftp")
+                                            );
+                                            ftpService->setEnabled(!ftpService->getEnabled());
                                 },
                                 nullptr,
                                 0,
                                 [this](void* item) {
-        lilka::MenuItem* menuItem = static_cast<lilka::MenuItem*>(item);
-        FTPService* ftpService = static_cast<FTPService*>(ServiceManager::getInstance()->getService<FTPService>("ftp"));
-        menuItem->postfix = ftpService->getEnabled() ? K_S_ON : K_S_OFF;
+                                            lilka::MenuItem* menuItem = static_cast<lilka::MenuItem*>(item);
+                                            FTPService* ftpService = static_cast<FTPService*>(
+                                                ServiceManager::getInstance()->getService<FTPService>("ftp")
+                                            );
+                                            menuItem->postfix = ftpService->getEnabled() ? K_S_ON : K_S_OFF;
                                 }
                             ),
                             ITEM::MENU(
@@ -179,45 +165,46 @@ void LauncherApp::run() {
                                 nullptr,
                                 0,
                                 [this](void* item) {
-        lilka::MenuItem* menuItem = static_cast<lilka::MenuItem*>(item);
-        FTPService* ftpService = static_cast<FTPService*>(ServiceManager::getInstance()->getService<FTPService>("ftp"));
-        menuItem->postfix = ftpService->getUser();
+                                            lilka::MenuItem* menuItem = static_cast<lilka::MenuItem*>(item);
+                                            FTPService* ftpService = static_cast<FTPService*>(
+                                                ServiceManager::getInstance()->getService<FTPService>("ftp")
+                                            );
+                                            menuItem->postfix = ftpService->getUser();
                                 }
                             ),
                             ITEM::MENU(
                                 K_S_LAUNCHER_FTP_PASSWORD,
                                 [this]() {
-        FTPService* ftpService = static_cast<FTPService*>(ServiceManager::getInstance()->getService<FTPService>("ftp"));
-        ftpService->createPassword();
+                                            FTPService* ftpService = static_cast<FTPService*>(
+                                                ServiceManager::getInstance()->getService<FTPService>("ftp")
+                                            );
+                                            ftpService->createPassword();
                                 },
                                 nullptr,
                                 0,
                                 [this](void* item) {
-        lilka::MenuItem* menuItem = static_cast<lilka::MenuItem*>(item);
-        FTPService* ftpService = static_cast<FTPService*>(ServiceManager::getInstance()->getService<FTPService>("ftp"));
-        menuItem->postfix = ftpService->getPassword();
+                                            lilka::MenuItem* menuItem = static_cast<lilka::MenuItem*>(item);
+                                            FTPService* ftpService = static_cast<FTPService*>(
+                                                ServiceManager::getInstance()->getService<FTPService>("ftp")
+                                            );
+                                            menuItem->postfix = ftpService->getPassword();
                                 }
                             ),
                         }),
                     }),
-                    ITEM::MENU(K_S_LAUNCHER_ABOUT_SYSTEM, [this]() {
-        this->about(); }),
-                    ITEM::MENU(K_S_LAUNCHER_DEVICE_INFO, [this]() {
-        this->info(); }),
-                    ITEM::MENU(K_S_PARTITION_TABLE, [this]() {
-        this->partitions(); }),
-                    ITEM::MENU(K_S_LAUNCHER_SD_FORMAT, [this]() {
-        this->formatSD(); }),
+                    ITEM::MENU(K_S_LAUNCHER_ABOUT_SYSTEM, [this]() { this->about(); }),
+                    ITEM::MENU(K_S_LAUNCHER_DEVICE_INFO, [this]() { this->info(); }),
+                    ITEM::MENU(K_S_PARTITION_TABLE, [this]() { this->partitions(); }),
+                    ITEM::MENU(K_S_LAUNCHER_SD_FORMAT, [this]() { this->formatSD(); }),
                     ITEM::MENU(K_S_LAUNCHER_LIGHT_SLEEP, []() {
-        lilka::board.enablePowerSavingMode();
-        esp_light_sleep_start();
+                            lilka::board.enablePowerSavingMode();
+                            esp_light_sleep_start();
                     }),
                     ITEM::MENU(K_S_LAUNCHER_DEEP_SLEEP, []() {
-        lilka::board.enablePowerSavingMode();
-        esp_deep_sleep_start();
+                            lilka::board.enablePowerSavingMode();
+                            esp_deep_sleep_start();
                      }),
-                    ITEM::MENU(K_S_LAUNCHER_REBOOT, []() {
-        esp_restart();
+                    ITEM::MENU(K_S_LAUNCHER_REBOOT, []() { esp_restart();
                      }),
                 },
                 &settings_img,

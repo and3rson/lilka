@@ -54,6 +54,7 @@
 #define K_S_LAUNCHER_GPIO_MANAGER      "GPIO-менеджер"
 #define K_S_LAUNCHER_COMBO             "Combo" // wtf?
 #define K_S_LAUNCHER_CALLBACK_TEST     "CallbackTest"
+#define K_S_LAUNCHER_LILCATALOG        "ЛілКаталог"
 #define K_S_LAUNCHER_LILTRACKER        "ЛілТрекер"
 #define K_S_LAUNCHER_LETRIS            "Летріс"
 #define K_S_LAUNCHER_TAMAGOTCHI        "Тамагочі"
@@ -193,3 +194,21 @@
 #define K_S_FMANAGER_CANT_DO_OP                         "Не можу виконати операцію"
 #define K_S_FMANAGER_FILE_ADDED_TO_BUFFER_EXCHANGE      "Файл додано в буфер обміну"
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+// apps/liltracker/liltracker.cpp /////////////////////////////////////////////////////////////////////
+#define K_S_LILTRACKER_CANT_CREATE_DIR         "Не вдалося створити директорію"
+#define K_S_LILTRACKER_CANT_OPEN_DIR           "Не вдалося відкрити директорію"
+#define K_S_LILTRACKER_DIRECTORY_PREFIX        "Директорія "
+#define K_S_LILTRACKER_EMPTY_POSTFIX           " порожня"
+#define K_S_LILTRACKER_SAVE_TRACK              "Зберегти трек"
+#define K_S_LILTRACKER_OPEN_TRACK              "Відкрити трек"
+#define K_S_LILTRACKER_CREATE_NEW_TRACK        "++ Створити новий"
+#define K_S_LILTRACKER_ENTER_FILENAME          "Введіть назву файлу"
+#define K_S_LILTRACKER_FILENAME_CANT_BE_EMPTY  "Назва файлу не може бути порожньою"
+#define K_S_LILTRACKER_CANT_OPEN_FILE_PREFIX   "Не вдалося відкрити файл "
+#define K_S_LILTRACKER_CANT_REMOVE_FILE_PREFIX "Не вдалося видалити файл "
+#define K_S_LILTRACKER_
+#define K_S_LILTRACKER_
+#define K_S_LILTRACKER_
+#define K_S_LILTRACKER_
+#define K_S_LILTRACKER_
+#define K_S_LILTRACKER_
