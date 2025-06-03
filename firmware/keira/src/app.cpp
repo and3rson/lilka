@@ -17,18 +17,18 @@ App::App(const char* name, uint16_t x, uint16_t y, uint16_t w, uint16_t h) :
     // Clear buffers
     canvas->fillScreen(0);
     backCanvas->fillScreen(0);
-    lilka::serial_log("Created app %s at %d, %d with size %dx%d on core %d", name, x, y, w, h, appCore);
+    lilka::serial.log("Created app %s at %d, %d with size %dx%d on core %d", name, x, y, w, h, appCore);
     xSemaphoreGive(backCanvasMutex);
 }
 
 void App::start() {
     if (taskHandle != NULL) {
-        lilka::serial_err("App %s is already running", name);
+        lilka::serial.err("App %s is already running", name);
         return;
     }
-    lilka::serial_log("Starting app %s", name);
+    lilka::serial.log("Starting app %s", name);
     if (xTaskCreatePinnedToCore(_run, name, stackSize, this, 1, &taskHandle, appCore) != pdPASS) {
-        lilka::serial_err(
+        lilka::serial.err(
             "Failed to create task for app %s"
             " - not enough memory? Try increasing stack size with setStackSize()",
             name
@@ -47,30 +47,30 @@ void App::_run(void* data) {
 
 void App::suspend() {
     if (taskHandle == NULL) {
-        lilka::serial_err("App %s is not running, cannot suspend", name);
+        lilka::serial.err("App %s is not running, cannot suspend", name);
         return;
     }
-    lilka::serial_log("Suspending app %s (state = %d)", name, getState());
+    lilka::serial.log("Suspending app %s (state = %d)", name, getState());
     onSuspend();
     vTaskSuspend(taskHandle);
 }
 
 void App::resume() {
     if (taskHandle == NULL) {
-        lilka::serial_err("App %s is not running, cannot resume", name);
+        lilka::serial.err("App %s is not running, cannot resume", name);
         return;
     }
-    lilka::serial_log("Resuming app %s (state = %d)", name, getState());
+    lilka::serial.log("Resuming app %s (state = %d)", name, getState());
     onResume();
     vTaskResume(taskHandle);
 }
 
 void App::stop() {
     if (taskHandle == NULL) {
-        lilka::serial_err("App %s is not running, cannot stop", name);
+        lilka::serial.err("App %s is not running, cannot stop", name);
         return;
     }
-    lilka::serial_log("Stopping app %s (state = %d)", name, getState());
+    lilka::serial.log("Stopping app %s (state = %d)", name, getState());
     onStop();
     vTaskDelete(taskHandle);
     taskHandle = NULL;

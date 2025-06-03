@@ -30,7 +30,7 @@ public:
         if (it != services.end()) {
             return static_cast<T*>(*it);
         }
-        lilka::serial_err("getService(): service %s not found", name);
+        lilka::serial.err("getService(): service %s not found", name);
         return nullptr;
     }
 

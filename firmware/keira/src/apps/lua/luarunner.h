@@ -23,7 +23,7 @@ public:
     explicit LuaFileRunnerApp(String path);
 
 private:
-    void run();
+    void run() override;
     String path;
 };
 
@@ -33,7 +33,7 @@ public:
     explicit LuaLiveRunnerApp();
 
 private:
-    void run();
+    void run() override;
     void execSource(String source);
 };
 
@@ -42,5 +42,5 @@ public:
     explicit LuaReplApp();
 
 private:
-    void run();
+    void run() override;
 };

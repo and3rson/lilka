@@ -4,7 +4,7 @@
 
 #include "utils/json.h"
 
-LilCatalogApp::LilCatalogApp() : App(LILCATALOG_S_APP) {
+LilCatalogApp::LilCatalogApp() : App(K_S_LILCATALOG_APP) {
     setStackSize(8192);
     path_catalog_folder = "/lilcatalog";
     path_catalog_file = "/lilcatalog/catalog.json";
@@ -14,7 +14,7 @@ LilCatalogApp::LilCatalogApp() : App(LILCATALOG_S_APP) {
 
 void LilCatalogApp::run() {
     if (!lilka::fileutils.isSDAvailable()) {
-        showAlert(LILCATALOG_S_SD_NOTFOUND);
+        showAlert(K_S_LILCATALOG_SD_NOTFOUND);
         lilka::serial.log("SD card not found. Cannot continue.");
         return;
     } else {
@@ -74,7 +74,7 @@ void LilCatalogApp::processBackButton() {
 
 void LilCatalogApp::doShowCatalog() {
     catalogMenu.clearItems();
-    catalogMenu.setTitle(LILCATALOG_S_APP);
+    catalogMenu.setTitle(K_S_LILCATALOG_APP);
     state = LILCATALOG_CATALOG;
 
     for (int i = 0; i < catalog.size(); i++) {
@@ -83,24 +83,24 @@ void LilCatalogApp::doShowCatalog() {
             categoty_tmp.name,
             nullptr,
             0,
-            String(categoty_tmp.entries.size()) + LILCATALOG_S_CATEGORY_POSTFIX,
+            String(categoty_tmp.entries.size()) + K_S_LILCATALOG_CATEGORY_POSTFIX,
             reinterpret_cast<lilka::PMenuItemCallback>(&LilCatalogApp::doShowCategory),
             reinterpret_cast<void*>(this)
         );
     }
     catalogMenu.addItem(
-        LILCATALOG_S_FETCH_CATALOG,
+        K_S_LILCATALOG_FETCH_CATALOG,
         0,
         0,
-        LILCATALOG_S_EMPTY,
+        K_S_LILCATALOG_EMPTY,
         reinterpret_cast<lilka::PMenuItemCallback>(&LilCatalogApp::fetchCatalog),
         reinterpret_cast<void*>(this)
     );
     catalogMenu.addItem(
-        LILCATALOG_S_STOP,
+        K_S_LILCATALOG_STOP,
         0,
         0,
-        LILCATALOG_S_EMPTY,
+        K_S_LILCATALOG_EMPTY,
         reinterpret_cast<lilka::PMenuItemCallback>(&LilCatalogApp::stop),
         reinterpret_cast<void*>(this)
     );
@@ -129,10 +129,10 @@ void LilCatalogApp::doShowCategory() {
         );
     }
     categoryMenu.addItem(
-        LILCATALOG_S_BACK,
+        K_S_LILCATALOG_BACK,
         0,
         0,
-        LILCATALOG_S_EMPTY,
+        K_S_LILCATALOG_EMPTY,
         reinterpret_cast<lilka::PMenuItemCallback>(&LilCatalogApp::doShowCatalog),
         reinterpret_cast<void*>(this)
     );
@@ -152,52 +152,52 @@ void LilCatalogApp::doShowEntry() {
     bool entryInstalled = validateEntry();
     if (entryInstalled) {
         entryMenu.addItem(
-            LILCATALOG_S_START,
+            K_S_LILCATALOG_START,
             0,
             0,
-            LILCATALOG_S_EMPTY,
+            K_S_LILCATALOG_EMPTY,
             reinterpret_cast<lilka::PMenuItemCallback>(&LilCatalogApp::executeEntry),
             reinterpret_cast<void*>(this)
         );
         entryMenu.addItem(
-            LILCATALOG_S_REMOVE,
+            K_S_LILCATALOG_REMOVE,
             0,
             0,
-            LILCATALOG_S_EMPTY,
+            K_S_LILCATALOG_EMPTY,
             reinterpret_cast<lilka::PMenuItemCallback>(&LilCatalogApp::removeEntry),
             reinterpret_cast<void*>(this)
         );
         entryMenu.addItem(
-            LILCATALOG_S_UPDATE,
+            K_S_LILCATALOG_UPDATE,
             0,
             0,
-            LILCATALOG_S_EMPTY,
+            K_S_LILCATALOG_EMPTY,
             reinterpret_cast<lilka::PMenuItemCallback>(&LilCatalogApp::fetchEntry),
             reinterpret_cast<void*>(this)
         );
     } else {
         entryMenu.addItem(
-            LILCATALOG_S_INSTALL,
+            K_S_LILCATALOG_INSTALL,
             0,
             0,
-            LILCATALOG_S_EMPTY,
+            K_S_LILCATALOG_EMPTY,
             reinterpret_cast<lilka::PMenuItemCallback>(&LilCatalogApp::fetchEntry),
             reinterpret_cast<void*>(this)
         );
     }
     entryMenu.addItem(
-        LILCATALOG_S_ENTRY_DESCRIPTION,
+        K_S_LILCATALOG_ENTRY_DESCRIPTION,
         0,
         0,
-        LILCATALOG_S_EMPTY,
+        K_S_LILCATALOG_EMPTY,
         reinterpret_cast<lilka::PMenuItemCallback>(&LilCatalogApp::doShowEntryDescription),
         reinterpret_cast<void*>(this)
     );
     entryMenu.addItem(
-        LILCATALOG_S_BACK,
+        K_S_LILCATALOG_BACK,
         0,
         0,
-        LILCATALOG_S_EMPTY,
+        K_S_LILCATALOG_EMPTY,
         reinterpret_cast<lilka::PMenuItemCallback>(&LilCatalogApp::doShowCategory),
         reinterpret_cast<void*>(this)
     );
@@ -208,10 +208,10 @@ void LilCatalogApp::doShowEntry() {
 
 void LilCatalogApp::doShowEntryDescription() {
     state = LILCATALOG_ENTRY_DESCRIPTION;
-    String description = LILCATALOG_S_ENTRY_DESCRIPTION_NAME + entry.name + "\n" +
-                         LILCATALOG_S_ENTRY_DESCRIPTION_AUTHOR + entry.author + "\n" +
-                         LILCATALOG_S_ENTRY_DESCRIPTION_DESCRIPTION + entry.description + "\n" +
-                         LILCATALOG_S_ENTRY_DESCRIPTION_FILES;
+    String description = K_S_LILCATALOG_ENTRY_DESCRIPTION_NAME + entry.name + "\n" +
+                         K_S_LILCATALOG_ENTRY_DESCRIPTION_AUTHOR + entry.author + "\n" +
+                         K_S_LILCATALOG_ENTRY_DESCRIPTION_DESCRIPTION + entry.description + "\n" +
+                         K_S_LILCATALOG_ENTRY_DESCRIPTION_FILES;
     for (int i = 0; i < entry.files.size(); i++) {
         catalog_entry_file entry_file = entry.files[i];
         description += entry_file.target + "\n";
@@ -228,12 +228,12 @@ void LilCatalogApp::parseCatalog() {
     if (!SD.exists(path_catalog_folder)) {
         lilka::serial.log("f_mkdir %d", path_catalog_folder);
         if (!SD.mkdir(path_catalog_folder.c_str())) {
-            showAlert(LILCATALOG_S_ERROR_CREATE_FOLDER);
+            showAlert(K_S_LILCATALOG_ERROR_CREATE_FOLDER);
         }
     }
 
     if (!SD.exists(path_catalog_file)) {
-        showAlert(LILCATALOG_S_ERROR_NO_CATALOG);
+        showAlert(K_S_LILCATALOG_ERROR_NO_CATALOG);
     } else {
         fs::File file = SD.open(path_catalog_file.c_str(), FILE_READ);
         String fileContent = "";
@@ -248,7 +248,7 @@ void LilCatalogApp::parseCatalog() {
 
         DeserializationError error = deserializeJson(data, fileContent);
         if (error) {
-            showAlert(LILCATALOG_S_ERROR_LOAD_CATALOG);
+            showAlert(K_S_LILCATALOG_ERROR_LOAD_CATALOG);
         } else {
             lilka::serial.log("Catalog categories: %d", data.size());
             for (int i = 0; i < data.size(); i++) {
@@ -296,7 +296,7 @@ void LilCatalogApp::parseCatalog() {
 }
 
 void LilCatalogApp::fetchCatalog() {
-    lilka::Alert alert(LILCATALOG_S_APP, LILCATALOG_S_FILE_LOADING);
+    lilka::Alert alert(K_S_LILCATALOG_APP, K_S_LILCATALOG_FILE_LOADING);
     alert.draw(canvas);
     queueDraw();
 
@@ -310,7 +310,7 @@ void LilCatalogApp::fetchCatalog() {
     if (httpCode == HTTP_CODE_OK) {
         fs::File file = SD.open(path_catalog_file.c_str(), FILE_WRITE);
         if (!file) {
-            showAlert(LILCATALOG_S_ERROR_FILE_OPEN);
+            showAlert(K_S_LILCATALOG_ERROR_FILE_OPEN);
             return;
         }
         file.print(http.getString());
@@ -318,15 +318,15 @@ void LilCatalogApp::fetchCatalog() {
 
         delay(10);
 
-        showAlert(LILCATALOG_S_FILE_LOADING_COMPLETE);
+        showAlert(K_S_LILCATALOG_FILE_LOADING_COMPLETE);
         parseCatalog();
     } else {
-        showAlert(LILCATALOG_S_ERROR_CONNECTION + http.errorToString(httpCode));
+        showAlert(K_S_LILCATALOG_ERROR_CONNECTION + http.errorToString(httpCode));
     }
 }
 
 void LilCatalogApp::fetchEntry() {
-    lilka::Alert alert(LILCATALOG_S_APP, LILCATALOG_S_FILE_LOADING);
+    lilka::Alert alert(K_S_LILCATALOG_APP, K_S_LILCATALOG_FILE_LOADING);
     alert.draw(canvas);
     queueDraw();
 
@@ -340,7 +340,7 @@ void LilCatalogApp::fetchEntry() {
         lilka::serial.log("Target file %s", entry_file.target.c_str());
 
         if (!lilka::fileutils.makePath(&SD, lilka::fileutils.getParentDirectory(entry_file.target))) {
-            showAlert(LILCATALOG_S_ERROR_DIRETORY_CREATE);
+            showAlert(K_S_LILCATALOG_ERROR_DIRETORY_CREATE);
             return;
         }
 
@@ -352,7 +352,7 @@ void LilCatalogApp::fetchEntry() {
             fs::File file = SD.open(destination.c_str(), FILE_WRITE);
 
             if (!file) {
-                showAlert(LILCATALOG_S_ERROR_FILE_OPEN);
+                showAlert(K_S_LILCATALOG_ERROR_FILE_OPEN);
                 return;
             }
             file.print(http.getString());
@@ -360,12 +360,12 @@ void LilCatalogApp::fetchEntry() {
 
             delay(10);
         } else {
-            showAlert(LILCATALOG_S_ERROR_CONNECTION + http.errorToString(httpCode));
+            showAlert(K_S_LILCATALOG_ERROR_CONNECTION + http.errorToString(httpCode));
             return;
         }
     }
 
-    showAlert(LILCATALOG_S_FILE_LOADING_COMPLETE);
+    showAlert(K_S_LILCATALOG_FILE_LOADING_COMPLETE);
 }
 
 bool LilCatalogApp::validateEntry() {
@@ -398,22 +398,22 @@ void LilCatalogApp::executeEntry() {
     String path = lilka::fileutils.getCannonicalPath(&SD, entry_file.target);
     switch (fileType) {
         case FT_NES_ROM:
-            NES_HANDLER(path);
+            K_FT_NES_HANDLER(path);
             break;
         case FT_BIN:
             fileLoadAsRom(path);
             break;
         case FT_LUA_SCRIPT:
-            LUA_SCRIPT_HANDLER(path);
+            K_FT_LUA_SCRIPT_HANDLER(path);
             break;
         case FT_JS_SCRIPT:
-            JS_SCRIPT_HANDLER(path);
+            K_FT_JS_SCRIPT_HANDLER(path);
             break;
         case FT_MOD:
-            MOD_HANDLER(path);
+            K_FT_MOD_HANDLER(path);
             break;
         case FT_LT:
-            LT_HANDLER(path);
+            K_FT_LT_HANDLER(path);
             break;
 
         case FT_OTHER:
@@ -424,16 +424,16 @@ void LilCatalogApp::executeEntry() {
 }
 
 void LilCatalogApp::fileLoadAsRom(const String& path) {
-    lilka::ProgressDialog dialog(LILCATALOG_S_LOADING, path + "\n\n" + LILCATALOG_S_STARTING);
+    lilka::ProgressDialog dialog(K_S_LILCATALOG_LOADING, path + "\n\n" + K_S_LILCATALOG_STARTING);
     dialog.draw(canvas);
     queueDraw();
     int error;
     error = lilka::multiboot.start(path);
     if (error) {
-        showAlert(String(LILCATALOG_S_ERROR_STAGE1) + error);
+        showAlert(String(K_S_LILCATALOG_ERROR_STAGE1) + error);
         return;
     }
-    dialog.setMessage(path + "\n\n" + LILCATALOG_S_SIZE + String(lilka::multiboot.getBytesTotal()));
+    dialog.setMessage(path + "\n\n" + K_S_LILCATALOG_SIZE + String(lilka::multiboot.getBytesTotal()));
     dialog.draw(canvas);
     queueDraw();
     while ((error = lilka::multiboot.process()) > 0) {
@@ -447,18 +447,18 @@ void LilCatalogApp::fileLoadAsRom(const String& path) {
         }
     }
     if (error < 0) {
-        showAlert(String(LILCATALOG_S_ERROR_STAGE2) + error);
+        showAlert(String(K_S_LILCATALOG_ERROR_STAGE2) + error);
         return;
     }
     error = lilka::multiboot.finishAndReboot();
     if (error) {
-        showAlert(String(LILCATALOG_S_ERROR_STAGE3) + error);
+        showAlert(String(K_S_LILCATALOG_ERROR_STAGE3) + error);
         return;
     }
 }
 
 void LilCatalogApp::showAlert(const String& message) {
-    lilka::Alert alert(LILCATALOG_S_APP, message);
+    lilka::Alert alert(K_S_LILCATALOG_APP, message);
     alert.draw(canvas);
     queueDraw();
     while (!alert.isFinished()) {

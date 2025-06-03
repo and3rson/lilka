@@ -35,7 +35,7 @@ void GPIOManagerApp::updatePWM(uint8_t pinIndex) {
     }
 
     if (freq == 0) {
-        lilka::serial_log("Failed to set PWM frequency %d Hz for pin %d", pwmFrequency[pinIndex], pinNo[pinIndex]);
+        lilka::serial.log("Failed to set PWM frequency %d Hz for pin %d", pwmFrequency[pinIndex], pinNo[pinIndex]);
     }
 
     // Set duty cycle (0-100 to 0-1023)
@@ -74,7 +74,7 @@ void GPIOManagerApp::stopPWM(uint8_t pinIndex) {
 void GPIOManagerApp::readPinData() {
     uint32_t gpioValue = (REG_READ(GPIO_IN_REG));
     uint32_t gpio1Value = (REG_READ(GPIO_IN1_REG));
-    // lilka::serial_log("Pin data : %s %s", getStrBits(gpioValue).c_str(), getStrBits(gpio1Value).c_str());
+    // lilka::serial.log("Pin data : %s %s", getStrBits(gpioValue).c_str(), getStrBits(gpio1Value).c_str());
 
     for (int i = 0; i < PIN_COUNT; i++) {
         if (pinM[i] == INPUT) {
@@ -88,7 +88,7 @@ void GPIOManagerApp::readPinData() {
         // PWM pins are handled by hardware LEDC
     }
     // for (int i = 0; i < PIN_COUNT; i++) {
-    //     if (pinData[i] != digitalRead(pinNo[i])) lilka::serial_err("Pin validation failed");
+    //     if (pinData[i] != digitalRead(pinNo[i])) lilka::serial.err("Pin validation failed");
     // }
 }
 
@@ -131,7 +131,7 @@ void GPIOManagerApp::run() {
             menu.draw(canvas);
             queueDraw();
         }
-        lilka::serial_log("Menu finished");
+        lilka::serial.log("Menu finished");
         int16_t curPos = menu.getCursor();
         if (curPos == PIN_COUNT) break;
 
@@ -184,13 +184,13 @@ void GPIOManagerApp::run() {
 
 // Methods below used for testing purpose
 void GPIOManagerApp::readSpeedCompare() {
-    lilka::serial_log("Reading pins using REG_READ");
+    lilka::serial.log("Reading pins using REG_READ");
     uint8_t pinDataRegRead[64];
     uint8_t pinDataDigitalRead[64];
     uint64_t time_begin = micros();
     uint32_t gpioValue = (REG_READ(GPIO_IN_REG));
     uint32_t gpio1Value = (REG_READ(GPIO_IN1_REG));
-    // lilka::serial_log("Pin data : %s %s", getStrBits(gpioValue).c_str(), getStrBits(gpio1Value).c_str());
+    // lilka::serial.log("Pin data : %s %s", getStrBits(gpioValue).c_str(), getStrBits(gpio1Value).c_str());
     for (int i = 0; i < 64; i++) {
         if (i < 32) {
             pinDataRegRead[i] = GET_BIT(gpioValue, i);
@@ -198,16 +198,16 @@ void GPIOManagerApp::readSpeedCompare() {
             pinDataRegRead[i] = GET_BIT(gpio1Value, i - 32);
         }
     }
-    lilka::serial_log("Elapsed time %d micros", micros() - time_begin);
-    lilka::serial_log("Using digitalRead");
+    lilka::serial.log("Elapsed time %d micros", micros() - time_begin);
+    lilka::serial.log("Using digitalRead");
     time_begin = micros();
     for (int i = 0; i < 64; i++) {
         pinDataDigitalRead[i] = digitalRead(i);
     }
 
-    lilka::serial_log("Elapsed time %d micros", micros() - time_begin);
+    lilka::serial.log("Elapsed time %d micros", micros() - time_begin);
     for (int i = 0; i < 64; i++) {
-        lilka::serial_log("Pin data %d: %d %d", i, pinDataRegRead[i], pinDataDigitalRead[i]);
+        lilka::serial.log("Pin data %d: %d %d", i, pinDataRegRead[i], pinDataDigitalRead[i]);
     }
 }
 String GPIOManagerApp::getStrBits(uint32_t num) {

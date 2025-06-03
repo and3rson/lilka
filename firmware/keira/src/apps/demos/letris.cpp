@@ -1,4 +1,5 @@
 #include "letris.h"
+#include "keira.h"
 #include "letris_splash.h"
 
 #define BLOCK_SIZE 10
@@ -326,7 +327,7 @@ void LetrisApp::run() {
     // Гра закінчилася. Виводимо повідомлення на екран
     // TODO: FreeRTOS experiment
     // lilka::ui_alert(canvas, "Game over", "Гру завершено!\nТи намагався. :)");
-    lilka::Alert alert("Game over", "Гру завершено!\nТи намагався. :)");
+    lilka::Alert alert(K_S_LETRIS_GAME_OVER, K_S_LETRIS_GAME_OVER_LONG);
     alert.draw(canvas);
     queueDraw();
     while (1) {

@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <Wire.h>
-
+#include "keira.h"
 #include "scan_i2c.h"
 
 ScanI2CApp::ScanI2CApp() : App("I2C Scanner") {
@@ -16,9 +16,9 @@ void ScanI2CApp::run() {
     buffer.fillScreen(lilka::colors::Black);
     buffer.setTextBound(4, 0, canvas->width() - 8, canvas->height());
     buffer.setCursor(4, 20);
-    buffer.println("I2C init: SDA=" + String(LILKA_P3) + ", SCL=" + String(LILKA_P4));
+    buffer.println(K_S_I2C_SCANNER_SDA_PREFIX + String(LILKA_P3) + K_S_I2C_SCANNER_SCL_PREFIX + String(LILKA_P4));
     Wire.begin(LILKA_P3, LILKA_P4, 100000);
-    buffer.println("Starting I2C scan...");
+    buffer.println(K_S_I2C_SCANNER_SCAN_START);
     canvas->drawCanvas(&buffer);
     queueDraw();
 
@@ -38,8 +38,8 @@ void ScanI2CApp::run() {
         }
     }
 
-    buffer.println("I2C scan done.");
-    buffer.printf("Found %d devices.", found);
+    buffer.println(K_S_I2C_SCANNER_SCAN_DONE);
+    buffer.printf(K_S_I2C_SCANNER_DEVICES_FOUND, found);
     canvas->drawCanvas(&buffer);
     queueDraw();
 
@@ -49,7 +49,7 @@ void ScanI2CApp::run() {
         taskYIELD();
     }
 #else
-    lilka::Alert alert("Помилка", "Ця програма потребує Лілку версії 2 або вище.");
+    lilka::Alert alert(K_S_ERROR, K_S_LILKA_V2_OR_HIGHER_REQUIRED);
     alert.draw(canvas);
     queueDraw();
     while (!alert.isFinished()) {

@@ -1,5 +1,5 @@
 #include <lilka.h>
-
+#include "keira.h"
 #include "liltracker.h"
 #include "note.h"
 #include "i2s_sink.h"
@@ -854,19 +854,19 @@ String LilTrackerApp::filePicker(String ext, bool isSave) {
     // List files
     if (!SD.exists(LILTRACKER_DIR)) {
         if (!SD.mkdir(LILTRACKER_DIR)) {
-            alert("Помилка", "Не вдалося створити директорію " LILTRACKER_DIR);
+            alert(K_S_ERROR, "Не вдалося створити директорію " LILTRACKER_DIR);
             return "";
         }
     }
     File root = SD.open("/liltracker");
     if (!root) {
-        alert("Помилка", "Не вдалося відкрити директорію " LILTRACKER_DIR);
+        alert(K_S_ERROR, K_S_LILTRACKER_CANT_OPEN_DIR_PREFIX LILTRACKER_DIR);
         return "";
     }
 
     int fileCount = lilka::fileutils.getEntryCount(&SD, LILTRACKER_DIR);
     if (fileCount == 0 && !isSave) {
-        alert("Помилка", "Директорія " LILTRACKER_DIR " порожня");
+        alert(K_S_ERROR, "Директорія " LILTRACKER_DIR " порожня");
         return "";
     }
 
@@ -888,7 +888,7 @@ String LilTrackerApp::filePicker(String ext, bool isSave) {
         menu.addItem(entries[i].name);
         filenames.push_back(entries[i].name);
     }
-    menu.addItem("<< Назад");
+    menu.addItem(K_S_MENU_BACK);
 
     while (!menu.isFinished()) {
         menu.update();
@@ -905,7 +905,7 @@ String LilTrackerApp::filePicker(String ext, bool isSave) {
     if (isSave) {
         if (selectedItem == 0) {
             // Create new file
-            lilka::InputDialog dialog("Введіть назву файлу");
+            lilka::InputDialog dialog(K_S_LILTRACKER_ENTER_FILENAME);
             while (1) {
                 dialog.update();
                 dialog.draw(canvas);
@@ -914,7 +914,7 @@ String LilTrackerApp::filePicker(String ext, bool isSave) {
                     String filename = dialog.getValue();
                     filename.trim();
                     if (filename.length() == 0) {
-                        alert("Помилка", "Назва файлу не може бути порожньою");
+                        alert(K_S_ERROR, K_S_LILTRACKER_FILENAME_CANT_BE_EMPTY);
                     } else {
                         String lowerFilename = filename;
                         lowerFilename.toLowerCase();
@@ -940,7 +940,7 @@ String LilTrackerApp::filePicker(String ext, bool isSave) {
 void LilTrackerApp::loadTrack(Track* track, String filename) {
     File file = SD.open(filename, FILE_READ);
     if (!file) {
-        alert("Помилка", "Не вдалося відкрити файл " + filename);
+        alert(K_S_ERROR, K_S_LILTRACKER_CANT_OPEN_FILE_PREFIX + filename);
         return;
     }
     Defer closeFile([&file]() { file.close(); });
@@ -954,13 +954,13 @@ void LilTrackerApp::saveTrack(Track* track, String filename) {
     if (SD.exists(filename)) {
         // Remove existing file
         if (!SD.remove(filename)) {
-            alert("Помилка", "Не вдалося видалити файл " + filename);
+            alert(K_S_ERROR, K_S_LILTRACKER_CANT_REMOVE_FILE_PREFIX + filename);
             return;
         }
     }
     File file = SD.open(filename, FILE_WRITE);
     if (!file) {
-        alert("Помилка", "Не вдалося відкрити файл " + filename);
+        alert(K_S_ERROR, K_S_LILTRACKER_CANT_OPEN_FILE_PREFIX + filename);
         return;
     }
     Defer closeFile([&file]() { file.close(); });

@@ -1,5 +1,5 @@
 #include <WiFi.h>
-
+#include "keira.h"
 #include "wifi_config.h"
 #include "servicemanager.h"
 #include "services/network.h"
@@ -58,13 +58,13 @@ void WiFiConfigApp::run() {
     }
     // WiFi.disconnect();
 
-    buffer.println("Скануємо мережі WiFi...");
+    buffer.println(K_S_WIFI_CONFIG_SCANING_NETWORKS);
     canvas->drawCanvas(&buffer);
     queueDraw();
 
     int16_t count = WiFi.scanNetworks(false);
     if (count < 0) {
-        lilka::Alert alert("Помилка", "Не вдалося сканувати мережі, код помилки: " + String(count));
+        lilka::Alert alert(K_S_ERROR, K_S_WIFI_CONFIG_SCAN_ERROR_CODE_PREFIX + String(count));
         alert.draw(canvas);
         queueDraw();
         while (!alert.isFinished()) {
@@ -82,7 +82,7 @@ void WiFiConfigApp::run() {
         networks[i] = WiFi.SSID(i);
     }
 
-    lilka::Menu menu("Мережі");
+    lilka::Menu menu(K_S_WIFI_CONFIG_NETWORKS);
     menu.addActivationButton(lilka::Button::B); // Back
     for (int16_t i = 0; i < count; i++) {
         const int8_t rssi = WiFi.RSSI(i);
@@ -111,7 +111,7 @@ void WiFiConfigApp::run() {
             networkService->getPassword(networks[i]).length() ? lilka::colors::Green : lilka::colors::White
         );
     }
-    menu.addItem("<< Назад");
+    menu.addItem(K_S_MENU_BACK);
     menu.addActivationButton(lilka::Button::C);
     count++;
     while (1) {
@@ -126,10 +126,10 @@ void WiFiConfigApp::run() {
         }
         if (menu.getButton() == lilka::Button::C) {
             int16_t index = menu.getCursor();
-            String networkInfo = "Канал: " + String(WiFi.channel(index)) + "\n";
-            networkInfo += "Сила сигналу: " + String(WiFi.RSSI(index)) + "db\n";
-            networkInfo += "MAC: " + WiFi.BSSIDstr(index) + "\n";
-            networkInfo += "Захист: " + getEncryptionTypeStr(WiFi.encryptionType(index)) + "\n";
+            String networkInfo = K_S_WIFI_CONFIG_CHANNEL_PREFIX + String(WiFi.channel(index)) + "\n";
+            networkInfo += K_S_WIFI_CONFIG_SIGNAL_STRENGTH_PREFIX + String(WiFi.RSSI(index)) + "db\n";
+            networkInfo += K_S_WIFI_CONFIG_MAC_PREFIX + WiFi.BSSIDstr(index) + "\n";
+            networkInfo += K_S_WIFI_CONFIG_SECURITY_PREFIX + getEncryptionTypeStr(WiFi.encryptionType(index)) + "\n";
             lilka::Alert info(networks[menu.getCursor()], networkInfo);
             while (!info.isFinished()) {
                 info.update();
@@ -144,11 +144,9 @@ void WiFiConfigApp::run() {
         // Check if WiFi network is insecure
         if (WiFi.encryptionType(cursor) == WIFI_AUTH_OPEN) {
             lilka::Alert alert(
-                "Увага",
-                "Ви під'єднуєтеся до незахищеної мережі " + ssid +
-                    "\n\n"
-                    "A - продовжити\n"
-                    "B - обрати іншу мережу"
+                K_S_ATTENTION,
+                K_S_WIFI_CONFIG_CONNECTING_TO_OPEN_NETWORK_PREFIX + ssid +
+                    K_S_WIFI_CONFIG_CONTINUE_OR_SELECT_ANOTHER_NETWORK
             );
             alert.addActivationButton(lilka::Button::B);
             alert.draw(canvas);
@@ -160,7 +158,7 @@ void WiFiConfigApp::run() {
                 continue;
             }
         } else {
-            lilka::InputDialog passwordDialog("Введіть пароль:");
+            lilka::InputDialog passwordDialog(K_S_WIFI_CONFIG_ENTER_PASSWORD);
             passwordDialog.setMasked(true);
             passwordDialog.setValue(networkService->getPassword(ssid));
             while (!passwordDialog.isFinished()) {
@@ -174,7 +172,7 @@ void WiFiConfigApp::run() {
 
         buffer.fillScreen(lilka::colors::Black);
         buffer.setCursor(8, 24);
-        buffer.println("Під'єднуємось...");
+        buffer.println(K_S_WIFI_CONFIG_CONNECTING);
         canvas->drawCanvas(&buffer);
         queueDraw();
 
@@ -197,11 +195,11 @@ void WiFiConfigApp::run() {
         lilka::Alert alert("", "");
         bool success = networkService->getNetworkState() == NETWORK_STATE_ONLINE;
         if (success) {
-            alert.setTitle("Успіх");
-            alert.setMessage("Під'єднано до мережі " + ssid);
+            alert.setTitle(K_S_SUCCESS);
+            alert.setMessage(K_S_WIFI_CONFIG_CONNECTED_TO_NETWORK_PREFIX + ssid);
         } else {
-            alert.setTitle("Помилка");
-            alert.setMessage("Не вдалося під'єднатись до мережі " + ssid);
+            alert.setTitle(K_S_ERROR);
+            alert.setMessage(K_S_WIFI_CONFIG_CANT_CONNECT_TO_NETWORK_PREFIX + ssid);
         }
 
         alert.draw(canvas);
