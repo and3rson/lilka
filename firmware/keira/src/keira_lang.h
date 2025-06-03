@@ -205,7 +205,9 @@
 #define K_S_LILTRACKER_ENTER_FILENAME          "Введіть назву файлу"
 #define K_S_LILTRACKER_FILENAME_CANT_BE_EMPTY  "Назва файлу не може бути порожньою"
 #define K_S_LILTRACKER_CANT_OPEN_FILE_PREFIX   "Не вдалося відкрити файл "
+#define K_S_LILTRACKER_CANT_OPEN_DIR_PREFIX    "Не вдалося відкрити директорію "
 #define K_S_LILTRACKER_CANT_REMOVE_FILE_PREFIX "Не вдалося видалити файл "
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // apps/lilcatalog/lilcatalog.cpp /////////////////////////////////////////////////////////////////////
