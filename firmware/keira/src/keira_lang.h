@@ -126,7 +126,7 @@
     "\n\n"                                                 \
     "A - продовжити\n"                                     \
     "B - обрати іншу мережу"
-#define K_S_WIFI_CONFIG_INPUT_PASSWORD                 "Введіть пароль:"
+#define K_S_WIFI_CONFIG_ENTER_PASSWORD                 "Введіть пароль:"
 #define K_S_WIFI_CONFIG_CONNECTING                     "Під'єднуємось..."
 #define K_S_WIFI_CONFIG_CONNECTED_TO_NETWORK_PREFIX    "Під'єднано до мережі "
 #define K_S_WIFI_CONFIG_CANT_CONNECT_TO_NETWORK_PREFIX "Не вдалося під'єднатись до мережі "
