@@ -46,13 +46,13 @@ void PetPetApp::run() {
 
     gif->begin();
     if (!gif->open(const_cast<uint8_t*>(petpet_gif), petpet_gif_size, GIFDraw)) {
-        lilka::serial_log("Failed to open GIF");
+        lilka::serial.log("Failed to open GIF");
         return;
     }
     Defer closeGif([&gif] { gif->close(); });
 
     if (gif->allocFrameBuf(GIFAlloc) != GIF_SUCCESS) {
-        lilka::serial_log("Failed to allocate frame buffer");
+        lilka::serial.log("Failed to allocate frame buffer");
         return;
     }
     Defer freeFrameBuf([&gif] { gif->freeFrameBuf(GIFFree); });

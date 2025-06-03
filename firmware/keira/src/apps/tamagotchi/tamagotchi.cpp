@@ -30,7 +30,7 @@ void hal_log(log_level_t level, char* buf, ...) {
     vsnprintf(buffer, sizeof(buffer), buf, args);
     va_end(args);
 
-    lilka::serial_log("[tamagotchi] %s", buffer);
+    lilka::serial.log("[tamagotchi] %s", buffer);
 }
 
 void TamagotchiApp::drawTamaSelection(uint8_t y) {

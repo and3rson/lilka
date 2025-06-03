@@ -6,7 +6,7 @@ void SoundConfigApp::saveSettings() {
     lilka::audio.setVolume(volumeLevel);
     lilka::audio.setStartupSoundEnabled(startupSound);
     lilka::buzzer.setStartupBuzzerEnabled(startupBuzzer);
-    lilka::serial_log(
+    lilka::serial.log(
         "Saving sound settings: volume %d, startup %d, buzzer %d", volumeLevel, startupSound, startupBuzzer
     );
 }

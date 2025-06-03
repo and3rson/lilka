@@ -28,7 +28,7 @@ int lualilka_resources_loadImage(lua_State* L) {
         return luaL_error(L, "Не вдалося завантажити зображення %s", fullPath.c_str());
     }
 
-    lilka::serial_log(
+    lilka::serial.log(
         "lua: loaded image %s, size: %d x %d, pivot: %d,%d", path, image->width, image->height, pivotX, pivotY
     );
 

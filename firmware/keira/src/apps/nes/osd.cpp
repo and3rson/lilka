@@ -145,12 +145,12 @@ int16_t* audio_frame = NULL;
 QueueHandle_t queue;
 int osd_init_sound() {
 #if LILKA_VERSION == 1
-    lilka::serial_err("This part of code should never be called. Audio not supported for this version of lilka");
+    lilka::serial.err("This part of code should never be called. Audio not supported for this version of lilka");
     return OSD_INIT_FAILED;
 #elif LILKA_VERSION == 2
     audio_frame = static_cast<int16_t*>(malloc(DEFAULT_FRAGSIZE * 4));
     if (!audio_frame) {
-        lilka::serial_err("Failed to allocate audio_frame\n");
+        lilka::serial.err("Failed to allocate audio_frame\n");
         //
         return OSD_INIT_FAILED;
     }
@@ -188,7 +188,7 @@ int osd_init_sound() {
 void osd_stopsound() {
     Acquire lock(xSoundMutex);
     if (i2s_driver_uninstall(esp_i2s::I2S_NUM_0) != ESP_OK) {
-        lilka::serial_err("Failed to uninstall I2S driver\n");
+        lilka::serial.err("Failed to uninstall I2S driver\n");
     }
     free(audio_frame);
     audio_frame = NULL;

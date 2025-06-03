@@ -190,7 +190,7 @@ void WeatherApp::run() {
                 // Parse JSON
                 DeserializationError error = deserializeJson(data, http.getString());
                 if (error) {
-                    lilka::serial_err("deserializeJson() failed: %s", error.c_str());
+                    lilka::serial.err("deserializeJson() failed: %s", error.c_str());
                     canvas->fillScreen(lilka::colors::Black);
                     canvas->setCursor(32, 32 + 15);
                     canvas->println("Помилка десеріалізації");
@@ -210,10 +210,10 @@ void WeatherApp::run() {
                         iconData = &icon->night;
                     }
                     title = titles[code];
-                    lilka::serial_log("Temperature: %.1f, Wind: %.1f, Code: %d", temp, wind, code);
+                    lilka::serial.log("Temperature: %.1f, Wind: %.1f, Code: %d", temp, wind, code);
                 }
             } else {
-                lilka::serial_log("HTTP GET failed, error: %s", http.errorToString(httpCode).c_str());
+                lilka::serial.log("HTTP GET failed, error: %s", http.errorToString(httpCode).c_str());
                 canvas->fillScreen(lilka::colors::Black);
                 canvas->setCursor(32, 32 + 15);
                 canvas->println("Помилка отримання даних:");

@@ -27,11 +27,11 @@ I2SSink::I2SSink() {
         .tx_desc_auto_clear = true,
     };
     if (esp_i2s::i2s_driver_install(esp_i2s::I2S_NUM_0, &cfg, 0, NULL) != ESP_OK) {
-        lilka::serial_err("Failed to install I2S driver");
+        lilka::serial.err("Failed to install I2S driver");
         return;
     }
     if (esp_i2s::i2s_zero_dma_buffer(esp_i2s::I2S_NUM_0) != ESP_OK) {
-        lilka::serial_err("Failed to zero I2S DMA buffer");
+        lilka::serial.err("Failed to zero I2S DMA buffer");
         return;
     }
 }
@@ -40,7 +40,7 @@ I2SSink::~I2SSink() {
     // Deinit I2S (free DMA buffers & uninstall driver)
     // TODO: Seems like this does not free the DMA buffers and causes a memory leak!
     if (esp_i2s::i2s_driver_uninstall(esp_i2s::I2S_NUM_0) != ESP_OK) {
-        lilka::serial_err("Failed to uninstall I2S driver");
+        lilka::serial.err("Failed to uninstall I2S driver");
     }
 }
 

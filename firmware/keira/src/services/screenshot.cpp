@@ -64,7 +64,7 @@ public:
             }
         }
         if (offset != length) {
-            lilka::serial_err("BMPEncoder error: offset != length");
+            lilka::serial.err("BMPEncoder error: offset != length");
             return false;
         }
         return true;
@@ -154,7 +154,7 @@ bool ScreenshotService::writeScreenshot(uint8_t* buffer, uint32_t length, const 
         time.tm_sec,
         ext
     );
-    lilka::serial_log("Screenshot filename: %s", filename);
+    lilka::serial.log("Screenshot filename: %s", filename);
 
     File file = SD.open(filename, FILE_WRITE, true);
     if (file) {

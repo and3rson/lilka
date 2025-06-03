@@ -249,10 +249,10 @@ void TelnetService::run() {
     NetworkService* network = ServiceManager::getInstance()->getService<NetworkService>("network");
 
     telnet.onConnectionAttempt([](String ip) {
-        lilka::serial_log("TelnetService: %s attempting to connect", ip.c_str());
+        lilka::serial.log("TelnetService: %s attempting to connect", ip.c_str());
     });
     telnet.onConnect([](String ip) {
-        lilka::serial_log("TelnetService: %s connected", ip.c_str());
+        lilka::serial.log("TelnetService: %s connected", ip.c_str());
         telnet.print(ansi.cls());
         telnet.print(ansi.home());
         telnet.println(ansi.setBG(ANSI_BLUE) + "      " + ansi.reset() + " Keira OS @ Lilka v" STR(LILKA_VERSION));
@@ -261,10 +261,10 @@ void TelnetService::run() {
         telnet.println("Введіть 'help' для отримання списку команд");
         telnet.print("> ");
     });
-    telnet.onReconnect([](String ip) { lilka::serial_log("TelnetService: %s reconnected", ip.c_str()); });
-    telnet.onDisconnect([](String ip) { lilka::serial_log("TelnetService: %s disconnected", ip.c_str()); });
+    telnet.onReconnect([](String ip) { lilka::serial.log("TelnetService: %s reconnected", ip.c_str()); });
+    telnet.onDisconnect([](String ip) { lilka::serial.log("TelnetService: %s disconnected", ip.c_str()); });
     telnet.onInputReceived([](String input) {
-        lilka::serial_log("TelnetService: received text: %s", input.c_str());
+        lilka::serial.log("TelnetService: received text: %s", input.c_str());
         input.trim();
         if (!input.isEmpty()) {
             int spaceIndex = input.indexOf(' ');

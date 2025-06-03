@@ -64,7 +64,7 @@ void Sequencer::play(Track* track, uint16_t pageIndex, int8_t channelIndex, uint
             nullptr,
             0
         ) != pdPASS) {
-        lilka::serial_log("Failed to create sequencer task");
+        lilka::serial.log("Failed to create sequencer task");
         xSemaphoreGive(xPlaying);
     }
 }
@@ -100,7 +100,7 @@ void Sequencer::play(Track* track, uint16_t pageIndex, bool loopTrack) {
             nullptr,
             0
         ) != pdPASS) {
-        lilka::serial_log("Failed to create sequencer task");
+        lilka::serial.log("Failed to create sequencer task");
         xSemaphoreGive(xPlaying);
     }
 }

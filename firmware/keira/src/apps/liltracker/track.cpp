@@ -97,7 +97,7 @@ void Track::setPageCount(int16_t count) {
                 pages.back()->patternIndices[i] = lastPage->patternIndices[i];
             } else {
                 // Set pattern indices to 0 (should not happen)
-                lilka::serial_err(
+                lilka::serial.err(
                     "Track::setPageCount: suspiciously creating first page with all pattern indices set to 0, index %d",
                     i
                 );
@@ -111,7 +111,7 @@ page_t* Track::getPage(int16_t index) {
     if (index >= getPageCount()) {
         // Auto-resize if index is out of bounds
         // (This should not happen in normal operation, since page count is controlled by UI)
-        lilka::serial_err("Track::getPage: suspiciously resizing page count to %d", index + 1);
+        lilka::serial.err("Track::getPage: suspiciously resizing page count to %d", index + 1);
         setPageCount(index + 1);
     }
     return pages[index];

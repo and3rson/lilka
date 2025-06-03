@@ -240,5 +240,5 @@ void ModPlayerApp::playTask() {
 
     // Tasks must ALWAYS delete themselves before exiting, or we're get IllegalInstruction panic
     vTaskDelete(NULL);
-    lilka::serial_log("Player task exited");
+    lilka::serial.log("Player task exited");
 }

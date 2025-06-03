@@ -91,7 +91,7 @@ App* AppManager::removeTopApp() {
     delete topApp;
     if (apps.size() == 0) {
         // Panic! No apps left
-        lilka::serial_err("appmanager: no apps left! Panic!");
+        lilka::serial.err("appmanager: no apps left! Panic!");
         while (1) {
         }
     } else {

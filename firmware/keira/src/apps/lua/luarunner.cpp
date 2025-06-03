@@ -123,18 +123,18 @@ void* lua_smart_alloc(void* ud, void* ptr, size_t osize, size_t nsize) {
 }
 
 void AbstractLuaRunnerApp::luaSetup(const char* dir) {
-    lilka::serial_log("lua: script dir: %s", dir);
+    lilka::serial.log("lua: script dir: %s", dir);
 
     L = lua_newstate(lua_smart_alloc, NULL);
 
-    lilka::serial_log("lua: init libs");
+    lilka::serial.log("lua: init libs");
     luaL_openlibs(L);
 
     // Store dir in registry with "dir" key
     lua_pushstring(L, dir);
     lua_setfield(L, LUA_REGISTRYINDEX, "dir");
 
-    lilka::serial_log("lua: set path");
+    lilka::serial.log("lua: set path");
     // Set package.path to point to the same directory as the script
     lua_getglobal(L, "package");
     lua_pushstring(L, (String(dir) + "/?.lua").c_str());
@@ -151,7 +151,7 @@ void AbstractLuaRunnerApp::luaSetup(const char* dir) {
     lua_pushlightuserdata(L, this);
     lua_setfield(L, LUA_REGISTRYINDEX, "app");
 
-    lilka::serial_log("lua: register globals");
+    lilka::serial.log("lua: register globals");
     lualilka_display_register(L);
     lualilka_console_register(L);
     lualilka_controller_register(L);
@@ -170,13 +170,13 @@ void AbstractLuaRunnerApp::luaSetup(const char* dir) {
     lualilka_UI_register_alert(L);
     lualilka_UI_register_progress(L);
 
-    // lilka::serial_log("lua: init canvas");
+    // lilka::serial.log("lua: init canvas");
     // lilka::Canvas* canvas = new lilka::Canvas();
     // lilka::display.setFont(FONT_10x20);
     // canvas->setFont(FONT_10x20);
     // canvas->begin();
     // Initialize table for image pointers
-    lilka::serial_log("lua: init memory for images");
+    lilka::serial.log("lua: init memory for images");
     lua_newtable(L);
     lua_setfield(L, LUA_REGISTRYINDEX, "images");
 
@@ -189,7 +189,7 @@ void AbstractLuaRunnerApp::luaSetup(const char* dir) {
 }
 
 void AbstractLuaRunnerApp::luaTeardown() {
-    lilka::serial_log("lua: cleanup");
+    lilka::serial.log("lua: cleanup");
 
     // Free images from registry
     lua_getfield(L, LUA_REGISTRYINDEX, "images");
@@ -246,7 +246,7 @@ int AbstractLuaRunnerApp::execute() {
 
             if (!callUpdate(L, delta) || !callDraw(L)) {
                 // No update or draw function - we're done
-                lilka::serial_log("lua: no update or draw function");
+                lilka::serial.log("lua: no update or draw function");
                 longjmp(stopjmp, 32);
             }
 
@@ -301,12 +301,12 @@ void LuaFileRunnerApp::run() {
     String statePath = path.substring(0, path.lastIndexOf('.')) + ".state";
     // Check if state file exists
     if (access(statePath.c_str(), F_OK) != -1) {
-        lilka::serial_log("lua: found state file %s", statePath.c_str());
+        lilka::serial.log("lua: found state file %s", statePath.c_str());
         // Load state from file
         lualilka_state_load(L, statePath.c_str());
     }
 
-    lilka::serial_log("lua: run file");
+    lilka::serial.log("lua: run file");
 
     int retCode = luaL_loadfile(L, path.c_str()) || execute();
 
@@ -326,10 +326,10 @@ void LuaFileRunnerApp::run() {
     bool hasState = lua_istable(L, -1);
     lua_pop(L, 1);
     if (hasState) {
-        lilka::serial_log("lua: saving state to file %s", statePath.c_str());
+        lilka::serial.log("lua: saving state to file %s", statePath.c_str());
         lualilka_state_save(L, statePath.c_str());
     } else {
-        lilka::serial_log("lua: no state to save");
+        lilka::serial.log("lua: no state to save");
     }
 
     luaTeardown();
@@ -405,14 +405,14 @@ void LuaLiveRunnerApp::run() {
         // If code contains only \n - leave it as is
         if (code.indexOf('\r') != -1) {
             if (code.indexOf('\n') != -1) {
-                lilka::serial_log("Line ends: CR and LF");
+                lilka::serial.log("Line ends: CR and LF");
                 code.replace("\r", "");
             } else {
-                lilka::serial_log("Line ends: CR only");
+                lilka::serial.log("Line ends: CR only");
                 code.replace("\r", "\n");
             }
         } else {
-            lilka::serial_log("Line ends: LF only");
+            lilka::serial.log("Line ends: LF only");
         }
 
         // TODO: This is a temporary fix: https://github.com/espressif/arduino-esp32/issues/9221
@@ -434,7 +434,7 @@ void LuaLiveRunnerApp::execSource(String source) {
 #ifndef LILKA_NO_LUA
     luaSetup(lilka::fileutils.getSDRoot().c_str());
 
-    lilka::serial_log("lua: run source");
+    lilka::serial.log("lua: run source");
 
     int retCode = luaL_loadstring(L, source.c_str()) || execute();
 
@@ -468,7 +468,7 @@ void LuaReplApp::run() {
     canvas->print("Під'єднайтесь до\nЛілки через серійний\nтермінал та починайте\nвводити команди!");
     queueDraw();
 
-    lilka::serial_log("lua: start REPL");
+    lilka::serial.log("lua: start REPL");
 
     // TODO: This is a temporary fix: https://github.com/espressif/arduino-esp32/issues/9221
     lilka::fileutils.initSD();
@@ -510,11 +510,11 @@ void LuaReplApp::run() {
 
         if (retCode) {
             const char* err = lua_tostring(L, -1);
-            lilka::serial_log("lua: error: %s", err);
+            lilka::serial.log("lua: error: %s", err);
         }
     }
 
-    lilka::serial_log("lua: stop REPL");
+    lilka::serial.log("lua: stop REPL");
     luaTeardown();
 #endif
 }
