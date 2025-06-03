@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lilcatalog_lang.h"
+#include "keira.h"
 
 #include <app.h>
 #include "appmanager.h"
@@ -11,13 +11,6 @@
 #include "../mjs/mjsrunner.h"
 #include "../nes/nesapp.h"
 #include "../fmanager/fmanager.h"
-
-// FILE HANDLERS:  ////////////////////////////////////////////////////////////////////////////////////
-#define NES_HANDLER(X)        AppManager::getInstance()->runApp(new NesApp(X));
-#define LUA_SCRIPT_HANDLER(X) AppManager::getInstance()->runApp(new LuaFileRunnerApp(X));
-#define JS_SCRIPT_HANDLER(X)  AppManager::getInstance()->runApp(new MJSApp(X));
-#define MOD_HANDLER(X)        AppManager::getInstance()->runApp(new ModPlayerApp(X));
-#define LT_HANDLER(X)         AppManager::getInstance()->runApp(new LilTrackerApp(X))
 
 typedef struct {
     String source;
