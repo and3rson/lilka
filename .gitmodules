@@ -1,3 +1,6 @@
+[submodule "hardware"]
+	path = hardware
+	url = git@github.com:lilka-dev/hardware.git
 [submodule "sdk"]
 	path = sdk
 	url = git@github.com:lilka-dev/sdk.git
