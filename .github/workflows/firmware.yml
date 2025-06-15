@@ -20,6 +20,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: recursive  # or 'true' for non-recursive
+          fetch-depth: 0         # fetch full history, required for submodules to work properly
       - uses: actions/cache@v3
         with:
           path: |
@@ -53,6 +56,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: recursive  # or 'true' for non-recursive
+          fetch-depth: 0         # fetch full history, required for submodules to work properly
       - uses: actions/cache@v3
         with:
           path: |
